@@ -52,7 +52,7 @@ document.createElement("over");
 // adds the universal formatting
 var style = document.createElement("link");
 style.rel = "stylesheet";
-style.href = "formatting.css";
+style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
 document.head.insertBefore(style, document.head.children[0]);
 
 // links the favicon
