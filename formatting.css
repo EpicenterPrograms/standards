@@ -15,16 +15,16 @@ a:hover {
 }
 body {
     /*
-    margin: 0vw 0vh 0vh 15vw;
-    padding-left: 5%;
-    width: 80%;  /* This isn't 85% because I'm leaving room for the scroll bar and making words not go to the edge of the page. */
-    min-height: 100%;
-    background: #0e0;  /* for browsers that do not support gradients */
-    background: -webkit-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Safari 5.1 to 6.0 */
-    background: -o-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Opera 11.1 to 12.0 */
-    background: -moz-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Firefox 3.6 to 15 */
-    background: repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* standard syntax */
-    */
+    /* margin: 0vw 0vh 0vh 15vw;
+    /* padding-left: 5%;
+    /* width: 80%;  /* This isn't 85% because I'm leaving room for the scroll bar and making words not go to the edge of the page. */
+    /* min-height: 100%;
+    /* background: #0e0;  /* for browsers that do not support gradients */
+    /* background: -webkit-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Safari 5.1 to 6.0 */
+    /* background: -o-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Opera 11.1 to 12.0 */
+    /* background: -moz-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Firefox 3.6 to 15 */
+    /* background: repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* standard syntax */
+    /* */
     text-align: center;
 }
 div {
@@ -39,12 +39,12 @@ nav {
     width: 15vw;  /* could fill horizontally with 100vw */
     height: 100%;
     /*
-    background: #0e0; /* For browsers that do not support gradients */
-    background: -webkit-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Safari 5.1 to 6.0 */
-    background: -o-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Opera 11.6 to 12.0 */
-    background: -moz-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Firefox 3.6 to 15 */
-    background: repeating-radial-gradient(circle, #5ee, white 15%, #5ee 30%);  /* Standard syntax */
-    */
+    /* background: #0e0; /* For browsers that do not support gradients */
+    /* background: -webkit-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Safari 5.1 to 6.0 */
+    /* background: -o-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Opera 11.6 to 12.0 */
+    /* background: -moz-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Firefox 3.6 to 15 */
+    /* background: repeating-radial-gradient(circle, #5ee, white 15%, #5ee 30%);  /* Standard syntax */
+    /* */
     text-align: left;
 }
 ol, ul {
