@@ -58,7 +58,7 @@ document.head.insertBefore(style, document.head.children[0]);
 // links a favicon
 var icon = document.createElement("link");
 icon.rel = "icon";
-var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta", "Purple", "Black"];
+var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta", "Black"];
 icon.href = "favicons/" + circleColors[Math.floor(Math.random()*circleColors.length)] + " Circle.ico";
 document.head.insertBefore(icon, document.head.children[0]);
 
