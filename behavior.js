@@ -55,11 +55,12 @@ style.rel = "stylesheet";
 style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
 document.head.insertBefore(style, document.head.children[0]);
 
-// links the favicon
-// var icon = document.createElement("link");
-// icon.rel = "icon";
-// icon.href = "images/favicon.ico";
-// document.head.insertBefore(icon, document.head.children[0]);
+// links a favicon
+var icon = document.createElement("link");
+icon.rel = "icon";
+var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta", "Purple", "Black"];
+icon.href = "favicons/" + circleColors[Math.floor(Math.random()*circleColors.length)] + " Circle.ico";
+document.head.insertBefore(icon, document.head.children[0]);
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
