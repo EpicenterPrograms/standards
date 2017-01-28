@@ -14,17 +14,18 @@ a:hover {
     text-decoration: underline;
 }
 body {
-    /*
+    /* /* You'd need this if there were a navigation section. */
     /* margin: 0vw 0vh 0vh 15vw;
-    /* padding-left: 5%;
     /* width: 80%;  /* This isn't 85% because I'm leaving room for the scroll bar and making words not go to the edge of the page. */
-    /* min-height: 100%;
-    /* background: #0e0;  /* for browsers that do not support gradients */
-    /* background: -webkit-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Safari 5.1 to 6.0 */
-    /* background: -o-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Opera 11.1 to 12.0 */
-    /* background: -moz-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Firefox 3.6 to 15 */
-    /* background: repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* standard syntax */
     /* */
+    min-height: 100%;
+    padding-left: 5%;
+    padding-right: 5%;
+    background: #0e0;  /* for browsers that do not support gradients */
+    background: -webkit-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Safari 5.1 to 6.0 */
+    background: -o-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Opera 11.1 to 12.0 */
+    background: -moz-repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* Firefox 3.6 to 15 */
+    background: repeating-linear-gradient(#0e0, white 100vh, #0e0 200vh);  /* standard syntax */
     text-align: center;
 }
 div {
