@@ -71,7 +71,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
     // adds a title to the page
     var title = document.createElement("h1");
     title.style.color = "white";
-    title.innerHTML = document.getElementsByTagName("title")[0].innerHTML;
+    title.innerHTML = document.title;
     document.body.insertBefore(title, document.body.children[0]);
     
     // surrounds every list with <div class="list"></div>
