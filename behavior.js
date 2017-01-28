@@ -65,6 +65,9 @@ document.head.insertBefore(icon, document.head.children[0]);
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
+    // surrounds the <body> content with a <section> tag
+    document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
+    
     // surrounds every list with <div class="list"></div>
     var orderedLists = document.getElementsByTagName("ol");
     var unorderedLists = document.getElementsByTagName("ul");
