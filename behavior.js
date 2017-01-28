@@ -56,10 +56,11 @@ style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
 document.head.insertBefore(style, document.head.children[0]);
 
 // links a favicon
+var faviconNumber = 1;
 var icon = document.createElement("link");
 icon.rel = "icon";
-var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta", "Black"];
-icon.href = "favicons/" + circleColors[Math.floor(Math.random()*circleColors.length)] + " Circle.ico";
+var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta"];
+icon.href = "https://coolprogramminguser.github.io/Standards/favicons/Red Circle.ico";
 document.head.insertBefore(icon, document.head.children[0]);
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
@@ -73,4 +74,10 @@ window.addEventListener("load", function() {  // This waits for everything past 
     for (var index=0; index<unorderedLists.length; index++) {
         unorderedLists[index].outerHTML = "<div class='list'>" + unorderedLists[index].outerHTML + "</div>";
     }
+    
+    // cycles the favicon
+    setInterval(function() {
+        icon.href = "https://coolprogramminguser.github.io/Standards/favicons/" + circleColors[faviconNumber] + " Circle.ico";
+        faviconNumber = faviconNumber<circleColors.length-1 ? faviconNumber+1 : 0;
+    }, 1000);
 });
