@@ -70,6 +70,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
     
     // adds a title to the page
     var title = document.createElement("h1");
+    title.style.color = "white";
     title.innerHTML = document.getElementsByTagName("title")[0].innerHTML;
     document.body.insertBefore(title, document.body.children[0]);
     
