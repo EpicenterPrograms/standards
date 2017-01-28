@@ -7,12 +7,6 @@
 html {
     min-height: 100%;
 }
-a {
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
 body {
     /* /* You'd need this if there were a navigation section. */
     /* margin: 0vw 0vh 0vh 15vw;
@@ -64,6 +58,12 @@ th, td {
     border-collapse: collapse;
     padding: .5em;
 }
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 input {
     text-align: center;
 }
@@ -85,13 +85,11 @@ over {  /* my custom tag (overlines things) */
 div.list ol, div.list ul {  /* for lists within <div class="list"></div> */
     text-align: left;
 }
-/*
-@font-face {
-    font-family: "Braille";
-    src: url(fonts/Braille.ttf) format("truetype");
-}
 @font-face {
     font-family: "Bad Duck";
-    src: url(fonts/Bad Duck.ttf) format("truetype");
+    src: url(https://coolprogramminguser.github.io/Standards/fonts/Bad Duck.ttf) format("truetype");
 }
-*/
+@font-face {
+    font-family: "Braille";
+    src: url(https://coolprogramminguser.github.io/Standards/fonts/Braille.ttf) format("truetype");
+}
