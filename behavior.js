@@ -68,6 +68,11 @@ window.addEventListener("load", function() {  // This waits for everything past 
     // surrounds the <body> content with a <section> tag
     document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
     
+    // adds a title to the page
+    var title = document.createElement("h1");
+    title.innerHTML = document.getElementsByTagName("title")[0].innerHTML;
+    document.body.insertBefore(title, document.body.children[0]);
+    
     // surrounds every list with <div class="list"></div>
     var orderedLists = document.getElementsByTagName("ol");
     var unorderedLists = document.getElementsByTagName("ul");
