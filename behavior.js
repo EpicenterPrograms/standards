@@ -104,7 +104,7 @@ setInterval(function() {
     }
     context.fillStyle = "hsl(" + color + ", 100%, 50%)";
     context.fill();
-    document.getElementById("icon").href = canvas.toDataURL();
+    icon.href = canvas.toDataURL();
     color++;
 }, 20);
 
