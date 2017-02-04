@@ -90,15 +90,23 @@ document.head.insertBefore(style, document.head.children[0]);
 var faviconNumber = 1;
 var icon = document.createElement("link");
 icon.rel = "icon";
-var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta"];
-icon.href = "https://coolprogramminguser.github.io/Standards/favicons/Red Circle.ico";
 document.head.insertBefore(icon, document.head.children[0]);
     
 // cycles the favicon
+var canvas = document.createElement("canvas");
+var context = canvas.getContext("2d");
+var color = 0;
+context.beginPath();
+context.arc(canvas.width/2, canvas.height/2, 64, 0, 2*Math.PI);
 setInterval(function() {
-    icon.href = "https://coolprogramminguser.github.io/Standards/favicons/" + circleColors[faviconNumber] + " Circle.ico";
-    faviconNumber = faviconNumber<circleColors.length-1 ? faviconNumber+1 : 0;
-}, 1000);
+    if (color >= 360) {
+        color = 0;
+    }
+    context.fillStyle = "hsl(" + color + ", 100%, 50%)";
+    context.fill();
+    document.getElementById("icon").href = canvas.toDataURL();
+    color++;
+}, 20);
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
