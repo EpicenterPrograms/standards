@@ -1,9 +1,12 @@
+var options = options || {};  // allows specifications to be added if the variable is already present
+
 function read(URL, callback) {
     /**
     reads the contents of the file at the URL,
-    converts it into a string, and then
+    converts it into a string,
+    puts the string into a <div>, and then
     calls the callback function (which has no arguments)
-    with "this" equalling the responseText
+    with "this" equalling the <div>
     */
     var file = new XMLHttpRequest();
     file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
@@ -11,7 +14,33 @@ function read(URL, callback) {
         if(file.readyState === 4) {  // Is it done?
             if(file.status === 200 || file.status == 0) {  // Was it successful?
                 // file.responseXML might have something
-                callback.call(file.responseText);  // .call(calling object / value of "this", function arguments (listed individually))  .apply has function arguments in an array
+                var container = document.createElement("div");
+                container.innerHTML = file.responseText;
+                /*
+                var tags = container.children;
+                for (var index=0; index<tags.length; index++) {
+                    var tag = document.createElement(tags[index].tagName);
+                    if (tag.tagName != "script") {
+                        tag.appendChild(document.createTextNode(tags[index].innerHTML));
+                        container.insertBefore(tag, tags[index]);
+                        tags[index+1].outerHTML = "";
+                    }
+                }
+                */
+                // This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
+                var scripts = file.responseText.split("<script");
+                if (scripts.length > 1) {
+                    scripts.forEach(function(script, index) {
+                        if (index > 0) {
+                            var scriptTag = document.createElement("script");
+                            scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
+                            container.insertBefore(scriptTag, container.getElementsByTagName("script")[index-1]);
+                            var oldTag = container.getElementsByTagName("script")[index];
+                            oldTag.parentNode.removeChild(oldTag);
+                        }
+                    });
+                }
+                callback.call(container);  // .call(calling object / value of "this", function arguments (listed individually))  .apply has function arguments in an array
                 // You could also use callback(argument(s)) like a normal function, but it wouldn't change the value of "this".
             }
         }
@@ -40,12 +69,14 @@ function pageJump(ID) {
         division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
         // toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
     }
-    contents.innerHTML += "<ul>" + listItems + "</ul><br>";
-    document.body.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
+    contents.innerHTML += "<ul style='visibility:visible'>" + listItems + "</ul><br>";
+    division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
 }
 
 //This is able to run without waiting for anything else to load.
 
+// makes my custom tag which underlines things
+document.createElement("under");
 // makes my custom tag which overlines things
 document.createElement("over");
 
@@ -89,4 +120,16 @@ window.addEventListener("load", function() {  // This waits for everything past 
         icon.href = "https://coolprogramminguser.github.io/Standards/favicons/" + circleColors[faviconNumber] + " Circle.ico";
         faviconNumber = faviconNumber<circleColors.length-1 ? faviconNumber+1 : 0;
     }, 1000);
+    
+    // handles the specifications
+    for (var spec in options) {
+        switch (spec) {
+            case "navigation":
+                read(options[spec], function() {
+                    this.className = "nav";
+                    document.body.insertBefore(this, document.body.childNodes[0]);
+                });
+                break;
+        }
+    }
 });
