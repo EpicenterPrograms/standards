@@ -93,6 +93,12 @@ icon.rel = "icon";
 var circleColors = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta"];
 icon.href = "https://coolprogramminguser.github.io/Standards/favicons/Red Circle.ico";
 document.head.insertBefore(icon, document.head.children[0]);
+    
+// cycles the favicon
+setInterval(function() {
+    icon.href = "https://coolprogramminguser.github.io/Standards/favicons/" + circleColors[faviconNumber] + " Circle.ico";
+    faviconNumber = faviconNumber<circleColors.length-1 ? faviconNumber+1 : 0;
+}, 1000);
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
@@ -110,21 +116,43 @@ window.addEventListener("load", function() {  // This waits for everything past 
     var unorderedLists = document.getElementsByTagName("ul");
     for (var index=0; index<orderedLists.length; index++) {
         orderedLists[index].outerHTML = "<div class='list'>" + orderedLists[index].outerHTML + "</div>";
+        orderedLists[index].style.visibility = "visible";
     }
     for (var index=0; index<unorderedLists.length; index++) {
         unorderedLists[index].outerHTML = "<div class='list'>" + unorderedLists[index].outerHTML + "</div>";
+        unorderedLists[index].style.visibility = "visible";
     }
     
-    // cycles the favicon
-    setInterval(function() {
-        icon.href = "https://coolprogramminguser.github.io/Standards/favicons/" + circleColors[faviconNumber] + " Circle.ico";
-        faviconNumber = faviconNumber<circleColors.length-1 ? faviconNumber+1 : 0;
-    }, 1000);
+    // interprets condensed tables
+    var tables = document.getElementsByClassName("compact");
+    for (var counter=0; counter<tables.length; counter++) {
+        var table = tables[counter];
+        var headings = table.getElementsByTagName("th");
+        for (var index=0; index<headings.length; index++) {
+            var parent = headings[index].parentNode;
+            var newHeadings = headings[index].innerHTML.split("|");
+            parent.removeChild(headings[index]);
+            newHeadings.forEach(function(heading) {
+                parent.innerHTML += "<th>" + heading.trim() + "</th>";
+            });
+        }
+        var data = table.getElementsByTagName("td");
+        for (var index=0; index<data.length; index++) {
+            var parent = data[index].parentNode;
+            var newData = data[index].innerHTML.split("|");
+            parent.removeChild(data[index]);
+            newData.forEach(function(item) {
+                parent.innerHTML += "<td>" + item.trim() + "</td>";
+            });
+        }
+        table.style.visibility = "visible";
+    }
     
-    // handles the specifications
+    // handles the options
     for (var spec in options) {
         switch (spec) {
             case "navigation":
+                document.body.style = "margin:0vw 0vh 0vh 15vw; width: 80%;";
                 read(options[spec], function() {
                     this.className = "nav";
                     document.body.insertBefore(this, document.body.childNodes[0]);
