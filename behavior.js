@@ -96,8 +96,10 @@ document.head.insertBefore(icon, document.head.children[0]);
 var canvas = document.createElement("canvas");
 var context = canvas.getContext("2d");
 var color = 0;
+canvas.width = 64;
+canvas.height = 64;
 context.beginPath();
-context.arc(canvas.width/2, canvas.height/2, 64, 0, 2*Math.PI);
+context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
 setInterval(function() {
     if (color >= 360) {
         color = 0;
