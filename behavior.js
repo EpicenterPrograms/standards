@@ -152,7 +152,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
     for (var spec in options) {
         switch (spec) {
             case "navigation":
-                document.body.style = "margin:0vw 0vh 0vh 15vw; width: 80%;";
+                document.body.style = "margin:0vw 0vh 0vh 15vw; width: 85%;";
                 read(options[spec], function() {
                     this.className = "nav";
                     document.body.insertBefore(this, document.body.childNodes[0]);
