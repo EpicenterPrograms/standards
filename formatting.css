@@ -34,7 +34,58 @@ div {
     margin: auto;
     display: inline-block;
 }
-nav {
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+ol, ul {
+    display: table;
+}
+ul {
+    padding-left: 2em;
+}
+li {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+table {
+    margin: auto;
+    border: .1em solid black;
+    border-collapse: collapse;
+}
+th, td {
+    border: .1em solid black;
+    border-collapse: collapse;
+    padding: .5em;
+}
+input {
+    text-align: center;
+}
+sup, sub {
+    vertical-align: baseline;
+    position: relative;
+    top: -.4em;
+}
+sub { 
+    top: .4em; 
+}
+under {  /* my custom tag (underlines things) */
+    display: inline;
+    margin: 0em;
+    border: 0em;
+    padding: 0em;
+    text-decoration: underline;
+}
+over {  /* my custom tag (overlines things) */
+    display: inline;
+    margin: 0em;
+    border: 0em;
+    padding: 0em;
+    text-decoration: overline;
+}
+div.nav {
     position: fixed;
     left: 0em;
     top: 0em;
@@ -48,50 +99,18 @@ nav {
     /* background: -moz-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Firefox 3.6 to 15 */
     /* background: repeating-radial-gradient(circle, #5ee, white 15%, #5ee 30%);  /* Standard syntax */
     /* */
+    background: white;
     text-align: left;
 }
-ol, ul {
-    display: table;
-}
-ul {
-    padding-left: 2em;
-}
-table {
-    margin: auto;
-    border: .1em solid black;
-    border-collapse: collapse;
-}
-th, td {
-    border: .1em solid black;
-    border-collapse: collapse;
-    padding: .5em;
-}
-a {
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
-input {
-    text-align: center;
-}
-sup, sub {
-    vertical-align: baseline;
-    position: relative;
-    top: -.4em;
-}
-sub { 
-    top: .4em; 
-}
-over {  /* my custom tag (overlines things) */
-    display: inline;
-    margin: 0em;
-    border: 0em;
-    padding: 0em;
-    text-decoration: overline;
+div.nav ol, div.nav ul {
+    visibility: visible;
 }
 div.list ol, div.list ul {  /* for lists within <div class="list"></div> */
+    margin: 0em;
     text-align: left;
+}
+table.compact {
+    visibility: hidden;
 }
 @font-face {
     font-family: "Bad Duck";
