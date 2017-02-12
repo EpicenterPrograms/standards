@@ -42,6 +42,8 @@ a:hover {
 }
 ol, ul {
     display: table;
+    visibility: hidden;
+    margin: 0em;
 }
 ul {
     padding-left: 2em;
@@ -54,11 +56,15 @@ table {
     margin: auto;
     border: .1em solid black;
     border-collapse: collapse;
+    background: #fefefe;
 }
 th, td {
     border: .1em solid black;
     border-collapse: collapse;
     padding: .5em;
+}
+th {
+    background: #dddddd;
 }
 input {
     text-align: center;
@@ -105,7 +111,7 @@ div.nav {
 div.nav ol, div.nav ul {
     visibility: visible;
 }
-div.list ol, div.list ul {  /* for lists within <div class="list"></div> */
+div.list {  /* for lists within <div class="list"></div> */
     margin: 0em;
     text-align: left;
 }
