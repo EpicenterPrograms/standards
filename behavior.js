@@ -1,5 +1,78 @@
 var options = options || {};  // allows specifications to be added if the variable is already present
 
+var Sound = function(specs) {
+	/**
+	creates tones which can be modified in certain ways
+	frequency = frequency of the primary tone/wave
+	volume = volume
+	waveform = waveform of primary wave
+		"sine", "square", "sawtooth", "triangle"
+		defaults to "sine"
+	modulation = frequency of modulating wave = how often the primary wave is modified
+	hertzChange = the frequency change of the primary wave upon modulation
+	changeWave = waveform of the modulating wave
+	only a certain number of sounds can be active (not destroyed) at a time (about 6)
+	*/
+	var audio = new window.AudioContext() || window.webkitAudioContext(),
+		sound = this,
+		osc1 = audio.createOscillator(),
+		osc2 = audio.createOscillator(),
+		gain1 = audio.createGain(),
+		gain2 = audio.createGain();
+	this.frequency = 440;
+	this.volume = .0001; // If this is 0, exponentialRampToValueAtTime() doesn't work
+	this.waveform = "sine";
+	this.modulation = 0;
+	this.hertzChange = 0;
+	this.changeWave = "sine";
+	for (var spec in specs) {
+		this[spec] = specs[spec];
+	}
+	function setValues(time) {
+		time = time || 0;
+		gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);
+		osc1.frequency.exponentialRampToValueAtTime(sound.frequency, audio.currentTime + time);
+		osc1.type = sound.waveform;
+		gain2.gain.linearRampToValueAtTime(sound.hertzChange, audio.currentTime + time);
+		osc2.frequency.linearRampToValueAtTime(sound.modulation, audio.currentTime + time);;
+		osc2.type = sound.changeWave;
+		// The second set of transitions are linear because I want them to be able to have values of 0.
+	}
+	setValues();
+	gain1.connect(audio.destination);
+	osc1.connect(gain1);
+	gain2.connect(osc1.frequency);
+	osc2.connect(gain2);
+	osc1.start();
+	osc2.start();
+	this.start = function(volume, time) {  // starts/unmutes the tone
+		sound.volume = volume || 1;
+		time = time || 0;
+		gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);  // time is in seconds
+	};
+	this.change = function(property, value, time) {  // changes a property of the tone
+		sound[property] = value;
+		setValues(time);
+	};
+	this.stop = function(time) {  // stops/mutes the tone
+		time = time || 0;
+		gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
+	};
+	this.destroy = function(time) {  // gets rid of the tone (can't be used again)
+		time = time || 0;
+		gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
+		setTimeout(function() {
+			osc1.stop();
+			osc2.stop();
+			osc2.disconnect(gain2);
+			gain2.disconnect(osc1.frequency);
+			osc1.disconnect(gain1);
+			gain1.disconnect(audio.destination);
+			audio.close();  // Without this, your AudioContext()s max out eventually.
+		}, time*1000);
+	};
+};
+
 HTMLCollection.prototype.forEach = function(doStuff) {
     /**
     HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
@@ -110,6 +183,88 @@ function pageJump(ID) {
         });
         if (!found) {  // Was the section found?
             console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
+        }
+    }
+}
+
+function colorCode(element, end1, end2) {
+    /**
+    color codes an element (likely a table)
+    end1 and end2 specify the ends of a range (not used for strings)
+    colors specifications can be added after all of the arguments
+    colors are an indefinite number of 3-item arrays listed as arguments
+    (items are integers from 0 to 255)
+    e.g. colorCode(element, end1, end2, [12,23,34], [45,56,67], [78,89,90]);
+    default colors = red and green
+    */
+    var args = Array.prototype.slice.call(arguments, 3);
+    var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
+    if (element.tagName == "TABLE") {
+        element.getElementsByTagName("td").forEach(function(data) {
+            if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {
+                var ends = [end1];
+                colors.forEach(function(color, index, colors) {
+                    ends.push(end1+(end2-end1)*(index+2)/colors.length);
+                });
+                var number = Number(data.innerHTML.trim());
+                var endIndex = 1,
+                    intermediate1 = [],
+                    intermediate2 = [],
+                    colorValue;
+                while (number > ends[endIndex]) {
+                    endIndex++;
+                }
+                colors[endIndex-1].forEach(function(color) {
+                    colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                    intermediate1.push(colorValue<=color ? colorValue : color);
+                });
+                colors[endIndex].forEach(function(color) {
+                    colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                    intermediate2.push(colorValue<=color ? colorValue : color);
+                });
+                var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
+                    green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
+                    blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
+                data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+            }
+        });
+    } else if (compareAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
+        if (element.innerHTML.trim() != "") {
+            end1 = 0;
+            end2 = element.innerHTML.trim().length;
+            var ends = [end1];
+            colors.forEach(function(color, index, colors) {
+                ends.push(end1+(end2-end1)*(index+2)/colors.length);
+            });
+            var replacement = document.createElement(element.tagName);
+            element.innerHTML.trim().split("").forEach(function(character, index) {
+                var span = document.createElement("span");
+                span.innerHTML = character;
+                span.style.display = "inline";
+                var number = index;
+                var endIndex = 1,
+                    intermediate1 = [],
+                    intermediate2 = [],
+                    colorValue;
+                while (number > ends[endIndex]) {
+                    endIndex++;
+                }
+                colors[endIndex-1].forEach(function(color) {
+                    colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                    intermediate1.push(colorValue<=color ? colorValue : color);
+                });
+                colors[endIndex].forEach(function(color) {
+                    colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                    intermediate2.push(colorValue<=color ? colorValue : color);
+                });
+                var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
+                    green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
+                    blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
+                span.style.color = "rgb(" + red + ", " + green + ", " + blue + ")";
+                replacement.appendChild(span);
+            });
+            element.parentNode.insertBefore(replacement, element);
+            element.parentNode.removeChild(element);
         }
     }
 }
