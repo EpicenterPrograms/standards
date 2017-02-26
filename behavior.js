@@ -1,76 +1,76 @@
 var options = options || {};  // allows specifications to be added if the variable is already present
 
 var Sound = function(specs) {
-	/**
-	creates tones which can be modified in certain ways
-	frequency = frequency of the primary tone/wave
-	volume = volume
-	waveform = waveform of primary wave
-		"sine", "square", "sawtooth", "triangle"
-		defaults to "sine"
-	modulation = frequency of modulating wave = how often the primary wave is modified
-	hertzChange = the frequency change of the primary wave upon modulation
-	changeWave = waveform of the modulating wave
-	only a certain number of sounds can be active (not destroyed) at a time (about 6)
-	*/
-	var audio = new window.AudioContext() || window.webkitAudioContext(),
-		sound = this,
-		osc1 = audio.createOscillator(),
-		osc2 = audio.createOscillator(),
-		gain1 = audio.createGain(),
-		gain2 = audio.createGain();
-	this.frequency = 440;
-	this.volume = .0001; // If this is 0, exponentialRampToValueAtTime() doesn't work
-	this.waveform = "sine";
-	this.modulation = 0;
-	this.hertzChange = 0;
-	this.changeWave = "sine";
-	for (var spec in specs) {
-		this[spec] = specs[spec];
-	}
-	function setValues(time) {
-		time = time || 0;
-		gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);
-		osc1.frequency.exponentialRampToValueAtTime(sound.frequency, audio.currentTime + time);
-		osc1.type = sound.waveform;
-		gain2.gain.linearRampToValueAtTime(sound.hertzChange, audio.currentTime + time);
-		osc2.frequency.linearRampToValueAtTime(sound.modulation, audio.currentTime + time);;
-		osc2.type = sound.changeWave;
-		// The second set of transitions are linear because I want them to be able to have values of 0.
-	}
-	setValues();
-	gain1.connect(audio.destination);
-	osc1.connect(gain1);
-	gain2.connect(osc1.frequency);
-	osc2.connect(gain2);
-	osc1.start();
-	osc2.start();
-	this.start = function(volume, time) {  // starts/unmutes the tone
-		sound.volume = volume || 1;
-		time = time || 0;
-		gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);  // time is in seconds
-	};
-	this.change = function(property, value, time) {  // changes a property of the tone
-		sound[property] = value;
-		setValues(time);
-	};
-	this.stop = function(time) {  // stops/mutes the tone
-		time = time || 0;
-		gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
-	};
-	this.destroy = function(time) {  // gets rid of the tone (can't be used again)
-		time = time || 0;
-		gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
-		setTimeout(function() {
-			osc1.stop();
-			osc2.stop();
-			osc2.disconnect(gain2);
-			gain2.disconnect(osc1.frequency);
-			osc1.disconnect(gain1);
-			gain1.disconnect(audio.destination);
-			audio.close();  // Without this, your AudioContext()s max out eventually.
-		}, time*1000);
-	};
+    /**
+    creates tones which can be modified in certain way
+    frequency = frequency of the primary tone/wave
+    volume = volume
+    waveform = waveform of primary wave
+        "sine", "square", "sawtooth", or "triangle"
+        defaults to "sine"
+    modulation = frequency of modulating wave = how often the primary wave is modified
+    hertzChange = the frequency change of the primary wave upon modulation
+    changeWave = waveform of the modulating wave
+    only a certain number of sounds can be active (not destroyed) at a time (about 6)
+    */
+    var audio = new window.AudioContext() || window.webkitAudioContext(),
+        sound = this,
+        osc1 = audio.createOscillator(),
+        osc2 = audio.createOscillator(),
+        gain1 = audio.createGain(),
+        gain2 = audio.createGain();
+    this.frequency = 440;
+    this.volume = .0001; // If this is 0, exponentialRampToValueAtTime() doesn't work
+    this.waveform = "sine";
+    this.modulation = 0;
+    this.hertzChange = 0;
+    this.changeWave = "sine";
+    for (var spec in specs) {
+        this[spec] = specs[spec];
+    }
+    function setValues(time) {
+        time = time || 0;
+        gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);
+        osc1.frequency.exponentialRampToValueAtTime(sound.frequency, audio.currentTime + time);
+        osc1.type = sound.waveform;
+        gain2.gain.linearRampToValueAtTime(sound.hertzChange, audio.currentTime + time);
+        osc2.frequency.linearRampToValueAtTime(sound.modulation, audio.currentTime + time);;
+        osc2.type = sound.changeWave;
+        // The second set of transitions are linear because I want them to be able to have values of 0.
+    }
+    setValues();
+    gain1.connect(audio.destination);
+    osc1.connect(gain1);
+    gain2.connect(osc1.frequency);
+    osc2.connect(gain2);
+    osc1.start();
+    osc2.start();
+    this.start = function(volume, time) {  // starts/unmutes the tone
+        sound.volume = volume || 1;
+        time = time || 0;
+        gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);  // time is in seconds
+    };
+    this.change = function(property, value, time) {  // changes a property of the tone
+        sound[property] = value;
+        setValues(time);
+    };
+    this.stop = function(time) {  // stops/mutes the tone
+        time = time || 0;
+        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
+    };
+    this.destroy = function(time) {  // gets rid of the tone (can't be used again)
+        time = time || 0;
+        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
+        setTimeout(function() {
+            osc1.stop();
+            osc2.stop();
+            osc2.disconnect(gain2);
+            gain2.disconnect(osc1.frequency);
+            osc1.disconnect(gain1);
+            gain1.disconnect(audio.destination);
+            audio.close();  // Without this, your AudioContext()s max out eventually.
+        }, time*1000);
+    };
 };
 
 HTMLCollection.prototype.forEach = function(doStuff) {
