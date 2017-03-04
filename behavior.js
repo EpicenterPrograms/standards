@@ -1,4 +1,6 @@
 var options = options || {};  // allows specifications to be added if the variable is already present
+var audio = new window.AudioContext() || window.webkitAudioContext();
+// audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 var Sound = function(specs) {
     /**
@@ -11,16 +13,14 @@ var Sound = function(specs) {
     modulation = frequency of modulating wave = how often the primary wave is modified
     hertzChange = the frequency change of the primary wave upon modulation
     changeWave = waveform of the modulating wave
-    only a certain number of sounds can be active (not destroyed) at a time (about 6)
     */
-    var audio = new window.AudioContext() || window.webkitAudioContext(),
-        sound = this,
+    var sound = this,
         osc1 = audio.createOscillator(),
         osc2 = audio.createOscillator(),
         gain1 = audio.createGain(),
         gain2 = audio.createGain();
     this.frequency = 440;
-    this.volume = .0001; // If this is 0, exponentialRampToValueAtTime() doesn't work
+    this.volume = 0
     this.waveform = "sine";
     this.modulation = 0;
     this.hertzChange = 0;
@@ -30,8 +30,9 @@ var Sound = function(specs) {
     }
     function setValues(time) {
         time = time || 0;
-        gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);
-        osc1.frequency.exponentialRampToValueAtTime(sound.frequency, audio.currentTime + time);
+        time /= 1000;  // ramps use time in seconds
+        gain1.gain.exponentialRampToValueAtTime(sound.volume+.0001, audio.currentTime + time);  // exponential ramping doesn't work with 0s
+        osc1.frequency.exponentialRampToValueAtTime(sound.frequency+.0001, audio.currentTime + time);
         osc1.type = sound.waveform;
         gain2.gain.linearRampToValueAtTime(sound.hertzChange, audio.currentTime + time);
         osc2.frequency.linearRampToValueAtTime(sound.modulation, audio.currentTime + time);;
@@ -46,21 +47,70 @@ var Sound = function(specs) {
     osc1.start();
     osc2.start();
     this.start = function(volume, time) {  // starts/unmutes the tone
-        sound.volume = volume || 1;
         time = time || 0;
-        gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time);  // time is in seconds
+        gain1.gain.value = sound.volume+.0001;
+        sound.volume = volume || 1;
+        gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time/1000);
     };
     this.change = function(property, value, time) {  // changes a property of the tone
         sound[property] = value;
         setValues(time);
     };
+    this.song = function(noteString, noteLength) { // plays a song based on notes you put in a string
+        noteLength = noteLength || 200;
+        play();
+        function play(index, note) {
+            index = index || 0;
+            if (index < noteString.length) {
+                if (noteString[index].match(/[a-z]/i)) {
+                    switch(noteString[index].toLowerCase()+noteString[index+1]) {
+                        case "g4":
+                            sound.change("frequency", 392.00);
+                            break;
+                        case "a4":
+                            sound.change("frequency", 440.00);
+                            break;
+                        case "b4":
+                            sound.change("frequency", 493.88);
+                            break;
+                    }
+                    sound.start(null, 50);
+                    if (noteString[index+2] && noteString[index+2] == "-") {
+                        setTimeout(function() {
+                            play(index+2);
+                        }, 100+noteLength);
+                    } else {
+                        setTimeout(function() {
+                            sound.stop(50);
+                            setTimeout(function() {
+                                play(index+2);
+                            }, 50);
+                        }, 50+noteLength);
+                    }
+                } else if (noteString[index] == "-" && noteString[index+1] == " ") {
+                    sound.stop(50);
+                    setTimeout(function() {
+                        play(index+1);
+                    }, 50);
+                } else {
+                    setTimeout(function() {
+                        play(index+1);
+                    }, 100+noteLength);
+                }
+            }
+        }
+    };
     this.stop = function(time) {  // stops/mutes the tone
         time = time || 0;
-        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
+        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time/1000);
+        setTimeout(function() {
+            gain1.gain.value = 0;
+            sound.volume = 0;
+        }, time);
     };
     this.destroy = function(time) {  // gets rid of the tone (can't be used again)
         time = time || 0;
-        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time);
+        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time/1000);
         setTimeout(function() {
             osc1.stop();
             osc2.stop();
@@ -68,8 +118,7 @@ var Sound = function(specs) {
             gain2.disconnect(osc1.frequency);
             osc1.disconnect(gain1);
             gain1.disconnect(audio.destination);
-            audio.close();  // Without this, your AudioContext()s max out eventually.
-        }, time*1000);
+        }, time);
     };
 };
 
