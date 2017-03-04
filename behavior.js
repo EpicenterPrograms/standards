@@ -1,4 +1,19 @@
-var options = options || {};  // allows specifications to be added if the variable is already present
+var options = options || {};
+    /**
+    allows specifications to be added if the variable is already present
+    (otherwise uses default values and settings)
+    valid options =
+        "automation" : "none", "basic", "full"
+            runs a corresponding amount of code after defining everything
+        "formatting" : URL
+            gives the document the styling located at the URL
+        "icon" : URL
+            gives the window the icon located at the URL
+        "makeTitle" : true, false
+            inserts a <h1> at the top of the document with the same content as the <title> if true
+        "navigation" : URL
+            makes a navigation section using the (HTML) document located at the URL
+    */
 var audio = new window.AudioContext() || window.webkitAudioContext();
 // audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
@@ -140,7 +155,7 @@ HTMLCollection.prototype.forEach = function(doStuff) {
             break;
         }
     }
-}
+};
 
 NodeList.prototype.forEach = function(doStuff) {
     /**
@@ -156,7 +171,15 @@ NodeList.prototype.forEach = function(doStuff) {
             break;
         }
     }
-}
+};
+
+Object.prototype.keyHasValue = function(key, value) {
+    /**
+    checks if an object has a property and then
+    checks if the property equals the value
+    */
+    return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
+};
 
 function read(URL, callback) {
     /**
@@ -318,85 +341,96 @@ function colorCode(element, end1, end2) {
     }
 }
 
-//This is able to run without waiting for anything else to load.
-
 // makes my custom tag which overlines things
 document.createElement("over");
 
-// adds the universal formatting
-var style = document.createElement("link");
-style.rel = "stylesheet";
-style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
-document.head.insertBefore(style, document.head.children[0]);
-
-// links a favicon
-var faviconNumber = 1;
-var icon = document.createElement("link");
-icon.rel = "icon";
-document.head.insertBefore(icon, document.head.children[0]);
+if (!options.keyHasValue("automation", "none")) {
     
-// cycles the favicon
-var canvas = document.createElement("canvas");
-var context = canvas.getContext("2d");
-var color = 0;
-canvas.width = 64;
-canvas.height = 64;
-context.beginPath();
-context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
-setInterval(function() {
-    if (color >= 360) {
-        color = 0;
+    //This is able to run without waiting for anything else to load.
+    
+    // adds the universal formatting
+    var style = document.createElement("link");
+    style.rel = "stylesheet";
+    style.href = options.hasOwnProperty("formatting") ? options.formatting : "https://coolprogramminguser.github.io/Standards/formatting.css";
+    document.head.insertBefore(style, document.head.children[0]);
+    
+    // links a favicon
+    var icon = document.createElement("link");
+    icon.rel = "icon";
+    document.head.insertBefore(icon, document.head.children[0]);
+    
+    if (options.hasOwnProperty("icon")) {
+        icon.href = options.icon;
+    } else {
+        // cycles the favicon
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var color = 0;
+        canvas.width = 64;
+        canvas.height = 64;
+        context.beginPath();
+        context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
+        setInterval(function() {
+            if (color >= 360) {
+                color = 0;
+            }
+            context.fillStyle = "hsl(" + color + ", 100%, 50%)";
+            context.fill();
+            icon.href = canvas.toDataURL();
+            color++;
+        }, 20);
     }
-    context.fillStyle = "hsl(" + color + ", 100%, 50%)";
-    context.fill();
-    icon.href = canvas.toDataURL();
-    color++;
-}, 20);
+}
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
-    // surrounds the <body> content with a <section> tag
-    document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
-    
-    // adds a title to the page
-    var title = document.createElement("h1");
-    title.style.color = "white";
-    title.innerHTML = document.title;
-    document.body.insertBefore(title, document.body.children[0]);
-    
-    // surrounds every list with <div class="list"></div>
-    var orderedLists = document.getElementsByTagName("ol");
-    var unorderedLists = document.getElementsByTagName("ul");
-    for (var index=0; index<orderedLists.length; index++) {
-        orderedLists[index].outerHTML = "<div class='list'>" + orderedLists[index].outerHTML + "</div>";
-        orderedLists[index].style.visibility = "visible";
-    }
-    for (var index=0; index<unorderedLists.length; index++) {
-        unorderedLists[index].outerHTML = "<div class='list'>" + unorderedLists[index].outerHTML + "</div>";
-        unorderedLists[index].style.visibility = "visible";
-    }
-    
-    // interprets condensed tables
-    var tables = document.getElementsByClassName("compact");
-    for (var counter=0; counter<tables.length; counter++) {
-        var table = tables[counter];
-        table.getElementsByTagName("th").forEach(function(thList) {
-            var parent = thList.parentNode;
-            var newHeadings = thList.innerHTML.split("|");
-            parent.removeChild(thList);
-            newHeadings.forEach(function(heading) {
-                parent.innerHTML += "<th>" + heading.trim() + "</th>";
+    if (!options.hasOwnProperty("automation") || options.automation == "full") {
+        
+        // surrounds the <body> content with a <section> tag
+        document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
+        
+        if (!options.keyHasValue("makeTitle", false)) {
+            // adds a title to the page
+            var title = document.createElement("h1");
+            title.style.color = "white";
+            title.innerHTML = document.title;
+            document.body.insertBefore(title, document.body.children[0]);
+        }
+        
+        // surrounds every list with <div class="list"></div>
+        var orderedLists = document.getElementsByTagName("ol");
+        var unorderedLists = document.getElementsByTagName("ul");
+        for (var index=0; index<orderedLists.length; index++) {
+            orderedLists[index].outerHTML = "<div class='list'>" + orderedLists[index].outerHTML + "</div>";
+            orderedLists[index].style.visibility = "visible";
+        }
+        for (var index=0; index<unorderedLists.length; index++) {
+            unorderedLists[index].outerHTML = "<div class='list'>" + unorderedLists[index].outerHTML + "</div>";
+            unorderedLists[index].style.visibility = "visible";
+        }
+        
+        // interprets condensed tables
+        var tables = document.getElementsByClassName("compact");
+        for (var counter=0; counter<tables.length; counter++) {
+            var table = tables[counter];
+            table.getElementsByTagName("th").forEach(function(thList) {
+                var parent = thList.parentNode;
+                var newHeadings = thList.innerHTML.split("|");
+                parent.removeChild(thList);
+                newHeadings.forEach(function(heading) {
+                    parent.innerHTML += "<th>" + heading.trim() + "</th>";
+                });
             });
-        });
-        table.getElementsByTagName("td").forEach(function(tdList) {
-            var parent = tdList.parentNode;
-            var newData = tdList.innerHTML.split("|");
-            parent.removeChild(tdList);
-            newData.forEach(function(data) {
-                parent.innerHTML += "<td>" + data.trim() + "</td>";
+            table.getElementsByTagName("td").forEach(function(tdList) {
+                var parent = tdList.parentNode;
+                var newData = tdList.innerHTML.split("|");
+                parent.removeChild(tdList);
+                newData.forEach(function(data) {
+                    parent.innerHTML += "<td>" + data.trim() + "</td>";
+                });
             });
-        });
-        table.style.visibility = "visible";
+            table.style.visibility = "visible";
+        }
     }
     
     // handles the options
