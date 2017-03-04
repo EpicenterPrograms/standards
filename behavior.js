@@ -87,7 +87,7 @@ var Sound = function(specs) {
                             }, 50);
                         }, 50+noteLength);
                     }
-                } else if (noteString[index] == "-" && noteString[index+1] == " ") {
+                } else if (noteString[index] == "-" && noteString[index+1] != "-") {
                     sound.stop(50);
                     setTimeout(function() {
                         play(index+1);
