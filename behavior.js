@@ -192,6 +192,38 @@ Object.prototype.keyHasValue = function(key, value) {
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
 
+function checkAll(item, comparator, comparisons, type) {
+    /**
+    compares a given item to all items in an array
+    comparator = how the items are being compared e.g. "==", ">", etc.
+    type = whether you need all of the comparisons to be true or just one ("&&" or "||")
+    comparator and type must be strings
+    */
+    // >== and <== might not be comparators
+    if (["==", "===", "!=", "!==", ">", "<", ">=", "<=", ">==", "<=="].indexOf(comparator) == -1) {
+        throw "Invalid type of comparator.";
+    }
+    var trueFalse;
+    if (type == "||" || type.toLowerCase() == "or") {
+        trueFalse = false;
+        comparisons.forEach(function(comparison) {
+            if (eval((typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison))) {
+                trueFalse = true;
+            }
+        });
+    } else if (type == "&&" || type.toLowerCase() == "and") {
+        trueFalse = true;
+        comparisons.forEach(function(comparison) {
+            if (eval("!(" + (typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison) + ")")) {
+                trueFalse = false;
+            }
+        });
+    } else {
+        throw "Invalid type of comparison.";
+    }
+    return trueFalse;
+}
+
 function read(URL, callback) {
     /**
     reads the contents of the file at the URL,
@@ -311,7 +343,7 @@ function colorCode(element, end1, end2) {
                 data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
             }
         });
-    } else if (compareAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
+    } else if (checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
         if (element.innerHTML.trim() != "") {
             end1 = 0;
             end2 = element.innerHTML.trim().length;
