@@ -72,7 +72,7 @@ var Sound = function(specs) {
         sound[property] = value;
         setValues(time);
     };
-    this.song = function(noteString, newDefaults) { // plays a song based on notes you put in a string
+    this.play = function(noteString, newDefaults) { // plays a song based on notes you put in a string
         var defaults = {
             "attack" : 50,
             "noteLength" : 200,
@@ -83,7 +83,7 @@ var Sound = function(specs) {
                 defaults[item] = newDefaults[item];
             }
         }
-        function play(index) {
+        function interpret(index) {
             index = index || 0;
             if (index < noteString.length) {
                 if (noteString[index].match(/[a-z]/i)) {  // is the character at that index a letter?
@@ -101,29 +101,29 @@ var Sound = function(specs) {
                     sound.start(null, defaults.attack);
                     if (noteString[index+2] && noteString[index+2] == "-") {
                         setTimeout(function() {
-                            play(index+2);
+                            interpret(index+2);
                         }, defaults.attack+defaults.noteLength+defaults.decay);
                     } else {
                         setTimeout(function() {
                             sound.stop(defaults.decay);
                             setTimeout(function() {
-                                play(index+2);
+                                interpret(index+2);
                             }, defaults.decay);
                         }, defaults.attack+defaults.noteLength);
                     }
                 } else if (noteString[index] == "-" && noteString[index+1] != "-") {
                     sound.stop(defaults.decay);
                     setTimeout(function() {
-                        play(index+1);
+                        interpret(index+1);
                     }, defaults.decay);
                 } else {
                     setTimeout(function() {
-                        play(index+1);
+                        interpret(index+1);
                     }, defaults.attack+defaults.noteLength+defaults.decay);
                 }
             }
         }
-        play();
+        interpret();
     };
     this.stop = function(time) {  // stops/mutes the tone
         time = time || 0;
