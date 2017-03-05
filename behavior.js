@@ -11,6 +11,7 @@ var options = options || {};
             gives the window the icon located at the URL
         "makeTitle" : true, false
             inserts a <h1> at the top of the document with the same content as the <title> if true
+            (default = true)
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
     */
@@ -71,13 +72,21 @@ var Sound = function(specs) {
         sound[property] = value;
         setValues(time);
     };
-    this.song = function(noteString, noteLength) { // plays a song based on notes you put in a string
-        noteLength = noteLength || 200;
-        play();
-        function play(index, note) {
+    this.song = function(noteString, newDefaults) { // plays a song based on notes you put in a string
+        var defaults = {
+            "attack" : 50,
+            "noteLength" : 200,
+            "decay" : 50
+        };
+        for (var item in newDefaults) {
+            if (defaults.hasOwnProperty(item)) {
+                defaults[item] = newDefaults[item];
+            }
+        }
+        function play(index) {
             index = index || 0;
             if (index < noteString.length) {
-                if (noteString[index].match(/[a-z]/i)) {
+                if (noteString[index].match(/[a-z]/i)) {  // is the character at that index a letter?
                     switch(noteString[index].toLowerCase()+noteString[index+1]) {
                         case "g4":
                             sound.change("frequency", 392.00);
@@ -89,31 +98,32 @@ var Sound = function(specs) {
                             sound.change("frequency", 493.88);
                             break;
                     }
-                    sound.start(null, 50);
+                    sound.start(null, defaults.attack);
                     if (noteString[index+2] && noteString[index+2] == "-") {
                         setTimeout(function() {
                             play(index+2);
-                        }, 100+noteLength);
+                        }, defaults.attack+defaults.noteLength+defaults.decay);
                     } else {
                         setTimeout(function() {
-                            sound.stop(50);
+                            sound.stop(defaults.decay);
                             setTimeout(function() {
                                 play(index+2);
-                            }, 50);
-                        }, 50+noteLength);
+                            }, defaults.decay);
+                        }, defaults.attack+defaults.noteLength);
                     }
                 } else if (noteString[index] == "-" && noteString[index+1] != "-") {
-                    sound.stop(50);
+                    sound.stop(defaults.decay);
                     setTimeout(function() {
                         play(index+1);
-                    }, 50);
+                    }, defaults.decay);
                 } else {
                     setTimeout(function() {
                         play(index+1);
-                    }, 100+noteLength);
+                    }, defaults.attack+defaults.noteLength+defaults.decay);
                 }
             }
         }
+        play();
     };
     this.stop = function(time) {  // stops/mutes the tone
         time = time || 0;
