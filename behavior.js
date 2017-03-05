@@ -76,7 +76,8 @@ var Sound = function(specs) {
         var defaults = {
             "attack" : 50,
             "noteLength" : 200,
-            "decay" : 50
+            "decay" : 50,
+            "spacing" : 0
         };
         for (var item in newDefaults) {
             if (defaults.hasOwnProperty(item)) {
@@ -102,24 +103,24 @@ var Sound = function(specs) {
                     if (noteString[index+2] && noteString[index+2] == "-") {
                         setTimeout(function() {
                             interpret(index+2);
-                        }, defaults.attack+defaults.noteLength+defaults.decay);
+                        }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
                     } else {
                         setTimeout(function() {
                             sound.stop(defaults.decay);
                             setTimeout(function() {
                                 interpret(index+2);
-                            }, defaults.decay);
+                            }, defaults.decay+defaults.spacing);
                         }, defaults.attack+defaults.noteLength);
                     }
                 } else if (noteString[index] == "-" && noteString[index+1] != "-") {
                     sound.stop(defaults.decay);
                     setTimeout(function() {
                         interpret(index+1);
-                    }, defaults.decay);
+                    }, defaults.decay+defaults.spacing);
                 } else {
                     setTimeout(function() {
                         interpret(index+1);
-                    }, defaults.attack+defaults.noteLength+defaults.decay);
+                    }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
                 }
             }
         }
