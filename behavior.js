@@ -148,6 +148,22 @@ var Sound = function(specs) {
     };
 };
 
+String.prototype.forEach = function(doStuff) {
+    /**
+    .forEach() for strings
+    */
+    var string = "";
+    for (var index=0; index<this.length; index++) {
+        string += this[index];
+    }
+    for (index=0; index<string.length; index++) {
+        var returnValue = doStuff(string[index], index, string) || "";
+        if (returnValue.toLowerCase() == "break") {
+            break;
+        }
+    }
+}
+
 HTMLCollection.prototype.forEach = function(doStuff) {
     /**
     HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
