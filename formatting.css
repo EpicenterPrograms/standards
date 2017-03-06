@@ -85,7 +85,7 @@ over {  /* my custom tag (overlines things) */
     text-decoration: overline;
 }
 h1.mainTitle {
-    color: "white";
+    color: white;
 }
 div.nav {
     position: fixed;
