@@ -11,7 +11,8 @@ var options = options || {};
             gives the window the icon located at the URL
         "title" : "none", other
             puts a title (<h1>) at the top of the page (not the page tab) if not "none"
-            if a different option, the option is used as the title
+            if a different option (String or Number), the option is used as the title
+            if the first character of a String is "~", the string will be evaluated as code
             default = inserts the same content as the <title>
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
@@ -455,6 +456,8 @@ window.addEventListener("load", function() {  // This waits for everything past 
             title.className = "mainTitle";
             if (!options.hasOwnProperty("title")) {
                 title.innerHTML = document.title;
+            } else if (isNaN(options.title) && options.title[0]=="~") {
+                eval("title.innerHTML = " + options.title.slice(1) + ";");
             } else {
                 title.innerHTML = options.title;
             }
