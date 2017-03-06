@@ -9,9 +9,10 @@ var options = options || {};
             gives the document the styling located at the URL
         "icon" : URL
             gives the window the icon located at the URL
-        "makeTitle" : true, false
-            inserts a <h1> at the top of the document with the same content as the <title> if true
-            (default = true)
+        "title" : "none", other
+            puts a title (<h1>) at the top of the page (not the page tab) if not "none"
+            if a different option, the option is used as the title
+            default = inserts the same content as the <title>
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
     */
@@ -448,11 +449,15 @@ window.addEventListener("load", function() {  // This waits for everything past 
         // surrounds the <body> content with a <section> tag
         document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
         
-        if (!options.keyHasValue("makeTitle", false)) {
+        if (!options.keyHasValue("title", "none")) {
             // adds a title to the page
             var title = document.createElement("h1");
-            title.style.color = "white";
-            title.innerHTML = document.title;
+            title.className = "mainTitle";
+            if (!options.hasOwnProperty("title")) {
+                title.innerHTML = document.title;
+            } else {
+                title.innerHTML = options.title;
+            }
             document.body.insertBefore(title, document.body.children[0]);
         }
         
