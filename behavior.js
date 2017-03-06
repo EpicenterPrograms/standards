@@ -515,3 +515,5 @@ window.addEventListener("load", function() {  // This waits for everything past 
         }
     }
 });
+
+// remember new Function(), function*, and new Event() / new CustomEvent()
