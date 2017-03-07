@@ -268,13 +268,13 @@ function checkAll(item, comparator, comparisons, type) {
                         formatting += ", " + substitution;
                     });
                     formatting = formatting.slice(2);
-                    if (eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                    if (eval(eval("'" + item + "'" + ".format(" + formatting + ")"))) {
                         trueFalse = true;
                     }
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (eval("eval('\"' + item + '\"' + '.format(' + comparison + ')')")) {
+                    if (eval(eval("'" + item + "'" + ".format(" + comparison + ")"))) {
                         trueFalse = true;
                     }
                 });
@@ -296,14 +296,12 @@ function checkAll(item, comparator, comparisons, type) {
                         formatting += ", " + substitution;
                     });
                     formatting = formatting.slice(2);
-                    if (! eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                    if (! eval(eval("'" + item + "'" + ".format(" + formatting + ")"))) {
                         trueFalse = false;
                     }
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    console.log(eval('\"' + item + '\"' + '.format(' + comparison + ')'));
-                    console.log(eval(eval("'" + item + "'" + ".format(" + comparison + ")")));
                     if (! eval(eval("'" + item + "'" + ".format(" + comparison + ")"))) {
                         trueFalse = false;
                     }
