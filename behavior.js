@@ -274,7 +274,7 @@ function checkAll(item, comparator, comparisons, type) {
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                    if (eval("eval('\"' + item + '\"' + '.format(' + comparison + ')')")) {
                         trueFalse = true;
                     }
                 });
@@ -302,7 +302,7 @@ function checkAll(item, comparator, comparisons, type) {
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (! eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                    if (! eval("eval('\"' + item + '\"' + '.format(' + comparison + ')')")) {
                         trueFalse = false;
                     }
                 });
