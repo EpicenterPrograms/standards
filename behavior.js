@@ -176,8 +176,9 @@ String.prototype.format = function() {
         "I'm super awesome. I've always been this cool."
     non-native functions used = none
     */
+    var args = arguments;  // If "arguments" was used in place of "args", if would return the values of the inner function arguments.
     return this.replace(/{(\d+)}/g, function(match, number) {  // These function variables represent the match found and the number inside.
-        return (typeof arguments[number]!="undefined") ? arguments[number] : match;  // only replaces things if there's something to replace it with
+        return (typeof args[number]!="undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
     });
 }
 
