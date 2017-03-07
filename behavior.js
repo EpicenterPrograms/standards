@@ -268,7 +268,7 @@ function checkAll(item, comparator, comparisons, type) {
                         formatting += ", " + substitution;
                     });
                     formatting = formatting.slice(2);
-                    if (eval(eval("'" + item + "'" + ".format(" + (typeof formatting=="string" ? "'"+formatting+"'" : formatting) + ")"))) {
+                    if (eval(item.format(comparison))) {
                         trueFalse = true;
                     }
                 });
@@ -296,13 +296,13 @@ function checkAll(item, comparator, comparisons, type) {
                         formatting += ", " + substitution;
                     });
                     formatting = formatting.slice(2);
-                    if (! eval(eval("'" + item + "'" + ".format(" + (typeof formatting=="string" ? "'"+formatting+"'" : formatting) + ")"))) {
+                    if (! eval(item.format(comparison))) {
                         trueFalse = false;
                     }
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (! eval(eval("'" + item + "'" + ".format(" + (typeof comparison=="string" ? "'"+comparison+"'" : comparison) + ")"))) {
+                    if (! eval(item.format(comparison))) {
                         trueFalse = false;
                     }
                 });
