@@ -274,7 +274,7 @@ function checkAll(item, comparator, comparisons, type) {
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (eval(eval("\"" + item + "\"" + ".format(" + (typeof comparison=="string" ? "\""+comparison+"\"" : comparison) + ")"))) {
+                    if (eval(eval('\\"' + item + '\\"' + ".format(" + (typeof comparison=="string" ? '\\"'+comparison+'\\"' : comparison) + ")"))) {
                         trueFalse = true;
                     }
                 });
