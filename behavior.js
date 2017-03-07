@@ -17,7 +17,7 @@ var options = options || {};
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
     */
-var audio = new window.AudioContext() || window.webkitAudioContext();
+var audio = new window.AudioContext() || window.webkitAudioContext();  // used in Sound()
 // audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 var Sound = function(specs) {
@@ -153,6 +153,7 @@ var Sound = function(specs) {
 String.prototype.forEach = function(doStuff) {
     /**
     .forEach() for strings
+    non-native functions used = none
     */
     var string = "";
     for (var index=0; index<this.length; index++) {
@@ -166,6 +167,20 @@ String.prototype.forEach = function(doStuff) {
     }
 }
 
+String.prototype.format = function() {
+    /**
+    inserts specified items at a location indicated by an index number within curly braces
+    takes an indefinite number of arguments
+    example:
+        "{0}'m super {2}. {0}'ve always been this {1}.".format("I", "cool", "awesome");
+        "I'm super awesome. I've always been this cool."
+    non-native functions used = none
+    */
+    return this.replace(/{(\d+)}/g, function(match, number) {  // These function variables represent the match found and the number inside.
+        return (typeof arguments[number]!=undefined) ? arguments[number] : match;  // only replaces things if there's something to replace it with
+    });
+}
+
 HTMLCollection.prototype.forEach = function(doStuff) {
     /**
     HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
@@ -173,6 +188,7 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     and does stuff for each one like Array.forEach()
     (.forEach() doesn't work for these lists without this code)
     implication of static list = you can remove the elements in doStuff without messing everything up
+    non-native functions used = none
     */
     var elements = [];
     for (var index=0; index<this.length; index++) {
@@ -189,6 +205,7 @@ HTMLCollection.prototype.forEach = function(doStuff) {
 NodeList.prototype.forEach = function(doStuff) {
     /**
     similar to HTMLCollection.forEach()
+    non-native functions used = none
     */
     var elements = [];
     for (var index=0; index<this.length; index++) {
@@ -206,36 +223,96 @@ Object.prototype.keyHasValue = function(key, value) {
     /**
     checks if an object has a property and then
     checks if the property equals the value
+    non-native functions used = none
     */
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
 
 function checkAll(item, comparator, comparisons, type) {
     /**
-    compares a given item to all items in an array
-    comparator = how the items are being compared e.g. "==", ">", etc.
+    comparisons = an array of things to be used in comparing things
     type = whether you need all of the comparisons to be true or just one ("&&" or "||")
-    comparator and type must be strings
+    type must be a string
+    when comparator isn't null:
+        compares a given item to all items in an array
+        comparator = how the items are being compared e.g. "==", ">", etc.
+        comparator must be a string
+        example:
+            checkAll(document.getElementById("tester").innerHTML, "==", ["testing", "hello", "I'm really cool."], "||");
+    when comparator is null:
+        evaluates a formattable string (item) after formatting with the comparisons
+        uses String.format() (my own function)
+        items in comparisons = arguments to go in the () in .format()
+            strings = one string is used per iteration
+            arrays containing strings = one array is used per iteration
+        examples:
+            checkAll("{0} > 0 ", null, [2,6,"7",4,"3"], "||");
+            checkAll("('abc'+{0}+{1}+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");
+    non-native functions used = String.format()
     */
-    // >== and <== might not be comparators
-    if (["==", "===", "!=", "!==", ">", "<", ">=", "<=", ">==", "<=="].indexOf(comparator) == -1) {
-        throw "Invalid type of comparator.";
+    if (! comparator == null) {
+        // >== and <== might not be comparators
+        if (["==", "===", "!=", "!==", ">", "<", ">=", "<=", ">==", "<=="].indexOf(comparator) == -1) {
+            throw "Invalid type of comparator.";
+        }
     }
     var trueFalse;
     if (type == "||" || type.toLowerCase() == "or") {
         trueFalse = false;
-        comparisons.forEach(function(comparison) {
-            if (eval((typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison))) {
-                trueFalse = true;
+        if (comparator == null) {
+            if (typeof comparisons[0] == "array") {
+                comparisons.forEach(function(comparison) {
+                    var formatting = "";
+                    comparison.forEach(function(substitution) {
+                        formatting += ", " + substitution;
+                    });
+                    formatting = formatting.slice(2);
+                    if (eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                        trueFalse = true;
+                    }
+                });
+            } else {
+                comparisons.forEach(function(comparison) {
+                    if (eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                        trueFalse = true;
+                    }
+                });
             }
-        });
+        } else {
+            comparisons.forEach(function(comparison) {
+                if (eval((typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison))) {
+                    trueFalse = true;
+                }
+            });
+        }
     } else if (type == "&&" || type.toLowerCase() == "and") {
         trueFalse = true;
-        comparisons.forEach(function(comparison) {
-            if (eval("!(" + (typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison) + ")")) {
-                trueFalse = false;
+        if (comparator == null) {
+            if (typeof comparisons[0] == "array") {
+                comparisons.forEach(function(comparison) {
+                    var formatting = "";
+                    comparison.forEach(function(substitution) {
+                        formatting += ", " + substitution;
+                    });
+                    formatting = formatting.slice(2);
+                    if (! eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                        trueFalse = false;
+                    }
+                });
+            } else {
+                comparisons.forEach(function(comparison) {
+                    if (! eval("eval('\"' + item + '\"' + '.format(' + formatting + ')')")) {
+                        trueFalse = false;
+                    }
+                });
             }
-        });
+        } else {
+            comparisons.forEach(function(comparison) {
+                if (eval("!(" + (typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison) + ")")) {
+                    trueFalse = false;
+                }
+            });
+        }
     } else {
         throw "Invalid type of comparison.";
     }
@@ -249,6 +326,7 @@ function read(URL, callback) {
     puts the string into a <div>, and then
     calls the callback function (which has no arguments)
     with "this" equalling the <div>
+    non-native functions used = none
     */
     var file = new XMLHttpRequest();
     file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
@@ -282,8 +360,8 @@ function read(URL, callback) {
 function pageJump(ID) {
     /**
     makes a section to jump to certain parts of the page
+    non-native functions used = HTMLCollection.forEach()
     */
-    document.getElementsByTagName("h1")[0].id = "top";
     var division = document.getElementById(ID);
     var contents = document.createElement("div");
     contents.id = "pageJump";
@@ -322,7 +400,7 @@ function pageJump(ID) {
 
 function colorCode(element, end1, end2) {
     /**
-    color codes an element (likely a table)
+    color codes an element
     end1 and end2 specify the ends of a range (not used for strings)
     colors specifications can be added after all of the arguments
     colors are an indefinite number of 3-item arrays listed as arguments
@@ -454,6 +532,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
             // adds a title to the page
             var title = document.createElement("h1");
             title.className = "mainTitle";
+            title.id = "top";
             if (!options.hasOwnProperty("title")) {
                 title.innerHTML = document.title;
             } else if (isNaN(options.title) && options.title[0]=="~") {
