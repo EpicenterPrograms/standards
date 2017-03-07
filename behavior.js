@@ -303,6 +303,7 @@ function checkAll(item, comparator, comparisons, type) {
             } else {
                 comparisons.forEach(function(comparison) {
                     console.log(eval('\"' + item + '\"' + '.format(' + comparison + ')'));
+                    console.log(eval("eval('\"' + item + '\"' + '.format(' + comparison + ')')"));
                     if (! eval("eval('\"' + item + '\"' + '.format(' + comparison + ')')")) {
                         trueFalse = false;
                     }
