@@ -247,8 +247,8 @@ function checkAll(item, comparator, comparisons, type) {
             strings = one string is used per iteration
             arrays containing strings = one array is used per iteration
         examples:
-            checkAll("{0} > 0 ", null, [2,6,7,4,3], "||");  // notice no quotation marks in the comparisons with numbers
-            checkAll("('abc'+{0}+{1}+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");
+            checkAll("{0} > 0 ", null, [2,"6",7,4,"3"], "||");
+            checkAll("('abc'+'{0}'+'{1}'+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");  // notice quotation marks around {}s for insertion of a string
     non-native functions used = String.format()
     */
     if (! comparator == null) {
@@ -263,12 +263,7 @@ function checkAll(item, comparator, comparisons, type) {
         if (comparator == null) {
             if (typeof comparisons[0] == "array") {
                 comparisons.forEach(function(comparison) {
-                    var formatting = "";
-                    comparison.forEach(function(substitution) {
-                        formatting += ", " + substitution;
-                    });
-                    formatting = formatting.slice(2);
-                    if (eval(item.format(comparison))) {
+                    if (eval(item.format.apply(this, comparison))) {
                         trueFalse = true;
                     }
                 });
@@ -291,12 +286,7 @@ function checkAll(item, comparator, comparisons, type) {
         if (comparator == null) {
             if (typeof comparisons[0] == "array") {
                 comparisons.forEach(function(comparison) {
-                    var formatting = "";
-                    comparison.forEach(function(substitution) {
-                        formatting += ", " + substitution;
-                    });
-                    formatting = formatting.slice(2);
-                    if (! eval(item.format(comparison))) {
+                    if (! eval(item.format.apply(this, comparison))) {
                         trueFalse = false;
                     }
                 });
