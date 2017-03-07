@@ -177,7 +177,7 @@ String.prototype.format = function() {
     non-native functions used = none
     */
     return this.replace(/{(\d+)}/g, function(match, number) {  // These function variables represent the match found and the number inside.
-        return (typeof arguments[number]!=undefined) ? arguments[number] : match;  // only replaces things if there's something to replace it with
+        return (typeof arguments[number]!="undefined") ? arguments[number] : match;  // only replaces things if there's something to replace it with
     });
 }
 
