@@ -247,7 +247,7 @@ function checkAll(item, comparator, comparisons, type) {
             strings = one string is used per iteration
             arrays containing strings = one array is used per iteration
         examples:
-            checkAll("{0} > 0 ", null, [2,6,"7",4,"3"], "||");
+            checkAll("{0} > 0 ", null, [2,6,7,4,3], "||");  // notice no quotation marks in the comparisons with numbers
             checkAll("('abc'+{0}+{1}+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");
     non-native functions used = String.format()
     */
@@ -268,13 +268,13 @@ function checkAll(item, comparator, comparisons, type) {
                         formatting += ", " + substitution;
                     });
                     formatting = formatting.slice(2);
-                    if (eval(eval("'" + item + "'" + ".format(" + formatting + ")"))) {
+                    if (eval(eval("'" + item + "'" + ".format(" + (typeof formatting=="string" ? "'"+formatting+"'" : formatting) + ")"))) {
                         trueFalse = true;
                     }
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (eval(eval("'" + item + "'" + ".format(" + comparison + ")"))) {
+                    if (eval(eval("'" + item + "'" + ".format(" + (typeof comparison=="string" ? "'"+comparison+"'" : comparison) + ")"))) {
                         trueFalse = true;
                     }
                 });
@@ -296,13 +296,13 @@ function checkAll(item, comparator, comparisons, type) {
                         formatting += ", " + substitution;
                     });
                     formatting = formatting.slice(2);
-                    if (! eval(eval("'" + item + "'" + ".format(" + formatting + ")"))) {
+                    if (! eval(eval("'" + item + "'" + ".format(" + (typeof formatting=="string" ? "'"+formatting+"'" : formatting) + ")"))) {
                         trueFalse = false;
                     }
                 });
             } else {
                 comparisons.forEach(function(comparison) {
-                    if (! eval(eval("'" + item + "'" + ".format(" + comparison + ")"))) {
+                    if (! eval(eval("'" + item + "'" + ".format(" + (typeof comparison=="string" ? "'"+comparison+"'" : comparison) + ")"))) {
                         trueFalse = false;
                     }
                 });
