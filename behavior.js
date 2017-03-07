@@ -229,6 +229,30 @@ Object.prototype.keyHasValue = function(key, value) {
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
 
+function onLoad(doStuff) {
+    /**
+    does whatever the argument of the function says when the page loads
+    non-native functions = none
+    */
+    return window.addEventListener("load", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
+}
+
+function getID(ID) {
+    /**
+    gets an element by ID
+    non-native functions = none
+    */
+    return document.getElementById(ID);
+}
+
+function getClass(name) {
+    /**
+    gets elements with a certain class
+    non-native functions = none
+    */
+    return document.getElementsByClassName(name);
+}
+
 function checkAll(item, comparator, comparisons, type) {
     /**
     comparisons = an array of things to be used in comparing things
