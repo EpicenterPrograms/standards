@@ -253,6 +253,34 @@ function getClass(name) {
     return document.getElementsByClassName(name);
 }
 
+function insertBefore(insertion, place) {
+    /**
+    inserts the insertion before the place
+    applies to HTML elements
+    the place can be a string of the ID of an element
+    non-native functions = none
+    */
+    if (typeof place == "string") {
+        return document.getElementById(place).parentNode.insertBefore(insertion, document.getElementById(place));
+    } else {
+        return place.parentNode.insertBefore(insertion, place);
+    }
+}
+
+function insertAfter(insertion, place) {
+    /**
+    inserts the insertion after the place
+    applies to HTML elements
+    the place can be a string of the ID of an element
+    non-native functions = none
+    */
+    if (typeof place == "string") {
+        return document.getElementById(place).parentNode.insertBefore(insertion, document.getElementById(place).nextSibling);
+    } else {
+        return place.parentNode.insertBefore(insertion, place.nextSibling);
+    }
+}
+
 function checkAll(item, comparator, comparisons, type) {
     /**
     comparisons = an array of things to be used in comparing things
