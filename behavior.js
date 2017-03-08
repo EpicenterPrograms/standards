@@ -76,6 +76,7 @@ var Sound = function(specs) {
     };
     this.play = function(noteString, newDefaults) { // plays a song based on notes you put in a string
         var defaults = {
+            "volume" : 1,
             "attack" : 50,
             "noteLength" : 200,
             "decay" : 50,
@@ -101,7 +102,7 @@ var Sound = function(specs) {
                             sound.change("frequency", 493.88);
                             break;
                     }
-                    sound.start(null, defaults.attack);
+                    sound.start(defaults.volume, defaults.attack);
                     if (noteString[index+2] && noteString[index+2] == "-") {
                         setTimeout(function() {
                             interpret(index+2);
