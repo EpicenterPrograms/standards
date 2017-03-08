@@ -74,7 +74,7 @@ var Sound = function(specs) {
         sound[property] = value;
         setValues(time);
     };
-    this.play = function(noteString, newDefaults) { // plays a song based on notes you put in a string
+    this.play = function(noteString, newDefaults, callback) { // plays a song based on notes you put in a string
         var defaults = {
             "volume" : 1,
             "attack" : 50,
@@ -125,6 +125,8 @@ var Sound = function(specs) {
                         interpret(index+1);
                     }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
                 }
+            } else if (callback) {
+                callback();
             }
         }
         interpret();
