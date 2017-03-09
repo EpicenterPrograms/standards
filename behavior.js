@@ -9,6 +9,8 @@ var options = options || {};
             gives the document the styling located at the URL
         "icon" : URL
             gives the window the icon located at the URL
+        "section" : "none"
+            allows you to prevent the creation of the surrounding <section> tag
         "title" : "none", other
             puts a title (<h1>) at the top of the page (not the page tab) if not "none"
             if a different option (String or Number), the option is used as the title
@@ -571,8 +573,10 @@ window.addEventListener("load", function() {  // This waits for everything past 
     
     if (!options.hasOwnProperty("automation") || options.automation == "full") {
         
-        // surrounds the <body> content with a <section> tag
-        document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
+        if (!options.keyHasValue("section", "none")) {
+            // surrounds the <body> content with a <section> tag
+            document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
+        }
         
         if (!options.keyHasValue("title", "none")) {
             // adds a title to the page
