@@ -643,6 +643,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 break;
         }
     }
+    window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
 });
 
-// remember new Function(), function*, and new Event() / new CustomEvent()
+// remember new Function() and function*
