@@ -609,7 +609,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 note.title = notes[Number(note.innerHTML.slice(1,-2))].title;
             } else {
                 note.title = note.innerHTML;
-                note.innerHTML = "<sup>[" + index + "]</sup>";
+                note.innerHTML = "<sup>[" + (index+1) + "]</sup>";
             }
         });
         
