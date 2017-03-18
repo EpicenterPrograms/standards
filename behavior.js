@@ -242,7 +242,15 @@ function onLoad(doStuff) {
     return window.addEventListener("load", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
 }
 
-function getID(ID) {
+function getTag(tag) {
+    /**
+    gets all of the elements made by a certain tag
+    non-native functions = none
+    */
+    return document.getElementsByTagName(tag);
+}
+
+function getId(ID) {
     /**
     gets an element by ID
     non-native functions = none
@@ -530,6 +538,8 @@ function colorCode(element, end1, end2) {
 
 // makes my custom tag which overlines things
 document.createElement("over");
+// makes my custom tag which formats things as notes
+document.createElement("note");
 
 if (!options.keyHasValue("automation", "none")) {
     
@@ -592,6 +602,16 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }
             document.body.insertBefore(title, document.body.children[0]);
         }
+        
+        // interprets <note> tags
+        getTag("note").forEach(function(note, index, notes) {
+            if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
+                note.title = notes[Number(note.innerHTML.slice(1,-2))].title;
+            } else {
+                note.title = note.innerHTML;
+                note.innerHTML = "<sup>[" + index + "]</sup>";
+            }
+        });
         
         // surrounds every list with <div class="list"></div>
         var orderedLists = document.getElementsByTagName("ol");
