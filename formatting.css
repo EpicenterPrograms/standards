@@ -78,7 +78,11 @@ sub {
     top: .4em; 
 }
 note {  /* my custon tag (puts notes in text) */
+    color: blue;
     cursor: help;
+}
+note:hover {
+    text-decoration: underline;
 }
 over {  /* my custom tag (overlines things) */
     display: inline;
