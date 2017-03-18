@@ -606,7 +606,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         // interprets <note> tags
         getTag("note").forEach(function(note, index, notes) {
             if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
-                var reference = getId(note.innerHTML.slice(1,-2));
+                var reference = getId(note.innerHTML.slice(1,-1));
                 note.title = reference.title;
                 note.innerHTML = reference.innerHTML;
             } else {
