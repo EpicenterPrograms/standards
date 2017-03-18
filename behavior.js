@@ -536,20 +536,26 @@ function colorCode(element, end1, end2) {
     }
 }
 
-// makes my custom tag which overlines things
-document.createElement("over");
 // makes my custom tag which formats things as notes
 document.createElement("note");
+// makes my custom tag which overlines things
+document.createElement("over");
 
 if (!options.keyHasValue("automation", "none")) {
     
     //This is able to run without waiting for anything else to load.
     
     // adds the universal formatting
+    if (options.hasOwnProperty("formatting")) {
+        var localStyle = document.createElement("link");
+        localStyle.rel = "stylesheet";
+        localStyle.href = options.formatting;
+        insertBefore(localStyle, document.head.children[0]);
+    }
     var style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = options.hasOwnProperty("formatting") ? options.formatting : "https://coolprogramminguser.github.io/Standards/formatting.css";
-    document.head.insertBefore(style, document.head.children[0]);
+    style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
+    insertBefore(style, document.head.children[0]);
     
     // links a favicon
     var icon = document.createElement("link");
