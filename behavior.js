@@ -610,6 +610,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         }
         
         // interprets <note> tags
+        var noteNumber = 1;
         getTag("note").forEach(function(note, index, notes) {
             if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
                 var reference = getId(note.innerHTML.slice(1,-1));
@@ -617,7 +618,8 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 note.innerHTML = reference.innerHTML;
             } else {
                 note.title = note.innerHTML;
-                note.innerHTML = "<sup>[" + (index+1) + "]</sup>";
+                note.innerHTML = "<sup>[" + noteNumber + "]</sup>";
+                noteNumber++;
             }
         });
         
