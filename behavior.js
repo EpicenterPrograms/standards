@@ -591,7 +591,11 @@ window.addEventListener("load", function() {  // This waits for everything past 
         
         if (!options.keyHasValue("section", "none")) {
             // surrounds the <body> content with a <section> tag
-            document.body.innerHTML = "<section>" + document.body.innerHTML + "</section>";
+            var section = document.createElement("section");
+            document.body.children.forEach(function(child) {
+                section.appendChild(child);
+            });
+            document.body.appendChild(section);
         }
         
         if (!options.keyHasValue("title", "none")) {
