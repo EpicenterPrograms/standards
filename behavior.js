@@ -467,6 +467,13 @@ function colorCode(element, end1, end2) {
     var args = Array.prototype.slice.call(arguments, 3);
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
     if (element.tagName == "TABLE") {
+        if (!(end1 && end2)) {  // if one or both ends aren't specified
+            var lowest = Infinity,
+                highest = -Infinity;
+            element.getElementsByTagName("td").forEach(function(item) {
+                
+            });
+        }
         element.getElementsByTagName("td").forEach(function(data) {
             if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {
                 var ends = [end1];
