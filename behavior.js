@@ -311,9 +311,20 @@ function checkAll(item, comparator, comparisons, type) {
         items in comparisons = arguments to go in the () in .format()
             strings = one string is used per iteration
             arrays containing strings = one array is used per iteration
+        variables don't work in the item string: they have to be used as one of the items in comparisons
         examples:
             checkAll("{0} > 0 ", null, [2,"6",7,4,"3"], "||");
             checkAll("('abc'+'{0}'+'{1}'+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");  // notice quotation marks around {}s for insertion of a string
+            // Don't do this.
+            var number = 42;
+            if (checkAll("number < {0}", null, [30,40,50], "||")) {
+                console.log("It worked!");
+            }
+            // Instead, do this.
+            var number = 42;
+            if (checkAll("{0} < {1}", null, [[number,30],[number,40],[number,50]], "||")) {
+                console.log("It worked!");
+            }
     non-native functions used = String.format()
     */
     if (! comparator == null) {
@@ -533,7 +544,7 @@ function colorCode(element, end1, end2) {
                     hours = hours.slice(-2);
                 }
                 hours = Number(hours);
-                if (checkAll("minutes.slice(2,5).toLowerCase().indexOf('{0}')>-1", null, ["am", "pm"], "||")) {
+                if (checkAll("{0}.slice(2,5).toLowerCase().indexOf('{1}')>-1", null, [[minutes,"am"],[minutes,"pm"]], "||")) {
                     if (hours == 12) {
                         hours -= 12;
                     }
