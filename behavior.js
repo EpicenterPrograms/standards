@@ -545,7 +545,7 @@ function colorCode(element, end1, end2) {
                     hours = hours.slice(-2);
                 }
                 hours = Number(hours);
-                if (checkAll("\\\"{0}\\\".slice(2,5).toLowerCase().indexOf('{1}')>-1", null, [[minutes,"am"],[minutes,"pm"]], "||")) {  // the \\\"s account for when there's "s or 's in something after the minutes
+                if (checkAll("{0}.slice(2,5).toLowerCase().indexOf('{1}')>-1", null, [['"'+minutes+'"',"am"],['"'+minutes+'"',"pm"]], "||")) {  // the '"'s account for when there's 's in something after the minutes
                     if (hours == 12) {
                         hours -= 12;
                     }
