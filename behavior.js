@@ -463,45 +463,140 @@ function colorCode(element, end1, end2) {
     (items are integers from 0 to 255)
     e.g. colorCode(element, end1, end2, [12,23,34], [45,56,67], [78,89,90]);
     default colors = red and green
+    for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
+    non-native functions = HTMLCollection.forEach() and checkAll()
     */
     var args = Array.prototype.slice.call(arguments, 3);
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
     if (element.tagName == "TABLE") {
-        if (!(end1 && end2)) {  // if one or both ends aren't specified
-            var lowest = Infinity,
-                highest = -Infinity;
-            element.getElementsByTagName("td").forEach(function(item) {
-                
-            });
-        }
-        element.getElementsByTagName("td").forEach(function(data) {
-            if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {
-                var ends = [end1];
-                colors.forEach(function(color, index, colors) {
-                    ends.push(end1+(end2-end1)*(index+2)/colors.length);
+        var tds = element.getElementsByTagName("td");  // tds[3] and tds[6] are representative samples of the type of data
+        if (!isNaN(tds[3]) || !isNaN(tds[6])) {  // Is the data numbers?
+            if (!(end1 && end2)) {  // if one or both ends aren't specified
+                var lowest = Infinity,
+                    highest = -Infinity;
+                tds.forEach(function(item) {
+                    try {
+                        if (Number(item.innerHTML) < lowest) {
+                            lowest = Number(item.innerHTML);
+                        }
+                        if (Number(item.innerHTML) > highest) {
+                            highest = Number(item.innerHTML);
+                        }
+                    }
                 });
-                var number = Number(data.innerHTML.trim());
-                var endIndex = 1,
-                    intermediate1 = [],
-                    intermediate2 = [],
-                    colorValue;
-                while (number > ends[endIndex]) {
-                    endIndex++;
-                }
-                colors[endIndex-1].forEach(function(color) {
-                    colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                    intermediate1.push(colorValue<=color ? colorValue : color);
-                });
-                colors[endIndex].forEach(function(color) {
-                    colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                    intermediate2.push(colorValue<=color ? colorValue : color);
-                });
-                var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
-                    green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
-                    blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
-                data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+                end1 = lowest;
+                end2 = highest;
             }
-        });
+            tds.forEach(function(data) {
+                if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {
+                    var ends = [end1];
+                    colors.forEach(function(color, index, colors) {
+                        ends.push(end1+(end2-end1)*(index+2)/colors.length);
+                    });
+                    var number = Number(data.innerHTML.trim());
+                    var endIndex = 1,
+                        intermediate1 = [],
+                        intermediate2 = [],
+                        colorValue;
+                    while (number > ends[endIndex]) {
+                        endIndex++;
+                    }
+                    colors[endIndex-1].forEach(function(color) {
+                        colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                        intermediate1.push(colorValue<=color ? colorValue : color);
+                    });
+                    colors[endIndex].forEach(function(color) {
+                        colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                        intermediate2.push(colorValue<=color ? colorValue : color);
+                    });
+                    var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
+                        green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
+                        blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
+                    data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+                }
+            });
+        } else if (tds[3].innerHTML.indexOf(":") > -1 || tds[6].innerHTML.indexOf(":") > -1) {  // if the data has a : (if it's a time or ratio)
+            function toTimeNumber(time) {
+                // converts the time into hours (or possibly minutes if minutes:seconds)
+                var hours = time.split(":")[0].trim(),
+                    minutes = time.split(":")[1] + "    ";  // extra spaces ensure the index isn't exceeded later on
+                if (isNaN(hours[hours.length-2])) {  // Is there not 2 digits in the hour?
+                    hours = hours.slice(-1);
+                } else {
+                    hours = hours.slice(-2);
+                }
+                hours = Number(hours);
+                if (minutes.slice(2,5).toLowerCase().indexOf("pm") > -1) { 
+                    hours += 12;
+                }
+                minutes = Number(minutes.slice(0,2))/60;
+                return hours + minutes;
+            }
+            if (tds[3].innerHTML.indexOf("-") > -1 || tds[6].innerHTML.indexOf("-") > -1) {  // if the data has a - (if it's a time range)
+                function timeDifference(difference, unit) {
+                    unit = unit || "hours";
+                    var first = difference.innerHTML.split("-")[0].trim(),
+                        second = difference.innerHTML.split("-")[1].trim();
+                    first = toTimeNumber(first);
+                    second = toTimeNumber(second);
+                    if (first > second) {
+                        if (unit == "hours") {
+                            second += 24;
+                        } else if (unit == "minutes") {
+                            second += 60;
+                        }
+                    }
+                    return second - first;
+                }
+                if (!(end1 && end2)) {
+                    var lowest = Infinity,
+                        highest = -Infinity;
+                    tds.forEach(function(item) {
+                        try {
+                            var difference = timeDifference(item.innerHTML);
+                            if (difference < lowest) {
+                                lowest = difference;
+                            }
+                            if (difference > highest) {
+                                highest = difference;
+                            }
+                        }
+                    });
+                    end1 = lowest;
+                    end2 = highest;
+                }
+                tds.forEach(function(data) {
+                    try {
+                        var ends = [end1];
+                        colors.forEach(function(color, index, colors) {
+                            ends.push(end1+(end2-end1)*(index+2)/colors.length);
+                        });
+                        var number = timeDifference(data.innerHTML);
+                        var endIndex = 1,
+                            intermediate1 = [],
+                            intermediate2 = [],
+                            colorValue;
+                        while (number > ends[endIndex]) {
+                            endIndex++;
+                        }
+                        colors[endIndex-1].forEach(function(color) {
+                            colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                            intermediate1.push(colorValue<=color ? colorValue : color);
+                        });
+                        colors[endIndex].forEach(function(color) {
+                            colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                            intermediate2.push(colorValue<=color ? colorValue : color);
+                        });
+                        var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
+                            green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
+                            blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
+                        data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+                    }
+                });
+            } else {
+                
+            }
+        }
     } else if (checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
         if (element.innerHTML.trim() != "") {
             end1 = 0;
