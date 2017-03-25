@@ -325,6 +325,7 @@ function checkAll(item, comparator, comparisons, type) {
             if (checkAll("{0} < {1}", null, [[number,30],[number,40],[number,50]], "||")) {
                 console.log("It worked!");
             }
+            // Quotation marks must be added to the {} when the variable is a string.
     non-native functions used = String.format()
     */
     if (! comparator == null) {
@@ -544,7 +545,7 @@ function colorCode(element, end1, end2) {
                     hours = hours.slice(-2);
                 }
                 hours = Number(hours);
-                if (checkAll("{0}.slice(2,5).toLowerCase().indexOf('{1}')>-1", null, [[minutes,"am"],[minutes,"pm"]], "||")) {
+                if (checkAll("'{0}'.slice(2,5).toLowerCase().indexOf('{1}')>-1", null, [[minutes,"am"],[minutes,"pm"]], "||")) {
                     if (hours == 12) {
                         hours -= 12;
                     }
