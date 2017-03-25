@@ -500,7 +500,9 @@ function colorCode(element, end1, end2) {
         }
         var tds = element.getElementsByTagName("td");  // tds[3] and tds[6] are representative samples of the type of data
         if (!isNaN(tds[3]) || !isNaN(tds[6])) {  // Is the data numbers?
+            console.log("numbers");
             if (!(end1 && end2)) {  // if one or both ends aren't specified
+                console.log("set ends");
                 var lowest = Infinity,
                     highest = -Infinity;
                 tds.forEach(function(item) {
@@ -518,7 +520,9 @@ function colorCode(element, end1, end2) {
                 end2 = highest;
             }
             tds.forEach(function(data) {
+                console.log("analyzing");
                 if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {
+                    console.log("setting background");
                     data.style.backgroundColor = backgroundColor(Number(data.innerHTML.trim()));
                 }
             });
