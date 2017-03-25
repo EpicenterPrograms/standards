@@ -466,6 +466,9 @@ function colorCode(element, end1, end2) {
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
     non-native functions = HTMLCollection.forEach() and checkAll()
     */
+    if (typeof element == "string") {
+        element = document.getElementById(element);
+    }
     var args = Array.prototype.slice.call(arguments, 3);
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
     if (element.tagName == "TABLE") {
