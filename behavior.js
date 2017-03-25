@@ -533,8 +533,13 @@ function colorCode(element, end1, end2) {
                     hours = hours.slice(-2);
                 }
                 hours = Number(hours);
-                if (minutes.slice(2,5).toLowerCase().indexOf("pm") > -1) { 
-                    hours += 12;
+                if (checkAll("minutes.slice(2,5).toLowerCase().indexOf('{0}')>-1", null, ["am", "pm"], "||")) {
+                    if (hours == 12) {
+                        hours -= 12;
+                    }
+                    if (minutes.slice(2,5).toLowerCase().indexOf("pm") > -1) { 
+                        hours += 12;
+                    }
                 }
                 minutes = Number(minutes.slice(0,2))/60;
                 return hours + minutes;
