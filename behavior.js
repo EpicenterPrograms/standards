@@ -536,8 +536,8 @@ function colorCode(element, end1, end2) {
             if (tds[3].innerHTML.indexOf("-") > -1 || tds[6].innerHTML.indexOf("-") > -1) {  // if the data has a - (if it's a time range)
                 function timeDifference(difference, unit) {
                     unit = unit || "hours";
-                    var first = difference.innerHTML.split("-")[0].trim(),
-                        second = difference.innerHTML.split("-")[1].trim();
+                    var first = difference.split("-")[0].trim(),
+                        second = difference.split("-")[1].trim();
                     first = toTimeNumber(first);
                     second = toTimeNumber(second);
                     if (first > second) {
