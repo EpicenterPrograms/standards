@@ -482,6 +482,7 @@ function colorCode(element, end1, end2) {
                         if (Number(item.innerHTML) > highest) {
                             highest = Number(item.innerHTML);
                         }
+                    } finally {
                     }
                 });
                 end1 = lowest;
@@ -560,6 +561,7 @@ function colorCode(element, end1, end2) {
                             if (difference > highest) {
                                 highest = difference;
                             }
+                        } finally {
                         }
                     });
                     end1 = lowest;
@@ -591,6 +593,7 @@ function colorCode(element, end1, end2) {
                             green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
                             blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
                         data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+                    } finally {
                     }
                 });
             } else {
