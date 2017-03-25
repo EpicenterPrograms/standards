@@ -469,6 +469,32 @@ function colorCode(element, end1, end2) {
     var args = Array.prototype.slice.call(arguments, 3);
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
     if (element.tagName == "TABLE") {
+        function backgroundColor(value) {
+            var ends = [end1];
+            colors.forEach(function(color, index, colors) {
+                ends.push(end1+(end2-end1)*(index+2)/colors.length);
+            });
+            var number = value;
+            var endIndex = 1,
+                intermediate1 = [],
+                intermediate2 = [],
+                colorValue;
+            while (number > ends[endIndex]) {
+                endIndex++;
+            }
+            colors[endIndex-1].forEach(function(color) {
+                colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                intermediate1.push(colorValue<=color ? colorValue : color);
+            });
+            colors[endIndex].forEach(function(color) {
+                colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
+                intermediate2.push(colorValue<=color ? colorValue : color);
+            });
+            var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
+                green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
+                blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
+            return "rgb(" + red + ", " + green + ", " + blue + ")";
+        }
         var tds = element.getElementsByTagName("td");  // tds[3] and tds[6] are representative samples of the type of data
         if (!isNaN(tds[3]) || !isNaN(tds[6])) {  // Is the data numbers?
             if (!(end1 && end2)) {  // if one or both ends aren't specified
@@ -569,30 +595,7 @@ function colorCode(element, end1, end2) {
                 }
                 tds.forEach(function(data) {
                     try {
-                        var ends = [end1];
-                        colors.forEach(function(color, index, colors) {
-                            ends.push(end1+(end2-end1)*(index+2)/colors.length);
-                        });
-                        var number = timeDifference(data.innerHTML);
-                        var endIndex = 1,
-                            intermediate1 = [],
-                            intermediate2 = [],
-                            colorValue;
-                        while (number > ends[endIndex]) {
-                            endIndex++;
-                        }
-                        colors[endIndex-1].forEach(function(color) {
-                            colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                            intermediate1.push(colorValue<=color ? colorValue : color);
-                        });
-                        colors[endIndex].forEach(function(color) {
-                            colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                            intermediate2.push(colorValue<=color ? colorValue : color);
-                        });
-                        var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
-                            green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
-                            blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
-                        data.style.backgroundColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+                        data.style.backgroundColor = backgroundColor(timeDifference(data.innerHTML));
                     } finally {
                     }
                 });
