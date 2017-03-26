@@ -1,11 +1,36 @@
-function help(item) {
+function help(item, part) {
     /**
     This prints out the source code of what you want to learn about
     which also includes my comments on usage.
+    The part allows you pick a part of documentation.
+        "all", "docstring", "function", or "non-natives"
     non-native functions = none
     */
-    console.log(item.toString());
-    return item.toString();
+    part = part || "all";
+    var content = item.toString();
+    switch (part) {
+        case "docstring":
+            if (content.indexOf("/**") > -1) {
+                content = content.slice(0, content.indexOf("*/"));
+            } else {
+                content = "No docstring present."
+            }
+            break;
+        case "function":
+            if (content.indexOf("/**") > -1) {
+                content.splice(content.indexOf("/**"), content.slice(content.indexOf("/**"), content.indexOf("*/")+2).length);
+            }
+            break;
+        case "non-natives":
+            if (content.indexOf("non-native functions") > -1) {
+                content = content.slice(content.indexOf("non-native functions"), content.indexOf("*/"));
+                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
+            } else {
+                content = "undefined"
+            }
+    }
+    console.log(content);
+    return content;
 }
 
 var options = options || {};
@@ -244,6 +269,7 @@ Object.prototype.forEach = function(doStuff) {  // <<<<-------- This is necessar
     -->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
     if a for loop is used in place of this, the prototype properties I made will also be included
     doStuff will be run with the arguments (property value, property, original object, arbitrary index)
+    properites that are numbers only are at the beginning in ascending order no matter what
     doStuff can return a value of "break" to break out of the loop
     non-native functions = none
     */
