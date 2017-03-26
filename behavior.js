@@ -18,7 +18,7 @@ function help(item, part) {
             break;
         case "function":
             if (content.indexOf("/**") > -1) {
-                content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
+                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
             }
             break;
         case "non-natives":
@@ -228,10 +228,12 @@ String.prototype.splice = function(start, end, replacement) {
     acts like Array.splice() except that
     I made the second argument an end rather than a length
     because I'm not ridiculous
+    and the value is returned instead of implemented
+    because JavaScript is dumb and won't let me do that
     non-native functions = none
     */
     replacement = replacement || "";
-    this = this.slice(0,start) + replacement + this.slice(end);
+    return this.slice(0,start) + replacement + this.slice(end);
 };
 
 HTMLCollection.prototype.forEach = function(doStuff) {
