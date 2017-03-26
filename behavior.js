@@ -18,7 +18,6 @@ function help(item, part) {
             break;
         case "function":
             if (content.indexOf("/**") > -1) {
-                console.log(content.indexOf("/**") + " " + (content.indexOf("*/")+2));
                 content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
             }
             break;
@@ -232,6 +231,7 @@ String.prototype.splice = function(start, end, replacement) {
     non-native functions = none
     */
     replacement = replacement || "";
+    console.log(this.slice(0,start) + "\n" + replacement + "\n" + this.slice(end));
     return this.slice(0,start) + replacement + this.slice(end);
 };
 
