@@ -4,7 +4,7 @@ function help(item, part) {
     which also includes my comments on usage.
     The part allows you pick a part of documentation.
         "all", "docstring", "function", or "non-natives"
-    non-native functions = none
+    non-native functions = String.splice()
     */
     part = part || "all";
     var content = item.toString();
@@ -18,7 +18,7 @@ function help(item, part) {
             break;
         case "function":
             if (content.indexOf("/**") > -1) {
-                content.splice(content.indexOf("/**"), content.slice(content.indexOf("/**"), content.indexOf("*/")+2).length);
+                content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
             }
             break;
         case "non-natives":
@@ -222,6 +222,17 @@ String.prototype.format = function() {
         return (typeof args[number]!="undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
     });
 }
+
+String.prototype.splice = function(start, end, replacement) {
+    /**
+    acts like Array.splice() except that
+    I made the second argument an end rather than a length
+    because I'm not ridiculous
+    non-native functions = none
+    */
+    replacement = replacement || "";
+    return this.slice(0,start) + replacement + this.slice(end);
+};
 
 HTMLCollection.prototype.forEach = function(doStuff) {
     /**
