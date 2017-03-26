@@ -18,6 +18,7 @@ function help(item, part) {
             break;
         case "function":
             if (content.indexOf("/**") > -1) {
+                console.log(content.indexOf("/**") + (content.indexOf("*/")+2));
                 content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
             }
             break;
