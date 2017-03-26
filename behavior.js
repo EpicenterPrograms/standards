@@ -231,8 +231,7 @@ String.prototype.splice = function(start, end, replacement) {
     non-native functions = none
     */
     replacement = replacement || "";
-    console.log(this.slice(0,start) + "\n" + replacement + "\n" + this.slice(end));
-    return this.slice(0,start) + replacement + this.slice(end);
+    this = this.slice(0,start) + replacement + this.slice(end);
 };
 
 HTMLCollection.prototype.forEach = function(doStuff) {
