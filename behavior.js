@@ -177,7 +177,7 @@ String.prototype.forEach = function(doStuff) {
     }
     for (index=0; index<string.length; index++) {
         var returnValue = doStuff(string[index], index, string) || "";
-        if (returnValue.toLowerCase() == "break") {
+        if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
             break;
         }
     }
@@ -215,7 +215,7 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     }
     for (index=0; index<elements.length; index++) {
         var returnValue = doStuff(elements[index], index, elements);
-        if (returnValue.toLowerCase() == "break") {
+        if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
             break;
         }
     }
@@ -232,7 +232,7 @@ NodeList.prototype.forEach = function(doStuff) {
     }
     for (index=0; index<elements.length; index++) {
         var returnValue = doStuff(elements[index], index, elements);
-        if (returnValue.toLowerCase() == "break") {
+        if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
             break;
         }
     }
@@ -259,7 +259,7 @@ Object.prototype.forEach = function(doStuff) {  // <<<<-------- This is necessar
         if (this.propertyIsEnumerable(property)) {
             returnValue = doStuff(newObject[property], property, newObject, index);
             index++;
-            if (returnValue.toLowerCase() == "break") {
+            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
             }
         }
