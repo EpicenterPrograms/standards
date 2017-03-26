@@ -18,13 +18,13 @@ function help(item, part) {
             break;
         case "function":
             if (content.indexOf("/**") > -1) {
-                console.log(content.indexOf("/**") + (content.indexOf("*/")+2));
+                console.log(content.indexOf("/**") + " " + (content.indexOf("*/")+2));
                 content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
             }
             break;
         case "non-natives":
             if (content.indexOf("non-native functions") > -1) {
-                content = content.slice(content.indexOf("non-native functions"), content.indexOf("*/"));
+                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
                 content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
             } else {
                 content = "undefined"
