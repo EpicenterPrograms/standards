@@ -1,3 +1,13 @@
+function help(item) {
+    /**
+    This prints out the source code of what you want to learn about
+    which also includes my comments on usage.
+    non-native functions = none
+    */
+    console.log(item.toString());
+    return item.toString();
+}
+
 var options = options || {};
     /**
     allows specifications to be added if the variable is already present
@@ -158,6 +168,7 @@ var Sound = function(specs) {
 String.prototype.forEach = function(doStuff) {
     /**
     .forEach() for strings
+    doStuff can return a value of "break" to break out of the loop
     non-native functions used = none
     */
     var string = "";
@@ -194,6 +205,8 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     and does stuff for each one like Array.forEach()
     (.forEach() doesn't work for these lists without this code)
     implication of static list = you can remove the elements in doStuff without messing everything up
+    doStuff will be run with the arguments (value, index, list)
+    doStuff can return a value of "break" to break out of the loop
     non-native functions used = none
     */
     var elements = [];
@@ -202,7 +215,7 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     }
     for (index=0; index<elements.length; index++) {
         var returnValue = doStuff(elements[index], index, elements);
-        if (returnValue == "break") {
+        if (returnValue.toLowerCase() == "break") {
             break;
         }
     }
@@ -219,8 +232,36 @@ NodeList.prototype.forEach = function(doStuff) {
     }
     for (index=0; index<elements.length; index++) {
         var returnValue = doStuff(elements[index], index, elements);
-        if (returnValue == "break") {
+        if (returnValue.toLowerCase() == "break") {
             break;
+        }
+    }
+};
+
+Object.prototype.forEach = function(doStuff) {  // <<<<-------- This is necessary.
+    /**
+    loops through every property of the object
+    -->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
+    if a for loop is used in place of this, the prototype properties I made will also be included
+    doStuff will be run with the arguments (property value, property, original object, arbitrary index)
+    doStuff can return a value of "break" to break out of the loop
+    non-native functions = none
+    */
+    var newObject = {};
+    for (var property in this) {
+        if (this.propertyIsEnumerable(property)) {
+            newObject[property] = this[property];
+        }
+    }
+    var index = 0,
+        returnValue;
+    for (property in this) {
+        if (this.propertyIsEnumerable(property)) {
+            returnValue = doStuff(newObject[property], property, newObject, index);
+            index++;
+            if (returnValue.toLowerCase() == "break") {
+                break;
+            }
         }
     }
 };
