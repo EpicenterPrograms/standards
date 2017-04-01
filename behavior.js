@@ -54,6 +54,50 @@ var options = options || {};
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
     */
+var finished = false;
+var queue = queue || [];
+    /**
+    establishes a list of functions to be run once the page and this script has loaded
+    each item should be an object with an "runOrder" property and a "function" property
+    an "arguments" property can also be added and should consist of an array of the arguments to be run in the function
+    runOrder options:
+        "first" = will run first (or after preceeding functions with the "first" option)
+        "later" = will run some time in the middle
+        "last" = will run last (or before following functions with the "last" option)
+    functions can be run in a more specific order by searching for a certain function
+    all functions in this script that make use of queue have a "first" runOrder
+    example usage:
+        var queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
+    */
+queue.run = function() {
+    queue.forEach(function(fn) {
+        if (typeof fn.function == "string") {
+            throw 'The value of "function" must not be a string.';
+        }
+        if (fn.runOrder == "first") {
+            fn.function.apply(window, fn.arguments);
+            queue.splice(queue.indexOf(fn), 1);  // This can't use the index value of .forEach because the index isn't the same after the first removal.
+        }
+    });
+    queue.forEach(function(fn) {
+        if (fn.runOrder == "later") {
+            fn.function.apply(window, fn.arguments);
+            queue.splice(queue.indexOf(fn), 1);
+        }
+    });
+    queue.forEach(function(fn) {
+        if (fn.runOrder == "last") {
+            fn.function.apply(window, fn.arguments);
+            queue.splice(queue.indexOf(fn), 1);
+        }
+    });
+};
+queue.add = function(object) {
+    queue.push(object);
+    if (finished) {
+        queue.run();
+    }
+};
 var audio = new window.AudioContext() || window.webkitAudioContext();  // used in Sound()
 // audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
@@ -508,48 +552,54 @@ function read(URL, callback) {
 function pageJump(ID) {
     /**
     makes a section to jump to certain parts of the page
-    non-native functions used = HTMLCollection.forEach()
+    non-native functions used = queue.add() and HTMLCollection.forEach()
     */
-    var division = document.getElementById(ID);
-    var contents = document.createElement("div");
-    contents.id = "pageJump";
-    contents.className = "list";
-    contents.style = "margin: 2em; padding: 0em 1em 1em 0em; background: rgba(255,255,255,.5);";
-    contents.innerHTML = "<h2 style='text-align:center;'>Jump to:</h2>";
-    var sections = division.getElementsByTagName("h2");
-    var toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
-    toTop.innerHTML = "<a href='#'>To top</a>";
-    var listItems = document.createElement("ol");
-    listItems.style.visibility = "visible";
-    sections.forEach(function(heading, index, sections) {
-        var inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace for no apparent reason.
-        sections[index].id = inside;
-        var link = document.createElement("a");
-        link.href = "#" + inside;
-        link.innerHTML = inside;
-        var listItem = document.createElement("li");
-        listItem.appendChild(link);
-        listItems.appendChild(listItem);
-        division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
-        // toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
-    });
-    contents.appendChild(listItems);
-    division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
-    contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
-    // This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
-    if (window.location.href.indexOf("#") > -1) {
-        var found = false;
-        document.getElementById("pageJump").getElementsByTagName("a").forEach(function(link) {
-            if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {
-                found = true;
-                link.click();
-                return "break";
+    queue.add({
+        "runOrder" : "first",
+        "function" : function(ID) {
+            var division = document.getElementById(ID);
+            var contents = document.createElement("div");
+            contents.id = "pageJump";
+            contents.className = "list";
+            contents.style = "margin: 2em; padding: 0em 1em 1em 0em; background: rgba(255,255,255,.5);";
+            contents.innerHTML = "<h2 style='text-align:center;'>Jump to:</h2>";
+            var sections = division.getElementsByTagName("h2");
+            var toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
+            toTop.innerHTML = "<a href='#'>To top</a>";
+            var listItems = document.createElement("ol");
+            listItems.style.visibility = "visible";
+            sections.forEach(function(heading, index, sections) {
+                var inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace for no apparent reason.
+                sections[index].id = inside;
+                var link = document.createElement("a");
+                link.href = "#" + inside;
+                link.innerHTML = inside;
+                var listItem = document.createElement("li");
+                listItem.appendChild(link);
+                listItems.appendChild(listItem);
+                division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
+                // toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
+            });
+            contents.appendChild(listItems);
+            division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
+            contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
+            // This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
+            if (window.location.href.indexOf("#") > -1) {
+                var found = false;
+                document.getElementById("pageJump").getElementsByTagName("a").forEach(function(link) {
+                    if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {
+                        found = true;
+                        link.click();
+                        return "break";
+                    }
+                });
+                if (!found) {  // Was the section found?
+                    console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
+                }
             }
-        });
-        if (!found) {  // Was the section found?
-            console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
-        }
-    }
+        },
+        "arguments" : [ID]
+    });
 }
 
 function colorCode(element, end1, end2) {
@@ -867,6 +917,8 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 break;
         }
     }
+    finished = true;
+    queue.run();
     window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
 });
 
