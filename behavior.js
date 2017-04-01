@@ -518,16 +518,22 @@ function pageJump(ID) {
     contents.innerHTML = "<h2 style='text-align:center;'>Jump to:</h2>";
     var sections = division.getElementsByTagName("h2");
     var toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
-    toTop.innerHTML = "<a href='#top'>To top</a>";
-    var listItems = "";  // I need this variable to hold the list items because trying to add <ol> at the beginning and </ol> at the end separately causes it to fill in the </ol> immediately after the <ol> and omit the real </ol>
-    for (var index=0; index<sections.length; index++) {  // I would use (var in array), but index exceeds entries.length for no apparent reason
+    toTop.innerHTML = "<a href='#'>To top</a>";
+    var listItems = document.createElement("ol");
+    listItems.style.visibility = "visible";
+    sections.forEach(function(heading, index, sections) {
         var inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace for no apparent reason.
         sections[index].id = inside;
-        listItems += '<li><a href="#' + inside + '">' + inside + '</a></li>';  // This is '""' instead of "''" in case the inside contains an apostrophe.
+        var link = document.createElement("a");
+        link.href = "#" + inside;
+        link.innerHTML = inside;
+        var listItem = document.createElement("li");
+        listItem.appendChild(link);
+        listItems.appendChild(listItem);
         division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
         // toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
-    }
-    contents.innerHTML += "<ol style='visibility:visible'>" + listItems + "</ol>";
+    });
+    contents.appendChild(listItems);
     division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
     contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
     // This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
