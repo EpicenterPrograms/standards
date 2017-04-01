@@ -523,7 +523,7 @@ function pageJump(ID) {
     for (var index=0; index<sections.length; index++) {  // I would use (var in array), but index exceeds entries.length for no apparent reason
         var inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace for no apparent reason.
         sections[index].id = inside;
-        listItems += "<li><a href='#" + inside + "'>" + inside + "</a></li>";
+        listItems += '<li><a href="#' + inside + '">' + inside + '</a></li>';  // This is '""' instead of "''" in case the inside contains an apostrophe.
         division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
         // toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
     }
