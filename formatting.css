@@ -95,6 +95,10 @@ over {  /* my custom tag (overlines things) */
     padding: 0em;
     text-decoration: overline;
 }
+.circle {
+    border: .1em solid black;
+    border-radius: .5em;
+}
 h1.mainTitle {
     color: white;
 }
