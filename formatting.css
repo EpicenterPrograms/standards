@@ -78,6 +78,9 @@ sup, sub {
 sub { 
     top: .4em; 
 }
+mark {
+    padding: .2em;
+}
 note {  /* my custon tag (puts notes in text) */
     color: blue;
     cursor: help;
