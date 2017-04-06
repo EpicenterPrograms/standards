@@ -40,8 +40,11 @@ var options = options || {};
     valid options =
         "automation" : "none", "basic", "full"
             runs a corresponding amount of code after defining everything
-        "formatting" : URL
-            gives the document the styling located at the URL
+        "formatting" : "none", URL
+            if "none", no formatting is added, otherwise
+            gives the document this site's universal formatting, and
+            optionally adds the styling located at the URL
+            (the added styling overwrites when in conflict with the universal formatting)
         "icon" : URL
             gives the window the icon located at the URL
         "section" : "none"
@@ -787,17 +790,19 @@ if (!options.keyHasValue("automation", "none")) {
     
     //This is able to run without waiting for anything else to load.
     
-    // adds the universal formatting
-    if (options.hasOwnProperty("formatting")) {
-        var localStyle = document.createElement("link");
-        localStyle.rel = "stylesheet";
-        localStyle.href = options.formatting;
-        insertBefore(localStyle, document.head.children[0]);
+    if (!options.keyHasValue("formatting", "none")) {
+        // adds the universal formatting
+        if (options.hasOwnProperty("formatting")) {
+            var localStyle = document.createElement("link");
+            localStyle.rel = "stylesheet";
+            localStyle.href = options.formatting;
+            insertBefore(localStyle, document.head.children[0]);
+        }
+        var style = document.createElement("link");
+        style.rel = "stylesheet";
+        style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
+        insertBefore(style, document.head.children[0]);
     }
-    var style = document.createElement("link");
-    style.rel = "stylesheet";
-    style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
-    insertBefore(style, document.head.children[0]);
     
     // links a favicon
     var icon = document.createElement("link");
