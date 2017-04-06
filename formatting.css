@@ -95,6 +95,11 @@ over {  /* my custom tag (overlines things) */
     padding: 0em;
     text-decoration: overline;
 }
+.list {  /* for left-aligned content as close to the middle of the page as possible */
+    display: inline-block;
+    margin: auto;
+    text-align: left;
+}
 .circle {
     border: .1em solid black;
     border-radius: .5em;
@@ -121,10 +126,6 @@ div.nav {
 }
 div.nav ol, div.nav ul {
     visibility: visible;
-}
-div.list {  /* for lists within <div class="list"></div> */
-    margin: 0em;
-    text-align: left;
 }
 table.compact {
     visibility: hidden;
