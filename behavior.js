@@ -237,6 +237,68 @@ var Sound = function(specs) {
     };
 };
 
+if (!Array.prototype.includes) {
+    Array.prototype.includes = function(searchItem, index) {
+        /**
+        creates the Array.includes() function if it doesn't already exist
+        usage of this doesn't count as non-native function
+        because it is native in modern browsers
+        and this works the exact same way
+        non-native functions = none
+        */
+        index = index || 0;
+        if (index < this.length) {
+            if (index < 0) {
+                if (this.length + index < 0) {
+                    console.warn("Index precedes start of array");
+                    index = 0;
+                } else {
+                    index = this.length + index;
+                }
+            }
+        } else {
+            console.warn("Array length exceeded");
+            return false;
+        }
+        if (this.slice(index).indexOf(searchItem) > -1) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+}
+
+if (!String.prototype.includes) {
+    String.prototype.includes = function(searchItem, index) {
+        /**
+        creates the String.includes() function if it doesn't already exist
+        usage of this doesn't count as non-native function
+        because it is native in modern browsers
+        and this works the exact same way
+        non-native functions = none
+        */
+        index = index || 0;
+        if (index < this.length) {
+            if (index < 0) {
+                if (this.length + index < 0) {
+                    console.warn("Index precedes start of string");
+                    index = 0;
+                } else {
+                    index = this.length + index;
+                }
+            }
+        } else {
+            console.warn("String length exceeded");
+            return false;
+        }
+        if (this.slice(index).indexOf(searchItem) > -1) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+}
+
 String.prototype.forEach = function(doStuff) {
     /**
     .forEach() for strings
