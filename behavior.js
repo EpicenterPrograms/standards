@@ -483,6 +483,26 @@ function insertAfter(insertion, place) {
     }
 }
 
+function safeWhile(condition, doStuff, recursionDepth) {
+    /**
+    runs a while loop with a maximum recursion depth
+    prevents getting stuck in a while loop
+    condition = a string of a condition for the while loop
+    doStuff = what should be done in the while loop
+    recursionDepth = how many times the loop is allowed to run (defaults to 1000)
+    non-native functions = none
+    */
+    recursionDepth = recursionDepth || 1000;
+    var loopRuns = 0;
+    while (eval(condition) && loopRuns < recursionDepth) {
+        doStuff();
+        loopRuns++;
+    }
+    if (loopRuns == recursionDepth) {
+        throw "Recursion depth exceeded."
+    }
+}
+
 function checkAll(item, comparator, comparisons, type) {
     /**
     comparisons = an array of things to be used in comparing things
