@@ -79,7 +79,7 @@ sub {
     top: .4em; 
 }
 mark {
-    padding: .2em;
+    padding: .1em;
 }
 note {  /* my custon tag (puts notes in text) */
     color: blue;
