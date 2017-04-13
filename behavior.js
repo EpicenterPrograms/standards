@@ -115,6 +115,7 @@ var Sound = function(specs) {
     modulation = frequency of modulating wave = how often the primary wave is modified
     hertzChange = the frequency change of the primary wave upon modulation
     changeWave = waveform of the modulating wave
+    playing (can't be changed) = whether a sound is being played
     */
     var sound = this,
         osc1 = audio.createOscillator(),
@@ -130,6 +131,7 @@ var Sound = function(specs) {
     for (var spec in specs) {
         this[spec] = specs[spec];
     }
+    this.playing = false;
     function setValues(time) {
         time = time || 0;
         time /= 1000;  // ramps use time in seconds
@@ -140,6 +142,7 @@ var Sound = function(specs) {
         osc2.frequency.linearRampToValueAtTime(sound.modulation, audio.currentTime + time);;
         osc2.type = sound.changeWave;
         // The second set of transitions are linear because I want them to be able to have values of 0.
+        sound.playing = sound.volume==0 ? false : true;
     }
     setValues();
     gain1.connect(audio.destination);
@@ -149,6 +152,7 @@ var Sound = function(specs) {
     osc1.start();
     osc2.start();
     this.start = function(volume, time) {  // starts/unmutes the tone
+        sound.playing = true;
         time = time || 0;
         gain1.gain.value = sound.volume+.0001;
         sound.volume = volume || 1;
@@ -221,12 +225,14 @@ var Sound = function(specs) {
         setTimeout(function() {
             gain1.gain.value = 0;
             sound.volume = 0;
+            sound.playing = false;
         }, time);
     };
     this.destroy = function(time) {  // gets rid of the tone (can't be used again)
         time = time || 0;
         gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time/1000);
         setTimeout(function() {
+            sound.playing = false;
             osc1.stop();
             osc2.stop();
             osc2.disconnect(gain2);
