@@ -912,16 +912,16 @@ document.createElement("note");
 // makes my custom tag which overlines things
 document.createElement("over");
 
-if (!options.keyHasValue("automation", "none")) {
+if (!Standards.options.keyHasValue("automation", "none")) {
     
     //This is able to run without waiting for anything else to load.
     
-    if (!options.keyHasValue("formatting", "none")) {
+    if (!Standards.options.keyHasValue("formatting", "none")) {
         // adds the universal formatting
-        if (options.hasOwnProperty("formatting")) {
+        if (Standards.options.hasOwnProperty("formatting")) {
             var localStyle = document.createElement("link");
             localStyle.rel = "stylesheet";
-            localStyle.href = options.formatting;
+            localStyle.href = Standards.options.formatting;
             insertBefore(localStyle, document.head.children[0]);
         }
         var style = document.createElement("link");
@@ -935,8 +935,8 @@ if (!options.keyHasValue("automation", "none")) {
     icon.rel = "icon";
     document.head.insertBefore(icon, document.head.children[0]);
     
-    if (options.hasOwnProperty("icon")) {
-        icon.href = options.icon;
+    if (Standards.options.hasOwnProperty("icon")) {
+        icon.href = Standards.options.icon;
     } else {
         // cycles the favicon
         var canvas = document.createElement("canvas");
@@ -960,9 +960,9 @@ if (!options.keyHasValue("automation", "none")) {
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
-    if (!options.hasOwnProperty("automation") || options.automation == "full") {
+    if (!Standards.options.hasOwnProperty("automation") || Standards.options.automation == "full") {
         
-        if (!options.keyHasValue("section", "none")) {
+        if (!Standards.options.keyHasValue("section", "none")) {
             // surrounds the <body> content with a <section> tag
             var section = document.createElement("section");
             document.body.children.forEach(function(child) {
@@ -971,17 +971,17 @@ window.addEventListener("load", function() {  // This waits for everything past 
             document.body.appendChild(section);
         }
         
-        if (!options.keyHasValue("title", "none")) {
+        if (!Standards.options.keyHasValue("title", "none")) {
             // adds a title to the page
             var title = document.createElement("h1");
             title.className = "mainTitle";
             title.id = "top";
-            if (!options.hasOwnProperty("title")) {
+            if (!Standards.options.hasOwnProperty("title")) {
                 title.innerHTML = document.title;
-            } else if (isNaN(options.title) && options.title[0]=="~") {
-                eval("title.innerHTML = " + options.title.slice(1) + ";");
+            } else if (isNaN(Standards.options.title) && Standards.options.title[0]=="~") {
+                eval("title.innerHTML = " + Standards.options.title.slice(1) + ";");
             } else {
-                title.innerHTML = options.title;
+                title.innerHTML = Standards.options.title;
             }
             document.body.insertBefore(title, document.body.children[0]);
         }
@@ -1037,11 +1037,11 @@ window.addEventListener("load", function() {  // This waits for everything past 
     }
     
     // handles the options
-    for (var spec in options) {
+    for (var spec in Standards.options) {
         switch (spec) {
             case "navigation":
                 document.body.style = "margin:0vw 0vh 0vh 15vw; width: 80%;";
-                read(options[spec], function() {
+                read(Standards.options[spec], function() {
                     this.className = "nav";
                     document.body.insertBefore(this, document.body.childNodes[0]);
                 });
