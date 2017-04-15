@@ -1,39 +1,20 @@
-function help(item, part) {
-    /**
-    This prints out the source code of what you want to learn about
-    which also includes my comments on usage.
-    The part allows you pick a part of documentation.
-        "all", "docstring", "function", or "non-natives"
-    non-native functions = String.splice()
-    */
-    part = part || "all";
-    var content = item.toString();
-    switch (part) {
-        case "docstring":
-            if (content.indexOf("/**") > -1) {
-                content = content.slice(0, content.indexOf("*/"));
-            } else {
-                content = "No docstring present."
-            }
-            break;
-        case "function":
-            if (content.indexOf("/**") > -1) {
-                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
-            }
-            break;
-        case "non-natives":
-            if (content.indexOf("non-native functions") > -1) {
-                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
-                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
-            } else {
-                content = "undefined"
-            }
+if (Standards) {
+    if (typeof Standards != "object") {
+        var Standards = {};
+        console.warn("typeof Standards is not an object");
     }
-    console.log(content);
-    return content;
+} else {
+    var Standards = {};
 }
 
-var options = options || {};
+if (Standards.options) {
+    if (typeof Standards.options != "object") {
+        Standards.options = {};
+        console.warn("typeof Standards.options is not an object");
+    }
+} else {
+    Standards.options = {};
+}
     /**
     allows specifications to be added if the variable is already present
     (otherwise uses default values and settings)
@@ -57,52 +38,70 @@ var options = options || {};
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
     */
-var finished = false;
-var queue = queue || [];
+
+Standards.finished = false;
+
+if (Standards.queue) {
+    if (typeof Standards.queue == "array") {
+        Standards.queue.forEach(function(item, index) {
+            if (typeof item != "object") {
+                Standards.queue.splice(index, 1);
+                console.warn("The item at the index of " + index + " in Standards.queue is not an object.");
+            }
+        });
+    } else {
+        Standards.queue = [];
+        console.warn("typeof Standards.queue is not an array");
+    }
+} else {
+    Standards.queue = [];
+}
     /**
     establishes a list of functions to be run once the page and this script has loaded
-    each item should be an object with an "runOrder" property and a "function" property
+    each item should be an object with a "runOrder" property and a "function" property
     an "arguments" property can also be added and should consist of an array of the arguments to be run in the function
     runOrder options:
         "first" = will run first (or after preceeding functions with the "first" option)
         "later" = will run some time in the middle
         "last" = will run last (or before following functions with the "last" option)
     functions can be run in a more specific order by searching for a certain function
-    all functions in this script that make use of queue have a "first" runOrder
+    all functions in this script that make use of Standards.queue have a "first" runOrder
     example usage:
-        var queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
+        var Standards = {};
+        Standards.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
     */
-queue.run = function() {
-    queue.forEach(function(fn) {
+Standards.queue.run = function() {
+    Standards.queue.forEach(function(fn) {
         if (typeof fn.function == "string") {
             throw 'The value of "function" must not be a string.';
         }
         if (fn.runOrder == "first") {
             fn.function.apply(window, fn.arguments);
-            queue.splice(queue.indexOf(fn), 1);  // This can't use the index value of .forEach because the index isn't the same after the first removal.
+            Standards.queue.splice(Standards.queue.indexOf(fn), 1);  // This can't use the index value of .forEach because the index isn't the same after the first removal.
         }
     });
-    queue.forEach(function(fn) {
+    Standards.queue.forEach(function(fn) {
         if (fn.runOrder == "later") {
             fn.function.apply(window, fn.arguments);
-            queue.splice(queue.indexOf(fn), 1);
+            Standards.queue.splice(Standards.queue.indexOf(fn), 1);
         }
     });
-    queue.forEach(function(fn) {
+    Standards.queue.forEach(function(fn) {
         if (fn.runOrder == "last") {
             fn.function.apply(window, fn.arguments);
-            queue.splice(queue.indexOf(fn), 1);
+            Standards.queue.splice(Standards.queue.indexOf(fn), 1);
         }
     });
 };
-queue.add = function(object) {
-    queue.push(object);
-    if (finished) {
-        queue.run();
+Standards.queue.add = function(object) {
+    Standards.queue.push(object);
+    if (Standards.finished) {
+        Standards.queue.run();
     }
 };
-var audio = new window.AudioContext() || window.webkitAudioContext();  // used in Sound()
-// audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
+
+Standards.audio = new window.AudioContext() || window.webkitAudioContext();  // used in Sound()
+// Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 var Sound = function(specs) {
     /**
@@ -118,10 +117,10 @@ var Sound = function(specs) {
     playing (can't be changed) = whether a sound is being played
     */
     var sound = this,
-        osc1 = audio.createOscillator(),
-        osc2 = audio.createOscillator(),
-        gain1 = audio.createGain(),
-        gain2 = audio.createGain();
+        osc1 = Standards.audio.createOscillator(),
+        osc2 = Standards.audio.createOscillator(),
+        gain1 = Standards.audio.createGain(),
+        gain2 = Standards.audio.createGain();
     this.frequency = 440;
     this.volume = 0
     this.waveform = "sine";
@@ -135,17 +134,17 @@ var Sound = function(specs) {
     function setValues(time) {
         time = time || 0;
         time /= 1000;  // ramps use time in seconds
-        gain1.gain.exponentialRampToValueAtTime(sound.volume+.0001, audio.currentTime + time);  // exponential ramping doesn't work with 0s
-        osc1.frequency.exponentialRampToValueAtTime(sound.frequency+.0001, audio.currentTime + time);
+        gain1.gain.exponentialRampToValueAtTime(sound.volume+.0001, Standards.audio.currentTime + time);  // exponential ramping doesn't work with 0s
+        osc1.frequency.exponentialRampToValueAtTime(sound.frequency+.0001, Standards.audio.currentTime + time);
         osc1.type = sound.waveform;
-        gain2.gain.linearRampToValueAtTime(sound.hertzChange, audio.currentTime + time);
-        osc2.frequency.linearRampToValueAtTime(sound.modulation, audio.currentTime + time);;
+        gain2.gain.linearRampToValueAtTime(sound.hertzChange, Standards.audio.currentTime + time);
+        osc2.frequency.linearRampToValueAtTime(sound.modulation, Standards.audio.currentTime + time);;
         osc2.type = sound.changeWave;
         // The second set of transitions are linear because I want them to be able to have values of 0.
         sound.playing = sound.volume==0 ? false : true;
     }
     setValues();
-    gain1.connect(audio.destination);
+    gain1.connect(Standards.audio.destination);
     osc1.connect(gain1);
     gain2.connect(osc1.frequency);
     osc2.connect(gain2);
@@ -156,7 +155,7 @@ var Sound = function(specs) {
         time = time || 0;
         gain1.gain.value = sound.volume+.0001;
         sound.volume = volume || 1;
-        gain1.gain.exponentialRampToValueAtTime(sound.volume, audio.currentTime + time/1000);
+        gain1.gain.exponentialRampToValueAtTime(sound.volume, Standards.audio.currentTime + time/1000);
     };
     this.change = function(property, value, time) {  // changes a property of the tone
         sound[property] = value;
@@ -221,7 +220,7 @@ var Sound = function(specs) {
     };
     this.stop = function(time) {  // stops/mutes the tone
         time = time || 0;
-        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time/1000);
+        gain1.gain.exponentialRampToValueAtTime(.0001, Standards.audio.currentTime + time/1000);
         setTimeout(function() {
             gain1.gain.value = 0;
             sound.volume = 0;
@@ -230,7 +229,7 @@ var Sound = function(specs) {
     };
     this.destroy = function(time) {  // gets rid of the tone (can't be used again)
         time = time || 0;
-        gain1.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + time/1000);
+        gain1.gain.exponentialRampToValueAtTime(.0001, Standards.audio.currentTime + time/1000);
         setTimeout(function() {
             sound.playing = false;
             osc1.stop();
@@ -238,10 +237,46 @@ var Sound = function(specs) {
             osc2.disconnect(gain2);
             gain2.disconnect(osc1.frequency);
             osc1.disconnect(gain1);
-            gain1.disconnect(audio.destination);
+            gain1.disconnect(Standards.audio.destination);
         }, time);
     };
 };
+
+
+function help(item, part) {
+    /**
+    This prints out the source code of what you want to learn about
+    which also includes my comments on usage.
+    The part allows you pick a part of documentation.
+        "all", "docstring", "function", or "non-natives"
+    non-native functions = String.splice()
+    */
+    part = part || "all";
+    var content = item.toString();
+    switch (part) {
+        case "docstring":
+            if (content.indexOf("/**") > -1) {
+                content = content.slice(0, content.indexOf("*/"));
+            } else {
+                content = "No docstring present."
+            }
+            break;
+        case "function":
+            if (content.indexOf("/**") > -1) {
+                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
+            }
+            break;
+        case "non-natives":
+            if (content.indexOf("non-native functions") > -1) {
+                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
+                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
+            } else {
+                content = "undefined"
+            }
+    }
+    console.log(content);
+    return content;
+}
 
 if (!Array.prototype.includes) {
     Array.prototype.includes = function(searchItem, index) {
@@ -250,6 +285,7 @@ if (!Array.prototype.includes) {
         usage of this doesn't count as non-native function
         because it is native in modern browsers
         and this works the exact same way
+        (with the exception of helpful warnings)
         non-native functions = none
         */
         index = index || 0;
@@ -281,6 +317,7 @@ if (!String.prototype.includes) {
         usage of this doesn't count as non-native function
         because it is native in modern browsers
         and this works the exact same way
+        (with the exception of helpful warnings)
         non-native functions = none
         */
         index = index || 0;
@@ -643,9 +680,9 @@ function read(URL, callback) {
 function pageJump(ID) {
     /**
     makes a section to jump to certain parts of the page
-    non-native functions used = queue.add() and HTMLCollection.forEach()
+    non-native functions used = Standards.queue.add() and HTMLCollection.forEach()
     */
-    queue.add({
+    Standards.queue.add({
         "runOrder" : "first",
         "function" : function(ID) {
             var division = document.getElementById(ID);
@@ -869,6 +906,7 @@ function colorCode(element, end1, end2) {
     }
 }
 
+
 // makes my custom tag which formats things as notes
 document.createElement("note");
 // makes my custom tag which overlines things
@@ -1010,8 +1048,8 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 break;
         }
     }
-    finished = true;
-    queue.run();
+    Standards.finished = true;
+    Standards.queue.run();
     window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
 });
 
