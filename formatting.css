@@ -55,12 +55,12 @@ li {
 }
 table {
     margin: auto;
-    border: .1em solid black;
+    border: .05em solid black;
     border-collapse: collapse;
     background: #fefefe;
 }
 th, td {
-    border: .1em solid black;
+    border: .05em solid black;
     border-collapse: collapse;
     padding: .5em;
 }
@@ -101,7 +101,7 @@ over {  /* my custom tag (overlines things) */
     text-align: left;
 }
 .circle {
-    border: .1em solid black;
+    border: .05em solid black;
     border-radius: .5em;
 }
 h1.mainTitle {
