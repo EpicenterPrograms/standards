@@ -526,7 +526,7 @@ function insertAfter(insertion, place) {
     }
 }
 
-function safeWhile(condition, doStuff, recursionDepth) {
+function safeWhile(condition, doStuff, recursionDepth) {  ////////////////////////////////////////////////////// fix this
     /**
     runs a while loop with a maximum recursion depth
     prevents getting stuck in a while loop
