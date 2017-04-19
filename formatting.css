@@ -58,6 +58,7 @@ table {
     border: .05em solid black;
     border-collapse: collapse;
     background: #fefefe;
+    text-align: center;
 }
 th, td {
     border: .05em solid black;
