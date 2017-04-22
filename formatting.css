@@ -71,6 +71,10 @@ th {
 input {
     text-align: center;
 }
+textarea {
+    font-family: inherit;
+    font-size: 1em;
+}
 sup, sub {
     vertical-align: baseline;
     position: relative;
