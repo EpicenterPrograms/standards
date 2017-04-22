@@ -466,10 +466,10 @@ Object.prototype.keyHasValue = function(key, value) {
 
 function onLoad(doStuff) {
     /**
-    does whatever the argument of the function says when the page loads
+    does whatever the argument of the function says after the page loads and this script finishes running
     non-native functions = none
     */
-    return window.addEventListener("load", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
+    return window.addEventListener("finished", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
 }
 
 function getTag(tag) {
