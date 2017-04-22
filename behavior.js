@@ -375,17 +375,15 @@ String.prototype.format = function() {
     });
 }
 
-String.prototype.splice = function(start, end, replacement) {
+String.prototype.splice = function(start, length, replacement) {
     /**
     acts like Array.splice() except that
-    I made the second argument an end rather than a length
-    because I'm not ridiculous
-    and the value is returned instead of implemented
+    the value is returned instead of implemented
     because JavaScript is dumb and won't let me do that
     non-native functions = none
     */
     replacement = replacement || "";
-    return this.slice(0,start) + replacement + this.slice(end);
+    return this.slice(0,start) + replacement + this.slice(start+length);
 };
 
 HTMLCollection.prototype.forEach = function(doStuff) {
