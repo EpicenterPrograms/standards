@@ -1,4 +1,23 @@
 /* dev.opera.com has a bunch of cross-browser stuff. */
+/*
+element.style,
+stylesheet.addRule(),
+stylesheet.insertRule(),
+stylesheet.deleteRule(),
+document.querySelector(),
+window.getComputedValue().getPropertyValue(),
+CSS attr(),
+and class manipulation
+could be used to modify CSS
+(in particular pseudo-elements)
+*/
+/*
+:root {
+    This accesses the outer-most element.
+    Prefixing a name with "--" makes it a variable. e.g. --cool-number: 42;
+    Variables can be accessed with var(variable-name).
+}
+*/
 * {  /* makes everything include padding and borders in its height and width */
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
