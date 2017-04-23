@@ -162,61 +162,66 @@ var Sound = function(specs) {
         setValues(time);
     };
     this.play = function(noteString, newDefaults, callback) { // plays a song based on notes you put in a string
-        var defaults = {
-            "volume" : 1,
-            "attack" : 50,
-            "noteLength" : 200,
-            "decay" : 50,
-            "spacing" : 0
-        };
-        for (var item in newDefaults) {
-            if (defaults.hasOwnProperty(item)) {
-                defaults[item] = newDefaults[item];
+        if (arguments.length > 0) {
+            var defaults = {
+                "volume" : 1,
+                "attack" : 50,
+                "noteLength" : 200,
+                "decay" : 50,
+                "spacing" : 0
+            };
+            for (var item in newDefaults) {
+                if (defaults.hasOwnProperty(item)) {
+                    defaults[item] = newDefaults[item];
+                }
             }
-        }
-        function interpret(index) {
-            index = index || 0;
-            if (index < noteString.length) {
-                if (noteString[index].match(/[a-z]/i)) {  // is the character at that index a letter?
-                    switch(noteString[index].toLowerCase()+noteString[index+1]) {
-                        case "g4":
-                            sound.change("frequency", 392.00);
-                            break;
-                        case "a4":
-                            sound.change("frequency", 440.00);
-                            break;
-                        case "b4":
-                            sound.change("frequency", 493.88);
-                            break;
-                    }
-                    sound.start(defaults.volume, defaults.attack);
-                    if (noteString[index+2] && noteString[index+2] == "-") {
-                        setTimeout(function() {
-                            interpret(index+2);
-                        }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
-                    } else {
-                        setTimeout(function() {
-                            sound.stop(defaults.decay);
+            function interpret(index) {
+                index = index || 0;
+                if (index < noteString.length) {
+                    if (noteString[index].match(/[a-z]/i)) {  // is the character at that index a letter?
+                        switch(noteString[index].toLowerCase()+noteString[index+1]) {
+                            case "g4":
+                                sound.change("frequency", 392.00);
+                                break;
+                            case "a4":
+                                sound.change("frequency", 440.00);
+                                break;
+                            case "b4":
+                                sound.change("frequency", 493.88);
+                                break;
+                        }
+                        sound.start(defaults.volume, defaults.attack);
+                        if (noteString[index+2] && noteString[index+2] == "-") {
                             setTimeout(function() {
                                 interpret(index+2);
-                            }, defaults.decay+defaults.spacing);
-                        }, defaults.attack+defaults.noteLength);
+                            }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
+                        } else {
+                            setTimeout(function() {
+                                sound.stop(defaults.decay);
+                                setTimeout(function() {
+                                    interpret(index+2);
+                                }, defaults.decay+defaults.spacing);
+                            }, defaults.attack+defaults.noteLength);
+                        }
+                    } else if (noteString[index] == "-" && noteString[index+1] != "-") {
+                        sound.stop(defaults.decay);
+                        setTimeout(function() {
+                            interpret(index+1);
+                        }, defaults.decay+defaults.spacing);
+                    } else {
+                        setTimeout(function() {
+                            interpret(index+1);
+                        }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
                     }
-                } else if (noteString[index] == "-" && noteString[index+1] != "-") {
-                    sound.stop(defaults.decay);
-                    setTimeout(function() {
-                        interpret(index+1);
-                    }, defaults.decay+defaults.spacing);
-                } else {
-                    setTimeout(function() {
-                        interpret(index+1);
-                    }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
+                } else if (callback) {
+                    callback();
                 }
-            } else if (callback) {
-                callback();
             }
+            interpret();
+        } else {  // when you inevitably use Sound.play() instead of Sound.start() like you should have
+            sound.start();
+            console.warn("Sound.play() was called without arguments.\nSound.start() was used instead.");
         }
-        interpret();
     };
     this.stop = function(time) {  // stops/mutes the tone
         time = time || 0;
