@@ -735,54 +735,58 @@ function pageJump(ID) {
     });
 }
 
-function colorCode(element, end1, end2) {
+function colorCode(element, conversion) {
     /**
     color codes an element
-    end1 and end2 specify the ends of a range (not used for strings)
+    conversion is either a number from 0 to 100, a function that returns a value in the same range, or null (if an applicable element)
+        the number determines how the element will be colored
+        if the element is null, a color is returned rather than applied
     colors specifications can be added after all of the arguments
-    colors are an indefinite number of 3-item arrays listed as arguments
-    (items are integers from 0 to 255)
-    e.g. colorCode(element, end1, end2, [12,23,34], [45,56,67], [78,89,90]);
-    default colors = red and green
+        colors are an indefinite number of 3-item arrays listed as arguments
+        (items are integers from 0 to 255)
+        e.g. colorCode(element, end1, end2, [12,23,34], [45,56,67], [78,89,90]);
+        default colors = red and green
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
     non-native functions = HTMLCollection.forEach() and checkAll()
     */
     if (typeof element == "string") {
         element = document.getElementById(element);
     }
+    var end1,
+        end2;
     var args = Array.prototype.slice.call(arguments, 3);
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
-    if (element.tagName == "TABLE") {
-        function backgroundColor(value) {
-            var ends = [end1];
-            colors.forEach(function(color, index, colors) {  // establishes the values where the different colors are centered
-                ends.push(end1+(end2-end1)*(index+2)/colors.length);
-            });
-            var number = value;
-            var endIndex = 1,
-                intermediate1 = [],
-                intermediate2 = [],
-                colorValue;
-            while (number > ends[endIndex]) {  // determines which 2 colors the value falls between
-                endIndex++;
-            }
-            colors[endIndex-1].forEach(function(color) {  // determines how much of the first color should be used (based on how close the value is to the number centered on that color)
-                colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                intermediate1.push(colorValue<=color ? colorValue : color);
-            });
-            colors[endIndex].forEach(function(color) {  // determines how much of the second color should be used
-                colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                intermediate2.push(colorValue<=color ? colorValue : color);
-            });
-            // combines (adds each aspect of) the 2 colors while preventing the color value from going above the maximum (255)
-            var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
-                green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
-                blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
-            return "rgb(" + red + ", " + green + ", " + blue + ")";
+    function backgroundColor(value) {
+        var ends = [end1];
+        colors.forEach(function(color, index, colors) {  // establishes the values where the different colors are centered
+            ends.push(end1+(end2-end1)*(index+2)/colors.length);
+        });
+        var number = value;
+        var endIndex = 1,
+            intermediate1 = [],
+            intermediate2 = [],
+            colorValue;
+        while (number > ends[endIndex]) {  // determines which 2 colors the value falls between
+            endIndex++;
         }
+        colors[endIndex-1].forEach(function(color) {  // determines how much of the first color should be used (based on how close the value is to the number centered on that color)
+            colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
+            intermediate1.push(colorValue<=color ? colorValue : color);
+        });
+        colors[endIndex].forEach(function(color) {  // determines how much of the second color should be used
+            colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
+            intermediate2.push(colorValue<=color ? colorValue : color);
+        });
+        // combines (adds each aspect of) the 2 colors while preventing the color value from going above the maximum (255)
+        var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
+            green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
+            blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
+        return "rgb(" + red + ", " + green + ", " + blue + ")";
+    }
+    if (element.tagName == "TABLE") {
         var tds = element.getElementsByTagName("td");  // tds[3] and tds[6] are representative samples of the type of data
         if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
-            if (!(end1 && end2)) {  // if one or both ends aren't specified
+            if (!(end1 && end2)) {  // if one or both ends aren't specified (unnecessary now)
                 var lowest = Infinity,
                     highest = -Infinity;
                 tds.forEach(function(item) {  // determines the high and low ends of the data
@@ -843,7 +847,7 @@ function colorCode(element, end1, end2) {
                     }
                     return second - first;
                 }
-                if (!(end1 && end2)) {  // if there's not a high and low end specified
+                if (!(end1 && end2)) {  // if there's not a high and low end specified (unnecessary now)
                     var lowest = Infinity,
                         highest = -Infinity;
                     tds.forEach(function(item) {  // determines the high and low ends of the data set
@@ -910,7 +914,22 @@ function colorCode(element, end1, end2) {
             element.parentNode.insertBefore(replacement, element);  // inserts the set of colored <span>s in the same place as the original text
             element.parentNode.removeChild(element);  // gets rid of the original uncolored text
         }
-    }
+    } else {
+        end1 = 0;
+        end2 = 100;
+        if (element == null) {
+            if (isNaN(conversion)) {
+                return backgroundColor(conversion());
+            } else {
+                return backgroundColor(conversion);
+            }
+        } else {
+            if (isNaN(conversion)) {
+                element.style.backgroundColor = backgroundColor(conversion());
+            } else {
+                element.style.backgroundColor = backgroundColor(conversion);
+            }
+        }
 }
 
 
