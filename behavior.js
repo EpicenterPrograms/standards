@@ -754,7 +754,7 @@ function colorCode(element, conversion) {
     }
     var end1,
         end2;
-    var args = Array.prototype.slice.call(arguments, 3);
+    var args = Array.prototype.slice.call(arguments, 2);  // all of the arguments after the second one
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
     function backgroundColor(value) {
         var ends = [end1];
