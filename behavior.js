@@ -930,6 +930,7 @@ function colorCode(element, conversion) {
                 element.style.backgroundColor = backgroundColor(conversion);
             }
         }
+    }
 }
 
 
