@@ -996,6 +996,14 @@ window.addEventListener("load", function() {  // This waits for everything past 
             document.body.appendChild(section);
         }
         
+        // make the target of every anchor tag "_blank"
+        // (purposefully ignores yet-to-be-created links)
+        document.getElementsByTagName("a").forEach(function(anchor) {
+            if (!anchor.target) {
+                anchor.target = "_blank";
+            }
+        });
+        
         if (!Standards.options.keyHasValue("title", "none")) {
             // adds a title to the page
             var title = document.createElement("h1");
