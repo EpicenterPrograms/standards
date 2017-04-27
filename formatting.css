@@ -90,7 +90,13 @@ th {
 input {
     text-align: center;
 }
+input[type="text"] {
+    cursor: text;
+}
 input[type="checkbox"] {
+    cursor: pointer;
+}
+input[type="button"] {
     cursor: pointer;
 }
 button {
@@ -99,6 +105,7 @@ button {
 textarea {
     font-family: inherit;
     font-size: 1em;
+    cursor: text;
 }
 sup, sub {
     vertical-align: baseline;
