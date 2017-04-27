@@ -94,6 +94,7 @@ input[type="text"] {
     cursor: text;
 }
 input[type="checkbox"] {
+    margin: .5em;
     cursor: pointer;
 }
 input[type="button"] {
