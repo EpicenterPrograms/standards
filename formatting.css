@@ -90,6 +90,12 @@ th {
 input {
     text-align: center;
 }
+input[type="checkbox"] {
+    cursor: pointer;
+}
+button {
+    cursor: pointer;
+}
 textarea {
     font-family: inherit;
     font-size: 1em;
