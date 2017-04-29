@@ -415,6 +415,31 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     }
 };
 
+CSSRuleList.prototype.forEach = function(doStuff) {
+    /**
+    CSSRuleList = a list of rules for a stylesheet
+    creates a static list of CSSRuleList elements
+    and does stuff for each one like Array.forEach()
+    (.forEach() doesn't work for these lists without this code)
+    implication of static list = you can remove the elements in doStuff without messing everything up
+    doStuff will be run with the arguments (value, index, list)
+    doStuff can return a value of "break" to break out of the loop
+    the .selectorText of a stylesheet rule will return something like p, .class, #ID, etc.
+    the properties and values of a stylesheet rule can be accessed and set like a normal object
+    non-native functions used = none
+    */
+    var elements = [];
+    for (var index=0; index<this.length; index++) {
+        elements.push(this[index]);
+    }
+    for (index=0; index<elements.length; index++) {
+        var returnValue = doStuff(elements[index], index, elements);
+        if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+            break;
+        }
+    }
+};
+
 NodeList.prototype.forEach = function(doStuff) {
     /**
     similar to HTMLCollection.forEach()
