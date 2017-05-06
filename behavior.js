@@ -561,6 +561,9 @@ function safeWhile(condition, doStuff, loops) {
     runs a while loop with a maximum recursion depth
     prevents getting stuck in a while loop
     condition = a string of a condition for the while loop
+        local variables used in the condition must be declared with "this"
+        example: this.variable = value;
+        usage of "this." before the variable within condition or doStuff is optional
     doStuff = what should be done in the while loop
     recursionDepth = how many times the loop is allowed to run (defaults to 1000)
     non-native functions = none
