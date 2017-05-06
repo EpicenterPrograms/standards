@@ -106,7 +106,6 @@ button {
 textarea {
     font-family: inherit;
     font-size: 1em;
-    cursor: text;
 }
 sup, sub {
     vertical-align: baseline;
