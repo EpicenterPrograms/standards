@@ -565,7 +565,7 @@ function safeWhile(condition, doStuff, loops) {
     recursionDepth = how many times the loop is allowed to run (defaults to 1000)
     non-native functions = none
     */
-    loops = loops || 1000;
+    loops = loops>=0 ? loops : 1000;  // if I used loops = loops || 1000 it would reset to 1000 when loops = 0
     if (eval(condition) && loops > 0) {
         doStuff();
         loops--;
