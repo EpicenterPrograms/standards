@@ -566,7 +566,7 @@ function safeWhile(condition, doStuff, loops) {
     non-native functions = none
     */
     loops = loops>=0 ? loops : 1000;  // if I used loops = loops || 1000 it would reset to 1000 when loops = 0
-    if (eval(condition) && loops > 0) {
+    if (eval.call(doStuff, condition) && loops > 0) {
         doStuff();
         loops--;
         safeWhile(condition, doStuff, loops);
