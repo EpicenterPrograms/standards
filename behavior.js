@@ -100,7 +100,8 @@ Standards.queue.add = function(object) {
     }
 };
 
-Standards.audio = new window.AudioContext() || window.webkitAudioContext();  // used in Sound()
+Standards.audio = new (window.AudioContext()!=undefined ? window.AudioContext() : window.webkitAudioContext());  // used in Sound()
+// Safari is dumb and doesn't like the way I normally assign defaults to variables, so I did this way here, so the script would at least finish.
 // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 var Sound = function(specs) {
