@@ -71,6 +71,9 @@ if (Standards.queue) {
         Standards.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
     */
 Standards.queue.run = function() {
+    /**
+    non-native functions = none
+    */
     Standards.queue.forEach(function(fn) {
         if (typeof fn.function == "string") {
             throw 'The value of "function" must not be a string.';
@@ -104,7 +107,7 @@ Standards.audio = new window.AudioContext() || new window.webkitAudioContext(); 
 // Safari is dumb and doesn't like this way of assigning defaults to variables.
 // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
-var Sound = function(specs) {
+Standards.Sound = function(specs) {
     /**
     creates tones which can be modified in certain way
     frequency = frequency of the primary tone/wave
@@ -116,6 +119,7 @@ var Sound = function(specs) {
     hertzChange = the frequency change of the primary wave upon modulation
     changeWave = waveform of the modulating wave
     playing (can't be changed) = whether a sound is being played
+    non-native functions = Object.forEach()
     */
     var sound = this,
         osc1 = Standards.audio.createOscillator(),
@@ -128,9 +132,9 @@ var Sound = function(specs) {
     this.modulation = 0;
     this.hertzChange = 0;
     this.changeWave = "sine";
-    for (var spec in specs) {
-        this[spec] = specs[spec];
-    }
+    specs.forEach(function(value, key) {
+        this[key] = value;
+    });
     this.playing = false;
     function setValues(time) {
         time = time || 0;
@@ -171,11 +175,11 @@ var Sound = function(specs) {
                 "decay" : 50,
                 "spacing" : 0
             };
-            for (var item in newDefaults) {
-                if (defaults.hasOwnProperty(item)) {
-                    defaults[item] = newDefaults[item];
+            newDefaults.forEach(function(value, key) {
+                if (defaults.hasOwnProperty(key)) {
+                    defaults[key] = value;
                 }
-            }
+            });
             function interpret(index) {
                 index = index || 0;
                 if (index < noteString.length) {
@@ -249,7 +253,7 @@ var Sound = function(specs) {
 };
 
 
-function help(item, part) {
+Standards.help = function(item, part) {
     /**
     This prints out the source code of what you want to learn about
     which also includes my comments on usage.
@@ -497,7 +501,7 @@ Object.prototype.keyHasValue = function(key, value) {
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
 
-function onLoad(doStuff) {
+Standards.onLoad = function(doStuff) {
     /**
     does whatever the argument of the function says after the page loads and this script finishes running
     non-native functions = none
@@ -505,7 +509,7 @@ function onLoad(doStuff) {
     return window.addEventListener("finished", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
 }
 
-function getTag(tag) {
+Standards.getTag = function(tag) {
     /**
     gets all of the elements made by a certain tag
     non-native functions = none
@@ -513,7 +517,7 @@ function getTag(tag) {
     return document.getElementsByTagName(tag);
 }
 
-function getId(ID) {
+Standards.getId = function(ID) {
     /**
     gets an element by ID
     non-native functions = none
@@ -521,7 +525,7 @@ function getId(ID) {
     return document.getElementById(ID);
 }
 
-function getClass(name) {
+Standards.getClass = function(name) {
     /**
     gets elements with a certain class
     non-native functions = none
@@ -529,7 +533,7 @@ function getClass(name) {
     return document.getElementsByClassName(name);
 }
 
-function insertBefore(insertion, place) {
+Standards.insertBefore = function(insertion, place) {
     /**
     inserts the insertion before the place
     applies to HTML elements
@@ -543,7 +547,7 @@ function insertBefore(insertion, place) {
     }
 }
 
-function insertAfter(insertion, place) {
+Standards.insertAfter = function(insertion, place) {
     /**
     inserts the insertion after the place
     applies to HTML elements
@@ -557,7 +561,7 @@ function insertAfter(insertion, place) {
     }
 }
 
-function safeWhile(condition, doStuff, loops) {
+Standards.safeWhile = function(condition, doStuff, loops) {
     /**
     runs a while loop with a maximum recursion depth
     prevents getting stuck in a while loop
@@ -573,13 +577,13 @@ function safeWhile(condition, doStuff, loops) {
     if (eval.call(doStuff, condition) && loops > 0) {
         doStuff();
         loops--;
-        safeWhile(condition, doStuff, loops);
+        Standards.safeWhile(condition, doStuff, loops);
     } else if (loops <= 0) {
         throw "Recursion depth exceeded."
     }
 }
 
-function checkAll(item, comparator, comparisons, type) {
+Standards.checkAll = function(item, comparator, comparisons, type) {
     /**
     comparisons = an array of things to be used in comparing things
     type = whether you need all of the comparisons to be true or just one ("&&" or "||")
@@ -672,7 +676,7 @@ function checkAll(item, comparator, comparisons, type) {
     return trueFalse;
 }
 
-function read(URL, callback) {
+Standards.read = function(URL, callback) {
     /**
     reads the contents of the file at the URL,
     converts it into a string,
@@ -710,7 +714,7 @@ function read(URL, callback) {
     file.send();
 }
 
-function pageJump(ID) {
+Standards.pageJump = function(ID) {
     /**
     makes a section to jump to certain parts of the page
     non-native functions used = Standards.queue.add() and HTMLCollection.forEach()
@@ -763,7 +767,7 @@ function pageJump(ID) {
     });
 }
 
-function colorCode(element, conversion) {
+Standards.colorCode = function(element, conversion) {
     /**
     color codes an element
     conversion is either a number from 0 to 100, a function that returns a value in the same range, or null (if an applicable element)
@@ -908,7 +912,7 @@ function colorCode(element, conversion) {
                     
                 }
             }
-        } else if (checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
+        } else if (Standards.checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
             if (element.innerHTML.trim() != "") {  // if the text isn't empty
                 end1 = 0;
                 end2 = element.innerHTML.trim().length;
@@ -969,20 +973,6 @@ if (!Standards.options.keyHasValue("automation", "none")) {
     
     //This is able to run without waiting for anything else to load.
     
-    if (!Standards.options.keyHasValue("formatting", "none")) {
-        // adds the universal formatting
-        if (Standards.options.hasOwnProperty("formatting")) {
-            var localStyle = document.createElement("link");
-            localStyle.rel = "stylesheet";
-            localStyle.href = Standards.options.formatting;
-            insertBefore(localStyle, document.head.children[0]);
-        }
-        var style = document.createElement("link");
-        style.rel = "stylesheet";
-        style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
-        insertBefore(style, document.head.children[0]);
-    }
-    
     // links a favicon
     var icon = document.createElement("link");
     icon.rel = "icon";
@@ -1032,26 +1022,11 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }
         });
         
-        if (!Standards.options.keyHasValue("title", "none")) {
-            // adds a title to the page
-            var title = document.createElement("h1");
-            title.className = "mainTitle";
-            title.id = "top";
-            if (!Standards.options.hasOwnProperty("title")) {
-                title.innerHTML = document.title;
-            } else if (isNaN(Standards.options.title) && Standards.options.title[0]=="~") {
-                eval("title.innerHTML = " + Standards.options.title.slice(1) + ";");
-            } else {
-                title.innerHTML = Standards.options.title;
-            }
-            document.body.insertBefore(title, document.body.children[0]);
-        }
-        
         // interprets <note> tags
         var noteNumber = 1;
-        getTag("note").forEach(function(note, index, notes) {
+        document.getElementsByTagName("note").forEach(function(note, index, notes) {
             if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
-                var reference = getId(note.innerHTML.slice(1,-1));
+                var reference = document.getElementById(note.innerHTML.slice(1,-1));
                 note.title = reference.title;
                 note.innerHTML = reference.innerHTML;
             } else {
@@ -1062,6 +1037,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         });
         
         // surrounds every list with <div class="list"></div>
+        //// should be able to eliminate
         var orderedLists = document.getElementsByTagName("ol");
         var unorderedLists = document.getElementsByTagName("ul");
         for (var index=0; index<orderedLists.length; index++) {
@@ -1098,17 +1074,17 @@ window.addEventListener("load", function() {  // This waits for everything past 
     }
     
     // handles the options
-    for (var spec in Standards.options) {
-        switch (spec) {
+    Standards.options.forEach(function(specification, option) {
+        switch (option) {
             case "navigation":
                 document.body.style = "margin:0vw 0vh 0vh 15vw; width: 80%;";
-                read(Standards.options[spec], function() {
+                Standards.read(specification, function() {
                     this.className = "nav";
-                    document.body.insertBefore(this, document.body.childNodes[0]);
+                    document.body.insertBefore(this, document.body.childNodes[1]);
                 });
                 break;
         }
-    }
+    });
     Standards.finished = true;
     Standards.queue.run();
     window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
