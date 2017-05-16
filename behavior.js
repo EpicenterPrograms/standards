@@ -21,22 +21,13 @@ if (Standards.options) {
     valid options =
         "automation" : "none", "basic", "full"
             runs a corresponding amount of code after defining everything
-        "formatting" : "none", URL
-            if "none", no formatting is added, otherwise
-            gives the document this site's universal formatting, and
-            optionally adds the styling located at the URL
-            (the added styling overwrites when in conflict with the universal formatting)
         "icon" : URL
             gives the window the icon located at the URL
-        "section" : "none"
-            allows you to prevent the creation of the surrounding <section> tag
-        "title" : "none", other
-            puts a title (<h1>) at the top of the page (not the page tab) if not "none"
-            if a different option (String or Number), the option is used as the title
-            if the first character of a String is "~", the string will be evaluated as code
-            default = inserts the same content as the <title>
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
+        "simplification" : true, false
+            determines whether "Standards" should also be imported as "S"
+            default = false
     */
 
 Standards.finished = false;
@@ -969,6 +960,11 @@ document.createElement("note");
 // makes my custom tag which overlines things
 document.createElement("over");
 
+// determines whether "Standards" should also be imported as "S"
+if (Standards.options.keyHasValue("simplification", true)) {
+    var S = Standards;
+}
+
 if (!Standards.options.keyHasValue("automation", "none")) {
     
     //This is able to run without waiting for anything else to load.
@@ -1003,16 +999,7 @@ if (!Standards.options.keyHasValue("automation", "none")) {
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
-    if (!Standards.options.hasOwnProperty("automation") || Standards.options.automation == "full") {
-        
-        if (!Standards.options.keyHasValue("section", "none")) {
-            // surrounds the <body> content with a <section> tag
-            var section = document.createElement("section");
-            document.body.children.forEach(function(child) {
-                section.appendChild(child);
-            });
-            document.body.appendChild(section);
-        }
+    if (Standards.options.keyHasValue("automation", "full")) {
         
         // make the target of every anchor tag "_blank"
         // (purposefully ignores yet-to-be-created links)
