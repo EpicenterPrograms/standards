@@ -123,6 +123,7 @@ var Sound = function(specs) {
     this.modulation = 0;
     this.hertzChange = 0;
     this.changeWave = "sine";
+    specs = specs || {};
     specs.forEach(function(value, key) {
         this[key] = value;
     }, false);
@@ -166,10 +167,9 @@ var Sound = function(specs) {
                 "decay" : 50,
                 "spacing" : 0
             };
+            newDefaults = newDefaults || {};
             newDefaults.forEach(function(value, key) {
-                if (defaults.hasOwnProperty(key)) {
-                    defaults[key] = value;
-                }
+                defaults[key] = value;
             }, false);
             function interpret(index) {
                 index = index || 0;
