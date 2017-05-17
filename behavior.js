@@ -14,7 +14,7 @@ if (Standards.options) {
     }
 } else {
     Standards.options = {};
-}
+};
     /**
     allows specifications to be added if the variable is already present
     (otherwise uses default values and settings)
@@ -46,7 +46,7 @@ if (Standards.queue) {
     }
 } else {
     Standards.queue = [];
-}
+};
     /**
     establishes a list of functions to be run once the page and this script has loaded
     each item should be an object with a "runOrder" property and a "function" property
@@ -95,10 +95,10 @@ Standards.queue.add = function(object) {
 };
 
 Standards.audio = new window.AudioContext() || new window.webkitAudioContext();  // used in Sound()
-// Safari is dumb and doesn't like this way of assigning defaults to variables.
-// Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
+    // Safari is dumb and doesn't like this way of assigning defaults to variables.
+    // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
-Standards.Sound = function(specs) {
+var Sound = function(specs) {
     /**
     creates tones which can be modified in certain way
     frequency = frequency of the primary tone/wave
@@ -244,41 +244,6 @@ Standards.Sound = function(specs) {
 };
 
 
-Standards.help = function(item, part) {
-    /**
-    This prints out the source code of what you want to learn about
-    which also includes my comments on usage.
-    The part allows you pick a part of documentation.
-        "all", "docstring", "function", or "non-natives"
-    non-native functions = String.splice()
-    */
-    part = part || "all";
-    var content = item.toString();
-    switch (part) {
-        case "docstring":
-            if (content.indexOf("/**") > -1) {
-                content = content.slice(0, content.indexOf("*/"));
-            } else {
-                content = "No docstring present."
-            }
-            break;
-        case "function":
-            if (content.indexOf("/**") > -1) {
-                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
-            }
-            break;
-        case "non-natives":
-            if (content.indexOf("non-native functions") > -1) {
-                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
-                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
-            } else {
-                content = "undefined"
-            }
-    }
-    console.log(content);
-    return content;
-}
-
 if (!Array.prototype.includes) {
     Array.prototype.includes = function(searchItem, index) {
         /**
@@ -309,7 +274,7 @@ if (!Array.prototype.includes) {
             return false;
         }
     };
-}
+};
 
 if (!String.prototype.includes) {
     String.prototype.includes = function(searchItem, index) {
@@ -341,7 +306,7 @@ if (!String.prototype.includes) {
             return false;
         }
     };
-}
+};
 
 String.prototype.forEach = function(doStuff) {
     /**
@@ -360,7 +325,7 @@ String.prototype.forEach = function(doStuff) {
             break;
         }
     }
-}
+};
 
 String.prototype.format = function() {
     /**
@@ -375,7 +340,7 @@ String.prototype.format = function() {
     return this.replace(/{(\d+)}/g, function(match, number) {  // These function variables represent the match found and the number inside.
         return (typeof args[number]!="undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
     });
-}
+};
 
 String.prototype.splice = function(start, length, replacement) {
     /**
@@ -491,6 +456,41 @@ Object.prototype.keyHasValue = function(key, value) {
     */
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
+
+Standards.help = function(item, part) {
+    /**
+    This prints out the source code of what you want to learn about
+    which also includes my comments on usage.
+    The part allows you pick a part of documentation.
+        "all", "docstring", "function", or "non-natives"
+    non-native functions = String.splice()
+    */
+    part = part || "all";
+    var content = item.toString();
+    switch (part) {
+        case "docstring":
+            if (content.indexOf("/**") > -1) {
+                content = content.slice(0, content.indexOf("*/"));
+            } else {
+                content = "No docstring present."
+            }
+            break;
+        case "function":
+            if (content.indexOf("/**") > -1) {
+                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
+            }
+            break;
+        case "non-natives":
+            if (content.indexOf("non-native functions") > -1) {
+                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
+                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
+            } else {
+                content = "undefined"
+            }
+    }
+    console.log(content);
+    return content;
+}
 
 Standards.onLoad = function(doStuff) {
     /**
