@@ -110,7 +110,6 @@ var Sound = function(specs) {
     hertzChange = the frequency change of the primary wave upon modulation
     changeWave = waveform of the modulating wave
     playing (can't be changed) = whether a sound is being played
-    non-native functions = Object.forEach()
     */
     var sound = this,
         osc1 = Standards.audio.createOscillator(),
@@ -123,10 +122,9 @@ var Sound = function(specs) {
     this.modulation = 0;
     this.hertzChange = 0;
     this.changeWave = "sine";
-    specs = specs || {};
-    specs.forEach(function(value, key) {
-        this[key] = value;
-    }, false);
+    for (var spec in specs) {
+        this[spec] = specs[spec];
+    }
     this.playing = false;
     function setValues(time) {
         time = time || 0;
@@ -167,10 +165,11 @@ var Sound = function(specs) {
                 "decay" : 50,
                 "spacing" : 0
             };
-            newDefaults = newDefaults || {};
-            newDefaults.forEach(function(value, key) {
-                defaults[key] = value;
-            }, false);
+            for (var item in newDefaults) {
+                if (defaults.hasOwnProperty(item)) {
+                    defaults[item] = newDefaults[item];
+                }
+            }
             function interpret(index) {
                 index = index || 0;
                 if (index < noteString.length) {
