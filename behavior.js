@@ -125,7 +125,7 @@ var Sound = function(specs) {
     this.changeWave = "sine";
     specs.forEach(function(value, key) {
         this[key] = value;
-    });
+    }, false);
     this.playing = false;
     function setValues(time) {
         time = time || 0;
@@ -170,7 +170,7 @@ var Sound = function(specs) {
                 if (defaults.hasOwnProperty(key)) {
                     defaults[key] = value;
                 }
-            });
+            }, false);
             function interpret(index) {
                 index = index || 0;
                 if (index < noteString.length) {
@@ -418,7 +418,7 @@ NodeList.prototype.forEach = function(doStuff) {
     }
 };
 
-Object.prototype.forEach = function(doStuff) {  // <<<<<<<<---------------- This is necessary.
+Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------- This is necessary.
     /**
     loops through every property of the object
     -->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
@@ -427,22 +427,37 @@ Object.prototype.forEach = function(doStuff) {  // <<<<<<<<---------------- This
     properites that are numbers only are at the beginning in ascending order no matter what
         e.g. {0:"value1", 3:"value2", 7:"value3", 42:"value4, "property1":"value5", "property2":"value6"}
     doStuff can return a value of "break" to break out of the loop
+    if "copy" is set false, the actual list will be looped through
+        default = true
     non-native functions = none
     */
-    var newObject = {};
-    for (var property in this) {
-        if (this.propertyIsEnumerable(property)) {
-            newObject[property] = this[property];
-        }
-    }
+    copy = copy || true;
     var index = 0,
         returnValue;
-    for (property in this) {
-        if (this.propertyIsEnumerable(property)) {
-            returnValue = doStuff(newObject[property], property, newObject, index);
-            index++;
-            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-                break;
+    if (copy) {
+        var newObject = {};
+        for (var property in this) {
+            if (this.propertyIsEnumerable(property)) {
+                newObject[property] = this[property];
+            }
+        }
+        for (property in this) {
+            if (this.propertyIsEnumerable(property)) {
+                returnValue = doStuff(newObject[property], property, newObject, index);
+                index++;
+                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                    break;
+                }
+            }
+        }
+    } else {
+        for (var property in this) {
+            if (this.propertyIsEnumerable(property)) {
+                returnValue = doStuff(newObject[property], property, newObject, index);
+                index++;
+                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                    break;
+                }
             }
         }
     }
