@@ -100,8 +100,7 @@ Standards.queue.add = function(object) {
     }
 };
 
-Standards.audio = window.AudioContext || window.webkitAudioContext;  // using "new" with this all at once makes it only use window.AudioContext
-Standards.audio = new Standards.audio();  // used in Sound()
+Standards.audio = new (window.AudioContext || window.webkitAudioContext || Object)();  // used in Sound()
 // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 var Sound = function(specs) {
