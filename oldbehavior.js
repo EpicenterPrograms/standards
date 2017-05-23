@@ -771,7 +771,7 @@ function colorCode(element, conversion) {
     colors specifications can be added after all of the arguments
         colors are an indefinite number of 3-item arrays listed as arguments
         (items are integers from 0 to 255)
-        e.g. colorCode(element, end1, end2, [12,23,34], [45,56,67], [78,89,90]);
+        e.g. colorCode(element, null, [12,23,34], [45,56,67], [78,89,90]);
         default colors = red and green
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
     non-native functions = HTMLCollection.forEach() and checkAll()
@@ -910,37 +910,13 @@ function colorCode(element, conversion) {
         } else if (checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
             if (element.innerHTML.trim() != "") {  // if the text isn't empty
                 end1 = 0;
-                end2 = element.innerHTML.trim().length;
-                var ends = [end1];
-                colors.forEach(function(color, index, colors) {  // establishes the places where the different colors are centered
-                    ends.push(end1+(end2-end1)*(index+2)/colors.length);
-                });
+                end2 = element.innerHTML.trim().length - 1;
                 var replacement = document.createElement(element.tagName);  // makes sure the replacement uses the same tag / element type
                 element.innerHTML.trim().split("").forEach(function(character, index) {  // puts a <span> between each letter and colors the text
                     var span = document.createElement("span");
                     span.innerHTML = character;
                     span.style.display = "inline";
-                    var number = index;
-                    var endIndex = 1,
-                        intermediate1 = [],
-                        intermediate2 = [],
-                        colorValue;
-                    while (number > ends[endIndex]) {  // determines which 2 colors the index falls between
-                        endIndex++;
-                    }
-                    colors[endIndex-1].forEach(function(color) {  // determines how much of the first color should be used
-                        colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                        intermediate1.push(colorValue<=color ? colorValue : color);
-                    });
-                    colors[endIndex].forEach(function(color) {  // determines how much of the second color should be used
-                        colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                        intermediate2.push(colorValue<=color ? colorValue : color);
-                    });
-                    // combines (adds each aspect of) the 2 colors while preventing the color value from going above the maximum (255)
-                    var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
-                        green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
-                        blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
-                    span.style.color = "rgb(" + red + ", " + green + ", " + blue + ")";
+                    span.style.color = backgroundColor(index);
                     replacement.appendChild(span);
                 });
                 element.parentNode.insertBefore(replacement, element);  // inserts the set of colored <span>s in the same place as the original text
