@@ -881,6 +881,7 @@ function colorCode(element, conversion) {
                 // tds[3] and tds[6] are representative samples of the type of data
             if (list) {
                 list.forEach(function(table) {
+                    console.log("forEach\n" + tds);
                     tds = toArray(tds, table.getElementsByTagName("td"));
                 });
             } else {
