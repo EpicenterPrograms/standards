@@ -824,6 +824,9 @@ function colorCode(element, conversion) {
     a table needs to have at least 7 items before it's color-coded
     non-native functions = HTMLCollection.forEach(), toArray(), and checkAll()
     */
+    console.log(element);
+    console.log(typeof element);
+    console.log("//////////");
     var list = false;  // for whether "element" is a list (array)
     if (typeof element == "string") {
         element = document.getElementById(element);
