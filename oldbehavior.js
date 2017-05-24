@@ -592,7 +592,7 @@ function toArray() {
         index2 = 0,
         returnList = [];
     for (index1; index1<arguments.length; index1++) {
-        if (arguments[index1] instanceof Array) {
+        if (arguments[index1][0] && arguments[index1].length) {
             for (index2; index2<arguments[index1].length; index2++) {
                 returnList.push(arguments[index1][index2]);
             }
