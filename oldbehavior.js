@@ -392,7 +392,7 @@ String.prototype.splice = function(start, length, replacement) {
     return this.slice(0,start) + replacement + this.slice(start+length);
 };
 
-HTMLCollection.prototype.forEach = function(doStuff) {
+HTMLCollection.prototype.forEach = function(doStuff, copy) {
     /**
     HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
     creates a static list of HTMLCollection elements
@@ -401,16 +401,30 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     implication of static list = you can remove the elements in doStuff without messing everything up
     doStuff will be run with the arguments (value, index, list)
     doStuff can return a value of "break" to break out of the loop
+    if "copy" is set false, the actual list will be looped through
+        default = true
     non-native functions used = none
     */
-    var elements = [];
-    for (var index=0; index<this.length; index++) {
-        elements.push(this[index]);
-    }
-    for (index=0; index<elements.length; index++) {
-        var returnValue = doStuff(elements[index], index, elements);
-        if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-            break;
+    copy = copy || true;
+    var index = 0,
+        returnValue;
+    if (copy) {
+        var elements = [];
+        for (index; index<this.length; index++) {
+            elements.push(this[index]);
+        }
+        for (index=0; index<elements.length; index++) {
+            returnValue = doStuff(elements[index], index, elements);
+            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                break;
+            }
+        }
+    } else {
+        for (index; index<elements.length; index++) {
+            returnValue = doStuff(elements[index], index, elements);
+            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                break;
+            }
         }
     }
 };
@@ -457,7 +471,7 @@ NodeList.prototype.forEach = function(doStuff) {
     }
 };
 
-Object.prototype.forEach = function(doStuff) {  // <<<<<<<<---------------- This is necessary.
+Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------- This is necessary.
     /**
     loops through every property of the object
     -->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
@@ -466,22 +480,35 @@ Object.prototype.forEach = function(doStuff) {  // <<<<<<<<---------------- This
     properites that are numbers only are at the beginning in ascending order no matter what
         e.g. {0:"value1", 3:"value2", 7:"value3", 42:"value4, "property1":"value5", "property2":"value6"}
     doStuff can return a value of "break" to break out of the loop
+    if "copy" is set false, the actual list will be looped through
+        default = true
     non-native functions = none
     */
-    var newObject = {};
-    for (var property in this) {
-        if (this.propertyIsEnumerable(property)) {
-            newObject[property] = this[property];
-        }
-    }
+    copy = copy || true;
     var index = 0,
         returnValue;
-    for (property in this) {
-        if (this.propertyIsEnumerable(property)) {
+    if (copy) {
+        var newObject = {};
+        for (var property in this) {
+            if (this.propertyIsEnumerable(property)) {
+                newObject[property] = this[property];
+            }
+        }
+        for (property in newObject) {
             returnValue = doStuff(newObject[property], property, newObject, index);
             index++;
             if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
+            }
+        }
+    } else {
+        for (var property in this) {
+            if (this.propertyIsEnumerable(property)) {
+                returnValue = doStuff(this[property], property, newObject, index);
+                index++;
+                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                    break;
+                }
             }
         }
     }
@@ -801,9 +828,9 @@ function colorCode(element, conversion) {
     if (typeof element == "string") {
         element = document.getElementById(element);
     } else if (typeof element == "array") {
-        element.forEach(function(item) {
+        element.forEach(function(item, index) {
             if (typeof item == "string") {
-                item = document.getElementById(item);
+                element[index] = document.getElementById(item);
             }
         });
         list = element;
