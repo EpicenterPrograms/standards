@@ -592,7 +592,7 @@ function toArray() {
         index2 = 0,
         returnList = [];
     for (index1; index1<arguments.length; index1++) {
-        if (typeof arguments[index1] == "array") {
+        if (arguments[index1] instanceof Array) {
             for (index2; index2<arguments[index1].length; index2++) {
                 returnList.push(arguments[index1][index2]);
             }
@@ -824,25 +824,17 @@ function colorCode(element, conversion) {
     a table needs to have at least 7 items before it's color-coded
     non-native functions = HTMLCollection.forEach(), toArray(), and checkAll()
     */
-    console.log(element);
-    console.log(typeof element);
-    console.log("//////////");
     var list = false;  // for whether "element" is a list (array)
     if (typeof element == "string") {
         element = document.getElementById(element);
     } else if (element instanceof Array) {  // using "typeof" always returns false because arrays are apparently objects (in this script)
-        console.log(element);
         element.forEach(function(item, index) {
             if (typeof item == "string") {
                 element[index] = document.getElementById(item);
             }
         });
-        console.log(element);
         list = element;
         element = element[0];
-        console.log(list);
-        console.log(element);
-        console.log("\n");
     }
     var end1,
         end2;
@@ -894,6 +886,7 @@ function colorCode(element, conversion) {
             } else {
                 tds = element.getElementsByTagName("td");
             }
+            console.log(tds);
             if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
                 var lowest = Infinity,
                     highest = -Infinity;
