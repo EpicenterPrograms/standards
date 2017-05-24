@@ -801,13 +801,13 @@ function colorCode(element, conversion) {
     if (typeof element == "string") {
         element = document.getElementById(element);
     } else if (typeof element == "array") {
-        list = element;
-        element = element[0];
-        list.forEach(function(item) {
+        element.forEach(function(item) {
             if (typeof item == "string") {
                 item = document.getElementById(item);
             }
         });
+        list = element;
+        element = element[0];
     }
     var end1,
         end2;
