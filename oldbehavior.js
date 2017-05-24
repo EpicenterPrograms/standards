@@ -596,7 +596,7 @@ function toArray() {
             for (index2; index2<arguments[index1].length; index2++) {
                 returnList.push(arguments[index1][index2]);
             }
-        } else if (arguments[index1] != []) {  // filters out empty lists
+        } else if (arguments[index1] != Array(0)) {  // filters out empty lists
             returnList.push(arguments[index1]);
         }
         console.log(returnList);
@@ -884,6 +884,8 @@ function colorCode(element, conversion) {
                 list.forEach(function(table) {
                     console.log("forEach");
                     console.log(tds);
+                    console.log(table);
+                    console.log(table.getElementsByTagName("td"));
                     tds = toArray(tds, table.getElementsByTagName("td"));
                 });
             } else {
