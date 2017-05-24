@@ -828,13 +828,18 @@ function colorCode(element, conversion) {
     if (typeof element == "string") {
         element = document.getElementById(element);
     } else if (typeof element == "array") {
+        console.log(element);
         element.forEach(function(item, index) {
             if (typeof item == "string") {
                 element[index] = document.getElementById(item);
             }
         });
+        console.log(element);
         list = element;
         element = element[0];
+        console.log(list);
+        console.log(element);
+        console.log("\n");
     }
     var end1,
         end2;
