@@ -21,10 +21,13 @@ if (Standards.options) {
     valid options =
         "automation" : "none", "basic", "full"
             runs a corresponding amount of code after defining everything
+            default = "full"
         "icon" : URL
             gives the window the icon located at the URL
+            default = a color-changing circle
         "navigation" : URL
             makes a navigation section using the (HTML) document located at the URL
+            default = none
         "simplification" : true, false
             determines whether "Standards" should also be imported as "S"
             default = false
@@ -352,7 +355,7 @@ String.prototype.splice = function(start, length, replacement) {
     return this.slice(0,start) + replacement + this.slice(start+length);
 };
 
-HTMLCollection.prototype.forEach = function(doStuff) {
+HTMLCollection.prototype.forEach = function(doStuff, copy) {
     /**
     HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
     creates a static list of HTMLCollection elements
@@ -361,16 +364,30 @@ HTMLCollection.prototype.forEach = function(doStuff) {
     implication of static list = you can remove the elements in doStuff without messing everything up
     doStuff will be run with the arguments (value, index, list)
     doStuff can return a value of "break" to break out of the loop
+    if "copy" is set false, the actual list will be looped through
+        default = true
     non-native functions used = none
     */
-    var elements = [];
-    for (var index=0; index<this.length; index++) {
-        elements.push(this[index]);
-    }
-    for (index=0; index<elements.length; index++) {
-        var returnValue = doStuff(elements[index], index, elements);
-        if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-            break;
+    copy = copy || true;
+    var index = 0,
+        returnValue;
+    if (copy) {
+        var elements = [];
+        for (index; index<this.length; index++) {
+            elements.push(this[index]);
+        }
+        for (index=0; index<elements.length; index++) {
+            returnValue = doStuff(elements[index], index, elements);
+            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                break;
+            }
+        }
+    } else {
+        for (index; index<elements.length; index++) {
+            returnValue = doStuff(elements[index], index, elements);
+            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                break;
+            }
         }
     }
 };
@@ -440,19 +457,17 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
                 newObject[property] = this[property];
             }
         }
-        for (property in this) {
-            if (this.propertyIsEnumerable(property)) {
-                returnValue = doStuff(newObject[property], property, newObject, index);
-                index++;
-                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-                    break;
-                }
+        for (property in newObject) {
+            returnValue = doStuff(newObject[property], property, newObject, index);
+            index++;
+            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                break;
             }
         }
     } else {
         for (var property in this) {
             if (this.propertyIsEnumerable(property)) {
-                returnValue = doStuff(newObject[property], property, newObject, index);
+                returnValue = doStuff(this[property], property, newObject, index);
                 index++;
                 if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                     break;
@@ -564,6 +579,26 @@ Standards.insertAfter = function(insertion, place) {
     } else {
         return place.parentNode.insertBefore(insertion, place.nextSibling);
     }
+}
+
+Standards.toArray = function() {
+    /**
+    returns an array made from any number of elements with an index and length
+    non-native functions = none
+    */
+    var index1 = 0,
+        index2,
+        returnList = [];
+    for (index1; index1<arguments.length; index1++) {
+        if (arguments[index1][0] && arguments[index1].length) {
+            for (index2=0; index2<arguments[index1].length; index2++) {
+                returnList.push(arguments[index1][index2]);
+            }
+        } else if (arguments[index1].length == undefined || arguments[index1].length > 0) {  // filters out empty lists
+            returnList.push(arguments[index1]);
+        }
+    }
+    return returnList;
 }
 
 Standards.safeWhile = function(condition, doStuff, loops) {
@@ -781,13 +816,23 @@ Standards.colorCode = function(element, conversion) {
     colors specifications can be added after all of the arguments
         colors are an indefinite number of 3-item arrays listed as arguments
         (items are integers from 0 to 255)
-        e.g. colorCode(element, end1, end2, [12,23,34], [45,56,67], [78,89,90]);
+        e.g. colorCode(element, null, [12,23,34], [45,56,67], [78,89,90]);
         default colors = red and green
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
-    non-native functions = HTMLCollection.forEach() and checkAll()
+    a table needs to have at least 7 items before it's color-coded
+    non-native functions = HTMLCollection.forEach(), toArray(), and checkAll()
     */
+    var list = false;  // for whether "element" is a list (array)
     if (typeof element == "string") {
         element = document.getElementById(element);
+    } else if (element instanceof Array) {  // using "typeof" always returns false because arrays are apparently objects (in this script)
+        element.forEach(function(item, index) {
+            if (typeof item == "string") {
+                element[index] = document.getElementById(item);
+            }
+        });
+        list = element;
+        element = element[0];
     }
     var end1,
         end2;
@@ -830,7 +875,15 @@ Standards.colorCode = function(element, conversion) {
         }
     } else {
         if (element.tagName == "TABLE") {  // This might have to be capitalized.
-            var tds = element.getElementsByTagName("td");  // tds[3] and tds[6] are representative samples of the type of data
+            var tds = [];  // This needs to be set to an array for it to be used in toArray().
+                // tds[3] and tds[6] are representative samples of the type of data
+            if (list) {
+                list.forEach(function(table) {
+                    tds = Standards.toArray(tds, table.getElementsByTagName("td"));
+                });
+            } else {
+                tds = element.getElementsByTagName("td");
+            }
             if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
                 var lowest = Infinity,
                     highest = -Infinity;
@@ -920,37 +973,13 @@ Standards.colorCode = function(element, conversion) {
         } else if (Standards.checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
             if (element.innerHTML.trim() != "") {  // if the text isn't empty
                 end1 = 0;
-                end2 = element.innerHTML.trim().length;
-                var ends = [end1];
-                colors.forEach(function(color, index, colors) {  // establishes the places where the different colors are centered
-                    ends.push(end1+(end2-end1)*(index+2)/colors.length);
-                });
+                end2 = element.innerHTML.trim().length - 1;
                 var replacement = document.createElement(element.tagName);  // makes sure the replacement uses the same tag / element type
                 element.innerHTML.trim().split("").forEach(function(character, index) {  // puts a <span> between each letter and colors the text
                     var span = document.createElement("span");
                     span.innerHTML = character;
                     span.style.display = "inline";
-                    var number = index;
-                    var endIndex = 1,
-                        intermediate1 = [],
-                        intermediate2 = [],
-                        colorValue;
-                    while (number > ends[endIndex]) {  // determines which 2 colors the index falls between
-                        endIndex++;
-                    }
-                    colors[endIndex-1].forEach(function(color) {  // determines how much of the first color should be used
-                        colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                        intermediate1.push(colorValue<=color ? colorValue : color);
-                    });
-                    colors[endIndex].forEach(function(color) {  // determines how much of the second color should be used
-                        colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
-                        intermediate2.push(colorValue<=color ? colorValue : color);
-                    });
-                    // combines (adds each aspect of) the 2 colors while preventing the color value from going above the maximum (255)
-                    var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
-                        green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
-                        blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
-                    span.style.color = "rgb(" + red + ", " + green + ", " + blue + ")";
+                    span.style.color = backgroundColor(index);
                     replacement.appendChild(span);
                 });
                 element.parentNode.insertBefore(replacement, element);  // inserts the set of colored <span>s in the same place as the original text
@@ -1013,7 +1042,7 @@ if (!Standards.options.keyHasValue("automation", "none")) {
 
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
     
-    if (Standards.options.keyHasValue("automation", "full")) {
+    if (!Standards.options.hasOwnProperty("automation") || Standards.options.automation == "full") {
         
         // make the target of every anchor tag "_blank"
         // (purposefully ignores yet-to-be-created links)
