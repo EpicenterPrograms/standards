@@ -591,8 +591,11 @@ function toArray() {
     var index1 = 0,
         index2 = 0,
         returnList = [];
+    console.log(arguments);
     for (index1; index1<arguments.length; index1++) {
         if (arguments[index1][0] && arguments[index1].length) {
+            console.log("list");
+            console.log(arguments[index1]);
             for (index2; index2<arguments[index1].length; index2++) {
                 returnList.push(arguments[index1][index2]);
             }
