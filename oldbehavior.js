@@ -597,7 +597,7 @@ function toArray() {
             for (index2=0; index2<arguments[index1].length; index2++) {
                 returnList.push(arguments[index1][index2]);
             }
-        } else if (!(arguments[index1].length && arguments[index1].length < 1)) {  // filters out empty lists
+        } else if (arguments[index1].length == undefined || arguments[index1].length > 0) {  // filters out empty lists
             returnList.push(arguments[index1]);
         }
         console.log(returnList);
