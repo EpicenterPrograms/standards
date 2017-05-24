@@ -556,6 +556,26 @@ function insertAfter(insertion, place) {
     }
 }
 
+function toArray() {
+    /**
+    returns an array made from any number of elements with an index and length
+    non-native functions = none
+    */
+    var index1 = 0,
+        index2 = 0,
+        returnList = [];
+    for (index1; index1<arguments.length; index1++) {
+        if (typeof arguments[index1] == "array") {
+            for (index2; index2<arguments[index1].length; index2++) {
+                returnList.push(arguments[index1][index2]);
+            }
+        } else {
+            returnList.push(arguments[index1]);
+        }
+    }
+    return returnList;
+}
+
 function safeWhile(condition, doStuff, loops) {
     /**
     runs a while loop with a maximum recursion depth
@@ -774,6 +794,7 @@ function colorCode(element, conversion) {
         e.g. colorCode(element, null, [12,23,34], [45,56,67], [78,89,90]);
         default colors = red and green
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
+    a table needs to have at least 7 items before it's color-coded
     non-native functions = HTMLCollection.forEach() and checkAll()
     */
     if (typeof element == "string") {
@@ -783,6 +804,7 @@ function colorCode(element, conversion) {
         end2;
     var args = Array.prototype.slice.call(arguments, 2);  // all of the arguments after the second one
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
+    var list = false;  // for whether "element" is a list (array)
     function backgroundColor(value) {
         var ends = [end1];
         colors.forEach(function(color, index, colors) {  // establishes the values where the different colors are centered
@@ -819,8 +841,20 @@ function colorCode(element, conversion) {
             return backgroundColor(conversion);
         }
     } else {
+        if (typeof element == "array") {
+            list = element;
+            element = element[0];
+        }
         if (element.tagName == "TABLE") {  // This might have to be capitalized.
-            var tds = element.getElementsByTagName("td");  // tds[3] and tds[6] are representative samples of the type of data
+            var tds = [];  // This needs to be set to an array for it to be used in toArray().
+                // tds[3] and tds[6] are representative samples of the type of data
+            if (list) {
+                list.forEach(function(table) {
+                    tds = toArray(tds, table.getElementsByTagName("td"));
+                });
+            } else {
+                tds = element.getElementsByTagName("td");
+            }
             if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
                 var lowest = Infinity,
                     highest = -Infinity;
