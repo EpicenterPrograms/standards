@@ -795,16 +795,24 @@ function colorCode(element, conversion) {
         default colors = red and green
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
     a table needs to have at least 7 items before it's color-coded
-    non-native functions = HTMLCollection.forEach() and checkAll()
+    non-native functions = HTMLCollection.forEach(), toArray(), and checkAll()
     */
+    var list = false;  // for whether "element" is a list (array)
     if (typeof element == "string") {
         element = document.getElementById(element);
+    } else if (typeof element == "array") {
+        list = element;
+        element = element[0];
+        list.forEach(function(item) {
+            if (typeof item == "string") {
+                item = document.getElementById(item);
+            }
+        });
     }
     var end1,
         end2;
     var args = Array.prototype.slice.call(arguments, 2);  // all of the arguments after the second one
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
-    var list = false;  // for whether "element" is a list (array)
     function backgroundColor(value) {
         var ends = [end1];
         colors.forEach(function(color, index, colors) {  // establishes the values where the different colors are centered
@@ -841,10 +849,6 @@ function colorCode(element, conversion) {
             return backgroundColor(conversion);
         }
     } else {
-        if (typeof element == "array") {
-            list = element;
-            element = element[0];
-        }
         if (element.tagName == "TABLE") {  // This might have to be capitalized.
             var tds = [];  // This needs to be set to an array for it to be used in toArray().
                 // tds[3] and tds[6] are representative samples of the type of data
