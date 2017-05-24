@@ -830,7 +830,7 @@ function colorCode(element, conversion) {
     var list = false;  // for whether "element" is a list (array)
     if (typeof element == "string") {
         element = document.getElementById(element);
-    } else if (typeof element == "array") {
+    } else if (element instanceof Array) {  // using "typeof" always returns false because arrays are apparently objects (in this script)
         console.log(element);
         element.forEach(function(item, index) {
             if (typeof item == "string") {
