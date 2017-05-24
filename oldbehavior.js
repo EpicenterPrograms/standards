@@ -589,19 +589,15 @@ function toArray() {
     non-native functions = none
     */
     var index1 = 0,
-        index2 = 0,
+        index2,
         returnList = [];
     console.log(arguments);
     for (index1; index1<arguments.length; index1++) {
         if (arguments[index1][0] && arguments[index1].length) {
-            console.log("list");
-            console.log(arguments[index1]);
-            for (index2; index2<arguments[index1].length; index2++) {
-                console.log(index2);
-                console.log(arguments[index1][index2]);
+            for (index2=0; index2<arguments[index1].length; index2++) {
                 returnList.push(arguments[index1][index2]);
             }
-        } else if (arguments[index1] != Array(0)) {  // filters out empty lists
+        } else if (!(arguments[index1].length && arguments[index1].length < 1)) {  // filters out empty lists
             returnList.push(arguments[index1]);
         }
         console.log(returnList);
