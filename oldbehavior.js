@@ -599,6 +599,7 @@ function toArray() {
         } else if (arguments[index1] != []) {  // filters out empty lists
             returnList.push(arguments[index1]);
         }
+        console.log(returnList);
     }
     return returnList;
 }
@@ -881,7 +882,8 @@ function colorCode(element, conversion) {
                 // tds[3] and tds[6] are representative samples of the type of data
             if (list) {
                 list.forEach(function(table) {
-                    console.log("forEach\n" + tds);
+                    console.log("forEach");
+                    console.log(tds);
                     tds = toArray(tds, table.getElementsByTagName("td"));
                 });
             } else {
