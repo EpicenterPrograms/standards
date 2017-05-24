@@ -591,7 +591,6 @@ function toArray() {
     var index1 = 0,
         index2,
         returnList = [];
-    console.log(arguments);
     for (index1; index1<arguments.length; index1++) {
         if (arguments[index1][0] && arguments[index1].length) {
             for (index2=0; index2<arguments[index1].length; index2++) {
@@ -600,7 +599,6 @@ function toArray() {
         } else if (arguments[index1].length == undefined || arguments[index1].length > 0) {  // filters out empty lists
             returnList.push(arguments[index1]);
         }
-        console.log(returnList);
     }
     return returnList;
 }
@@ -883,16 +881,11 @@ function colorCode(element, conversion) {
                 // tds[3] and tds[6] are representative samples of the type of data
             if (list) {
                 list.forEach(function(table) {
-                    console.log("forEach");
-                    console.log(tds);
-                    console.log(table);
-                    console.log(table.getElementsByTagName("td"));
                     tds = toArray(tds, table.getElementsByTagName("td"));
                 });
             } else {
                 tds = element.getElementsByTagName("td");
             }
-            console.log(tds);
             if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
                 var lowest = Infinity,
                     highest = -Infinity;
