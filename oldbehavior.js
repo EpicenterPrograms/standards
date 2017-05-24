@@ -597,6 +597,8 @@ function toArray() {
             console.log("list");
             console.log(arguments[index1]);
             for (index2; index2<arguments[index1].length; index2++) {
+                console.log(index2);
+                console.log(arguments[index1][index2]);
                 returnList.push(arguments[index1][index2]);
             }
         } else if (arguments[index1] != Array(0)) {  // filters out empty lists
