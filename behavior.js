@@ -453,15 +453,17 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
     if (copy) {
         var newObject = {};
         for (var property in this) {
-            if (this.propertyIsEnumerable(property)) {
+            if (this.propertyIsEnumerable(property)) {  // This prevents looping through my Object prototypes.
                 newObject[property] = this[property];
             }
         }
         for (property in newObject) {
-            returnValue = doStuff(newObject[property], property, newObject, index);
-            index++;
-            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-                break;
+            if (this.propertyIsEnumerable(property)) {  // This needs to be done again because newObject has its own prototypes that could be looped through.
+                returnValue = doStuff(newObject[property], property, newObject, index);
+                index++;
+                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+                    break;
+                }
             }
         }
     } else {
