@@ -33,7 +33,26 @@ if (Standards.options) {
             default = false
     */
 
-Standards.finished = false;
+Standards.finished = false;  // for keeping track of whether this script is finished running
+
+Standards.audio = new (window.AudioContext || window.webkitAudioContext || Object)();  // used in Sound()
+    // Safari is dumb and doesn't like any form of AudioContext
+    // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
+
+Standards.storageDefaults = {
+	"session": null,
+	"local": null,
+	"server": null
+};
+    /*
+    sets the default location of storage
+    possibilities:
+        null = the Storage object
+        string = an object located within the Storage object
+            (the string is its key)
+        array = an object contained within multiple objects within objects all within the Storage object
+            (the array is the sequential list of keys needed to access the proper object)
+    */
 
 if (Standards.queue) {
     if (typeof Standards.queue == "array") {
@@ -96,10 +115,6 @@ Standards.queue.add = function(object) {
         Standards.queue.run();
     }
 };
-
-Standards.audio = new (window.AudioContext || window.webkitAudioContext || Object)();  // used in Sound()
-    // Safari is dumb and doesn't like this way of assigning defaults to variables.
-    // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 var Sound = function(specs) {
     /**
@@ -521,7 +536,7 @@ Standards.help = function(item, part) {
     }
     console.log(content);
     return content;
-}
+};
 
 Standards.onLoad = function(doStuff) {
     /**
@@ -529,7 +544,7 @@ Standards.onLoad = function(doStuff) {
     non-native functions = none
     */
     return window.addEventListener("finished", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
-}
+};
 
 Standards.getTag = function(tag) {
     /**
@@ -537,7 +552,7 @@ Standards.getTag = function(tag) {
     non-native functions = none
     */
     return document.getElementsByTagName(tag);
-}
+};
 
 Standards.getId = function(ID) {
     /**
@@ -545,7 +560,7 @@ Standards.getId = function(ID) {
     non-native functions = none
     */
     return document.getElementById(ID);
-}
+};
 
 Standards.getClass = function(name) {
     /**
@@ -553,7 +568,7 @@ Standards.getClass = function(name) {
     non-native functions = none
     */
     return document.getElementsByClassName(name);
-}
+};
 
 Standards.insertBefore = function(insertion, place) {
     /**
@@ -567,7 +582,7 @@ Standards.insertBefore = function(insertion, place) {
     } else {
         return place.parentNode.insertBefore(insertion, place);
     }
-}
+};
 
 Standards.insertAfter = function(insertion, place) {
     /**
@@ -581,7 +596,7 @@ Standards.insertAfter = function(insertion, place) {
     } else {
         return place.parentNode.insertBefore(insertion, place.nextSibling);
     }
-}
+};
 
 Standards.toArray = function() {
     /**
@@ -601,7 +616,7 @@ Standards.toArray = function() {
         }
     }
     return returnList;
-}
+};
 
 Standards.safeWhile = function(condition, doStuff, loops) {
     /**
@@ -623,7 +638,7 @@ Standards.safeWhile = function(condition, doStuff, loops) {
     } else if (loops <= 0) {
         throw "Recursion depth exceeded."
     }
-}
+};
 
 Standards.checkAll = function(item, comparator, comparisons, type) {
     /**
@@ -716,7 +731,7 @@ Standards.checkAll = function(item, comparator, comparisons, type) {
         throw "Invalid type of comparison.";
     }
     return trueFalse;
-}
+};
 
 Standards.read = function(URL, callback) {
     /**
@@ -754,7 +769,7 @@ Standards.read = function(URL, callback) {
         }
     }
     file.send();
-}
+};
 
 Standards.pageJump = function(ID) {
     /**
@@ -807,7 +822,259 @@ Standards.pageJump = function(ID) {
         },
         "arguments" : [ID]
     });
-}
+};
+
+Standards.store = function(type, key, item, location) {
+    /*
+    stores information in key-value format
+    type = the type of storage to be used
+        "session": stores information until the page is closed (persists through refreshes)
+        "local": stores information on the user's computer indefinitely
+        "session": stores information on a server indefinitely (accessible from any computer)
+    key = what will be used to access the information later
+    item = the information to be stored
+    location = an optional specification of storage location
+        default storage location is determined by Standards.storageDefaults
+    it's okay to store items in objects that don't yet exist (they're created as needed)
+    non-native functions = none
+    */
+    if (typeof(Storage) == "undefined") {
+        alert("Your browser doesn't support the Storage object.");
+        /// Alerting rather than just thowing an error notifies average users when things aren't working.
+    } else {
+        var information;
+        switch(type.toLowerCase()) {
+            case "session":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.session));
+                /// The storage defaults have that nonsense to prevent referencing the actual object with "location".
+                if (location == null) {
+                    sessionStorage.setItem(key, item);
+                } else if (typeof location == "string") {
+                    if (!sessionStorage.getItem(location)) {
+                        sessionStorage.setItem(location, "{}");
+                    }
+                    information = JSON.parse(sessionStorage.getItem(location));
+                    information[key] = item;
+                    sessionStorage.setItem(location, JSON.stringify(information));
+                } else if (location instanceof Array) {  // using "typeof" on arrays (in this script) would return "object"
+                    if (!sessionStorage.getItem(location[0])) {
+                        sessionStorage.setItem(location[0], "{}");
+                    }
+                    information = JSON.parse(sessionStorage.getItem(location[0]));
+                    var checker = information;
+                    location.slice(1).forEach(function(section, index) {
+                        if (checker[section]) {
+                            checker = checker[section];
+                        } else {
+                            eval("information['" + location.slice(1, index+2).join("']['") + "'] = {};");
+                            checker = {};
+                        }
+                    });
+                    location.push(key);
+                    eval("information['" + location.slice(1).join("']['") + "'] = item;");
+                    sessionStorage.setItem(location[0], JSON.stringify(information));
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            case "local":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.local));
+                if (location == null) {
+                    localStorage.setItem(key, item);
+                } else if (typeof location == "string") {
+                    if (!localStorage.getItem(location)) {
+                        localStorage.setItem(location, "{}");
+                    }
+                    information = JSON.parse(localStorage.getItem(location));
+                    information[key] = item;
+                    localStorage.setItem(location, JSON.stringify(information));
+                } else if (location instanceof Array) {
+                    if (!localStorage.getItem(location[0])) {
+                        localStorage.setItem(location[0], "{}");
+                    }
+                    information = JSON.parse(localStorage.getItem(location[0]));
+                    var checker = information;
+                    location.slice(1).forEach(function(section, index) {
+                        if (checker[section]) {
+                            checker = checker[section];
+                        } else {
+                            eval("information['" + location.slice(1, index+2).join("']['") + "'] = {};");
+                            checker = {};
+                        }
+                    });
+                    location.push(key);
+                    eval("information['" + location.slice(1).join("']['") + "'] = item;");
+                    localStorage.setItem(location[0], JSON.stringify(information));
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            case "server":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
+                if (location == null) {
+                    
+                } else if (typeof location == "string") {
+                    
+                } else if (location instanceof Array) {
+                    
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            default:
+                throw "Invalid type of storage";
+        }
+    }
+};
+
+Standards.recall = function(type, key, location) {
+    /*
+    returns previously stored information
+    unfound information returns undefined
+    type = the type of storage to be used
+        "session": information stored until the page is closed (persists through refreshes)
+        "local": information stored on the user's computer indefinitely
+        "session": information stored on a server indefinitely (accessible from any computer)
+    key = the identifier of the desired information
+    location = an optional specification of storage location
+        default storage location is determined by Standards.storageDefaults
+    non-native functions = none
+    */
+    if (typeof(Storage) == "undefined") {
+        alert("Your browser doesn't support the Storage object.");
+        /// Alerting rather than just thowing an error notifies average users when things aren't working.
+    } else {
+        var information;
+        switch(type.toLowerCase()) {
+            case "session":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.session));
+                if (location == null) {
+                    if (sessionStorage.getItem(key)) {  // Storage.getItem() returns "null" if nothing is there, not "undefined"
+                        return sessionStorage.getItem(key);
+                    } else {
+                        return undefined;  // This ensures a consistent return value when an item doesn't exist.
+                    }
+                } else if (typeof location == "string") {
+                    return JSON.parse(sessionStorage.getItem(location))[key];
+                } else if (location instanceof Array) {
+                    information = JSON.parse(sessionStorage.getItem(location[0]));
+                    location.shift();
+                    location.forEach(function(section) {
+                        information = information[section];
+                    });
+                    return information[key];
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            case "local":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.local));
+                if (location == null) {
+                    if (localStorage.getItem(key)) {
+                        return localStorage.getItem(key);
+                    } else {
+                        return undefined;
+                    }
+                } else if (typeof location == "string") {
+                    return JSON.parse(localStorage.getItem(location))[key];
+                } else if (location instanceof Array) {
+                    information = JSON.parse(localStorage.getItem(location[0]));
+                    location.shift();
+                    location.forEach(function(section) {
+                        information = information[section];
+                    });
+                    return information[key];
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            case "server":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
+                if (location == null) {
+                    
+                } else if (typeof location == "string") {
+                    
+                } else if (location instanceof Array) {
+                    
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            default:
+                throw "Invalid type of storage";
+        }
+    }
+};
+
+Standards.forget = function(type, key, location) {
+    /*
+    deletes stored information
+    type = the type of storage to be used
+        "session": information stored until the page is closed (persists through refreshes)
+        "local": information stored on the user's computer indefinitely
+        "session": information stored on a server indefinitely (accessible from any computer)
+    key = the identifier of the desired information
+    location = an optional specification of storage location
+        default storage location is determined by Standards.storageDefaults
+    non-native functions = none
+    */
+    if (typeof(Storage) == "undefined") {
+        alert("Your browser doesn't support the Storage object.");
+        /// Alerting rather than just thowing an error notifies average users when things aren't working.
+    } else {
+        var information;
+        switch(type.toLowerCase()) {
+            case "session":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.session));
+                if (location == null) {
+                    sessionStorage.removeItem(key);
+                } else if (typeof location == "string") {
+                    information = JSON.parse(sessionStorage.getItem(location));
+                    delete information[key];
+                    sessionStorage.setItem(location, JSON.stringify(information));
+                } else if (location instanceof Array) {
+                    information = JSON.parse(sessionStorage.getItem(location[0]));
+                    location.push(key);
+                    eval("delete information['" + location.slice(1).join("']['") + "'];");
+                    sessionStorage.setItem(location[0], JSON.stringify(information));
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            case "local":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.local));
+                if (location == null) {
+                    localStorage.removeItem(key);
+                } else if (typeof location == "string") {
+                    information = JSON.parse(localStorage.getItem(location));
+                    delete information[key];
+                    localStorage.setItem(location, JSON.stringify(information));
+                } else if (location instanceof Array) {
+                    information = JSON.parse(localStorage.getItem(location[0]));
+                    location.push(key);
+                    eval("delete information['" + location.slice(1).join("']['") + "'];");
+                    localStorage.setItem(location[0], JSON.stringify(information));
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            case "server":
+                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
+                if (location == null) {
+                    
+                } else if (typeof location == "string") {
+                    
+                } else if (location instanceof Array) {
+                    
+                } else {
+                    throw "Invalid storage navigation";
+                }
+                break;
+            default:
+                throw "Invalid type of storage";
+        }
+    }
+};
 
 Standards.colorCode = function(element, conversion) {
     /**
@@ -997,7 +1264,7 @@ Standards.colorCode = function(element, conversion) {
             }
         }
     }
-}
+};
 
 
 // makes my custom tag which formats things as notes
@@ -1015,7 +1282,7 @@ if (!Standards.options.keyHasValue("automation", "none")) {
     //This is able to run without waiting for anything else to load.
     
     // links a favicon
-    var icon = document.createElement("link");
+    let icon = document.createElement("link");  // this uses "let" so "icon" is free to be used as a variable elsewhere
     icon.rel = "icon";
     document.head.insertBefore(icon, document.head.children[0]);
     
@@ -1023,9 +1290,9 @@ if (!Standards.options.keyHasValue("automation", "none")) {
         icon.href = Standards.options.icon;
     } else {
         // cycles the favicon
-        var canvas = document.createElement("canvas");
-        var context = canvas.getContext("2d");
-        var color = 0;
+        let canvas = document.createElement("canvas");
+        let context = canvas.getContext("2d");
+        let color = 0;
         canvas.width = 64;
         canvas.height = 64;
         context.beginPath();
