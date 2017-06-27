@@ -644,7 +644,7 @@ Standards.listen = function(item, event, behavior, extras) {
     if (typeof item == "string") {
         item = document.getElementById(item);
     }
-    var args = toArray(arguments);
+    var args = Standards.toArray(arguments);
     Standards.queue.add({
         "runOrder": "first",
         "function": function(item, event, behavior, extras) {
@@ -1427,7 +1427,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         switch (option) {
             case "navigation":
                 if (document.getElementsByTagName("nav").length < 1) {
-                    insertAfter(document.createElement("nav"), document.body.children[0]);
+                    Standards.insertAfter(document.createElement("nav"), document.body.children[0]);
                 }
                 if (specification instanceof Array) {
                     switch (specification[1]) {
@@ -1448,8 +1448,8 @@ window.addEventListener("load", function() {  // This waits for everything past 
                                 darkener = document.createElement("div");
                             navTab.className = "nav-tab";
                             darkener.className = "darkener";
-                            insertAfter(navTab, document.getElementsByTagName("nav")[0]);
-                            insertBefore(darkener, document.getElementsByTagName("nav")[0]);
+                            Standards.insertAfter(navTab, document.getElementsByTagName("nav")[0]);
+                            Standards.insertBefore(darkener, document.getElementsByTagName("nav")[0]);
                             navTab.addEventListener("mouseenter", function() {
                                 navTab.style.transform = "translateX(20vw)";
                                 document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
