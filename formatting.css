@@ -62,11 +62,11 @@ nav.left-nav {
     height: 100vh;
 }
 nav.hidden-left-nav {
-    left: -20vw;
+    left: -20.5vw;
     top: 0em;
     z-index: 5;
     border-right: .05em solid #aaaaaa;
-    width: 20vw;
+    width: 20.5vw;
     height: 100vh;
     transition: transform .8s;
     transition: transform var(--nav-slide-time);
@@ -74,18 +74,20 @@ nav.hidden-left-nav {
 div.nav-tab {
     position: absolute;
     left: 0vh;
-    top: 47vh;
+    top: 46vh;
     z-index: 5;
     width: 4vh;
-    height: 6vh;
+    height: 8vh;
     display: flex;
     justify-content: center;
     align-items: center;
     border: .05em solid #888888;
     border-left: none;
     border-radius: 0vh 1.5vh 1.5vh 0vh;
-    background: #aaaaaa;
-    font-family: sans-serif;
+    background: #bbbbbb;
+    font-family: monospace;
+    font-size: 2em;
+    color: #777777;
     cursor: default;
     transition: transform .8s;
     transition: transform var(--nav-slide-time);
