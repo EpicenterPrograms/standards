@@ -25,8 +25,13 @@ if (Standards.options) {
         "icon" : URL
             gives the window the icon located at the URL
             default = a color-changing circle
-        "navigation" : URL
+        "navigation" : URL, [URL, type-->("left","hiddenLeft","top")]
             makes a navigation section using the (HTML) document located at the URL
+                default navigation is "left"
+            if the value is an array, the first item is the URL and the second is the type of navigation section
+                "left" = an unmoving navigation section on the left of the page
+                "hiddenLeft" = an unmoving navigation section hidden behind the left side of the screen (a tab sticks out)
+                "top" = a navigation section that moves with the page until it gets to the top where it stays
             default = none
         "simplification" : true, false
             determines whether "Standards" should also be imported as "S"
@@ -40,9 +45,9 @@ Standards.audio = new (window.AudioContext || window.webkitAudioContext || Objec
     // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
 Standards.storageDefaults = {
-	"session": null,
-	"local": null,
-	"server": null
+    "session": null,
+    "local": null,
+    "server": null
 };
     /*
     sets the default location of storage
@@ -85,6 +90,7 @@ if (Standards.queue) {
     */
 Standards.queue.run = function() {
     /**
+    runs the functions in the queue
     non-native functions = none
     */
     Standards.queue.forEach(function(fn) {
@@ -110,6 +116,11 @@ Standards.queue.run = function() {
     });
 };
 Standards.queue.add = function(object) {
+    /**
+    adds an item to the queue
+    non-native functions = Standards.queue.run()
+    (Standards.finished also isn't native)
+    */
     Standards.queue.push(object);
     if (Standards.finished) {
         Standards.queue.run();
@@ -616,6 +627,43 @@ Standards.toArray = function() {
         }
     }
     return returnList;
+};
+
+Standards.listen = function(item, event, behavior, extras) {
+    /**
+    adds an event listener to the item
+    waiting for an element to load is unnecessary
+    item = what will be listening
+    event = the event being listened for
+    behavior = what to do when the event is triggered
+        if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
+    extras = any extras that would be added to a normal event listener
+        (only one item is supported)
+    non-native functions = Standards.queue.add() and toArray()
+    */
+    if (typeof item == "string") {
+        item = document.getElementById(item);
+    }
+    var args = toArray(arguments);
+    Standards.queue.add({
+        "runOrder": "first",
+        "function": function(item, event, behavior, extras) {
+            if (event == "hover") {
+                if (behavior instanceof Array) {
+                    if (typeof behavior[0].function == "string" || typeof behavior[1].function == "string") {
+                        throw 'The value of "function" must not be a string.';
+                    }
+                    item.addEventListener("mouseenter", behavior[0], extras);
+                    item.addEventListener("mouseout", behavior[1], extras);
+                } else {
+                    throw 'Trying to listen for the event "hover" without a second function isn\'t supported yet.';
+                }
+            } else {
+                item.addEventListener(event, behavior, extras);
+            }
+        },
+        "arguments": args
+    });
 };
 
 Standards.safeWhile = function(condition, doStuff, loops) {
@@ -1268,9 +1316,9 @@ Standards.colorCode = function(element, conversion) {
 
 
 // makes my custom tag which formats things as notes
-document.createElement("note");
+document.createElement("-note");
 // makes my custom tag which overlines things
-document.createElement("over");
+document.createElement("-over");
 
 // determines whether "Standards" should also be imported as "S"
 if (Standards.options.keyHasValue("simplification", true)) {
@@ -1321,9 +1369,9 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }
         });
         
-        // interprets <note> tags
+        // interprets <-note> tags
         var noteNumber = 1;
-        document.getElementsByTagName("note").forEach(function(note, index, notes) {
+        document.getElementsByTagName("-note").forEach(function(note, index, notes) {
             if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
                 var reference = document.getElementById(note.innerHTML.slice(1,-1));
                 note.title = reference.title;
@@ -1335,6 +1383,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }
         });
         
+        /*
         // surrounds every list with <div class="list"></div>
         //// should be able to eliminate
         var orderedLists = document.getElementsByTagName("ol");
@@ -1347,6 +1396,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
             unorderedLists[index].outerHTML = "<div class='list'>" + unorderedLists[index].outerHTML + "</div>";
             unorderedLists[index].style.visibility = "visible";
         }
+        */
         
         // interprets condensed tables
         var tables = document.getElementsByClassName("compact");
@@ -1376,11 +1426,58 @@ window.addEventListener("load", function() {  // This waits for everything past 
     Standards.options.forEach(function(specification, option) {
         switch (option) {
             case "navigation":
-                document.body.style = "margin:0vw 0vh 0vh 15vw; width: 80%;";
-                Standards.read(specification, function() {
-                    this.className = "nav";
-                    document.body.insertBefore(this, document.body.childNodes[1]);
-                });
+                if (document.getElementsByTagName("nav").length < 1) {
+                    insertAfter(document.createElement("nav"), document.body.children[0]);
+                }
+                if (specification instanceof Array) {
+                    switch (specification[1]) {
+                        case "left":
+                            document.body.style.margin = "0vw 0vh 0vh 15vw";
+                            document.body.style.width = "80vw";
+                            Standards.read(specification, function() {
+                                document.getElementsByTagName("nav")[0].classList.add("left-nav");
+                                document.getElementsByTagName("nav")[0].appendChild(this);
+                            });
+                            break;
+                        case "hiddenLeft":
+                            Standards.read(specification, function() {
+                                document.getElementsByTagName("nav")[0].classList.add("hidden-left-nav");
+                                document.getElementsByTagName("nav")[0].appendChild(this);
+                            });
+                            let navTab = document.createElement("div"),
+                                darkener = document.createElement("div");
+                            navTab.className = "nav-tab";
+                            darkener.className = "darkener";
+                            insertAfter(navTab, document.getElementsByTagName("nav")[0]);
+                            insertBefore(darkener, document.getElementsByTagName("nav")[0]);
+                            navTab.addEventListener("mouseenter", function() {
+                                navTab.style.transform = "translateX(20vw)";
+                                document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
+                                darkener.style.opacity = ".6";
+                            });
+                            document.getElementsByTagName("nav")[0].addEventListener("mouseout", function() {
+                                navTab.style.transform = "";
+                                document.getElementsByTagName("nav")[0].style.transform = "";
+                                darkener.style.opacity = "0";
+                            });
+                            break;
+                        case "top":
+                            Standards.read(specification, function() {
+                                document.getElementsByTagName("nav")[0].classList.add("top-nav");
+                                document.getElementsByTagName("nav")[0].appendChild(this);
+                            });
+                            break;
+                        default:
+                            throw specification[1] + " is an invalid type of navigation section";
+                    }
+                } else {
+                    document.body.style.margin = "0vw 0vh 0vh 15vw";
+                    document.body.style.width = "80vw";
+                    Standards.read(specification, function() {
+                        document.getElementsByTagName("nav")[0].classList.add("left-nav");
+                        document.getElementsByTagName("nav")[0].appendChild(this);
+                    });
+                }
                 break;
         }
     });
