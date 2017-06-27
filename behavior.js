@@ -1434,13 +1434,13 @@ window.addEventListener("load", function() {  // This waits for everything past 
                         case "left":
                             document.body.style.margin = "0vw 0vh 0vh 15vw";
                             document.body.style.width = "80vw";
-                            Standards.read(specification, function() {
+                            Standards.read(specification[0], function() {
                                 document.getElementsByTagName("nav")[0].classList.add("left-nav");
                                 document.getElementsByTagName("nav")[0].appendChild(this);
                             });
                             break;
                         case "hiddenLeft":
-                            Standards.read(specification, function() {
+                            Standards.read(specification[0], function() {
                                 document.getElementsByTagName("nav")[0].classList.add("hidden-left-nav");
                                 document.getElementsByTagName("nav")[0].appendChild(this);
                             });
@@ -1462,7 +1462,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                             });
                             break;
                         case "top":
-                            Standards.read(specification, function() {
+                            Standards.read(specification[0], function() {
                                 document.getElementsByTagName("nav")[0].classList.add("top-nav");
                                 document.getElementsByTagName("nav")[0].appendChild(this);
                             });
