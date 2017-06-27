@@ -90,7 +90,7 @@ div.nav-tab {
     transition: transform .8s;
     transition: transform var(--nav-slide-time);
 }
-div.darken {
+div.darkener {
     position: absolute;
     left: 0em;
     top: 0em;
