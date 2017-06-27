@@ -11,17 +11,13 @@ and class manipulation
 could be used to modify CSS
 (in particular pseudo-elements)
 */
-/*
-:root {
-    This accesses the outer-most element.
-    Prefixing a name with "--" makes it a variable. e.g. --cool-number: 42;
-    Variables can be accessed with var(variable-name).
-}
-*/
 * {  /* makes everything include padding and borders in its height and width */
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+}
+:root {  /* This accesses the outer-most element (html). */
+    --nav-slide-time: .8s;
 }
 html {
     min-height: 100%;
@@ -34,11 +30,11 @@ body {
     margin-right: 5.5%;
     min-height: 100%;
     padding: 1% 0% 5% 5%;
-    background: #00e;  /* for browsers that do not support gradients */
-    background: -webkit-repeating-linear-gradient(#00e, white 100vh, #00e 200vh);  /* Safari 5.1 to 6.0 */
-    background: -o-repeating-linear-gradient(#00e, white 100vh, #00e 200vh);  /* Opera 11.1 to 12.0 */
-    background: -moz-repeating-linear-gradient(#00e, white 100vh, #00e 200vh);  /* Firefox 3.6 to 15 */
-    background: repeating-linear-gradient(#00e, white 100vh, #00e 200vh);  /* standard syntax */
+    background: #0000ee;  /* for browsers that do not support gradients */
+    background: -webkit-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Safari 5.1 to 6.0 */
+    background: -o-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Opera 11.1 to 12.0 */
+    background: -moz-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Firefox 3.6 to 15 */
+    background: repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* standard syntax */
     text-align: center;
 }
 section {
@@ -54,6 +50,67 @@ div {
     margin: auto;
     display: inline-block;
 }
+nav {
+    position: fixed;
+    background: white;
+}
+nav.left-nav {
+    left: 0em;
+    top: 0em;
+    border-right: .05em solid #aaaaaa;
+    width: 15vw;
+    height: 100vh;
+}
+nav.hidden-left-nav {
+    left: -20vw;
+    top: 0em;
+    z-index: 5;
+    border-right: .05em solid #aaaaaa;
+    width: 20vw;
+    height: 100vh;
+    transition: transform .8s;
+    transition: transform var(--nav-slide-time);
+}
+div.nav-tab {
+    position: absolute;
+    left: 0vh;
+    top: 47vh;
+    z-index: 5;
+    width: 4vh;
+    height: 6vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: .05em solid #888888;
+    border-left: none;
+    border-radius: 0vh 1.5vh 1.5vh 0vh;
+    background: #aaaaaa;
+    font-family: sans-serif;
+    cursor: default;
+    transition: transform .8s;
+    transition: transform var(--nav-slide-time);
+}
+div.darken {
+    position: absolute;
+    left: 0em;
+    top: 0em;
+    z-index: 4;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .8s;
+    transition: opacity var(--nav-slide-time);
+}
+nav.top-nav {
+    position: -webkit-sticky;
+    position: sticky;
+    left: 0em;
+    top: 0em;
+    border-bottom: .05em solid #aaaaaa;
+    width: 100vw;
+}
 a {
     text-decoration: none;
 }
@@ -62,8 +119,9 @@ a:hover {
 }
 ol, ul {
     display: table;
-    visibility: hidden;
-    margin: 0em;
+    margin: .5em auto;
+    padding-right: 1em;
+    text-align: left;
 }
 ul {
     padding-left: 2em;
@@ -121,27 +179,27 @@ mark {
 label {
     cursor: text;
 }
-note {  /* my custon tag (puts notes in text) */
+-note {  /* my custon tag (puts notes in text) */
     color: blue;
     cursor: help;
 }
-note:hover {
+-note:hover {
     text-decoration: underline;
 }
-over {  /* my custom tag (overlines things) */
+-over {  /* my custom tag (overlines things) */
     display: inline;
     margin: 0em;
     border: 0em;
     padding: 0em;
     text-decoration: overline;
 }
-.login {
+.login-section {
     position: absolute;
     top: 3em;
     right: 3em;
 }
 .list {  /* for left-aligned content as close to the middle of the page as possible */
-    display: inline-block;
+    display: table;
     margin: auto;
     text-align: left;
 }
@@ -149,32 +207,44 @@ over {  /* my custom tag (overlines things) */
     border: .05em solid black;
     border-radius: .5em;
 }
-h1.mainTitle {
+.full-spin {
+    transition: 1s;
+    -ms-transform: rotate(360deg);  /* Internet Explorer 9 */
+    -webkit-transform: rotate(360deg);  /* Safari */
+    transform: rotate(360deg);  /* standard syntax */
+}
+.half-spin {
+    transition: .5s;
+    -ms-transform: rotate(180deg);  /* Internet Explorer 9 */
+    -webkit-transform: rotate(180deg);  /* Safari */
+    transform: rotate(180deg);  /* standard syntax */
+}
+h1.main-title {
     color: white;
-}
-div.nav {
-    position: fixed;
-    left: 0em;
-    top: 0em;
-    padding-right: 1em;
-    width: 15vw;  /* could fill horizontally with 100vw */
-    height: 100%;
-    /*
-    /* background: #0e0; /* For browsers that do not support gradients */
-    /* background: -webkit-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Safari 5.1 to 6.0 */
-    /* background: -o-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Opera 11.6 to 12.0 */
-    /* background: -moz-repeating-radial-gradient(circle, #0e0, #0e0 10%, white 11%, white 21%, #0e0 22%);  /* For Firefox 3.6 to 15 */
-    /* background: repeating-radial-gradient(circle, #5ee, white 15%, #5ee 30%);  /* Standard syntax */
-    /* */
-    background: white;
-    text-align: left;
-}
-div.nav ol, div.nav ul {
-    visibility: visible;
 }
 table.compact {
     visibility: hidden;
 }
+/*
+@keyframes animation-name {
+    from {
+        starting position(s)
+    }
+    to {
+        ending position(s)
+    }
+    An indefinite number of percentages (with "%") can be used instead of "from" and "to".
+}
+.class {
+    animation-name: animation-name;
+    animation-duration: 0s;
+    animation-timing-function: ease;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: none;  // I like "forwards" better.
+}
+*/
 @font-face {
     font-family: "Bad Duck";
     src: url(https://coolprogramminguser.github.io/Standards/fonts/Bad Duck.ttf) format("truetype");
