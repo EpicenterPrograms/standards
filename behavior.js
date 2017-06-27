@@ -1316,9 +1316,9 @@ Standards.colorCode = function(element, conversion) {
 
 
 // makes my custom tag which formats things as notes
-document.createElement("-note");
+document.createElement("note-");  // The dash can't be at the beginning of the tag name or else an error will be thrown.
 // makes my custom tag which overlines things
-document.createElement("-over");
+document.createElement("over-");
 
 // determines whether "Standards" should also be imported as "S"
 if (Standards.options.keyHasValue("simplification", true)) {
@@ -1369,9 +1369,9 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }
         });
         
-        // interprets <-note> tags
+        // interprets <note-> tags
         var noteNumber = 1;
-        document.getElementsByTagName("-note").forEach(function(note, index, notes) {
+        document.getElementsByTagName("note-").forEach(function(note, index, notes) {
             if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
                 var reference = document.getElementById(note.innerHTML.slice(1,-1));
                 note.title = reference.title;
