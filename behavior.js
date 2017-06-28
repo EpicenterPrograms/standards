@@ -639,6 +639,8 @@ Standards.listen = function(item, event, behavior) {
         "function": function(item, event, behavior) {
             if (typeof item == "string") {
                 item = document.getElementById(item);
+            } else if (typeof item == "function") {
+                item = item();
             }
             console.log(item);
             console.log(event);
@@ -649,7 +651,7 @@ Standards.listen = function(item, event, behavior) {
                         throw 'The value of "function" must not be a string.';
                     }
                     item.addEventListener("mouseenter", behavior[0]);
-                    item.addEventListener("mouseout", behavior[1]);
+                    item.addEventListener("mouseleave", behavior[1]);
                 } else {
                     throw 'Trying to listen for the event "hover" without a second function isn\'t supported yet.';
                 }
@@ -1429,20 +1431,40 @@ window.addEventListener("load", function() {  // This waits for everything past 
             var navTab = document.getElementsByClassName("nav-tab")[0],
                 darkener = document.getElementsByClassName("darkener")[0];
             Standards.listen(nav, "hover", [function() {
-                navTab.style.transform = "translateX(20vw)";
+                console.log("ran nav part 1");
+                navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
+                navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
+                navTab.style.transform = "translateX(20vw)";  // the standard syntax
+                document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
+                document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
                 document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
                 darkener.style.opacity = ".8";
             }, function() {
+                console.log("ran nav part 2");
+                navTab.style.MsTransform = "";
+                navTab.style.WebkitTransform = "";
                 navTab.style.transform = "";
+                document.getElementsByTagName("nav")[0].style.MsTransform = "";
+                document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
                 document.getElementsByTagName("nav")[0].style.transform = "";
                 darkener.style.opacity = "0";
             }]);
             Standards.listen(navTab, "hover", [function() {
+                console.log("ran navTab part 1");
+                navTab.style.MsTransform = "translateX(20vw)";
+                navTab.style.WebkitTransform = "translateX(20vw)";
                 navTab.style.transform = "translateX(20vw)";
+                document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
+                document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
                 document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
                 darkener.style.opacity = ".8";
             }, function() {
+                console.log("ran navTab part 2");
+                navTab.style.MsTransform = "";
+                navTab.style.WebkitTransform = "";
                 navTab.style.transform = "";
+                document.getElementsByTagName("nav")[0].style.MsTransform = "";
+                document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
                 document.getElementsByTagName("nav")[0].style.transform = "";
                 darkener.style.opacity = "0";
             }]);
