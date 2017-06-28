@@ -1428,8 +1428,10 @@ window.addEventListener("load", function() {  // This waits for everything past 
             });
         }
         if (nav.classList.contains("hidden-left-nav")) {
+            console.log("nav = " + nav);
             var navTab = document.getElementsByClassName("nav-tab")[0],
                 darkener = document.getElementsByClassName("darkener")[0];
+            navTab.innerHTML = "&gt;";
             Standards.listen(nav, "hover", [function() {
                 console.log("ran nav part 1");
                 navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
@@ -1451,6 +1453,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }]);
             Standards.listen(navTab, "hover", [function() {
                 console.log("ran navTab part 1");
+                navTab.innerHTML = "&lt;";
                 navTab.style.MsTransform = "translateX(20vw)";
                 navTab.style.WebkitTransform = "translateX(20vw)";
                 navTab.style.transform = "translateX(20vw)";
@@ -1460,6 +1463,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 darkener.style.opacity = ".8";
             }, function() {
                 console.log("ran navTab part 2");
+                navTab.innerHTML = "&gt;";
                 navTab.style.MsTransform = "";
                 navTab.style.WebkitTransform = "";
                 navTab.style.transform = "";
