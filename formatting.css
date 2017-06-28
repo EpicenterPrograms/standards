@@ -23,10 +23,6 @@ html {
     min-height: 100%;
 }
 body {
-    /* /* You'd need this if there were a navigation section. */
-    /* margin: 0vw 0vh 0vh 15vw;
-    /* width: 80%;  /* This isn't 85% because I'm leaving room for the scroll bar and making words not go to the edge of the page. */
-    /* */
     margin-right: 5.5%;
     min-height: 100%;
     padding: 1% 0% 5% 5%;
@@ -60,6 +56,14 @@ nav.left-nav {
     border-right: .05em solid #aaaaaa;
     width: 15vw;
     height: 100vh;
+}
+body.left-nav {
+    margin: 0vw 0vh 0vh 15vw;
+    width: 80vw;
+    /*
+    The width isn't 85vw because it wouldn't leave room for a vertical scroll bar.
+    (Not leaving room would create a horizontal scroll bar.)
+    */
 }
 nav.hidden-left-nav {
     left: -20.5vw;
