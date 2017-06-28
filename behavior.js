@@ -634,12 +634,15 @@ Standards.listen = function(item, event, behavior) {
         if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
     non-native functions = Standards.queue.add() and toArray()
     */
-    if (typeof item == "string") {
-        item = document.getElementById(item);
-    }
     Standards.queue.add({
         "runOrder": "first",
         "function": function(item, event, behavior) {
+            if (typeof item == "string") {
+                item = document.getElementById(item);
+            }
+            console.log(item);
+            console.log(event);
+            console.log(behavior);
             if (event == "hover") {
                 if (behavior instanceof Array) {
                     if (typeof behavior[0].function == "string" || typeof behavior[1].function == "string") {
