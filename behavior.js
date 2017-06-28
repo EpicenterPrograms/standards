@@ -624,40 +624,37 @@ Standards.toArray = function() {
     return returnList;
 };
 
-Standards.listen = function(item, event, behavior, extras) {
+Standards.listen = function(item, event, behavior) {
     /**
     adds an event listener to the item
-    waiting for an element to load is unnecessary
+    waiting for an element to load is unnecessary if the item is a string (of an ID)
     item = what will be listening
     event = the event being listened for
     behavior = what to do when the event is triggered
         if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
-    extras = any extras that would be added to a normal event listener
-        (only one item is supported)
     non-native functions = Standards.queue.add() and toArray()
     */
     if (typeof item == "string") {
         item = document.getElementById(item);
     }
-    var args = Standards.toArray(arguments);
     Standards.queue.add({
         "runOrder": "first",
-        "function": function(item, event, behavior, extras) {
+        "function": function(item, event, behavior) {
             if (event == "hover") {
                 if (behavior instanceof Array) {
                     if (typeof behavior[0].function == "string" || typeof behavior[1].function == "string") {
                         throw 'The value of "function" must not be a string.';
                     }
-                    item.addEventListener("mouseenter", behavior[0], extras);
-                    item.addEventListener("mouseout", behavior[1], extras);
+                    item.addEventListener("mouseenter", behavior[0]);
+                    item.addEventListener("mouseout", behavior[1]);
                 } else {
                     throw 'Trying to listen for the event "hover" without a second function isn\'t supported yet.';
                 }
             } else {
-                item.addEventListener(event, behavior, extras);
+                item.addEventListener(event, behavior);
             }
         },
-        "arguments": args
+        "arguments": [item, event, behavior]
     });
 };
 
