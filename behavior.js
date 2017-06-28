@@ -25,13 +25,8 @@ if (Standards.options) {
         "icon" : URL
             gives the window the icon located at the URL
             default = a color-changing circle
-        "navigation" : URL, [URL, type-->("left","hiddenLeft","top")]
-            makes a navigation section using the (HTML) document located at the URL
-                default navigation is "left"
-            if the value is an array, the first item is the URL and the second is the type of navigation section
-                "left" = an unmoving navigation section on the left of the page
-                "hiddenLeft" = an unmoving navigation section hidden behind the left side of the screen (a tab sticks out)
-                "top" = a navigation section that moves with the page until it gets to the top where it stays
+        "navigation" : URL
+            fills a <nav> section with the (HTML) document located at the URL
             default = none
         "simplification" : true, false
             determines whether "Standards" should also be imported as "S"
@@ -1422,65 +1417,38 @@ window.addEventListener("load", function() {  // This waits for everything past 
         }
     }
     
-    // handles the options
-    Standards.options.forEach(function(specification, option) {
-        switch (option) {
-            case "navigation":
-                if (document.getElementsByTagName("nav").length < 1) {
-                    Standards.insertAfter(document.createElement("nav"), document.body.children[0]);
-                }
-                if (specification instanceof Array) {
-                    switch (specification[1]) {
-                        case "left":
-                            document.body.style.margin = "0vw 0vh 0vh 15vw";
-                            document.body.style.width = "80vw";
-                            Standards.read(specification[0], function() {
-                                document.getElementsByTagName("nav")[0].classList.add("left-nav");
-                                document.getElementsByTagName("nav")[0].appendChild(this);
-                            });
-                            break;
-                        case "hiddenLeft":
-                            Standards.read(specification[0], function() {
-                                document.getElementsByTagName("nav")[0].classList.add("hidden-left-nav");
-                                document.getElementsByTagName("nav")[0].appendChild(this);
-                            });
-                            let navTab = document.createElement("div"),
-                                darkener = document.createElement("div");
-                            navTab.className = "nav-tab";
-                            darkener.className = "darkener";
-                            Standards.insertAfter(navTab, document.getElementsByTagName("nav")[0]);
-                            Standards.insertBefore(darkener, document.getElementsByTagName("nav")[0]);
-                            navTab.addEventListener("mouseenter", function() {
-                                navTab.style.transform = "translateX(20vw)";
-                                document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
-                                darkener.style.opacity = ".6";
-                            });
-                            document.getElementsByTagName("nav")[0].addEventListener("mouseout", function() {
-                                navTab.style.transform = "";
-                                document.getElementsByTagName("nav")[0].style.transform = "";
-                                darkener.style.opacity = "0";
-                            });
-                            break;
-                        case "top":
-                            Standards.read(specification[0], function() {
-                                document.getElementsByTagName("nav")[0].classList.add("top-nav");
-                                document.getElementsByTagName("nav")[0].appendChild(this);
-                            });
-                            break;
-                        default:
-                            throw specification[1] + " is an invalid type of navigation section";
-                    }
-                } else {
-                    document.body.style.margin = "0vw 0vh 0vh 15vw";
-                    document.body.style.width = "80vw";
-                    Standards.read(specification, function() {
-                        document.getElementsByTagName("nav")[0].classList.add("left-nav");
-                        document.getElementsByTagName("nav")[0].appendChild(this);
-                    });
-                }
-                break;
+    // formats the navigation section
+    if (document.getElementsByTagName("nav").length > 0) {
+        var nav = document.getElementsByTagName("nav")[0];
+        if (Standards.options.hasOwnProperty("navigation") && Standards.options.navigation != "") {
+            Standards.read(Standards.options.navigation, function() {
+                nav.appendChild(this);
+            });
         }
-    });
+        if (nav.classList.contains("hidden-left-nav")) {
+            var navTab = document.getElementsByClassName("nav-tab")[0],
+                darkener = document.getElementsByClassName("darkener")[0];
+            Standards.listen(nav, "hover", [function() {
+                navTab.style.transform = "translateX(20vw)";
+                document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
+                darkener.style.opacity = ".8";
+            }, function() {
+                navTab.style.transform = "";
+                document.getElementsByTagName("nav")[0].style.transform = "";
+                darkener.style.opacity = "0";
+            }]);
+            Standards.listen(navTab, "hover", [function() {
+                navTab.style.transform = "translateX(20vw)";
+                document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
+                darkener.style.opacity = ".8";
+            }, function() {
+                navTab.style.transform = "";
+                document.getElementsByTagName("nav")[0].style.transform = "";
+                darkener.style.opacity = "0";
+            }]);
+        }
+    }
+    
     Standards.finished = true;
     Standards.queue.run();
     window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
