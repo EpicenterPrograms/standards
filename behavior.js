@@ -647,7 +647,7 @@ Standards.listen = function(item, event, behavior) {
             console.log(behavior);
             if (event == "hover") {
                 if (behavior instanceof Array) {
-                    if (typeof behavior[0].function == "string" || typeof behavior[1].function == "string") {
+                    if (typeof behavior[0] == "string" || typeof behavior[1] == "string") {
                         throw 'The value of "function" must not be a string.';
                     }
                     item.addEventListener("mouseenter", behavior[0]);
@@ -1432,7 +1432,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
             var navTab = document.getElementsByClassName("nav-tab")[0],
                 darkener = document.getElementsByClassName("darkener")[0];
             navTab.innerHTML = "&gt;";
-            Standards.listen(nav, "hover", [function() {
+            Standards.listen(navTab, "hover", [function() {
                 console.log("ran nav part 1");
                 navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
                 navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
@@ -1451,7 +1451,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 document.getElementsByTagName("nav")[0].style.transform = "";
                 darkener.style.opacity = "0";
             }]);
-            Standards.listen(navTab, "hover", [function() {
+            Standards.listen(nav, "hover", [function() {
                 console.log("ran navTab part 1");
                 navTab.innerHTML = "&lt;";
                 navTab.style.MsTransform = "translateX(20vw)";
