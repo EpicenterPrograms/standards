@@ -1021,7 +1021,7 @@ if (!Standards.options.keyHasValue("automation", "none")) {
         }
         var style = document.createElement("link");
         style.rel = "stylesheet";
-        style.href = "https://coolprogramminguser.github.io/Standards/formatting.css";
+        style.href = "https://coolprogramminguser.github.io/Standards/oldformatting.css";
         insertBefore(style, document.head.children[0]);
     }
     
