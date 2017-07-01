@@ -96,21 +96,25 @@ Standards.queue.run = function() {
         }
         if (fn.runOrder == "first") {
             fn.function.apply(window, fn.arguments);
-            Standards.queue.splice(Standards.queue.indexOf(fn), 1);  // This can't use the index value of .forEach because the index isn't the same after the first removal.
         }
     });
     Standards.queue.forEach(function(fn) {
         if (fn.runOrder == "later") {
             fn.function.apply(window, fn.arguments);
-            Standards.queue.splice(Standards.queue.indexOf(fn), 1);
         }
     });
-    Standards.queue.forEach(function(fn) {
+    Standards.queue.forEach(function(fn, index) {
         if (fn.runOrder == "last") {
             fn.function.apply(window, fn.arguments);
-            Standards.queue.splice(Standards.queue.indexOf(fn), 1);
+        } else if (!(fn.runOrder == "first" || fn.runOrder == "later")) {
+            console.warn("The item at the index of " + index + " in Standards.queue wasn't run because it doesn't have a valid runOrder.");
         }
     });
+    while (Standards.queue.length > 0) {  // gets rid of all of the items in Standards.queue (Standards.queue = []; would get rid of the functions as well)
+        Standards.queue.pop();
+    }
+    /// The items in Standards.queue can't be deleted as they're run because Array.forEach() doesn't copy things like my .forEach() functions do.
+    /// (Only every other item would be run because an item would be skipped every time the preceding item was deleted.)
 };
 Standards.queue.add = function(object) {
     /**
