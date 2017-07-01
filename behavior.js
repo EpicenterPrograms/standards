@@ -55,7 +55,7 @@ Standards.storageDefaults = {
     */
 
 if (Standards.queue) {
-    if (typeof Standards.queue == "array") {
+    if (Standards.queue instanceof Array) {
         Standards.queue.forEach(function(item, index) {
             if (typeof item != "object") {
                 Standards.queue.splice(index, 1);
@@ -64,7 +64,7 @@ if (Standards.queue) {
         });
     } else {
         Standards.queue = [];
-        console.warn("typeof Standards.queue is not an array");
+        console.warn("Standards.queue is not an instance of an array");
     }
 } else {
     Standards.queue = [];
@@ -88,6 +88,8 @@ Standards.queue.run = function() {
     runs the functions in the queue
     non-native functions = none
     */
+    console.log("The queue is running.");
+    console.log(Standards.queue);
     Standards.queue.forEach(function(fn) {
         if (typeof fn.function == "string") {
             throw 'The value of "function" must not be a string.';
@@ -117,7 +119,9 @@ Standards.queue.add = function(object) {
     (Standards.finished also isn't native)
     */
     Standards.queue.push(object);
+    console.log("The queue was extended.");
     if (Standards.finished) {
+        console.log("The queue ran right away.");
         Standards.queue.run();
     }
 };
@@ -652,11 +656,13 @@ Standards.listen = function(item, event, behavior) {
                     }
                     item.addEventListener("mouseenter", behavior[0]);
                     item.addEventListener("mouseleave", behavior[1]);
+                    console.log("Added event listeners");
                 } else {
                     throw 'Trying to listen for the event "hover" without a second function isn\'t supported yet.';
                 }
             } else {
                 item.addEventListener(event, behavior);
+                console.log("Added event listener");
             }
         },
         "arguments": [item, event, behavior]
