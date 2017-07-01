@@ -88,8 +88,6 @@ Standards.queue.run = function() {
     runs the functions in the queue
     non-native functions = none
     */
-    console.log("The queue is running.");
-    console.log(Standards.queue);
     Standards.queue.forEach(function(fn) {
         if (typeof fn.function == "string") {
             throw 'The value of "function" must not be a string.';
@@ -123,9 +121,7 @@ Standards.queue.add = function(object) {
     (Standards.finished also isn't native)
     */
     Standards.queue.push(object);
-    console.log("The queue was extended.");
     if (Standards.finished) {
-        console.log("The queue ran right away.");
         Standards.queue.run();
     }
 };
@@ -650,9 +646,6 @@ Standards.listen = function(item, event, behavior) {
             } else if (typeof item == "function") {
                 item = item();
             }
-            console.log(item);
-            console.log(event);
-            console.log(behavior);
             if (event == "hover") {
                 if (behavior instanceof Array) {
                     if (typeof behavior[0] == "string" || typeof behavior[1] == "string") {
@@ -660,13 +653,11 @@ Standards.listen = function(item, event, behavior) {
                     }
                     item.addEventListener("mouseenter", behavior[0]);
                     item.addEventListener("mouseleave", behavior[1]);
-                    console.log("Added event listeners");
                 } else {
                     throw 'Trying to listen for the event "hover" without a second function isn\'t supported yet.';
                 }
             } else {
                 item.addEventListener(event, behavior);
-                console.log("Added event listener");
             }
         },
         "arguments": [item, event, behavior]
@@ -1442,7 +1433,6 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 darkener = document.getElementsByClassName("darkener")[0];
             navTab.innerHTML = "&gt;";
             Standards.listen(nav, "hover", [function() {
-                console.log("ran nav part 1");
                 navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
                 navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
                 navTab.style.transform = "translateX(20vw)";  // the standard syntax
@@ -1451,7 +1441,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
                 darkener.style.opacity = ".8";
             }, function() {
-                console.log("ran nav part 2");
+                navTab.innerHTML = "&gt;";
                 navTab.style.MsTransform = "";
                 navTab.style.WebkitTransform = "";
                 navTab.style.transform = "";
@@ -1461,7 +1451,6 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 darkener.style.opacity = "0";
             }]);
             Standards.listen(navTab, "hover", [function() {
-                console.log("ran navTab part 1");
                 navTab.innerHTML = "&lt;";
                 navTab.style.MsTransform = "translateX(20vw)";
                 navTab.style.WebkitTransform = "translateX(20vw)";
@@ -1471,8 +1460,6 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
                 darkener.style.opacity = ".8";
             }, function() {
-                console.log("ran navTab part 2");
-                navTab.innerHTML = "&gt;";
                 navTab.style.MsTransform = "";
                 navTab.style.WebkitTransform = "";
                 navTab.style.transform = "";
