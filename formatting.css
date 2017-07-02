@@ -56,12 +56,12 @@ nav.left-nav {
     left: 0em;
     top: 0em;
     border-right: .05em solid #aaaaaa;
-    width: 15vw;
-    height: 100vh;
+    width: 15%;
+    height: 100%;
 }
 body.left-nav {
     margin: 0% 0% 0% 15%;
-    width: 85%;
+    min-width: 85%;
     /*
     The width isn't 85% because it wouldn't leave room for a vertical scroll bar.
     (Not leaving room would create a horizontal scroll bar.)
