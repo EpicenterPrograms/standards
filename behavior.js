@@ -1381,21 +1381,6 @@ window.addEventListener("load", function() {  // This waits for everything past 
             }
         });
         
-        /*
-        // surrounds every list with <div class="list"></div>
-        //// should be able to eliminate
-        var orderedLists = document.getElementsByTagName("ol");
-        var unorderedLists = document.getElementsByTagName("ul");
-        for (var index=0; index<orderedLists.length; index++) {
-            orderedLists[index].outerHTML = "<div class='list'>" + orderedLists[index].outerHTML + "</div>";
-            orderedLists[index].style.visibility = "visible";
-        }
-        for (var index=0; index<unorderedLists.length; index++) {
-            unorderedLists[index].outerHTML = "<div class='list'>" + unorderedLists[index].outerHTML + "</div>";
-            unorderedLists[index].style.visibility = "visible";
-        }
-        */
-        
         // interprets condensed tables
         var tables = document.getElementsByClassName("compact");
         for (var counter=0; counter<tables.length; counter++) {
@@ -1432,42 +1417,27 @@ window.addEventListener("load", function() {  // This waits for everything past 
             var navTab = document.getElementsByClassName("nav-tab")[0],
                 darkener = document.getElementsByClassName("darkener")[0];
             navTab.innerHTML = "&gt;";
-            Standards.listen(nav, "hover", [function() {
-                navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
-                navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
-                navTab.style.transform = "translateX(20vw)";  // the standard syntax
-                document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
-                document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
-                document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
-                darkener.style.opacity = ".8";
-            }, function() {
-                navTab.innerHTML = "&gt;";
-                navTab.style.MsTransform = "";
-                navTab.style.WebkitTransform = "";
-                navTab.style.transform = "";
-                document.getElementsByTagName("nav")[0].style.MsTransform = "";
-                document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
-                document.getElementsByTagName("nav")[0].style.transform = "";
-                darkener.style.opacity = "0";
-            }]);
-            Standards.listen(navTab, "hover", [function() {
-                navTab.innerHTML = "&lt;";
-                navTab.style.MsTransform = "translateX(20vw)";
-                navTab.style.WebkitTransform = "translateX(20vw)";
-                navTab.style.transform = "translateX(20vw)";
-                document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
-                document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
-                document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
-                darkener.style.opacity = ".8";
-            }, function() {
-                navTab.style.MsTransform = "";
-                navTab.style.WebkitTransform = "";
-                navTab.style.transform = "";
-                document.getElementsByTagName("nav")[0].style.MsTransform = "";
-                document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
-                document.getElementsByTagName("nav")[0].style.transform = "";
-                darkener.style.opacity = "0";
-            }]);
+            [nav, navTab].forEach(function(section) {
+                Standards.listen(section, "hover", [function() {
+                    navTab.innerHTML = "&lt;";
+                    navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
+                    navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
+                    navTab.style.transform = "translateX(20vw)";  // the standard syntax
+                    document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
+                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
+                    document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
+                    darkener.style.opacity = ".8";
+                }, function() {
+                    navTab.innerHTML = "&gt;";
+                    navTab.style.MsTransform = "";
+                    navTab.style.WebkitTransform = "";
+                    navTab.style.transform = "";
+                    document.getElementsByTagName("nav")[0].style.MsTransform = "";
+                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
+                    document.getElementsByTagName("nav")[0].style.transform = "";
+                    darkener.style.opacity = "0";
+                }]);
+            });
         }
     }
     
