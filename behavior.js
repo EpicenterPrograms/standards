@@ -1420,12 +1420,12 @@ window.addEventListener("load", function() {  // This waits for everything past 
             [nav, navTab].forEach(function(section) {
                 Standards.listen(section, "hover", [function() {
                     navTab.innerHTML = "&lt;";
-                    navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
-                    navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
-                    navTab.style.transform = "translateX(20vw)";  // the standard syntax
-                    document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
-                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
-                    document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
+                    navTab.style.MsTransform = "translateX(20%)";  // for Internet Explorer 9
+                    navTab.style.WebkitTransform = "translateX(20%)";  // for Safari
+                    navTab.style.transform = "translateX(20%)";  // the standard syntax
+                    document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20%)";
+                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20%)";
+                    document.getElementsByTagName("nav")[0].style.transform = "translateX(20%)";
                     darkener.style.opacity = ".8";
                 }, function() {
                     navTab.innerHTML = "&gt;";
