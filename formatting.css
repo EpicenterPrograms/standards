@@ -20,13 +20,15 @@ could be used to modify CSS
     --nav-slide-time: .8s;
 }
 html {
+    min-width: 100%;
     min-height: 100%;
 }
 body {
-    margin-right: 5.5%;
+    margin: 0%;
+    min-width: 100%;
     min-height: 100%;
-    padding: 1% 0% 5% 5%;
-    background: #0000ee;  /* for browsers that do not support gradients */
+    padding: 0%;
+    background: #0000ee;  /* for browsers that don't support gradients */
     background: -webkit-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Safari 5.1 to 6.0 */
     background: -o-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Opera 11.1 to 12.0 */
     background: -moz-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Firefox 3.6 to 15 */
@@ -36,7 +38,7 @@ body {
 section {
     margin: auto;
     margin-top: 4%;
-    min-width: 100%;
+    width: 80%;
     min-height: 100%;
     height: 100%;
     padding: 1% 5% 5% 5%;
@@ -47,10 +49,10 @@ div {
     display: inline-block;
 }
 nav {
-    position: fixed;
     background: white;
 }
 nav.left-nav {
+    position: fixed;
     left: 0em;
     top: 0em;
     border-right: .05em solid #aaaaaa;
@@ -58,25 +60,26 @@ nav.left-nav {
     height: 100vh;
 }
 body.left-nav {
-    margin: 0vw 0vh 0vh 15vw;
-    width: 80vw;
+    margin: 0% 0% 0% 15%;
+    width: 85%;
     /*
-    The width isn't 85vw because it wouldn't leave room for a vertical scroll bar.
+    The width isn't 85% because it wouldn't leave room for a vertical scroll bar.
     (Not leaving room would create a horizontal scroll bar.)
     */
 }
 nav.hidden-left-nav {
-    left: -20.5vw;
-    top: 0em;
+    position: fixed;
+    left: -20.5%;
+    top: 0%;
     z-index: 5;
     border-right: .05em solid #aaaaaa;
-    width: 20.5vw;
-    height: 100vh;
+    width: 20.5%;
+    height: 100%;
     transition: transform .8s;
     transition: transform var(--nav-slide-time);
 }
 div.nav-tab {
-    position: absolute;
+    position: fixed;
     left: 0vh;
     top: 46vh;
     z-index: 5;
@@ -103,7 +106,7 @@ div.nav-tab {
     transition: transform var(--nav-slide-time);
 }
 div.darkener {
-    position: absolute;
+    position: fixed;
     left: 0em;
     top: 0em;
     z-index: 4;
@@ -121,7 +124,7 @@ nav.top-nav {
     left: 0em;
     top: 0em;
     border-bottom: .05em solid #aaaaaa;
-    width: 100vw;
+    width: 100%;
 }
 a {
     text-decoration: none;
