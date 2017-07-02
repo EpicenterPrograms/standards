@@ -1421,13 +1421,13 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 Standards.listen(section, "hover", [function() {
                     navTab.innerHTML = "&lt;";
                     /// Translation percentages are relative to the object doing the translating (not the parent).
-                    /// The translation percentage isn't 100% because the far end of the screen would trigger leaving the section.
-                    navTab.style.MsTransform = "translateX(99%)";  // for Internet Explorer 9
-                    navTab.style.WebkitTransform = "translateX(99%)";  // for Safari
-                    navTab.style.transform = "translateX(99%)";  // the standard syntax
-                    document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(99%)";
-                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(99%)";
-                    document.getElementsByTagName("nav")[0].style.transform = "translateX(99%)";
+                    /// The translation has to be in vw or else the tab wouldn't move as far as the main contents.
+                    navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
+                    navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
+                    navTab.style.transform = "translateX(20vw)";  // the standard syntax
+                    document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
+                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
+                    document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
                     darkener.style.opacity = ".8";
                 }, function() {
                     navTab.innerHTML = "&gt;";
