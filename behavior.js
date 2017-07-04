@@ -556,14 +556,6 @@ Standards.onLoad = function(doStuff) {
     return window.addEventListener("finished", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
 };
 
-Standards.getTag = function(tag) {
-    /**
-    gets all of the elements made by a certain tag
-    non-native functions = none
-    */
-    return document.getElementsByTagName(tag);
-};
-
 Standards.getId = function(ID) {
     /**
     gets an element by ID
@@ -572,12 +564,44 @@ Standards.getId = function(ID) {
     return document.getElementById(ID);
 };
 
+Standards.getTag = function(tag) {
+    /**
+    gets all of the elements made by a certain tag
+    non-native functions = none
+    */
+    return document.getElementsByTagName(tag);
+};
+
 Standards.getClass = function(name) {
     /**
     gets elements with a certain class
     non-native functions = none
     */
     return document.getElementsByClassName(name);
+};
+
+Standards.getName = function(name, specific) {
+    /**
+    gets the elements with a certain name
+    If "specific" is present and set to true, the result will be specific.
+    The way the function is specific depends on what type of elements are obtained.
+        inputs:
+            radio buttons return the value of the selected button
+    non-native functions = none
+    */
+    var elements = document.getElementsByName(name);
+    if (specific) {
+        if (elements[0].nodeName == "INPUT") {
+            if (elements[0].type == "radio") {
+                for (var index=0; index<elements.length; index++) {
+                    if (elements[index].checked) {
+                        return elements[index];
+                    }
+                }
+            }
+        }
+    }
+    return elements;
 };
 
 Standards.insertBefore = function(insertion, place) {
