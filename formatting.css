@@ -35,7 +35,7 @@ body {
     background: repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* standard syntax */
     text-align: center;
 }
-section {
+main {
     margin: auto;
     margin-top: 4%;
     width: 90%;
@@ -194,6 +194,12 @@ mark {
 label {
     cursor: text;
 }
+dialog {
+    
+}
+.dialog {  /* "dialog" formatting is replicated because <dialog> isn't widely supported yet */
+    
+}
 note- {  /* my custon tag (puts notes in text) */
     color: blue;
     cursor: help;
@@ -217,6 +223,44 @@ over- {  /* my custom tag (overlines things) */
     display: table;
     margin: auto;
     text-align: left;
+}
+.trigger {
+    position: relative;
+}
+.trigger:hover .popup {
+    opacity: 1;
+    pointer-events: auto;
+}
+.popup {
+    font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
+    position: absolute;
+    left: -1em;
+    bottom: 2em;
+    border-radius: .5em;
+    padding: .25em;
+    min-width: 15em;
+    background: white;
+    box-shadow: 0.25em 0.25em 0.75em #222;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .5s linear .5s;
+}
+.popup::before {  /* This makes sure you don't have the leave the trigger before hovering over the pop-up. */
+    content: "";
+    position: absolute;
+    left: 0em;
+    bottom: -.8em;
+    width: 15em;
+    height: .8em;
+}
+.popup::after {  /* makes the protruding triangle of the pop-up */
+    content: "";
+    position: absolute;
+    left: 1em;
+    bottom: -1em;
+    border-width: .5em;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
 }
 .circle {
     border: .05em solid black;
