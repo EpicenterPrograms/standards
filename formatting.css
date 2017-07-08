@@ -174,6 +174,7 @@ input[type="button"] {
     cursor: pointer;
 }
 button {
+    margin: .5em;
     cursor: pointer;
 }
 textarea {
@@ -195,10 +196,44 @@ label {
     cursor: text;
 }
 dialog {
-    
+    box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 10;
+    border: 2vh solid #aadddd;  /* I use vh because I know the border won't be any smaller than what I see, even on mobile devices. */
+    border-radius: 4vh;
+    padding: 1em;
+    max-width: 30%;  /* This would max out at about 50% anyway because the positioning and translation limit the width. */
+    max-height: 50%;
+    background: white;
+    overflow: auto;
+    transform: translate(-50%, -50%) scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
+    transition: .5s;
+}
+dialog .buttons {
+    display: block;
+    margin-top: .5em;
 }
 .dialog {  /* "dialog" formatting is replicated because <dialog> isn't widely supported yet */
-    
+    box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 10;
+    border: 2vh solid #aadddd;  /* I use vh because I know the border won't be any smaller than what I see, even on mobile devices. */
+    border-radius: 4vh;
+    padding: 1em;
+    max-width: 30%;  /* This would max out at about 50% anyway because the positioning and translation limit the width. */
+    max-height: 50%;
+    background: white;
+    overflow: auto;
+    transform: translate(-50%, -50%) scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
+    transition: .5s;    
+}
+.dialog .buttons {
+    display: block;
+    margin-top: .5em;
 }
 note- {  /* my custon tag (puts notes in text) */
     color: blue;
@@ -241,6 +276,7 @@ over- {  /* my custom tag (overlines things) */
     min-width: 15em;
     background: white;
     box-shadow: 0.25em 0.25em 0.75em #222;
+    overflow: auto;
     opacity: 0;
     pointer-events: none;
     transition: opacity .5s linear .5s;
