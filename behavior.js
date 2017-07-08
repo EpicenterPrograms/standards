@@ -340,7 +340,7 @@ String.prototype.forEach = function(doStuff) {
     .forEach() for strings
     iterates through each character
     doStuff can return a value of "break" to break out of the loop
-    non-native functions used = none
+    non-native functions = none
     */
     var string = "";
     for (var index=0; index<this.length; index++) {  // I'm not sure this is necessary (as opposed to string = this)
@@ -361,7 +361,7 @@ String.prototype.format = function() {
     example:
         "{0}'m super {2}. {0}'ve always been this {1}.".format("I", "cool", "awesome");
         "I'm super awesome. I've always been this cool."
-    non-native functions used = none
+    non-native functions = none
     */
     var args = arguments;  // If "arguments" was used in place of "args", if would return the values of the inner function arguments.
     return this.replace(/{(\d+)}/g, function(match, number) {  // These function variables represent the match found and the number inside.
@@ -391,7 +391,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
     doStuff can return a value of "break" to break out of the loop
     if "copy" is set false, the actual list will be looped through
         default = true
-    non-native functions used = none
+    non-native functions = none
     */
     copy = copy || true;
     var index = 0,
@@ -428,7 +428,7 @@ CSSRuleList.prototype.forEach = function(doStuff) {
     doStuff can return a value of "break" to break out of the loop
     the .selectorText of a stylesheet rule will return something like p, .class, #ID, etc.
     the properties and values of a stylesheet rule can be accessed and set like a normal object
-    non-native functions used = none
+    non-native functions = none
     */
     var elements = [];
     for (var index=0; index<this.length; index++) {
@@ -445,7 +445,7 @@ CSSRuleList.prototype.forEach = function(doStuff) {
 NodeList.prototype.forEach = function(doStuff) {
     /**
     similar to HTMLCollection.forEach()
-    non-native functions used = none
+    non-native functions = none
     */
     var elements = [];
     for (var index=0; index<this.length; index++) {
@@ -508,7 +508,7 @@ Object.prototype.keyHasValue = function(key, value) {
     /**
     checks if an object has a property and then
     checks if the property equals the value
-    non-native functions used = none
+    non-native functions = none
     */
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
@@ -710,6 +710,81 @@ Standards.safeWhile = function(condition, doStuff, loops) {
     }
 };
 
+Standards.makeDialog = function(message) {
+    /**
+    makes a dialog box pop up
+    message = the content of the dialog box (can be HTML)
+    At least one argument is needed after the message.
+    Arguments after the message are two-item arrays which form buttons.
+        first item = text of the button
+        second item = the function to run if that button is pressed
+    The text of the button is passed to the functions,
+    so the same function can be used for all of the buttons if the function checks the text.
+    example:
+        Standards.makeDialog(
+            "Don't you think this dialog box is awesome?",
+            ["Yes", function() {console.log("You're awesome too!");}],
+            ["No", function() {console.log("Nobody cares what you think anyway!");}]
+        );
+    non-native functions = none
+    */
+    var pairs = Array.prototype.slice.call(arguments, 1);
+    if (pairs.length < 1) {
+        throw "There must be at least one button-function pair.";
+    }
+    pairs.forEach(function(pair, index) {
+        if (!(pair instanceof Array)) {
+            throw "The item at position " + (index+1) + " isn't a two-item array.";
+        } else if (pair.length != 2) {
+            throw "The item at position " + (index+1) + " needs to have exactly two items.";
+        }
+    });
+    var darkener = document.createElement("div"),
+        dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
+        buttons = document.createElement("div");
+    darkener.className = "darkener";
+    darkener.style.zIndex = 9;
+    darkener.style.pointerEvents = "auto";
+    darkener.style.transition = "opacity .5s";
+    dialog.className = "dialog";
+    dialog.innerHTML = message;
+    buttons.className = "buttons";
+    pairs.forEach(function(pair, index) {
+        if (typeof pair[0] != "string") {
+            throw "The pair at position " + (index+1) + " doesn't have a string as the first value.";
+        } else if (typeof pair[1] != "function") {
+            throw "The pair at position " + (index+1) + " doesn't have a function as the second value.";
+        }
+        var button = document.createElement("button");
+        button.innerHTML = pair[0];
+        buttons.appendChild(button);
+        button.addEventListener("click", function() {
+            pair[1](pair[0]);
+            dialog.dispatchEvent(new CustomEvent("dialogAnswered"));
+            this.removeEventListener("click", arguments.callee);
+        });
+    });
+    dialog.appendChild(buttons);
+    document.body.appendChild(darkener);
+    document.body.appendChild(dialog);
+    dialog.addEventListener("dialogAnswered", function() {
+        darkener.style.opacity = 0;
+        this.style.MsTransform = "translate(-50%, -50%) scale(.001, .001)";
+        this.style.WebkitTransform = "translate(-50%, -50%) scale(.001, .001)";
+        this.style.transform = "translate(-50%, -50%) scale(.001, .001)";
+        setTimeout(function() {  // waits until the dialog box is finished transitioning before removing it
+            document.body.removeChild(document.body.lastChild);
+            document.body.removeChild(document.body.lastChild);
+        }, 800);
+    });
+    setTimeout(function() {  // This breaks out of the execution block and allows transitioning to the states.
+        darkener.style.opacity = .8;
+        dialog.style.MsTransform = "translate(-50%, -50%) scale(1, 1)";
+        dialog.style.WebkitTransform = "translate(-50%, -50%) scale(1, 1)";
+        dialog.style.transform = "translate(-50%, -50%) scale(1, 1)";
+    }, 0);
+};
+
 Standards.checkAll = function(item, comparator, comparisons, type) {
     /**
     comparisons = an array of things to be used in comparing things
@@ -720,7 +795,7 @@ Standards.checkAll = function(item, comparator, comparisons, type) {
         comparator = how the items are being compared e.g. "==", ">", etc.
         comparator must be a string
         example:
-            checkAll(document.getElementById("tester").innerHTML, "==", ["testing", "hello", "I'm really cool."], "||");
+            Standards.checkAll(document.getElementById("tester").innerHTML, "==", ["testing", "hello", "I'm really cool."], "||");
     when comparator is null:
         evaluates a formattable string (item) after formatting with the comparisons
         uses String.format() (my own function)
@@ -729,16 +804,16 @@ Standards.checkAll = function(item, comparator, comparisons, type) {
             arrays containing strings = one array is used per iteration
         variables don't work in the item string: they have to be used as one of the items in comparisons
         examples:
-            checkAll("{0} > 0 ", null, [2,"6",7,4,"3"], "||");
-            checkAll("('abc'+'{0}'+'{1}'+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");  // notice quotation marks around {}s for insertion of a string
+            Standards.checkAll("{0} > 0 ", null, [2,"6",7,4,"3"], "||");
+            Standards.checkAll("('abc'+'{0}'+'{1}'+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");  // notice quotation marks around {}s for insertion of a string
             // Don't do this.
             var number = 42;
-            if (checkAll("number < {0}", null, [30,40,50], "||")) {
+            if (Standards.checkAll("number < {0}", null, [30,40,50], "||")) {
                 console.log("It worked!");
             }
             // Instead, do this.
             var number = 42;
-            if (checkAll("{0} < {1}", null, [[number,30],[number,40],[number,50]], "||")) {
+            if (Standards.checkAll("{0} < {1}", null, [[number,30],[number,40],[number,50]], "||")) {
                 console.log("It worked!");
             }
             // Quotation marks must be added to the {} when the variable is a string.
@@ -810,7 +885,7 @@ Standards.read = function(URL, callback) {
     puts the string into a <div>, and then
     calls the callback function (which has no arguments)
     with "this" equalling the <div>
-    non-native functions used = none
+    non-native functions = none
     */
     var file = new XMLHttpRequest();
     file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
@@ -844,7 +919,7 @@ Standards.read = function(URL, callback) {
 Standards.pageJump = function(ID) {
     /**
     makes a section to jump to certain parts of the page
-    non-native functions used = Standards.queue.add() and HTMLCollection.forEach()
+    non-native functions = Standards.queue.add() and HTMLCollection.forEach()
     */
     Standards.queue.add({
         "runOrder": "first",
@@ -1337,9 +1412,9 @@ Standards.colorCode = function(element, conversion) {
 };
 
 
-// makes my custom tag which formats things as notes
+// makes my custom tag which formats things as notes (not necessary in most browsers)
 document.createElement("note-");  // The dash can't be at the beginning of the tag name or else an error will be thrown.
-// makes my custom tag which overlines things
+// makes my custom tag which overlines things (not necessary in most browsers)
 document.createElement("over-");
 
 // determines whether "Standards" should also be imported as "S"
