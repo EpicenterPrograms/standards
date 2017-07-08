@@ -126,7 +126,7 @@ Standards.queue.add = function(object) {
     }
 };
 
-var Sound = function(specs) {
+Standards.Sound = function(specs) {
     /**
     creates tones which can be modified in certain way
     frequency = frequency of the primary tone/wave
