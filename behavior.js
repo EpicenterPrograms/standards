@@ -1516,23 +1516,27 @@ window.addEventListener("load", function() {  // This waits for everything past 
             var navTab = document.getElementsByClassName("nav-tab")[0],
                 darkener = document.getElementsByClassName("darkener")[0];
             //// navTab.innerHTML = "&gt;";
-            [nav, navTab].forEach(function(section) {
+            [nav].forEach(function(section) {
                 Standards.listen(section, "hover", [function() {
-                    navTab.innerHTML = "&lt;";
+                    //// navTab.innerHTML = "&lt;";
                     /// Translation percentages are relative to the object doing the translating (not the parent).
                     /// The translation has to be in vw or else the tab wouldn't move as far as the main contents.
+                    /*
                     navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
                     navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
                     navTab.style.transform = "translateX(20vw)";  // the standard syntax
+                    */
                     document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
                     document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
                     document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
                     darkener.style.opacity = ".8";
                 }, function() {
+                    /*
                     navTab.innerHTML = "&gt;";
                     navTab.style.MsTransform = "";
                     navTab.style.WebkitTransform = "";
                     navTab.style.transform = "";
+                    */
                     document.getElementsByTagName("nav")[0].style.MsTransform = "";
                     document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
                     document.getElementsByTagName("nav")[0].style.transform = "";
