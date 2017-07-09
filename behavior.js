@@ -1515,7 +1515,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         if (nav.classList.contains("hidden-left-nav")) {
             var navTab = document.getElementsByClassName("nav-tab")[0],
                 darkener = document.getElementsByClassName("darkener")[0];
-            navTab.innerHTML = "&gt;";
+            //// navTab.innerHTML = "&gt;";
             [nav, navTab].forEach(function(section) {
                 Standards.listen(section, "hover", [function() {
                     navTab.innerHTML = "&lt;";
