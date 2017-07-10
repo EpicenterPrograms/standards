@@ -36,6 +36,9 @@ body {
     text-align: center;
 }
 main {
+    /**
+    meant to hold the main content of the page
+    */
     margin: auto;
     margin-top: 4%;
     width: 90%;
@@ -52,6 +55,9 @@ nav {
     background: white;
 }
 nav.left-nav {
+    /**
+    creates a fixed navigation section on the left side of the screen
+    */
     position: fixed;
     left: 0em;
     top: 0em;
@@ -60,6 +66,9 @@ nav.left-nav {
     height: 100%;
 }
 body.left-nav {
+    /**
+    makes the body move over to make room for the navigation section on the left side of the screen
+    */
     margin: 0% 0% 0% 15%;
     min-width: 85%;
     /*
@@ -68,23 +77,63 @@ body.left-nav {
     */
 }
 nav.hidden-left-nav {
+    /**
+    creates a fixed navigation section hidden behind the left side of the screen
+    */
     position: fixed;
-    left: -20.5vw;
+    left: -45.5vh;  /* I use vh because I want to know that things won't be any smaller than what I see, even on mobile devices. */
     top: 0vh;
     z-index: 5;
     border-right: .05em solid #aaaaaa;
-    width: 20.5vw;
+    width: 45.5vh;
     height: 100vh;
-    transition: transform .8s;
-    transition: transform var(--nav-slide-time);
+    transition: .8s;
+    transition: var(--nav-slide-time);
 }
-div.nav-tab {
-    position: fixed;
-    left: 0vh;
-    top: 46vh;
-    z-index: 5;
-    width: 4vh;
-    height: 8vh;
+nav.hidden-left-nav:hover {
+    /**
+    unhides the navigation section
+    */
+    -ms-transform: translateX(45vh);  /* Internet Explorer 9 */
+    -webkit-transform: translateX(45vh);  /* Safari */
+    transform: translateX(45vh);  /* standard syntax */
+    /* These aren't 45.5vh because, otherwise, the far left end of the screen would stop the hovering. */
+}
+nav.hidden-left-nav::before {
+    /**
+    creates darkness to cover the rest of the screen
+    */
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 0%;
+    width: 100vw;
+    height: 100%;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+    transition: .8s;  /* I don't understand why this (or the next line) is necessary. */
+    transition: var(--nav-slide-time);
+}
+nav.hidden-left-nav:hover::before {
+    /**
+    causes the darkness to fade in
+    */
+    opacity: .8;
+}
+nav.hidden-left-nav::after {
+    /**
+    creates a tab sticking out of the side to access the hidden left navigation
+    */
+    content: ">";
+    position: absolute;
+    left: 100%;
+    top: 46%;
+    top: calc(50% - attr(height %, 8%) / 2);  /* This will only work when attr() supports non-string values (and fallbacks) */
+    width: 8%;
+    height: 8%;
+    display: -moz-flex;
+    display: -webkit-flex;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -102,23 +151,17 @@ div.nav-tab {
     -ms-user-select: none;  /* Internet Explorer and Microsoft Edge */
     user-select: none;  /* non-prefixed version of preventing text selection */
     cursor: default;
-    transition: transform .8s;
-    transition: transform var(--nav-slide-time);
 }
-div.darkener {
-    position: fixed;
-    left: 0em;
-    top: 0em;
-    z-index: 4;
-    width: 100vw;
-    height: 100vh;
-    background: black;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .8s;
-    transition: opacity var(--nav-slide-time);
+nav.hidden-left-nav:hover::after {
+    /**
+    changes the arrow direction
+    */
+    content: "<";
 }
 nav.top-nav {
+    /**
+    creates a navigation section that moves to the top and stays there
+    */
     position: -webkit-sticky;
     position: sticky;
     left: 0em;
@@ -182,9 +225,9 @@ textarea {
     font-size: 1em;
 }
 sup, sub {
-    vertical-align: baseline;
     position: relative;
     top: -.4em;
+    vertical-align: baseline;
 }
 sub { 
     top: .4em; 
@@ -215,7 +258,7 @@ dialog .buttons {
     display: block;
     margin-top: .5em;
 }
-.dialog {  /* "dialog" formatting is replicated because <dialog> isn't widely supported yet */
+.dialog {  /* <dialog> formatting is replicated because <dialog> isn't widely supported yet */
     box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
     position: fixed;
     left: 50%;
@@ -235,14 +278,27 @@ dialog .buttons {
     display: block;
     margin-top: .5em;
 }
-note- {  /* my custon tag (puts notes in text) */
+note- {
+    /**
+    my custom tag
+    puts notes in text
+    */
+    position: relative;
     color: blue;
     cursor: help;
 }
 note-:hover {
     text-decoration: underline;
 }
-over- {  /* my custom tag (overlines things) */
+note-:hover .popup {
+    opacity: 1;
+    pointer-events: auto;
+}
+over- {
+    /**
+    my custom tag
+    overlines things
+    */
     display: inline;
     margin: 0em;
     border: 0em;
@@ -254,7 +310,10 @@ over- {  /* my custom tag (overlines things) */
     top: 3em;
     right: 3em;
 }
-.list {  /* for left-aligned content as close to the middle of the page as possible */
+.list {
+    /**
+    for left-aligned content as close to the middle of the page as possible
+    */
     display: table;
     margin: auto;
     text-align: left;
@@ -281,7 +340,10 @@ over- {  /* my custom tag (overlines things) */
     pointer-events: none;
     transition: opacity .5s linear .5s;
 }
-.popup::before {  /* This makes sure you don't have the leave the trigger before hovering over the pop-up. */
+.popup::before {
+    /**
+    This makes sure you don't have the leave the trigger before hovering over the pop-up.
+    */
     content: "";
     position: absolute;
     left: 0em;
@@ -289,7 +351,10 @@ over- {  /* my custom tag (overlines things) */
     width: 15em;
     height: .8em;
 }
-.popup::after {  /* makes the protruding triangle of the pop-up */
+.popup::after {
+    /**
+    makes the protruding triangle of the pop-up
+    */
     content: "";
     position: absolute;
     left: 1em;
@@ -299,23 +364,50 @@ over- {  /* my custom tag (overlines things) */
     border-color: white transparent transparent transparent;
 }
 .circle {
+    /**
+    circles things (like text)
+    */
     border: .05em solid black;
     border-radius: .5em;
 }
 .full-spin {
+    /**
+    spins something (like a <div>) in a full rotation
+    */
     transition: 1s;
     -ms-transform: rotate(360deg);  /* Internet Explorer 9 */
     -webkit-transform: rotate(360deg);  /* Safari */
     transform: rotate(360deg);  /* standard syntax */
 }
 .half-spin {
+    /**
+    spins something (like a div) in a half rotation
+    */
     transition: .5s;
     -ms-transform: rotate(180deg);  /* Internet Explorer 9 */
     -webkit-transform: rotate(180deg);  /* Safari */
     transform: rotate(180deg);  /* standard syntax */
 }
 h1.main-title {
+    /**
+    formats the main title of the website/page
+    */
     color: white;
+}
+div.darkener {
+    /**
+    darkens the screen
+    */
+    position: fixed;
+    left: 0vw;
+    top: 0vh;
+    z-index: 5;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .5s;
 }
 table.compact {
     visibility: hidden;
