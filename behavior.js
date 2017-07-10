@@ -743,9 +743,7 @@ Standards.makeDialog = function(message) {
         dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
         buttons = document.createElement("div");
     darkener.className = "darkener";
-    darkener.style.zIndex = 9;
     darkener.style.pointerEvents = "auto";
-    darkener.style.transition = "opacity .5s";
     dialog.className = "dialog";
     dialog.innerHTML = message;
     buttons.className = "buttons";
@@ -1504,44 +1502,11 @@ window.addEventListener("load", function() {  // This waits for everything past 
         }
     }
     
-    // formats the navigation section
-    if (document.getElementsByTagName("nav").length > 0) {
-        var nav = document.getElementsByTagName("nav")[0];
-        if (Standards.options.hasOwnProperty("navigation") && Standards.options.navigation != "") {
-            Standards.read(Standards.options.navigation, function() {
-                nav.appendChild(this);
-            });
-        }
-        /*
-        if (nav.classList.contains("hidden-left-nav")) {
-            var navTab = document.getElementsByClassName("nav-tab")[0],
-                darkener = document.getElementsByClassName("darkener")[0];
-            //// navTab.innerHTML = "&gt;";
-            [nav].forEach(function(section) {
-                Standards.listen(section, "hover", [function() {
-                    //// navTab.innerHTML = "&lt;";
-                    /// Translation percentages are relative to the object doing the translating (not the parent).
-                    /// The translation has to be in vw or else the tab wouldn't move as far as the main contents.
-                    navTab.style.MsTransform = "translateX(20vw)";  // for Internet Explorer 9
-                    navTab.style.WebkitTransform = "translateX(20vw)";  // for Safari
-                    navTab.style.transform = "translateX(20vw)";  // the standard syntax
-                    document.getElementsByTagName("nav")[0].style.MsTransform = "translateX(20vw)";
-                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "translateX(20vw)";
-                    document.getElementsByTagName("nav")[0].style.transform = "translateX(20vw)";
-                    darkener.style.opacity = ".8";
-                }, function() {
-                    navTab.innerHTML = "&gt;";
-                    navTab.style.MsTransform = "";
-                    navTab.style.WebkitTransform = "";
-                    navTab.style.transform = "";
-                    document.getElementsByTagName("nav")[0].style.MsTransform = "";
-                    document.getElementsByTagName("nav")[0].style.WebkitTransform = "";
-                    document.getElementsByTagName("nav")[0].style.transform = "";
-                    darkener.style.opacity = "0";
-                }]);
-            });
-        }
-        */
+    // adds navigation content
+    if (document.getElementsByTagName("nav").length > 0 && Standards.options.hasOwnProperty("navigation") && Standards.options.navigation != "") {
+        Standards.read(Standards.options.navigation, function() {
+            document.getElementsByTagName("nav")[0].appendChild(this);
+        });
     }
     
     Standards.finished = true;
