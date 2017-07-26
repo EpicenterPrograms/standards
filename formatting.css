@@ -306,11 +306,6 @@ over- {
     padding: 0em;
     text-decoration: overline;
 }
-.login-section {
-    position: absolute;
-    top: 3em;
-    right: 3em;
-}
 .list {
     /**
     for left-aligned content as close to the middle of the page as possible
@@ -412,6 +407,11 @@ div.darkener {
 }
 table.compact {
     visibility: hidden;
+}
+#loginButton {
+    position: absolute;
+    top: 3em;
+    right: 3em;
 }
 /*
 @keyframes animation-name {
