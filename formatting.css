@@ -53,6 +53,8 @@ div {
 }
 nav {
     background: white;
+}
+nav div {
     overflow: auto;
 }
 nav.left-nav {
@@ -331,7 +333,6 @@ over- {
     min-width: 15em;
     background: white;
     box-shadow: 0.25em 0.25em 0.75em #222;
-    overflow: auto;
     opacity: 0;
     pointer-events: none;
     transition: opacity .5s linear .5s;
@@ -358,6 +359,9 @@ over- {
     border-width: .5em;
     border-style: solid;
     border-color: white transparent transparent transparent;
+}
+.popup div {
+    overflow: auto;
 }
 .circle {
     /**
