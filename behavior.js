@@ -876,7 +876,7 @@ Standards.checkAll = function(item, comparator, comparisons, type) {
     return trueFalse;
 };
 
-Standards.read = function(URL, callback) {
+Standards.getHTML = function(URL, callback) {
     /**
     reads the contents of the file at the URL,
     converts it into a string,
@@ -973,7 +973,7 @@ Standards.store = function(type, key, item, location) {
     type = the type of storage to be used
         "session": stores information until the page is closed (persists through refreshes)
         "local": stores information on the user's computer indefinitely
-        "session": stores information on a server indefinitely (accessible from any computer)
+        "server": stores information on a server indefinitely (accessible from any computer)
     key = what will be used to access the information later
     item = the information to be stored
     location = an optional specification of storage location
@@ -1052,11 +1052,9 @@ Standards.store = function(type, key, item, location) {
                     throw "Invalid storage navigation";
                 }
                 break;
-            case "server":
+            case "server":  // multipart/form-data  application/json  application/x-www-form-urlencoded
                 location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
-                if (location == null) {
-                    
-                } else if (typeof location == "string") {
+                if (typeof location == "string") {
                     
                 } else if (location instanceof Array) {
                     
@@ -1077,7 +1075,7 @@ Standards.recall = function(type, key, location) {
     type = the type of storage to be used
         "session": information stored until the page is closed (persists through refreshes)
         "local": information stored on the user's computer indefinitely
-        "session": information stored on a server indefinitely (accessible from any computer)
+        "server": information stored on a server indefinitely (accessible from any computer)
     key = the identifier of the desired information
     location = an optional specification of storage location
         default storage location is determined by Standards.storageDefaults
@@ -1155,7 +1153,7 @@ Standards.forget = function(type, key, location) {
     type = the type of storage to be used
         "session": information stored until the page is closed (persists through refreshes)
         "local": information stored on the user's computer indefinitely
-        "session": information stored on a server indefinitely (accessible from any computer)
+        "server": information stored on a server indefinitely (accessible from any computer)
     key = the identifier of the desired information
     location = an optional specification of storage location
         default storage location is determined by Standards.storageDefaults
@@ -1504,7 +1502,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
     
     // adds navigation content
     if (document.getElementsByTagName("nav").length > 0 && Standards.options.hasOwnProperty("navigation") && Standards.options.navigation != "") {
-        Standards.read(Standards.options.navigation, function() {
+        Standards.getHTML(Standards.options.navigation, function() {
             document.getElementsByTagName("nav")[0].appendChild(this);
         });
     }
