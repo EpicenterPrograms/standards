@@ -967,8 +967,78 @@ Standards.pageJump = function(ID) {
     });
 };
 
+Standards.http_build_query = function(options) {
+    /**
+    a replication of the PHP function http_build_query()
+    turns an object into a URL-encoded string (returns the string)
+    particularly useful when sending information in an XMLHttpRequest
+    example:
+        var options = {
+            "greeting": "Hello!",
+            "number": 42,
+            "animal": "cuttlefish"
+        };
+        var result = Standards.http_build_query(options);
+        // result --> "greeting=Hello!&number=42&animal=cuttlefish"
+    non-native functions = none
+    */
+    var queryString = "";
+    options.forEach(function(value, key) {
+        if (value instanceof Object) {
+            queryString += encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value)) + "&";
+        } else if (value instanceof Array) {
+            queryString += encodeURIComponent(key) + "=" + encodeURIComponent(value.toString()) + "&";  // This might not be proper.
+        } else {
+            queryString += encodeURIComponent(key) + "=" + encodeURIComponent(String(value)) + "&";
+        }
+    });
+    queryString.splice(0, -1);  // gets rid of the last "&"
+    queryString.replace(/(%20)/g, "+");  // changes the encoded spaces into the correct form for application/x-www-form-urlencoded
+    return queryString;
+};
+
+Standards.parse_str = function(encodedString) {
+    /**
+    a close approximation of the PHP function parse_str()
+    turns a URL-encoded string into an object (returns the object)
+    particularly useful when receiving information encoded into a string (as happens within Standards.recall())
+    example:
+        var options = "greeting=Hello!&number=42&animal=cuttlefish";
+        var result = Standards.parse_str(options);
+        // result --> {"greeting": "Hello!", "number": "42", "animal": "cuttlefish"}
+    non-native functions = none
+    */
+    var decodedObject = {};
+    encodedString.split("&").forEach(function(item) {
+        var key = item.split("=")[0];
+        var value = item.split("=")[1];
+        key = decodeURIComponent(key.replace(/\+/g, " "));
+        value = decodeURIComponent(value.replace(/\+/g, " "));
+        if (key.slice(-1) == "]") {
+            key = key.split("[");
+            key.forEach(function(subkey, index) {
+                if (subkey.slice(-1) == "]") {
+                    key[index] = subkey.slice(0, -1);
+                }
+            });
+            let path = decodedObject;
+            key.slice(0, -1).forEach(function(subkey) {
+                if (!path.hasOwnProperty(subkey)) {
+                    path[subkey] = {};
+                }
+                path = path[subkey];
+            });
+            path[key[key.length-1]] = value;
+            /// "decodedObject" doesn't need to be used because "path" is "decodedObject".
+        } else {
+            decodedObject[key] = value;
+        }
+    });
+    return decodedObject;
+};
+
 Standards.store = function(type, key, item, location) {
-    /*
+    /**
     stores information in key-value format
     type = the type of storage to be used
         "session": stores information until the page is closed (persists through refreshes)
@@ -1069,7 +1139,7 @@ Standards.store = function(type, key, item, location) {
 };
 
 Standards.recall = function(type, key, location) {
-    /*
+    /**
     returns previously stored information
     unfound information returns undefined
     type = the type of storage to be used
@@ -1148,7 +1218,7 @@ Standards.recall = function(type, key, location) {
 };
 
 Standards.forget = function(type, key, location) {
-    /*
+    /**
     deletes stored information
     type = the type of storage to be used
         "session": information stored until the page is closed (persists through refreshes)
