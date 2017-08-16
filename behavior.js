@@ -39,21 +39,6 @@ Standards.audio = new (window.AudioContext || window.webkitAudioContext || Objec
     // Safari is dumb and doesn't like any form of AudioContext
     // Standards.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
 
-Standards.storageDefaults = {
-    "session": null,
-    "local": null,
-    "server": null
-};
-    /*
-    sets the default location of storage
-    possibilities:
-        null = the Storage object
-        string = an object located within the Storage object
-            (the string is its key)
-        array = an object contained within multiple objects within objects all within the Storage object
-            (the array is the sequential list of keys needed to access the proper object)
-    */
-
 if (Standards.queue) {
     if (Standards.queue instanceof Array) {
         Standards.queue.forEach(function(item, index) {
@@ -1035,6 +1020,226 @@ Standards.parse_str = function(encodedString) {
         }
     });
     return decodedObject;
+};
+
+Standards.storage = {};
+
+Standards.storage.defaults = {
+    "session": null,
+    "local": null,
+    "server": null
+};
+    /*
+    sets the default location of storage
+    possibilities:
+        null = the Storage object
+        string = an object located within the Storage object
+            (the string is its key)
+        array = an object contained within multiple objects within objects all within the Storage object
+            (the array is the sequential list of keys needed to access the proper object)
+    */
+
+Standards.storage.session = {
+    "defaultLocation": null,
+    "store": function(key, item, location) {
+        if (typeof Storage == "undefined") {
+            alert("Your browser doesn't support the Storage object.");
+            /// Alerting rather than just thowing an error notifies average users when things aren't working.
+        } else {
+            location = location || Standards.storage.session.defaultLocation;
+        }
+    },
+    "recall": function(key, location) {
+        if (typeof Storage == "undefined") {
+            alert("Your browser doesn't support the Storage object.");
+        } else {
+            location = location || Standards.storage.session.defaultLocation;
+        }
+    },
+    "forget": function(key, location) {
+        if (typeof Storage == "undefined") {
+            alert("Your browser doesn't support the Storage object.");
+        } else {
+            location = location || Standards.storage.session.defaultLocation;
+        }
+    }
+};
+
+Standards.storage.local = {
+    "defaultLocation": null,
+    "store": function(key, item, location) {
+        if (typeof Storage == "undefined") {
+            alert("Your browser doesn't support the Storage object.");
+        } else {
+            location = location || Standards.storage.local.defaultLocation;
+        }
+    },
+    "recall": function(key, location) {
+        if (typeof Storage == "undefined") {
+            alert("Your browser doesn't support the Storage object.");
+        } else {
+            location = location || Standards.storage.local.defaultLocation;
+        }
+    },
+    "forget": function(key, location) {
+        if (typeof Storage == "undefined") {
+            alert("Your browser doesn't support the Storage object.");
+        } else {
+            location = location || Standards.storage.local.defaultLocation;
+        }
+    }
+};
+
+Standards.storage.server = {
+    "username": null,
+    "password": null,
+    "passwordLocation": null,
+    "storageLocation": "volatileserver.appspot.com",
+    "notificationType": "alert",
+    "store": function(key, item, location) {
+        location = location || Standards.storage.server.storageLocation;
+        var message = {
+            "username": Standards.storage.server.username,
+            "password": Standards.storage.server.password,
+            "action": "store",
+            "location": "gs://" + location + "/" + key,
+            "information": item
+        };
+        if (Standards.storage.server.passwordLocation != null) {
+            message["pwd_path"] = Standards.storage.server.passwordLocation;
+        }
+        var file = new XMLHttpRequest();
+        file.open("POST", "https://" + location);
+        file.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // This is the encoding type.  //// text/html
+        file.onreadystatechange = function () {
+            if(file.readyState === 4) {
+                if(file.status === 200 || file.status == 0) {
+                    var response = Standards.parse_str(file.responseText);
+                    var notification = Standards.storage.server.notificationType.toLowerCase();
+                    if (response.hasOwnProperty("errors")) {
+                        response.errors.forEach(function(error) {
+                            console.error(error);
+                        });
+                    }
+                    if (response.hasOwnProperty("warnings")) {
+                        response.warnings.forEach(function(warning) {
+                            if (notification == "alert") {
+                                alert(warning);
+                            } else if (notification == "return") {
+                                // only changes things later
+                            } else if (notification == "none") {
+                                // does nothing
+                            } else {
+                                console.error(notification + " is an invalid type of notification.");
+                            }
+                        });
+                    }
+                    if (notification == "return") {
+                        return response;
+                    }
+                }
+            }
+        }
+        // file.onload might also be able to be used without the states and statuses
+        file.send(Standards.http_build_query(message));
+    },
+    "recall": function(key, location) {
+        location = location || Standards.storage.server.storageLocation;
+        var message = {
+            "username": Standards.storage.server.username,
+            "password": Standards.storage.server.password,
+            "action": "recall",
+            "location": "gs://" + location + "/" + key
+        };
+        if (Standards.storage.server.passwordLocation != null) {
+            message["pwd_path"] = Standards.storage.server.passwordLocation;
+        }
+        var file = new XMLHttpRequest();
+        file.open("POST", "https://" + location);
+        file.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // This is the encoding type.  //// text/html
+        file.onreadystatechange = function () {
+            if(file.readyState === 4) {
+                if(file.status === 200 || file.status == 0) {
+                    var response = Standards.parse_str(file.responseText);
+                    var notification = Standards.storage.server.notificationType.toLowerCase();
+                    if (response.hasOwnProperty("errors")) {
+                        response.errors.forEach(function(error) {
+                            console.error(error);
+                        });
+                    }
+                    if (response.hasOwnProperty("warnings")) {
+                        response.warnings.forEach(function(warning) {
+                            if (notification == "alert") {
+                                alert(warning);
+                            } else if (notification == "return") {
+                                // only changes things later
+                            } else if (notification == "none") {
+                                // does nothing
+                            } else {
+                                console.error(notification + " is an invalid type of notification.");
+                            }
+                        });
+                    }
+                    if (notification == "return") {
+                        return response;
+                    } else {
+                        return response.value;
+                    }
+                }
+            }
+        }
+        // file.onload might also be able to be used without the states and statuses
+        file.send(Standards.http_build_query(message));
+    },
+    "forget": function(key, location) {
+        location = location || Standards.storage.server.storageLocation;
+        var message = {
+            "username": Standards.storage.server.username,
+            "password": Standards.storage.server.password,
+            "action": "forget",
+            "location": "gs://" + location + "/" + key
+        };
+        if (Standards.storage.server.passwordLocation != null) {
+            message["pwd_path"] = Standards.storage.server.passwordLocation;
+        }
+        var file = new XMLHttpRequest();
+        file.open("POST", "https://" + location);
+        file.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // This is the encoding type.  //// text/html
+        file.onreadystatechange = function () {
+            if(file.readyState === 4) {
+                if(file.status === 200 || file.status == 0) {
+                    var response = Standards.parse_str(file.responseText);
+                    var notification = Standards.storage.server.notificationType.toLowerCase();
+                    if (response.hasOwnProperty("errors")) {
+                        response.errors.forEach(function(error) {
+                            console.error(error);
+                        });
+                    }
+                    if (response.hasOwnProperty("warnings")) {
+                        response.warnings.forEach(function(warning) {
+                            if (notification == "alert") {
+                                alert(warning);
+                            } else if (notification == "return") {
+                                // only changes things later
+                            } else if (notification == "none") {
+                                // does nothing
+                            } else {
+                                console.error(notification + " is an invalid type of notification.");
+                            }
+                        });
+                    }
+                    if (notification == "return") {
+                        return response;
+                    }
+                }
+            }
+        }
+        // file.onload might also be able to be used without the states and statuses
+        file.send(Standards.http_build_query(message));
+    },
+    "permissions": function(user, level, key, location) {
+        
+    }
 };
 
 Standards.store = function(type, key, item, location) {
