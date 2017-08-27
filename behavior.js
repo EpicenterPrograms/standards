@@ -1024,69 +1024,162 @@ Standards.parse_str = function(encodedString) {
 
 Standards.storage = {};
 
-Standards.storage.defaults = {
-    "session": null,
-    "local": null,
-    "server": null
-};
-    /*
-    sets the default location of storage
-    possibilities:
-        null = the Storage object
-        string = an object located within the Storage object
-            (the string is its key)
-        array = an object contained within multiple objects within objects all within the Storage object
-            (the array is the sequential list of keys needed to access the proper object)
-    */
-
 Standards.storage.session = {
     "defaultLocation": null,
     "store": function(key, item, location) {
+        /**
+        stores information in session storage
+        non-native functions = none
+        */
         if (typeof Storage == "undefined") {
             alert("Your browser doesn't support the Storage object.");
             /// Alerting rather than just thowing an error notifies average users when things aren't working.
         } else {
+            key = String(key);
             location = location || Standards.storage.session.defaultLocation;
+            if (item instanceof Object) {
+                item = JSON.stringify(item);
+            } else if (item instanceof Array) {
+                item = item.toString();
+            } else {
+                item = String(item);
+            }
+            //// add an encoding type indication?
+            if (location == null) {
+                sessionStorage.setItem(key, item);
+            } else if (typeof location == "string") {
+                sessionStorage.setItem(location + "/" + key, item);
+            } else {
+                console.error("Invalid storage location type");  // This tells programmers where things went wrong.
+                alert("An invalid storage location has been set.");  // This tells average users that their information isn't being saved.
+            }
         }
     },
     "recall": function(key, location) {
+        /**
+        recalls information from session storage
+        non-native functions = none
+        */
         if (typeof Storage == "undefined") {
             alert("Your browser doesn't support the Storage object.");
         } else {
+            key = String(key);
             location = location || Standards.storage.session.defaultLocation;
+            if (location == null) {
+                return sessionStorage.getItem(key);
+            } else if (typeof location == "string") {
+                return sessionStorage.getItem(location + "/" + key);
+            } else {
+                console.error("Invalid storage location type");
+                alert("The information requested can't be retrieved.");
+            }
         }
     },
     "forget": function(key, location) {
+        /**
+        deletes information in session storage
+        non-native functions = none
+        */
         if (typeof Storage == "undefined") {
             alert("Your browser doesn't support the Storage object.");
         } else {
+            key = String(key);
             location = location || Standards.storage.session.defaultLocation;
+            if (location == null) {
+                sessionStorage.removeItem(key);
+            } else if (typeof location == "string") {
+                sessionStorage.removeItem(location + "/" + key);
+            } else {
+                console.error("Invalid storage location type");
+                alert("The information couldn't be deleted.");
+            }
         }
+    },
+    "list": function(location) {
+        /**
+        lists the keys of everything in session storage
+        non-native functions = none
+        */
+        location = location || Standards.storage.session.defaultLocation;
     }
 };
 
 Standards.storage.local = {
     "defaultLocation": null,
     "store": function(key, item, location) {
+        /**
+        stores information in local storage
+        non-native functions = none
+        */
         if (typeof Storage == "undefined") {
             alert("Your browser doesn't support the Storage object.");
         } else {
+            key = String(key);
             location = location || Standards.storage.local.defaultLocation;
+            if (item instanceof Object) {
+                item = JSON.stringify(item);
+            } else if (item instanceof Array) {
+                item = item.toString();
+            } else {
+                item = String(item);
+            }
+            //// add an encoding type indication?
+            if (location == null) {
+                localStorage.setItem(key, item);
+            } else if (typeof location == "string") {
+                localStorage.setItem(location + "/" + key, item);
+            } else {
+                console.error("Invalid storage location type");
+                alert("An invalid storage location has been set.");
+            }
         }
     },
     "recall": function(key, location) {
+        /**
+        recalls information from local storage
+        non-native functions = none
+        */
         if (typeof Storage == "undefined") {
             alert("Your browser doesn't support the Storage object.");
         } else {
+            key = String(key);
             location = location || Standards.storage.local.defaultLocation;
+            if (location == null) {
+                return localStorage.getItem(key);
+            } else if (typeof location == "string") {
+                return localStorage.getItem(location + "/" + key);
+            } else {
+                console.error("Invalid storage location type");
+                alert("The information requested can't be retrieved.");
+            }
         }
     },
     "forget": function(key, location) {
+        /**
+        deletes information in local storage
+        non-native functions = none
+        */
         if (typeof Storage == "undefined") {
             alert("Your browser doesn't support the Storage object.");
         } else {
+            key = String(key);
             location = location || Standards.storage.local.defaultLocation;
+            if (location == null) {
+                sessionStorage.removeItem(key);
+            } else if (typeof location == "string") {
+                sessionStorage.removeItem(location + "/" + key);
+            } else {
+                console.error("Invalid storage location type");
+                alert("The information couldn't be deleted.");
+            }
         }
+    },
+    "list": function(location) {
+        /**
+        lists the keys of everything in local storage
+        non-native functions = none
+        */
+        location = location || Standards.storage.local.defaultLocation;
     }
 };
 
@@ -1097,6 +1190,11 @@ Standards.storage.server = {
     "storageLocation": "volatileserver.appspot.com",
     "notificationType": "alert",
     "store": function(key, item, location) {
+        /**
+        stores a user's information
+        creators of information are the owners
+        non-native functions = http_build_query() and parse_str()
+        */
         location = location || Standards.storage.server.storageLocation;
         var message = {
             "username": Standards.storage.server.username,
@@ -1144,6 +1242,10 @@ Standards.storage.server = {
         file.send(Standards.http_build_query(message));
     },
     "recall": function(key, location) {
+        /**
+        recalls a user's information (if they have the correct permissions)
+        non-native functions = http_build_query() and parse_str()
+        */
         location = location || Standards.storage.server.storageLocation;
         var message = {
             "username": Standards.storage.server.username,
@@ -1192,6 +1294,10 @@ Standards.storage.server = {
         file.send(Standards.http_build_query(message));
     },
     "forget": function(key, location) {
+        /**
+        deletes a user's information (if they have owner permissions)
+        non-native functions = http_build_query() and parse_str()
+        */
         location = location || Standards.storage.server.storageLocation;
         var message = {
             "username": Standards.storage.server.username,
@@ -1237,258 +1343,17 @@ Standards.storage.server = {
         // file.onload might also be able to be used without the states and statuses
         file.send(Standards.http_build_query(message));
     },
+    "list": function(location) {
+        /**
+        lists a user's information
+        non-native functions = http_build_query() and parse_str()
+        */
+    },
     "permissions": function(user, level, key, location) {
-        
-    }
-};
-
-Standards.store = function(type, key, item, location) {
-    /**
-    stores information in key-value format
-    type = the type of storage to be used
-        "session": stores information until the page is closed (persists through refreshes)
-        "local": stores information on the user's computer indefinitely
-        "server": stores information on a server indefinitely (accessible from any computer)
-    key = what will be used to access the information later
-    item = the information to be stored
-    location = an optional specification of storage location
-        default storage location is determined by Standards.storageDefaults
-    it's okay to store items in objects that don't yet exist (they're created as needed)
-    non-native functions = none
-    */
-    if (typeof(Storage) == "undefined") {
-        alert("Your browser doesn't support the Storage object.");
-        /// Alerting rather than just thowing an error notifies average users when things aren't working.
-    } else {
-        var information;
-        switch(type.toLowerCase()) {
-            case "session":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.session));
-                /// The storage defaults have that nonsense to prevent referencing the actual object with "location".
-                if (location == null) {
-                    sessionStorage.setItem(key, item);
-                } else if (typeof location == "string") {
-                    if (!sessionStorage.getItem(location)) {
-                        sessionStorage.setItem(location, "{}");
-                    }
-                    information = JSON.parse(sessionStorage.getItem(location));
-                    information[key] = item;
-                    sessionStorage.setItem(location, JSON.stringify(information));
-                } else if (location instanceof Array) {  // using "typeof" on arrays (in this script) would return "object"
-                    if (!sessionStorage.getItem(location[0])) {
-                        sessionStorage.setItem(location[0], "{}");
-                    }
-                    information = JSON.parse(sessionStorage.getItem(location[0]));
-                    var checker = information;
-                    location.slice(1).forEach(function(section, index) {
-                        if (checker[section]) {
-                            checker = checker[section];
-                        } else {
-                            eval("information['" + location.slice(1, index+2).join("']['") + "'] = {};");
-                            checker = {};
-                        }
-                    });
-                    location.push(key);
-                    eval("information['" + location.slice(1).join("']['") + "'] = item;");
-                    sessionStorage.setItem(location[0], JSON.stringify(information));
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            case "local":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.local));
-                if (location == null) {
-                    localStorage.setItem(key, item);
-                } else if (typeof location == "string") {
-                    if (!localStorage.getItem(location)) {
-                        localStorage.setItem(location, "{}");
-                    }
-                    information = JSON.parse(localStorage.getItem(location));
-                    information[key] = item;
-                    localStorage.setItem(location, JSON.stringify(information));
-                } else if (location instanceof Array) {
-                    if (!localStorage.getItem(location[0])) {
-                        localStorage.setItem(location[0], "{}");
-                    }
-                    information = JSON.parse(localStorage.getItem(location[0]));
-                    var checker = information;
-                    location.slice(1).forEach(function(section, index) {
-                        if (checker[section]) {
-                            checker = checker[section];
-                        } else {
-                            eval("information['" + location.slice(1, index+2).join("']['") + "'] = {};");
-                            checker = {};
-                        }
-                    });
-                    location.push(key);
-                    eval("information['" + location.slice(1).join("']['") + "'] = item;");
-                    localStorage.setItem(location[0], JSON.stringify(information));
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            case "server":  // multipart/form-data  application/json  application/x-www-form-urlencoded
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
-                if (typeof location == "string") {
-                    
-                } else if (location instanceof Array) {
-                    
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            default:
-                throw "Invalid type of storage";
-        }
-    }
-};
-
-Standards.recall = function(type, key, location) {
-    /**
-    returns previously stored information
-    unfound information returns undefined
-    type = the type of storage to be used
-        "session": information stored until the page is closed (persists through refreshes)
-        "local": information stored on the user's computer indefinitely
-        "server": information stored on a server indefinitely (accessible from any computer)
-    key = the identifier of the desired information
-    location = an optional specification of storage location
-        default storage location is determined by Standards.storageDefaults
-    non-native functions = none
-    */
-    if (typeof(Storage) == "undefined") {
-        alert("Your browser doesn't support the Storage object.");
-        /// Alerting rather than just thowing an error notifies average users when things aren't working.
-    } else {
-        var information;
-        switch(type.toLowerCase()) {
-            case "session":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.session));
-                if (location == null) {
-                    if (sessionStorage.getItem(key)) {  // Storage.getItem() returns "null" if nothing is there, not "undefined"
-                        return sessionStorage.getItem(key);
-                    } else {
-                        return undefined;  // This ensures a consistent return value when an item doesn't exist.
-                    }
-                } else if (typeof location == "string") {
-                    return JSON.parse(sessionStorage.getItem(location))[key];
-                } else if (location instanceof Array) {
-                    information = JSON.parse(sessionStorage.getItem(location[0]));
-                    location.shift();
-                    location.forEach(function(section) {
-                        information = information[section];
-                    });
-                    return information[key];
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            case "local":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.local));
-                if (location == null) {
-                    if (localStorage.getItem(key)) {
-                        return localStorage.getItem(key);
-                    } else {
-                        return undefined;
-                    }
-                } else if (typeof location == "string") {
-                    return JSON.parse(localStorage.getItem(location))[key];
-                } else if (location instanceof Array) {
-                    information = JSON.parse(localStorage.getItem(location[0]));
-                    location.shift();
-                    location.forEach(function(section) {
-                        information = information[section];
-                    });
-                    return information[key];
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            case "server":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
-                if (location == null) {
-                    
-                } else if (typeof location == "string") {
-                    
-                } else if (location instanceof Array) {
-                    
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            default:
-                throw "Invalid type of storage";
-        }
-    }
-};
-
-Standards.forget = function(type, key, location) {
-    /**
-    deletes stored information
-    type = the type of storage to be used
-        "session": information stored until the page is closed (persists through refreshes)
-        "local": information stored on the user's computer indefinitely
-        "server": information stored on a server indefinitely (accessible from any computer)
-    key = the identifier of the desired information
-    location = an optional specification of storage location
-        default storage location is determined by Standards.storageDefaults
-    non-native functions = none
-    */
-    if (typeof(Storage) == "undefined") {
-        alert("Your browser doesn't support the Storage object.");
-        /// Alerting rather than just thowing an error notifies average users when things aren't working.
-    } else {
-        var information;
-        switch(type.toLowerCase()) {
-            case "session":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.session));
-                if (location == null) {
-                    sessionStorage.removeItem(key);
-                } else if (typeof location == "string") {
-                    information = JSON.parse(sessionStorage.getItem(location));
-                    delete information[key];
-                    sessionStorage.setItem(location, JSON.stringify(information));
-                } else if (location instanceof Array) {
-                    information = JSON.parse(sessionStorage.getItem(location[0]));
-                    location.push(key);
-                    eval("delete information['" + location.slice(1).join("']['") + "'];");
-                    sessionStorage.setItem(location[0], JSON.stringify(information));
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            case "local":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.local));
-                if (location == null) {
-                    localStorage.removeItem(key);
-                } else if (typeof location == "string") {
-                    information = JSON.parse(localStorage.getItem(location));
-                    delete information[key];
-                    localStorage.setItem(location, JSON.stringify(information));
-                } else if (location instanceof Array) {
-                    information = JSON.parse(localStorage.getItem(location[0]));
-                    location.push(key);
-                    eval("delete information['" + location.slice(1).join("']['") + "'];");
-                    localStorage.setItem(location[0], JSON.stringify(information));
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            case "server":
-                location = location || JSON.parse(JSON.stringify(Standards.storageDefaults.server));
-                if (location == null) {
-                    
-                } else if (typeof location == "string") {
-                    
-                } else if (location instanceof Array) {
-                    
-                } else {
-                    throw "Invalid storage navigation";
-                }
-                break;
-            default:
-                throw "Invalid type of storage";
-        }
+        /**
+        changes the permissions of other users to the information owned by you
+        non-native functions = http_build_query() and parse_str()
+        */
     }
 };
 
