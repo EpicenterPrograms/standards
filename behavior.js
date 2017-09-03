@@ -1101,6 +1101,17 @@ Standards.storage.session = {
         non-native functions = none
         */
         location = location || Standards.storage.session.defaultLocation;
+        var keyList = [];
+        for (let key in sessionStorage) {
+            if (sessionStorage.propertyIsEnumerable(key)) {
+                if (location == null) {
+                    keyList.push(key);
+                } else if (key.indexOf(location) == 0 && key.length > location.length) {
+                    keyList.push(key.slice(location.length));
+                }
+            }
+        }
+        return keyList;
     }
 };
 
@@ -1180,6 +1191,17 @@ Standards.storage.local = {
         non-native functions = none
         */
         location = location || Standards.storage.local.defaultLocation;
+        var keyList = [];
+        for (let key in localStorage) {
+            if (localStorage.propertyIsEnumerable(key)) {
+                if (location == null) {
+                    keyList.push(key);
+                } else if (key.indexOf(location) == 0 && key.length > location.length) {
+                    keyList.push(key.slice(location.length));
+                }
+            }
+        }
+        return keyList;
     }
 };
 
