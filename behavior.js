@@ -1037,7 +1037,7 @@ Standards.storage.session = {
         } else {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
-            if (item.substring) {  // if the item has the substring function (if the item is a string)
+            if (typeof item == "string") {  // if the item is a string
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1148,7 +1148,7 @@ Standards.storage.local = {
         } else {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
-            if (item.substring) {  // if the item has the substring function (if the item is a string)
+            if (typeof item == "string") {  // if the item is a string
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
