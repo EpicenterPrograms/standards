@@ -1040,7 +1040,7 @@ Standards.storage.session = {
         } else {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
-            if (typeof item == "string") {  // if the item is a string
+            if (item instanceof String) {  // if the item is a string (typeof for new String() would return "object")
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1055,7 +1055,7 @@ Standards.storage.session = {
             }
             if (location == null) {
                 sessionStorage.setItem(key, item);
-            } else if (typeof location == "string") {
+            } else if (location instanceof String) {
                 sessionStorage.setItem(location + "/" + key, item);
             } else {
                 console.error("Invalid storage location type");  // This tells programmers where things went wrong.
@@ -1079,10 +1079,11 @@ Standards.storage.session = {
         } else {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
+            var information = ""
             if (location == null) {
-                var information = sessionStorage.getItem(key);
-            } else if (typeof location == "string") {
-                var information = sessionStorage.getItem(location + "/" + key);
+                information = sessionStorage.getItem(key);
+            } else if (location instanceof String) {
+                information = sessionStorage.getItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
                 alert("The information requested can't be retrieved.");
@@ -1117,7 +1118,7 @@ Standards.storage.session = {
             location = location || Standards.storage.session.defaultLocation;
             if (location == null) {
                 sessionStorage.removeItem(key);
-            } else if (typeof location == "string") {
+            } else if (location instanceof String) {
                 sessionStorage.removeItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
@@ -1160,7 +1161,7 @@ Standards.storage.local = {
         } else {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
-            if (typeof item == "string") {  // if the item is a string
+            if (item instanceof String) {  // if the item is a string
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1175,7 +1176,7 @@ Standards.storage.local = {
             }
             if (location == null) {
                 localStorage.setItem(key, item);
-            } else if (typeof location == "string") {
+            } else if (location instanceof String) {
                 localStorage.setItem(location + "/" + key, item);
             } else {
                 console.error("Invalid storage location type");
@@ -1199,10 +1200,11 @@ Standards.storage.local = {
         } else {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
+            var information = "";
             if (location == null) {
-                var information = localStorage.getItem(key);
-            } else if (typeof location == "string") {
-                var information = localStorage.getItem(location + "/" + key);
+                information = localStorage.getItem(key);
+            } else if (location instanceof String) {
+                information = localStorage.getItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
                 alert("The information requested can't be retrieved.");
@@ -1237,7 +1239,7 @@ Standards.storage.local = {
             location = location || Standards.storage.local.defaultLocation;
             if (location == null) {
                 sessionStorage.removeItem(key);
-            } else if (typeof location == "string") {
+            } else if (location instanceof String) {
                 sessionStorage.removeItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
