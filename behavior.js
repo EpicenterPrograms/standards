@@ -1037,14 +1037,17 @@ Standards.storage.session = {
         } else {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
-            if (item instanceof Object) {
-                item = JSON.stringify(item);
-            } else if (item instanceof Array) {
-                item = item.toString();
+            if (item.substring) {  // if the item has the substring function (if the item is a string)
+                item = "s~" + item;
+            } else if (!isNaN(item)) {  // if the item is a number
+                item = "n~" + item;
+            } else if (item instanceof Array) {  // if the item is an array
+                item = "a~" + item.join("<~!@#$%^&*()_+>");
+            } else if (item instanceof Object) {  // if the item is an object
+                item = "o~" + JSON.stringify(item);
             } else {
-                item = String(item);
+                item = "z~" + String(item);
             }
-            //// add an encoding type indication?
             if (location == null) {
                 sessionStorage.setItem(key, item);
             } else if (typeof location == "string") {
@@ -1066,12 +1069,30 @@ Standards.storage.session = {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
             if (location == null) {
-                return sessionStorage.getItem(key);
+                var information = sessionStorage.getItem(key);
             } else if (typeof location == "string") {
-                return sessionStorage.getItem(location + "/" + key);
+                var information = sessionStorage.getItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
                 alert("The information requested can't be retrieved.");
+            }
+            switch (information.slice(0, 2)) {
+                case "s~":
+                case "z~":
+                    return information.slice(2);
+                    break;
+                case "n~":
+                    return Number(information.slice(2));
+                    break;
+                case "a~":
+                    return information.split("<~!@#$%^&*()_+>");
+                    break;
+                case "o~":
+                    return JSON.parse(information.slice(2));
+                    break;
+                default:
+                    console.warn("The information accessed is missing a data type tag.");
+                    return information;
             }
         }
     },
@@ -1127,14 +1148,17 @@ Standards.storage.local = {
         } else {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
-            if (item instanceof Object) {
-                item = JSON.stringify(item);
-            } else if (item instanceof Array) {
-                item = item.toString();
+            if (item.substring) {  // if the item has the substring function (if the item is a string)
+                item = "s~" + item;
+            } else if (!isNaN(item)) {  // if the item is a number
+                item = "n~" + item;
+            } else if (item instanceof Array) {  // if the item is an array
+                item = "a~" + item.join("<~!@#$%^&*()_+>");
+            } else if (item instanceof Object) {  // if the item is an object
+                item = "o~" + JSON.stringify(item);
             } else {
-                item = String(item);
+                item = "z~" + String(item);
             }
-            //// add an encoding type indication?
             if (location == null) {
                 localStorage.setItem(key, item);
             } else if (typeof location == "string") {
@@ -1156,12 +1180,30 @@ Standards.storage.local = {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
             if (location == null) {
-                return localStorage.getItem(key);
+                var information = localStorage.getItem(key);
             } else if (typeof location == "string") {
-                return localStorage.getItem(location + "/" + key);
+                var information = localStorage.getItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
                 alert("The information requested can't be retrieved.");
+            }
+            switch (information.slice(0, 2)) {
+                case "s~":
+                case "z~":
+                    return information.slice(2);
+                    break;
+                case "n~":
+                    return Number(information.slice(2));
+                    break;
+                case "a~":
+                    return information.split("<~!@#$%^&*()_+>");
+                    break;
+                case "o~":
+                    return JSON.parse(information.slice(2));
+                    break;
+                default:
+                    console.warn("The information accessed is missing a data type tag.");
+                    return information;
             }
         }
     },
