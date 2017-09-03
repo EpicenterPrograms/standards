@@ -1029,6 +1029,9 @@ Standards.storage.session = {
     "store": function(key, item, location) {
         /**
         stores information in session storage
+        any primitive data type can be stored
+        string type tags are used behind the scenes to keep track of data types
+        items stored with this function will always be recalled correctly with the recall() function
         non-native functions = none
         */
         if (typeof Storage == "undefined") {
@@ -1045,6 +1048,8 @@ Standards.storage.session = {
                 item = "a~" + item.join("<~!@#$%^&*()_+>");
             } else if (item instanceof Object) {  // if the item is an object
                 item = "o~" + JSON.stringify(item);
+            } else if (typeof item == "undefined") {
+                item = "u~";
             } else {
                 item = "z~" + String(item);
             }
@@ -1061,6 +1066,12 @@ Standards.storage.session = {
     "recall": function(key, location) {
         /**
         recalls information from session storage
+        information is returned in its original form
+            e.g. an array will be returned as an array, not a string representation
+            null is considered a number and will return NaN (the number)
+        if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
+            items without "s~", "n~", "a~", "o~", "u~", or "z~" at the beginning should return as a string
+            including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
         non-native functions = none
         */
         if (typeof Storage == "undefined") {
@@ -1080,16 +1091,14 @@ Standards.storage.session = {
                 case "s~":
                 case "z~":
                     return information.slice(2);
-                    break;
                 case "n~":
                     return Number(information.slice(2));
-                    break;
                 case "a~":
                     return information.split("<~!@#$%^&*()_+>");
-                    break;
                 case "o~":
                     return JSON.parse(information.slice(2));
-                    break;
+                case "u~":
+                    return undefined;
                 default:
                     console.warn("The information accessed is missing a data type tag.");
                     return information;
@@ -1141,6 +1150,9 @@ Standards.storage.local = {
     "store": function(key, item, location) {
         /**
         stores information in local storage
+        any primitive data type can be stored
+        string type tags are used behind the scenes to keep track of data types
+        items stored with this function will always be recalled correctly with the recall() function
         non-native functions = none
         */
         if (typeof Storage == "undefined") {
@@ -1156,6 +1168,8 @@ Standards.storage.local = {
                 item = "a~" + item.join("<~!@#$%^&*()_+>");
             } else if (item instanceof Object) {  // if the item is an object
                 item = "o~" + JSON.stringify(item);
+            } else if (typeof item == "undefined") {
+                item = "u~";
             } else {
                 item = "z~" + String(item);
             }
@@ -1172,6 +1186,12 @@ Standards.storage.local = {
     "recall": function(key, location) {
         /**
         recalls information from local storage
+        information is returned in its original form
+            e.g. an array will be returned as an array, not a string representation
+            null is considered a number and will return NaN (the number)
+        if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
+            items without "s~", "n~", "a~", "o~", "u~", or "z~" at the beginning should return as a string
+            including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
         non-native functions = none
         */
         if (typeof Storage == "undefined") {
@@ -1191,16 +1211,14 @@ Standards.storage.local = {
                 case "s~":
                 case "z~":
                     return information.slice(2);
-                    break;
                 case "n~":
                     return Number(information.slice(2));
-                    break;
                 case "a~":
                     return information.split("<~!@#$%^&*()_+>");
-                    break;
                 case "o~":
                     return JSON.parse(information.slice(2));
-                    break;
+                case "u~":
+                    return undefined;
                 default:
                     console.warn("The information accessed is missing a data type tag.");
                     return information;
