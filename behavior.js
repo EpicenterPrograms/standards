@@ -148,7 +148,7 @@ Standards.Sound = function(specs) {
         gain2.gain.linearRampToValueAtTime(sound.hertzChange, Standards.audio.currentTime + time);
         osc2.frequency.linearRampToValueAtTime(sound.modulation, Standards.audio.currentTime + time);;
         osc2.type = sound.changeWave;
-        // The second set of transitions are linear because I want them to be able to have values of 0.
+        /// The second set of transitions are linear because I want them to be able to have values of 0.
         sound.playing = sound.volume==0 ? false : true;
     }
     setValues();
@@ -171,12 +171,14 @@ Standards.Sound = function(specs) {
     };
     this.play = function(noteString, newDefaults, callback) { // plays a song based on notes you put in a string
         if (arguments.length > 0) {
+            noteString = noteString.trim();
             var defaults = {
-                "volume" : 1,
-                "attack" : 50,
-                "noteLength" : 200,
-                "decay" : 50,
-                "spacing" : 0
+                volume: 1,
+                attack: 50,
+                noteLength: 200,
+                decay: 50,
+                spacing: 0,
+                key: "Bb"
             };
             for (var item in newDefaults) {
                 if (defaults.hasOwnProperty(item)) {
@@ -186,40 +188,236 @@ Standards.Sound = function(specs) {
             function interpret(index) {
                 index = index || 0;
                 if (index < noteString.length) {
-                    if (noteString[index].match(/[a-z]/i)) {  // is the character at that index a letter?
-                        switch(noteString[index].toLowerCase()+noteString[index+1]) {
-                            case "g4":
+                    if (noteString[index].search(/[a-g]/) > -1) {  // if the letter of the note is lowercase
+                        noteString[index] = noteString[index].toUpperCase();
+                    }
+                    let note = noteString.slice(index).match(/[A-G]{1}(?:#|N|b)?\d*/);  // matches one letter A-G maybe followed by # or N or b and maybe followed by any length of numbers
+                    if (note == null) {
+                        //// make a way for people to just put frequencies
+                        console.error("An attempt was made to play an invalid note.");
+                        interpret(index+1);
+                    } else {
+                        note = note[0];
+                        let originalLength = note.length;
+                        if (note.search(/#|N|b/) == -1) {  // if there's not a sharp, natural, or flat indication
+                            switch(defaults.key) {
+                                case "Ab":
+                                    if (note[0] == "D") {
+                                        note = note[0] + "b" + note.slice(1);
+                                    }
+                                case "Eb":
+                                    if (note[0] == "A") {
+                                        note = note[0] + "b" + note.slice(1);
+                                    }
+                                case "Bb":
+                                    if (note[0] == "E") {
+                                        note = note[0] + "b" + note.slice(1);
+                                    }
+                                case "F":
+                                    if (note[0] == "B") {
+                                        note = note[0] + "b" + note.slice(1);
+                                    }
+                                case "C":
+                                    if (note.search(/#|N|b/) == -1) {
+                                        note = note[0] + "N" + note.slice(1);
+                                    }
+                                    break;
+                                case "E":
+                                    if (note[0] == "D") {
+                                        note = note[0] + "#" + note.slice(1);
+                                    }
+                                case "A":
+                                    if (note[0] == "G") {
+                                        note = note[0] + "#" + note.slice(1);
+                                    }
+                                case "D":
+                                    if (note[0] == "C") {
+                                        note = note[0] + "#" + note.slice(1);
+                                    }
+                                case "G":
+                                    if (note[0] == "F") {
+                                        note = note[0] + "#" + note.slice(1);
+                                    } else if (note.search(/#|N|b/) == -1) {
+                                        note = note[0] + "N" + note.slice(1);
+                                    }
+                                    break;
+                                default:
+                                    console.warn(defaults.key + " is not a valid musical key");
+                                    note = note[0] + "N" + note.slice(1);
+                            }
+                        }
+                        if (note.search(/\d/) == -1) {
+                            note += "4";
+                        }
+                        switch(note) {
+                            case "CN3":
+                            case "B#2":
+                                sound.change("frequency", 130.81);
+                                break;
+                            case "C#3":
+                            case "Db3":
+                                sound.change("frequency", 138.59);
+                                break;
+                            case "DN3":
+                                sound.change("frequency", 146.83);
+                                break;
+                            case "Eb3":
+                            case "D#3":
+                                sound.change("frequency", 155.56);
+                                break;
+                            case "EN3":
+                            case "Fb3":
+                                sound.change("frequency", 164.81);
+                                break;
+                            case "FN3":
+                            case "E#3":
+                                sound.change("frequency", 174.61);
+                                break;
+                            case "F#3":
+                            case "Gb3":
+                                sound.change("frequency", 185.00);
+                                break;
+                            case "GN3":
+                                sound.change("frequency", 196.00);
+                                break;
+                            case "Ab3":
+                            case "G#3":
+                                sound.change("frequency", 207.65);
+                                break;
+                            case "AN3":
+                                sound.change("frequency", 220.00);
+                                break;
+                            case "Bb3":
+                            case "A#3":
+                                sound.change("frequency", 233.08);
+                                break;
+                            case "BN3":
+                            case "Cb4":
+                                sound.change("frequency", 246.94);
+                                break;
+                            case "CN4":
+                            case "B#3":
+                                sound.change("frequency", 261.63);
+                                break;
+                            case "C#4":
+                            case "Db4":
+                                sound.change("frequency", 277.18);
+                                break;
+                            case "DN4":
+                                sound.change("frequency", 293.66);
+                                break;
+                            case "Eb4":
+                            case "D#4":
+                                sound.change("frequency", 311.13);
+                                break;
+                            case "EN4":
+                            case "Fb4":
+                                sound.change("frequency", 329.63);
+                                break;
+                            case "FN4":
+                            case "E#4":
+                                sound.change("frequency", 349.23);
+                                break;
+                            case "F#4":
+                            case "Gb4":
+                                sound.change("frequency", 369.99);
+                                break;
+                            case "GN4":
                                 sound.change("frequency", 392.00);
                                 break;
-                            case "a4":
+                            case "Ab4":
+                            case "G#4":
+                                sound.change("frequency", 415.30);
+                                break;
+                            case "AN4":
                                 sound.change("frequency", 440.00);
                                 break;
-                            case "b4":
+                            case "Bb4":
+                            case "A#4":
+                                sound.change("frequency", 466.16);
+                                break;
+                            case "BN4":
+                            case "Cb5":
                                 sound.change("frequency", 493.88);
                                 break;
+                            case "CN5":
+                            case "B#4":
+                                sound.change("frequency", 523.25);
+                                break;
+                            case "C#5":
+                            case "Db5":
+                                sound.change("frequency", 554.37);
+                                break;
+                            case "DN5":
+                                sound.change("frequency", 587.33);
+                                break;
+                            case "Eb5":
+                            case "D#5":
+                                sound.change("frequency", 622.25);
+                                break;
+                            case "EN5":
+                            case "Fb5":
+                                sound.change("frequency", 659.25);
+                                break;
+                            case "FN5":
+                            case "E#5":
+                                sound.change("frequency", 698.46);
+                                break;
+                            case "F#5":
+                            case "Gb5":
+                                sound.change("frequency", 739.99);
+                                break;
+                            case "GN5":
+                                sound.change("frequency", 783.99);
+                                break;
+                            case "Ab5":
+                            case "G#5":
+                                sound.change("frequency", 830.61);
+                                break;
+                            case "AN5":
+                                sound.change("frequency", 880.00);
+                                break;
+                            case "Bb5":
+                            case "A#5":
+                                sound.change("frequency", 932.33);
+                                break;
+                            case "BN5":
+                            case "Cb6":
+                                sound.change("frequency", 987.77);
+                                break;
+                            case "CN6":
+                            case "B#5":
+                                sound.change("frequency", 1046.50);
+                                break;
+                            default:
+                                console.warn("The note " + note + " wasn't recognized and couldn't be assigned a frequency.");
                         }
                         sound.start(defaults.volume, defaults.attack);
-                        if (noteString[index+2] && noteString[index+2] == "-") {
-                            setTimeout(function() {
-                                interpret(index+2);
-                            }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
-                        } else {
+                        if (noteString[index + originalLength]) {  // if there's anything after this note
+                            let afterNote = "",
+                                duration = defaults.noteLength,
+                                rest = defaults.spacing;
+                            if (noteString[index + originalLength] == "-" || noteString[index + originalLength] == " ") {
+                                afterNote = noteString.slice(index + originalLength).match(/-* */)[0];
+                                if (afterNote.search(/-/) > -1) {  // if there's any hyphens following the note
+                                    duration *= afterNote.match(/-/g).length + 1;
+                                }
+                                if (afterNote.search(/ /) > -1) {  // if there's any spaces following the note
+                                    rest += defaults.attack + defaults.noteLength + defaults.decay;
+                                    rest *= afterNote.match(/ /g).length;
+                                }
+                            }
                             setTimeout(function() {
                                 sound.stop(defaults.decay);
                                 setTimeout(function() {
-                                    interpret(index+2);
-                                }, defaults.decay+defaults.spacing);
-                            }, defaults.attack+defaults.noteLength);
+                                    interpret(index + originalLength + afterNote.length);
+                                }, defaults.decay + rest);
+                            }, defaults.attack + duration);
+                        } else {
+                            setTimeout(function() {
+                                sound.stop(defaults.decay);
+                            }, defaults.attack + defaults.noteLength);
                         }
-                    } else if (noteString[index] == "-" && noteString[index+1] != "-") {
-                        sound.stop(defaults.decay);
-                        setTimeout(function() {
-                            interpret(index+1);
-                        }, defaults.decay+defaults.spacing);
-                    } else {
-                        setTimeout(function() {
-                            interpret(index+1);
-                        }, defaults.attack+defaults.noteLength+defaults.decay+defaults.spacing);
                     }
                 } else if (callback) {
                     callback();
@@ -228,7 +426,7 @@ Standards.Sound = function(specs) {
             interpret();
         } else {  // when you inevitably use Sound.play() instead of Sound.start() like you should have
             sound.start();
-            console.warn("Sound.play() was called without arguments.\nSound.start() was used instead.");
+            console.warn("Sound.play() was called without any parameters.\nSound.start() was used instead.");
         }
     };
     this.stop = function(time) {  // stops/mutes the tone
