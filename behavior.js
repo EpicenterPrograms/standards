@@ -1669,33 +1669,21 @@ Standards.colorCode = function(element, conversion) {
     var end1,
         end2;
     var args = Array.prototype.slice.call(arguments, 2);  // all of the arguments after the second one
-    var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
+    var colors = args.length>0 ? args : [[255, 0, 0], [255, 255, 0], [0, 255, 0]];  // Are there colors specified?
     function backgroundColor(value) {
         var ends = [end1];
         colors.slice(1).forEach(function(color, index, shortColors) {  // establishes the values where the different colors are centered
             ends.push(end1+(end2-end1)*(index+1)/shortColors.length);
         });
-        var number = value;
         var endIndex = 1,
-            intermediate1 = [],
-            intermediate2 = [],
-            colorValue;
-        while (number > ends[endIndex]) {  // determines which 2 colors the value falls between
+            finalColors = [];
+        while (value > ends[endIndex]) {  // determines which 2 colors the value falls between
             endIndex++;
         }
-        colors[endIndex-1].forEach(function(color) {  // determines how much of the first color should be used (based on how close the value is to the number centered on that color)
-            colorValue = Math.round(Math.abs(number-ends[endIndex])/(ends[endIndex]-ends[endIndex-1])*color*2);
-            intermediate1.push(colorValue<=color ? colorValue : color);
+        [0, 1, 2].forEach(function(index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
+            finalColors.push(Math.round(colors[endIndex-1][index] + (colors[endIndex][index]-colors[endIndex-1][index]) * (value-ends[endIndex-1]) / (ends[endIndex]-ends[endIndex-1])));
         });
-        colors[endIndex].forEach(function(color) {  // determines how much of the second color should be used
-            colorValue = Math.round(Math.abs(number-ends[endIndex-1])/(ends[endIndex]-ends[endIndex-1])*color*2);
-            intermediate2.push(colorValue<=color ? colorValue : color);
-        });
-        // combines (adds each aspect of) the 2 colors while preventing the color value from going above the maximum (255)
-        var red = intermediate1[0]+intermediate2[0]<=255 ? intermediate1[0]+intermediate2[0] : 255,
-            green = intermediate1[1]+intermediate2[1]<=255 ? intermediate1[1]+intermediate2[1] : 255,
-            blue = intermediate1[2]+intermediate2[2]<=255 ? intermediate1[2]+intermediate2[2] : 255;
-        return "rgb(" + red + ", " + green + ", " + blue + ")";
+        return "rgb(" + finalColors[0] + ", " + finalColors[1] + ", " + finalColors[2] + ")";
     }
     if (element == null) {
         end1 = 0;
