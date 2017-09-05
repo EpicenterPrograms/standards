@@ -844,8 +844,8 @@ function colorCode(element, conversion) {
     var colors = args.length>0 ? args : [[255, 0, 0],[0, 255, 0]];  // Are there colors specified?
     function backgroundColor(value) {
         var ends = [end1];
-        colors.forEach(function(color, index, colors) {  // establishes the values where the different colors are centered
-            ends.push(end1+(end2-end1)*(index+2)/colors.length);
+        colors.slice(1).forEach(function(color, index, shortColors) {  // establishes the values where the different colors are centered
+            ends.push(end1+(end2-end1)*(index+1)/shortColors.length);
         });
         var number = value;
         var endIndex = 1,
