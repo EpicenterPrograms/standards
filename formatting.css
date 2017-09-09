@@ -193,9 +193,9 @@ li {
 }
 table {
     margin: auto;
-    border: .05em solid black;
+    border: none;
     border-collapse: collapse;
-    background: #fefefe;
+    background: none;
     text-align: center;
 }
 th, td {
@@ -205,6 +205,9 @@ th, td {
 }
 th {
     background: #dddddd;
+}
+td {
+    background: white;
 }
 input {
     text-align: center;
@@ -217,6 +220,7 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 input[type="button"] {
+    margin: .5em;
     cursor: pointer;
 }
 button {
@@ -293,7 +297,7 @@ note- {
 note-:hover {
     text-decoration: underline;
 }
-note-:hover .popup {
+note-:hover .pop-up {
     opacity: 1;
     pointer-events: auto;
 }
@@ -319,11 +323,11 @@ over- {
 .trigger {
     position: relative;
 }
-.trigger:hover .popup {
+.trigger:hover .pop-up {
     opacity: 1;
     pointer-events: auto;
 }
-.popup {
+.pop-up {
     font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
     position: absolute;
     left: -1em;
@@ -337,7 +341,7 @@ over- {
     pointer-events: none;
     transition: opacity .5s linear .5s;
 }
-.popup::before {
+.pop-up::before {
     /**
     This makes sure you don't have the leave the trigger before hovering over the pop-up.
     */
@@ -348,7 +352,7 @@ over- {
     width: 15em;
     height: .8em;
 }
-.popup::after {
+.pop-up::after {
     /**
     makes the protruding triangle of the pop-up
     */
@@ -360,8 +364,26 @@ over- {
     border-style: solid;
     border-color: white transparent transparent transparent;
 }
-.popup div {
+.pop-up div {
+    /**
+    makes sure pop-up content is scrollable if it needs to be
+    (The popup itself can't be scrollable or else the ::before and ::after will disappear.)
+    */
     overflow: auto;
+}
+.page-jump {
+    /**
+    styles the section of the page that navigates to other sections of the page
+    */
+    margin: 2em;
+    padding: 0em 1em 1em 0em;
+    background: white;
+    background: rgba(255, 255, 255, .5);
+}
+.login-section {
+    position: absolute;
+    top: 2em;
+    right: 3em;
 }
 .circle {
     /**
@@ -411,11 +433,6 @@ div.darkener {
 }
 table.compact {
     visibility: hidden;
-}
-#loginButton {
-    position: absolute;
-    top: 2em;
-    right: 3em;
 }
 /*
 @keyframes animation-name {
