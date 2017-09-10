@@ -1002,10 +1002,15 @@ if (!Standards.options.keyHasValue("automation", "none")) {
     if (!Standards.options.keyHasValue("formatting", "none")) {
         // adds the universal formatting
         if (Standards.options.hasOwnProperty("formatting")) {
-            var localStyle = document.createElement("link");
+            let localStyle = document.createElement("link");
             localStyle.rel = "stylesheet";
             localStyle.href = Standards.options.formatting;
-            insertBefore(localStyle, document.head.children[0]);
+            let links = document.head.getElementsByTagName("link");
+            if (links.length == 0) {
+                insertBefore(localStyle, document.head.children[0]);
+            } else {
+                insertBefore(localStyle, links[links.length-1].nextSibling);
+            }
         }
         var style = document.createElement("link");
         style.rel = "stylesheet";
@@ -1014,7 +1019,7 @@ if (!Standards.options.keyHasValue("automation", "none")) {
     }
     
     // links a favicon
-    var icon = document.createElement("link");
+    let icon = document.createElement("link");
     icon.rel = "icon";
     document.head.insertBefore(icon, document.head.children[0]);
     
@@ -1022,9 +1027,9 @@ if (!Standards.options.keyHasValue("automation", "none")) {
         icon.href = Standards.options.icon;
     } else {
         // cycles the favicon
-        var canvas = document.createElement("canvas");
-        var context = canvas.getContext("2d");
-        var color = 0;
+        let canvas = document.createElement("canvas");
+        let context = canvas.getContext("2d");
+        let color = 0;
         canvas.width = 64;
         canvas.height = 64;
         context.beginPath();
