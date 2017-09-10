@@ -39,8 +39,7 @@ main {
     /**
     meant to hold the main content of the page
     */
-    margin: auto;
-    margin-top: 4%;
+    margin: 4% auto;
     width: 90%;
     min-height: 100%;
     height: 100%;
@@ -336,6 +335,7 @@ over- {
     padding: .25em;
     min-width: 15em;
     background: white;
+    color: black;
     box-shadow: 0.25em 0.25em 0.75em #222;
     opacity: 0;
     pointer-events: none;
