@@ -1873,6 +1873,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         });
         
         // interprets <note-> tags
+        /*
         var noteNumber = 1;
         document.getElementsByTagName("note-").forEach(function(note, index, notes) {
             if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
@@ -1885,6 +1886,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 noteNumber++;
             }
         });
+        */
         
         // interprets condensed tables
         var tables = document.getElementsByClassName("compact");
