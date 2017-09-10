@@ -375,7 +375,7 @@ over- {
     /**
     styles the section of the page that navigates to other sections of the page
     */
-    margin: 2em;
+    margin: 2em auto;
     padding: 0em 1em 1em 0em;
     background: white;
     background: rgba(255, 255, 255, .5);
