@@ -776,7 +776,7 @@ function pageJump(ID) {
             } else {
                 let correctFormatting = false;
                 links.forEach(function(link) {
-                    if (link.href = "https://epicenterprograms.github.io/standards/formatting.css") {
+                    if (link.href == "https://epicenterprograms.github.io/standards/formatting.css") {
                         correctFormatting = true;
                     }
                 });
@@ -1022,7 +1022,7 @@ if (!Standards.options.keyHasValue("automation", "none")) {
             if (links.length == 0) {
                 insertBefore(localStyle, document.head.children[0]);
             } else {
-                insertBefore(localStyle, links[links.length-1].nextSibling);
+                insertAfter(localStyle, links[links.length-1]);
             }
         }
         var style = document.createElement("link");
