@@ -856,12 +856,12 @@ Standards.listen = function(item, event, behavior) {
             if (event == "hover") {
                 if (behavior instanceof Array) {
                     if (typeof behavior[0] == "string" || typeof behavior[1] == "string") {
-                        throw 'The value of "function" must not be a string.';
+                        console.error('The value of "function" must not be a string.');
                     }
                     item.addEventListener("mouseenter", behavior[0]);
                     item.addEventListener("mouseleave", behavior[1]);
                 } else {
-                    throw 'Trying to listen for the event "hover" without a second function isn\'t supported yet.';
+                    console.error('Trying to listen for the event "hover" without a second function isn\'t supported yet.');
                 }
             } else {
                 item.addEventListener(event, behavior);
@@ -1103,26 +1103,24 @@ Standards.pageJump = function(ID) {
     non-native functions = Standards.queue.add() and HTMLCollection.forEach()
     */
     Standards.queue.add({
-        "runOrder": "first",
-        "function": function(ID) {
-            var division = document.getElementById(ID);
-            var contents = document.createElement("div");
+        runOrder: "first",
+        function: function(ID) {
+            let division = document.getElementById(ID);
+            let contents = document.createElement("div");
             contents.id = "pageJump";
-            contents.className = "list";
-            contents.style = "margin: 2em; padding: 0em 1em 1em 0em; background: rgba(255,255,255,.5);";
-            contents.innerHTML = "<h2 style='text-align:center;'>Jump to:</h2>";
-            var sections = division.getElementsByTagName("h2");
-            var toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
+            contents.className = "page-jump";
+            contents.innerHTML = "<h2>Jump to:</h2>";
+            let sections = division.getElementsByTagName("h2");
+            let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
             toTop.innerHTML = "<a href='#'>To top</a>";
-            var listItems = document.createElement("ol");
-            listItems.style.visibility = "visible";
+            let listItems = document.createElement("ol");
             sections.forEach(function(heading, index, sections) {
-                var inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace for no apparent reason.
+                let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
                 sections[index].id = inside;
-                var link = document.createElement("a");
+                let link = document.createElement("a");
                 link.href = "#" + inside;
                 link.innerHTML = inside;
-                var listItem = document.createElement("li");
+                let listItem = document.createElement("li");
                 listItem.appendChild(link);
                 listItems.appendChild(listItem);
                 division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
@@ -1133,9 +1131,9 @@ Standards.pageJump = function(ID) {
             contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
             // This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
             if (window.location.href.indexOf("#") > -1) {
-                var found = false;
+                let found = false;
                 document.getElementById("pageJump").getElementsByTagName("a").forEach(function(link) {
-                    if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {
+                    if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
                         found = true;
                         link.click();
                         return "break";
@@ -1146,7 +1144,7 @@ Standards.pageJump = function(ID) {
                 }
             }
         },
-        "arguments": [ID]
+        arguments: [ID]
     });
 };
 
@@ -1293,7 +1291,7 @@ Standards.storage.session = {
                 case "n~":
                     return Number(information.slice(2));
                 case "a~":
-                    return information.split("<~!@#$%^&*()_+>");
+                    return information.slice(2).split("<~!@#$%^&*()_+>");
                 case "o~":
                     return JSON.parse(information.slice(2));
                 case "u~":
@@ -1414,7 +1412,7 @@ Standards.storage.local = {
                 case "n~":
                     return Number(information.slice(2));
                 case "a~":
-                    return information.split("<~!@#$%^&*()_+>");
+                    return information.slice(2).split("<~!@#$%^&*()_+>");
                 case "o~":
                     return JSON.parse(information.slice(2));
                 case "u~":
