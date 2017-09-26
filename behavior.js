@@ -1221,8 +1221,8 @@ Standards.parse_str = function(encodedString) {
 Standards.storage = {};
 
 Standards.storage.session = {
-    "defaultLocation": null,
-    "store": function(key, item, location) {
+    defaultLocation: null,
+    store: function(key, item, location) {
         /**
         stores information in session storage
         any primitive data type can be stored
@@ -1236,7 +1236,7 @@ Standards.storage.session = {
         } else {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
-            if (item instanceof String) {  // if the item is a string (typeof for new String() would return "object")
+            if (item.constructor == String) {  // if the item is a string (typeof for new String() would return "object")
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1251,7 +1251,7 @@ Standards.storage.session = {
             }
             if (location == null) {
                 sessionStorage.setItem(key, item);
-            } else if (location instanceof String) {
+            } else if (location.constructor == String) {
                 sessionStorage.setItem(location + "/" + key, item);
             } else {
                 console.error("Invalid storage location type");  // This tells programmers where things went wrong.
@@ -1259,7 +1259,7 @@ Standards.storage.session = {
             }
         }
     },
-    "recall": function(key, location) {
+    recall: function(key, location) {
         /**
         recalls information from session storage
         information is returned in its original form
@@ -1278,7 +1278,7 @@ Standards.storage.session = {
             var information = ""
             if (location == null) {
                 information = sessionStorage.getItem(key);
-            } else if (location instanceof String) {
+            } else if (location.constructor == String) {
                 information = sessionStorage.getItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
@@ -1302,7 +1302,7 @@ Standards.storage.session = {
             }
         }
     },
-    "forget": function(key, location) {
+    forget: function(key, location) {
         /**
         deletes information in session storage
         non-native functions = none
@@ -1314,7 +1314,7 @@ Standards.storage.session = {
             location = location || Standards.storage.session.defaultLocation;
             if (location == null) {
                 sessionStorage.removeItem(key);
-            } else if (location instanceof String) {
+            } else if (location.constructor == String) {
                 sessionStorage.removeItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
@@ -1322,7 +1322,7 @@ Standards.storage.session = {
             }
         }
     },
-    "list": function(location) {
+    list: function(location) {
         /**
         lists the keys of everything in session storage
         non-native functions = none
@@ -1343,8 +1343,8 @@ Standards.storage.session = {
 };
 
 Standards.storage.local = {
-    "defaultLocation": null,
-    "store": function(key, item, location) {
+    defaultLocation: null,
+    store: function(key, item, location) {
         /**
         stores information in local storage
         any primitive data type can be stored
@@ -1357,7 +1357,7 @@ Standards.storage.local = {
         } else {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
-            if (item instanceof String) {  // if the item is a string
+            if (item.constructor == String) {  // if the item is a string
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1372,7 +1372,7 @@ Standards.storage.local = {
             }
             if (location == null) {
                 localStorage.setItem(key, item);
-            } else if (location instanceof String) {
+            } else if (location.constructor == String) {
                 localStorage.setItem(location + "/" + key, item);
             } else {
                 console.error("Invalid storage location type");
@@ -1380,7 +1380,7 @@ Standards.storage.local = {
             }
         }
     },
-    "recall": function(key, location) {
+    recall: function(key, location) {
         /**
         recalls information from local storage
         information is returned in its original form
@@ -1399,7 +1399,7 @@ Standards.storage.local = {
             var information = "";
             if (location == null) {
                 information = localStorage.getItem(key);
-            } else if (location instanceof String) {
+            } else if (location.constructor == String) {
                 information = localStorage.getItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
@@ -1423,7 +1423,7 @@ Standards.storage.local = {
             }
         }
     },
-    "forget": function(key, location) {
+    forget: function(key, location) {
         /**
         deletes information in local storage
         non-native functions = none
@@ -1435,7 +1435,7 @@ Standards.storage.local = {
             location = location || Standards.storage.local.defaultLocation;
             if (location == null) {
                 sessionStorage.removeItem(key);
-            } else if (location instanceof String) {
+            } else if (location.constructor == String) {
                 sessionStorage.removeItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
@@ -1443,7 +1443,7 @@ Standards.storage.local = {
             }
         }
     },
-    "list": function(location) {
+    list: function(location) {
         /**
         lists the keys of everything in local storage
         non-native functions = none
