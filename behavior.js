@@ -580,9 +580,9 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
     var index = 0,
         returnValue;
     if (copy) {
-        var elements = [];
+        let elements = [];
         for (index; index<this.length; index++) {
-            elements.push(this[index]);
+            elements.push(this[index].cloneNode(true));
         }
         for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
@@ -591,8 +591,8 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
             }
         }
     } else {
-        for (index; index<elements.length; index++) {
-            returnValue = doStuff(elements[index], index, elements);
+        for (index; index<this.length; index++) {
+            returnValue = doStuff(this[index], index, this);
             if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
             }
@@ -1099,6 +1099,7 @@ Standards.getHTML = function(URL, callback) {
 
 Standards.pageJump = function(ID) {
     /**
+    ******** This is deprecated. Use the "page-jump-sections" class instead (interpreted when the page loads). ********
     makes a section to jump to certain parts of the page
     non-native functions = Standards.queue.add() and HTMLCollection.forEach()
     */
@@ -1108,7 +1109,7 @@ Standards.pageJump = function(ID) {
             let division = document.getElementById(ID);
             let contents = document.createElement("div");
             contents.id = "pageJump";
-            contents.className = "page-jump";
+            contents.className = "page-jump-list";
             contents.innerHTML = "<h2>Jump to:</h2>";
             let sections = division.getElementsByTagName("h2");
             let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
@@ -1923,6 +1924,48 @@ window.addEventListener("load", function() {  // This waits for everything past 
             });
         }
     }
+        
+    // adds page jumping capabilities
+    // (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
+    document.getElementsByClassName("page-jump-sections").forEach(function(division) {
+        let contents = document.createElement("div");
+        contents.id = "pageJump";
+        contents.className = "page-jump-list";
+        contents.innerHTML = "<h2>Jump to:</h2>";
+        let sections = division.getElementsByTagName("h2");
+        let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
+        toTop.innerHTML = "<a href='#'>To top</a>";
+        let listItems = document.createElement("ol");
+        sections.forEach(function(heading, index, sections) {
+            let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
+            sections[index].id = inside;
+            let link = document.createElement("a");
+            link.href = "#" + inside;
+            link.innerHTML = inside;
+            let listItem = document.createElement("li");
+            listItem.appendChild(link);
+            listItems.appendChild(listItem);
+            division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
+            // toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
+        });
+        contents.appendChild(listItems);
+        division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
+        contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
+        // This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
+        if (window.location.href.indexOf("#") > -1) {
+            let found = false;
+            document.getElementById("pageJump").getElementsByTagName("a").forEach(function(link) {
+                if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
+                    found = true;
+                    link.click();
+                    return "break";
+                }
+            });
+            if (!found) {  // Was the section found?
+                console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
+            }
+        }
+    }, false);
     
     Standards.finished = true;
     Standards.queue.run();
