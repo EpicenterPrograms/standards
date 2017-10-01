@@ -1928,13 +1928,16 @@ window.addEventListener("load", function() {  // This waits for everything past 
     // adds page jumping capabilities
     // (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
     document.getElementsByClassName("page-jump-sections").forEach(function(division) {
+        console.log(division);
+        console.log(division.toString());
+        console.log(division.parentNode);
+        console.log(division.parentNode.toString());
         let contents = document.createElement("div");
-        contents.id = "pageJump";
         contents.className = "page-jump-list";
         contents.innerHTML = "<h2>Jump to:</h2>";
         let sections = division.getElementsByTagName("h2");
         let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
-        toTop.innerHTML = "<a href='#'>To top</a>";
+        toTop.innerHTML = '<a href="#">To top</a>';
         let listItems = document.createElement("ol");
         sections.forEach(function(heading, index, sections) {
             let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
