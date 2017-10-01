@@ -1911,10 +1911,17 @@ window.addEventListener("load", function() {  // This waits for everything past 
     }
     
     // adds navigation content
-    if (document.getElementsByTagName("nav").length > 0 && Standards.options.hasOwnProperty("navigation") && Standards.options.navigation != "") {
-        Standards.getHTML(Standards.options.navigation, function() {
-            document.getElementsByTagName("nav")[0].appendChild(this);
-        });
+    if (document.getElementsByTagName("nav").length > 0) {
+        let navigation = document.getElementsByTagName("nav")[0];
+        if (navigation.hasAttribute("data-href")) {
+            Standards.getHTML(navigation.getAttribute("data-href"), function() {
+                navigation.appendChild(this);
+            });
+        } else if (Standards.options.hasOwnProperty("navigation") && Standards.options.navigation != "") {  // This is deprecated.
+            Standards.getHTML(Standards.options.navigation, function() {
+                navigation.appendChild(this);
+            });
+        }
     }
     
     Standards.finished = true;
