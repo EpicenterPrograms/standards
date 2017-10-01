@@ -576,7 +576,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         default = true
     non-native functions = none
     */
-    copy = copy || true;
+    copy = copy===false ? false : true;  // This variable can't be set with || notation because false is falsy (what a thought).
     var index = 0,
         returnValue;
     if (copy) {
@@ -1928,10 +1928,6 @@ window.addEventListener("load", function() {  // This waits for everything past 
     // adds page jumping capabilities
     // (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
     document.getElementsByClassName("page-jump-sections").forEach(function(division) {
-        console.log(division);
-        console.log(division.toString());
-        console.log(division.parentNode);
-        console.log(division.parentNode.toString());
         let contents = document.createElement("div");
         contents.className = "page-jump-list";
         contents.innerHTML = "<h2>Jump to:</h2>";
