@@ -376,9 +376,16 @@ over- {
     styles the section of the page that navigates to other sections of the page
     */
     margin: 2em auto;
-    padding: 0em 1em 1em 0em;
+    padding: 0em 1em 1em;
     background: white;
     background: rgba(255, 255, 255, .5);
+}
+.page-jump-list ul {
+    /**
+    makes unordered lists in page-jump-list sections account for the padding of that section
+    ordinary list padding is 2.5
+    */
+    padding-left: 1.5em;
 }
 .login-section {
     position: absolute;
