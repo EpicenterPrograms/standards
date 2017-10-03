@@ -405,13 +405,13 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         default = true
     non-native functions used = none
     */
-    copy = copy || true;
+    copy = copy===false ? false : true;  // This variable can't be set with || notation because false is falsy (what a thought).
     var index = 0,
         returnValue;
     if (copy) {
-        var elements = [];
+        let elements = [];
         for (index; index<this.length; index++) {
-            elements.push(this[index]);
+            elements.push(this[index].cloneNode(true));
         }
         for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
@@ -420,8 +420,8 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
             }
         }
     } else {
-        for (index; index<elements.length; index++) {
-            returnValue = doStuff(elements[index], index, elements);
+        for (index; index<this.length; index++) {
+            returnValue = doStuff(this[index], index, this);
             if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
             }
@@ -769,7 +769,7 @@ function pageJump(ID) {
             var division = document.getElementById(ID);
             var contents = document.createElement("div");
             contents.id = "pageJump";
-            contents.classList.add("list", "page-jump");
+            contents.classList.add("list", "page-jump-list");
             let links = document.head.getElementsByTagName("link");
             if (links.length == 0) {
                 contents.style = "margin: 2em; padding: 0em 1em 1em 0em; background: rgba(255,255,255,.5);";
