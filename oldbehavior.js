@@ -423,7 +423,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         for (index; index<this.length; index++) {  // makes the static list from the live HTMLCollection
             elements.push(this[index]);
         }
-        for (index; index<elements.length; index++) {
+        for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
             if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
