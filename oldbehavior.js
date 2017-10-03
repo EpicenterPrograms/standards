@@ -402,14 +402,14 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
     doStuff will be run with the arguments (value, index, list)
     doStuff can return a value of "break" to break out of the loop
     if "copy" is set false, the actual list will be looped through
-        default = true
+        default = false
     non-native functions used = none
     */
     copy = copy===true ? true : false;  // This variable can't be set with || notation because false is falsy (what a thought).
-    var index = 0,
+    var elements = [],
+        index = 0,
         returnValue;
     if (copy) {
-        let elements = [];
         for (index; index<this.length; index++) {
             elements.push(this[index].cloneNode(true));
         }
@@ -420,8 +420,11 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
             }
         }
     } else {
-        for (index; index<this.length; index++) {
-            returnValue = doStuff(this[index], index, this);
+        for (index; index<this.length; index++) {  // makes the static list from the live HTMLCollection
+            elements.push(this[index]);
+        }
+        for (index; index<elements.length; index++) {
+            returnValue = doStuff(elements[index], index, elements);
             if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
             }
