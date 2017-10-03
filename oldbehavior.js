@@ -405,7 +405,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         default = true
     non-native functions used = none
     */
-    copy = copy===false ? false : true;  // This variable can't be set with || notation because false is falsy (what a thought).
+    copy = copy===true ? true : false;  // This variable can't be set with || notation because false is falsy (what a thought).
     var index = 0,
         returnValue;
     if (copy) {
