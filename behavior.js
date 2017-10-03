@@ -572,8 +572,8 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
     implication of static list = you can remove the elements in doStuff without messing everything up
     doStuff will be run with the arguments (value, index, list)
     doStuff can return a value of "break" to break out of the loop
-    if "copy" is set false, the actual list will be looped through
-        default = true
+    if "copy" is set to true, the items of the list will be cloned then looped through
+        default = false
     non-native functions = none
     */
     copy = copy===true ? true : false;  // This variable can't be set with || notation because false is falsy (what a thought).
