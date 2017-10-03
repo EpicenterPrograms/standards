@@ -577,10 +577,10 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
     non-native functions = none
     */
     copy = copy===true ? true : false;  // This variable can't be set with || notation because false is falsy (what a thought).
-    var index = 0,
+    var elements = [],
+        index = 0,
         returnValue;
     if (copy) {
-        let elements = [];
         for (index; index<this.length; index++) {
             elements.push(this[index].cloneNode(true));
         }
@@ -591,8 +591,11 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
             }
         }
     } else {
-        for (index; index<this.length; index++) {
-            returnValue = doStuff(this[index], index, this);
+        for (index; index<this.length; index++) {  // makes the static list from the live HTMLCollection
+            elements.push(this[index]);
+        }
+        for (index=0; index<elements.length; index++) {
+            returnValue = doStuff(elements[index], index, elements);
             if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
                 break;
             }
