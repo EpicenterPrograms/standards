@@ -1132,7 +1132,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 newHeadings.forEach(function(heading) {
                     parent.innerHTML += "<th>" + heading.trim() + "</th>";
                 });
-            });
+            }, false);
             table.getElementsByTagName("td").forEach(function(tdList) {
                 var parent = tdList.parentNode;
                 var newData = tdList.innerHTML.split("|");
@@ -1140,7 +1140,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
                 newData.forEach(function(data) {
                     parent.innerHTML += "<td>" + data.trim() + "</td>";
                 });
-            });
+            }, false);
             table.style.visibility = "visible";
         }
     }
