@@ -1936,6 +1936,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
         contents.innerHTML = "<h2>Jump to:</h2>";
         let sections = division.getElementsByTagName("h2");
         let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
+        toTop.className = "to-top";
         toTop.innerHTML = '<a href="#">To top</a>';
         let listItems = document.createElement("ol");
         sections.forEach(function(heading, index, sections) {
