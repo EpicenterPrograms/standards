@@ -25,13 +25,48 @@ if (Standards.options) {
         "icon" : URL
             gives the window the icon located at the URL
             default = a color-changing circle
-        "navigation" : URL
+        "navigation" : URL  ****deprecated****
             fills a <nav> section with the (HTML) document located at the URL
             default = none
-        "simplification" : true, false
+        "simplification" : true, false  ****deprecated****
             determines whether "Standards" should also be imported as "S"
             default = false
     */
+
+Standards.help = function(item, part) {
+    /**
+    This prints out the source code of what you want to learn about
+    which also includes my comments on usage.
+    The part allows you pick a part of documentation.
+        "all", "docstring", "function", or "non-natives"
+    non-native functions = String.splice()
+    */
+    part = part || "all";
+    let content = item.toString();
+    switch (part) {
+        case "docstring":
+            if (content.indexOf("/**") > -1) {
+                content = content.slice(0, content.indexOf("*/"));
+            } else {
+                content = "No docstring present."
+            }
+            break;
+        case "function":
+            if (content.indexOf("/**") > -1) {
+                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
+            }
+            break;
+        case "non-natives":
+            if (content.indexOf("non-native functions") > -1) {
+                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
+                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
+            } else {
+                content = "undefined"
+            }
+    }
+    console.log(content);
+    return content;
+};
 
 Standards.finished = false;  // for keeping track of whether this script is finished running
 
@@ -699,41 +734,6 @@ Object.prototype.keyHasValue = function(key, value) {
     return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
 
-Standards.help = function(item, part) {
-    /**
-    This prints out the source code of what you want to learn about
-    which also includes my comments on usage.
-    The part allows you pick a part of documentation.
-        "all", "docstring", "function", or "non-natives"
-    non-native functions = String.splice()
-    */
-    part = part || "all";
-    var content = item.toString();
-    switch (part) {
-        case "docstring":
-            if (content.indexOf("/**") > -1) {
-                content = content.slice(0, content.indexOf("*/"));
-            } else {
-                content = "No docstring present."
-            }
-            break;
-        case "function":
-            if (content.indexOf("/**") > -1) {
-                content = content.splice(content.indexOf("/**"), content.indexOf("*/")+2);
-            }
-            break;
-        case "non-natives":
-            if (content.indexOf("non-native functions") > -1) {
-                content = content.slice(content.lastIndexOf("non-native functions",content.indexOf("*/")), content.indexOf("*/"));
-                content = content.slice(content.indexOf("=")+2, content.indexOf("\n"));
-            } else {
-                content = "undefined"
-            }
-    }
-    console.log(content);
-    return content;
-};
-
 Standards.onLoad = function(doStuff) {
     /**
     does whatever the argument of the function says after the page loads and this script finishes running
@@ -773,21 +773,60 @@ Standards.getName = function(name, specific) {
     The way the function is specific depends on what type of elements are obtained.
         inputs:
             radio buttons return the value of the selected button
+            checkboxes return a list of the checked boxes
     non-native functions = none
     */
-    var elements = document.getElementsByName(name);
+    let elements = document.getElementsByName(name);
     if (specific) {
         if (elements[0].nodeName == "INPUT") {
             if (elements[0].type == "radio") {
-                for (var index=0; index<elements.length; index++) {
+                for (let index=0; index<elements.length; index++) {
                     if (elements[index].checked) {
                         return elements[index];
                     }
                 }
+            } else if (elements[0].type == "checkbox") {
+                let list = [];
+                for (let index=0; index<elements.length; index++) {
+                    if (elements[index].checked) {
+                        list.push(elements[index]);
+                    }
+                }
+                return list;
             }
         }
+        console.warn("The items retrieved with the name " + name + " don't use the \"specific\" argument.");
     }
     return elements;
+};
+
+Standards.getType = function(item) {
+    /**
+    finds the type of an item since it's unnecessarily complicated to be sure normally
+    non-native functions = none
+    */
+    if (item.constructor === Boolean) {  // if it's a boolean
+        return "Boolean";
+    } else if (item.constructor === Number) {  // if it's a number
+        return "Number";
+    } else if (item.constructor === String) {  // if it's a string
+        return "String";
+    } else if (item instanceof Array) {  // if it's an array
+        return "Array";
+    } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if it's an HTML object
+        return "HTML";
+    } else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
+        return "HTMLCollection";
+    } else if (item instanceof CSSRuleList) {  // if it's a CSSRuleList
+        return "CSSRuleList";
+    } else if (item instanceof NodeList) {  // if it's a NodeList
+        return "NodeList";
+    } else if (item instanceof Object) {  // if it's a regular object
+        return "Object";
+    } else {  // if it's an enigma
+        console.error(item + " has no type");
+        return undefined;
+    }
 };
 
 Standards.insertBefore = function(insertion, place) {
@@ -849,8 +888,8 @@ Standards.listen = function(item, event, behavior) {
     non-native functions = Standards.queue.add() and toArray()
     */
     Standards.queue.add({
-        "runOrder": "first",
-        "function": function(item, event, behavior) {
+        runOrder: "first",
+        function: function(item, event, behavior) {
             if (typeof item == "string") {
                 item = document.getElementById(item);
             } else if (typeof item == "function") {
@@ -870,7 +909,7 @@ Standards.listen = function(item, event, behavior) {
                 item.addEventListener(event, behavior);
             }
         },
-        "arguments": [item, event, behavior]
+        arguments: [item, event, behavior]
     });
 };
 
@@ -1165,7 +1204,7 @@ Standards.http_build_query = function(options) {
         };
         var result = Standards.http_build_query(options);
         // result --> "greeting=Hello!&number=42&animal=cuttlefish"
-    non-native functions = none
+    non-native functions = Object.forEach
     */
     var queryString = "";
     options.forEach(function(value, key) {
