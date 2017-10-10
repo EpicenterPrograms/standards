@@ -1285,6 +1285,10 @@ Standards.storage.session = {
                 item = "n~" + item;
             } else if (item instanceof Array) {  // if the item is an array
                 item = "a~" + item.join("<~!@#$%^&*()_+>");
+            } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if the item is an HTML object
+                let container = document.createElement("div");
+                container.appendChild(item.cloneNode(true));
+                item = "h~" + container.innerHTML;
             } else if (item instanceof Object) {  // if the item is an object
                 item = "o~" + JSON.stringify(item);
             } else if (typeof item == "undefined") {
@@ -1309,7 +1313,7 @@ Standards.storage.session = {
             e.g. an array will be returned as an array, not a string representation
             null is considered a number and will return NaN (the number)
         if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
-            items without "s~", "n~", "a~", "o~", "u~", or "z~" at the beginning should return as a string
+            items without "s~", "n~", "a~", "h~", "o~", "u~", or "z~" at the beginning should return as a string
             including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
         non-native functions = none
         */
@@ -1335,6 +1339,10 @@ Standards.storage.session = {
                     return Number(information.slice(2));
                 case "a~":
                     return information.slice(2).split("<~!@#$%^&*()_+>");
+                case "h~":
+                    let container = document.createElement("div");
+                    container.innerHTML = information.slice(2);
+                    return container.children[0];
                 case "o~":
                     return JSON.parse(information.slice(2));
                 case "u~":
@@ -1406,6 +1414,10 @@ Standards.storage.local = {
                 item = "n~" + item;
             } else if (item instanceof Array) {  // if the item is an array
                 item = "a~" + item.join("<~!@#$%^&*()_+>");
+            } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if the item is an HTML object
+                let container = document.createElement("div");
+                container.appendChild(item.cloneNode(true));
+                item = "h~" + container.innerHTML;
             } else if (item instanceof Object) {  // if the item is an object
                 item = "o~" + JSON.stringify(item);
             } else if (typeof item == "undefined") {
@@ -1430,7 +1442,7 @@ Standards.storage.local = {
             e.g. an array will be returned as an array, not a string representation
             null is considered a number and will return NaN (the number)
         if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
-            items without "s~", "n~", "a~", "o~", "u~", or "z~" at the beginning should return as a string
+            items without "s~", "n~", "a~", "h~", "o~", "u~", or "z~" at the beginning should return as a string
             including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
         non-native functions = none
         */
@@ -1456,6 +1468,10 @@ Standards.storage.local = {
                     return Number(information.slice(2));
                 case "a~":
                     return information.slice(2).split("<~!@#$%^&*()_+>");
+                case "h~":
+                    let container = document.createElement("div");
+                    container.innerHTML = information.slice(2);
+                    return container.children[0];
                 case "o~":
                     return JSON.parse(information.slice(2));
                 case "u~":
