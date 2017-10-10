@@ -214,17 +214,29 @@ input {
 input[type="text"] {
     cursor: text;
 }
+input[type="text"][disabled], input[type="text"]:disabled {
+    cursor: default;
+}
 input[type="checkbox"] {
     margin: .5em;
     cursor: pointer;
+}
+input[type="checkbox"][disabled], input[type="checkbox"]:disabled {
+    cursor: default;
 }
 input[type="button"] {
     margin: .5em;
     cursor: pointer;
 }
+input[type="button"][disabled], input[type="button"]:disabled {
+    cursor: default;
+}
 button {
     margin: .5em;
     cursor: pointer;
+}
+button[disabled], button:disabled {
+    cursor: default;
 }
 textarea {
     font-family: inherit;
