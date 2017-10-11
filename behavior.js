@@ -598,6 +598,16 @@ String.prototype.splice = function(start, length, replacement) {
     return this.slice(0,start) + replacement + this.slice(start+length);
 };
 
+Array.prototype.move = function(currentIndex, newIndex) {
+    /**
+    moves an item from one index to another
+    if no new index is specified, the item is placed at the end of the array
+    non-native functions = none
+    */
+    newIndex = newIndex===undefined ? this.length : newIndex;
+    this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
+};
+
 HTMLCollection.prototype.forEach = function(doStuff, copy) {
     /**
     HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
@@ -1284,7 +1294,7 @@ Standards.storage.session = {
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
             } else if (item instanceof Array) {  // if the item is an array
-                item = "a~" + item.join("<~!@#$%^&*()_+>");
+                item = "a~" + JSON.stringify(item);
             } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if the item is an HTML object
                 let container = document.createElement("div");
                 container.appendChild(item.cloneNode(true));
@@ -1338,7 +1348,7 @@ Standards.storage.session = {
                 case "n~":
                     return Number(information.slice(2));
                 case "a~":
-                    return information.slice(2).split("<~!@#$%^&*()_+>");
+                    return JSON.parse(information.slice(2));
                 case "h~":
                     let container = document.createElement("div");
                     container.innerHTML = information.slice(2);
@@ -1413,7 +1423,7 @@ Standards.storage.local = {
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
             } else if (item instanceof Array) {  // if the item is an array
-                item = "a~" + item.join("<~!@#$%^&*()_+>");
+                item = "a~" + JSON.stringify(item);
             } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if the item is an HTML object
                 let container = document.createElement("div");
                 container.appendChild(item.cloneNode(true));
@@ -1467,7 +1477,7 @@ Standards.storage.local = {
                 case "n~":
                     return Number(information.slice(2));
                 case "a~":
-                    return information.slice(2).split("<~!@#$%^&*()_+>");
+                    return JSON.parse(information.slice(2));
                 case "h~":
                     let container = document.createElement("div");
                     container.innerHTML = information.slice(2);
