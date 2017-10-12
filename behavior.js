@@ -1395,7 +1395,7 @@ Standards.storage.session = {
                 if (location == null) {
                     keyList.push(key);
                 } else if (key.indexOf(location) == 0 && key.length > location.length) {
-                    keyList.push(key.slice(location.length));
+                    keyList.push(key.slice(location.length+1));
                 }
             }
         }
@@ -1524,7 +1524,7 @@ Standards.storage.local = {
                 if (location == null) {
                     keyList.push(key);
                 } else if (key.indexOf(location) == 0 && key.length > location.length) {
-                    keyList.push(key.slice(location.length));
+                    keyList.push(key.slice(location.length+1));
                 }
             }
         }
