@@ -1394,7 +1394,7 @@ Standards.storage.session = {
             if (sessionStorage.propertyIsEnumerable(key)) {
                 if (location == null) {
                     keyList.push(key);
-                } else if (key.indexOf(location) == 0 && key.length > location.length) {
+                } else if (key.indexOf(location) == 0 && key.length > location.length+1) {
                     keyList.push(key.slice(location.length+1));
                 }
             }
@@ -1523,7 +1523,7 @@ Standards.storage.local = {
             if (localStorage.propertyIsEnumerable(key)) {
                 if (location == null) {
                     keyList.push(key);
-                } else if (key.indexOf(location) == 0 && key.length > location.length) {
+                } else if (key.indexOf(location) == 0 && key.length > location.length+1) {
                     keyList.push(key.slice(location.length+1));
                 }
             }
