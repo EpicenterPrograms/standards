@@ -795,6 +795,7 @@ Standards.getName = function(name, specific) {
                         return elements[index];
                     }
                 }
+                return null;
             } else if (elements[0].type == "checkbox") {
                 let list = [];
                 for (let index=0; index<elements.length; index++) {
