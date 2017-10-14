@@ -1504,9 +1504,9 @@ Standards.storage.local = {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
             if (location == null) {
-                sessionStorage.removeItem(key);
+                localStorage.removeItem(key);
             } else if (location.constructor == String) {
-                sessionStorage.removeItem(location + "/" + key);
+                localStorage.removeItem(location + "/" + key);
             } else {
                 console.error("Invalid storage location type");
                 alert("The information couldn't be deleted.");
