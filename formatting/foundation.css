@@ -287,6 +287,9 @@ aside {
 	padding: 1em;
 	overflow: auto;
 }
+aside h2 {
+	margin-top: 0em;
+}
 textarea {
 	font-family: inherit;
 	font-size: 1em;
