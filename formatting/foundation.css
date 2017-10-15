@@ -52,9 +52,17 @@ div {
 }
 nav {
 	background: white;
+	padding: 1em;
 }
 nav div {
 	overflow: auto;
+}
+nav h2 {
+	margin-top: 0em;
+}
+nav ul, nav ol {
+	padding-left: 1em;
+	padding-right: 0em;
 }
 nav.left-nav {
 	/**
@@ -273,6 +281,11 @@ option {
 }
 option[disabled], option:disabled {
 	cursor: default;
+}
+aside {
+	background-color: white;
+	padding: 1em;
+	overflow: auto;
 }
 textarea {
 	font-family: inherit;
