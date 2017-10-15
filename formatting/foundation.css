@@ -67,7 +67,7 @@ nav.left-nav {
 	width: 15%;
 	height: 100%;
 }
-.right-section {
+aside, .right-section {
 	/**
 	creates a fixed section on the right side of the screen
 	*/
@@ -89,8 +89,11 @@ body.right-section {
 	/**
 	makes the body move over to make room for a section on the right side of the screen
 	*/
+	position: static;
 	margin: 0% 15% 0% 0%;
+	border: none;
 	min-width: 85%;
+	height: auto;
 }
 body.left-nav.right-section {
 	/**
