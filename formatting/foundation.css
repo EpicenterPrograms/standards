@@ -67,16 +67,37 @@ nav.left-nav {
 	width: 15%;
 	height: 100%;
 }
+.right-section {
+	/**
+	creates a fixed section on the right side of the screen
+	*/
+	position: fixed;
+	right: 0em;
+	top: 0em;
+	border-left: .05em solid #aaaaaa;
+	width: 15%;
+	height: 100%;
+}
 body.left-nav {
 	/**
 	makes the body move over to make room for the navigation section on the left side of the screen
 	*/
 	margin: 0% 0% 0% 15%;
 	min-width: 85%;
-	/*
-	The width isn't 85% because it wouldn't leave room for a vertical scroll bar.
-	(Not leaving room would create a horizontal scroll bar.)
+}
+body.right-section {
+	/**
+	makes the body move over to make room for a section on the right side of the screen
 	*/
+	margin: 0% 15% 0% 0%;
+	min-width: 85%;
+}
+body.left-nav.right-section {
+	/**
+	makes the body make room for a section on the left and right side of the screen
+	*/
+	margin: 0% 15% 0% 15%;
+	min-width: 70%;
 }
 nav.hidden-left-nav {
 	/**
