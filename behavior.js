@@ -1724,169 +1724,174 @@ Standards.colorCode = function(element, conversion) {
         default colors = red and green
     for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
     a table needs to have at least 7 items before it's color-coded
-    non-native functions = HTMLCollection.forEach(), toArray(), and checkAll()
+    non-native functions = Standards.queue.add(), HTMLCollection.forEach(), toArray(), and checkAll()
     */
-    var list = false;  // for whether "element" is a list (array)
-    if (typeof element == "string") {
-        element = document.getElementById(element);
-    } else if (element instanceof Array) {  // using "typeof" always returns false because arrays are apparently objects (in this script)
-        element.forEach(function(item, index) {
-            if (typeof item == "string") {
-                element[index] = document.getElementById(item);
+    Standards.queue.add({
+        runOrder: "first",
+        function: function(element, conversion, args) {
+            var list = false;  // for whether "element" is a list (array)
+            if (typeof element == "string") {
+                element = document.getElementById(element);
+            } else if (element instanceof Array) {  // using "typeof" always returns false because arrays are apparently objects (in this script)
+                element.forEach(function(item, index) {
+                    if (typeof item == "string") {
+                        element[index] = document.getElementById(item);
+                    }
+                });
+                list = element;
+                element = element[0];
             }
-        });
-        list = element;
-        element = element[0];
-    }
-    var end1,
-        end2;
-    var args = Array.prototype.slice.call(arguments, 2);  // all of the arguments after the second one
-    var colors = args.length>0 ? args : [[255, 0, 0], [255, 255, 0], [0, 255, 0]];  // Are there colors specified?
-    function backgroundColor(value) {
-        var ends = [end1];
-        colors.slice(1).forEach(function(color, index, shortColors) {  // establishes the values where the different colors are centered
-            ends.push(end1+(end2-end1)*(index+1)/shortColors.length);
-        });
-        var endIndex = 1,
-            finalColors = [];
-        while (value > ends[endIndex]) {  // determines which 2 colors the value falls between
-            endIndex++;
-        }
-        [0, 1, 2].forEach(function(index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
-            finalColors.push(Math.round(colors[endIndex-1][index] + (colors[endIndex][index]-colors[endIndex-1][index]) * (value-ends[endIndex-1]) / (ends[endIndex]-ends[endIndex-1])));
-        });
-        return "rgb(" + finalColors[0] + ", " + finalColors[1] + ", " + finalColors[2] + ")";
-    }
-    if (element == null) {
-        end1 = 0;
-        end2 = 100;
-        if (isNaN(conversion)) {
-            return backgroundColor(conversion());
-        } else {
-            return backgroundColor(conversion);
-        }
-    } else {
-        if (element.tagName == "TABLE") {  // This might have to be capitalized.
-            var tds = [];  // This needs to be set to an array for it to be used in toArray().
-                // tds[3] and tds[6] are representative samples of the type of data
-            if (list) {
-                list.forEach(function(table) {
-                    tds = Standards.toArray(tds, table.getElementsByTagName("td"));
+            var end1,
+                end2;
+            var colors = args.length>0 ? args : [[255, 0, 0], [255, 255, 0], [0, 255, 0]];  // Are there colors specified?
+            function backgroundColor(value) {
+                var ends = [end1];
+                colors.slice(1).forEach(function(color, index, shortColors) {  // establishes the values where the different colors are centered
+                    ends.push(end1+(end2-end1)*(index+1)/shortColors.length);
                 });
-            } else {
-                tds = element.getElementsByTagName("td");
-            }
-            if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
-                var lowest = Infinity,
-                    highest = -Infinity;
-                tds.forEach(function(item) {  // determines the high and low ends of the data
-                    try {  // accounts for parts without data
-                        if (Number(item.innerHTML) < lowest) {
-                            lowest = Number(item.innerHTML);
-                        }
-                        if (Number(item.innerHTML) > highest) {
-                            highest = Number(item.innerHTML);
-                        }
-                    } finally {  // a necessary accompanyment to try (although I could have used catch)
-                    }
-                });
-                end1 = lowest;
-                end2 = highest;
-                tds.forEach(function(data) {
-                    if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {  // sets the background color of the tabular data
-                        data.style.backgroundColor = backgroundColor(Number(data.innerHTML.trim()));
-                    }
-                });
-            } else if (tds[3].innerHTML.indexOf(":") > -1 || tds[6].innerHTML.indexOf(":") > -1) {  // if the data has a : (if it's a time or ratio)
-                function toTimeNumber(time) {
-                    // converts the time into hours (or possibly minutes if minutes:seconds)
-                    var hours = time.split(":")[0].trim(),
-                        minutes = time.split(":")[1] + "    ";  // extra spaces ensure the index isn't exceeded later on
-                    if (isNaN(hours[hours.length-2])) {  // Is there not 2 digits in the hour?
-                        hours = hours.slice(-1);
-                    } else {
-                        hours = hours.slice(-2);
-                    }
-                    hours = Number(hours);
-                    minutes = minutes.slice(0,5).toLowerCase();
-                    if (minutes.indexOf("am") > -1 || minutes.indexOf("pm") > -1) {
-                        if (hours == 12) {
-                            hours -= 12;
-                        }
-                        if (minutes.indexOf("pm") > -1) { 
-                            hours += 12;
-                        }
-                    }
-                    minutes = Number(minutes.slice(0,2))/60;
-                    return hours + minutes;
+                var endIndex = 1,
+                    finalColors = [];
+                while (value > ends[endIndex]) {  // determines which 2 colors the value falls between
+                    endIndex++;
                 }
-                if (tds[3].innerHTML.indexOf("-") > -1 || tds[6].innerHTML.indexOf("-") > -1) {  // if the data has a - (if it's a time range)
-                    function timeDifference(difference, unit) {  // converts a time difference into a number
-                        unit = unit || "hours";
-                        var first = difference.split("-")[0].trim(),
-                            second = difference.split("-")[1].trim();
-                        first = toTimeNumber(first);
-                        second = toTimeNumber(second);
-                        if (first > second) {
-                            if (unit == "hours") {
-                                second += 24;
-                            } else if (unit == "minutes") {
-                                second += 60;
-                            }
-                        }
-                        return second - first;
-                    }
-                    var lowest = Infinity,
-                        highest = -Infinity;
-                    tds.forEach(function(item) {  // determines the high and low ends of the data set
-                        try {  // accounts for parts that don't have data
-                            var difference = timeDifference(item.innerHTML);
-                            if (difference < lowest) {
-                                lowest = difference;
-                            }
-                            if (difference > highest) {
-                                highest = difference;
-                            }
-                        } finally {  // a necessary accompanyment to try (although I could have used catch)
-                        }
-                    });
-                    end1 = lowest;
-                    end2 = highest;
-                    tds.forEach(function(data) {  // assigns the background color of each of the tabular data
-                        try {  // accounts for parts that don't have data (doesn't color them)
-                            data.style.backgroundColor = backgroundColor(timeDifference(data.innerHTML));
-                        } finally {  // a necessary accompanyment to try (although I could have used catch)
-                        }
-                    });
-                } else {
-                    
-                }
+                [0, 1, 2].forEach(function(index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
+                    finalColors.push(Math.round(colors[endIndex-1][index] + (colors[endIndex][index]-colors[endIndex-1][index]) * (value-ends[endIndex-1]) / (ends[endIndex]-ends[endIndex-1])));
+                });
+                return "rgb(" + finalColors[0] + ", " + finalColors[1] + ", " + finalColors[2] + ")";
             }
-        } else if (Standards.checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
-            if (element.innerHTML.trim() != "") {  // if the text isn't empty
+            if (element == null) {
                 end1 = 0;
-                end2 = element.innerHTML.trim().length - 1;
-                var replacement = document.createElement(element.tagName);  // makes sure the replacement uses the same tag / element type
-                element.innerHTML.trim().split("").forEach(function(character, index) {  // puts a <span> between each letter and colors the text
-                    var span = document.createElement("span");
-                    span.innerHTML = character;
-                    span.style.display = "inline";
-                    span.style.color = backgroundColor(index);
-                    replacement.appendChild(span);
-                });
-                element.parentNode.insertBefore(replacement, element);  // inserts the set of colored <span>s in the same place as the original text
-                element.parentNode.removeChild(element);  // gets rid of the original uncolored text
-            }
-        } else {
-            end1 = 0;
-            end2 = 100;
-            if (isNaN(conversion)) {
-                element.style.backgroundColor = backgroundColor(conversion());
+                end2 = 100;
+                if (isNaN(conversion)) {
+                    return backgroundColor(conversion());
+                } else {
+                    return backgroundColor(conversion);
+                }
             } else {
-                element.style.backgroundColor = backgroundColor(conversion);
+                if (element.tagName == "TABLE") {  // This might have to be capitalized.
+                    var tds = [];  // This needs to be set to an array for it to be used in toArray().
+                        // tds[3] and tds[6] are representative samples of the type of data
+                    if (list) {
+                        list.forEach(function(table) {
+                            tds = Standards.toArray(tds, table.getElementsByTagName("td"));
+                        });
+                    } else {
+                        tds = element.getElementsByTagName("td");
+                    }
+                    if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
+                        var lowest = Infinity,
+                            highest = -Infinity;
+                        tds.forEach(function(item) {  // determines the high and low ends of the data
+                            try {  // accounts for parts without data
+                                if (Number(item.innerHTML) < lowest) {
+                                    lowest = Number(item.innerHTML);
+                                }
+                                if (Number(item.innerHTML) > highest) {
+                                    highest = Number(item.innerHTML);
+                                }
+                            } finally {  // a necessary accompanyment to try (although I could have used catch)
+                            }
+                        });
+                        end1 = lowest;
+                        end2 = highest;
+                        tds.forEach(function(data) {
+                            if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {  // sets the background color of the tabular data
+                                data.style.backgroundColor = backgroundColor(Number(data.innerHTML.trim()));
+                            }
+                        });
+                    } else if (tds[3].innerHTML.indexOf(":") > -1 || tds[6].innerHTML.indexOf(":") > -1) {  // if the data has a : (if it's a time or ratio)
+                        function toTimeNumber(time) {
+                            // converts the time into hours (or possibly minutes if minutes:seconds)
+                            var hours = time.split(":")[0].trim(),
+                                minutes = time.split(":")[1] + "    ";  // extra spaces ensure the index isn't exceeded later on
+                            if (isNaN(hours[hours.length-2])) {  // Is there not 2 digits in the hour?
+                                hours = hours.slice(-1);
+                            } else {
+                                hours = hours.slice(-2);
+                            }
+                            hours = Number(hours);
+                            minutes = minutes.slice(0,5).toLowerCase();
+                            if (minutes.indexOf("am") > -1 || minutes.indexOf("pm") > -1) {
+                                if (hours == 12) {
+                                    hours -= 12;
+                                }
+                                if (minutes.indexOf("pm") > -1) { 
+                                    hours += 12;
+                                }
+                            }
+                            minutes = Number(minutes.slice(0,2))/60;
+                            return hours + minutes;
+                        }
+                        if (tds[3].innerHTML.indexOf("-") > -1 || tds[6].innerHTML.indexOf("-") > -1) {  // if the data has a - (if it's a time range)
+                            function timeDifference(difference, unit) {  // converts a time difference into a number
+                                unit = unit || "hours";
+                                var first = difference.split("-")[0].trim(),
+                                    second = difference.split("-")[1].trim();
+                                first = toTimeNumber(first);
+                                second = toTimeNumber(second);
+                                if (first > second) {
+                                    if (unit == "hours") {
+                                        second += 24;
+                                    } else if (unit == "minutes") {
+                                        second += 60;
+                                    }
+                                }
+                                return second - first;
+                            }
+                            var lowest = Infinity,
+                                highest = -Infinity;
+                            tds.forEach(function(item) {  // determines the high and low ends of the data set
+                                try {  // accounts for parts that don't have data
+                                    var difference = timeDifference(item.innerHTML);
+                                    if (difference < lowest) {
+                                        lowest = difference;
+                                    }
+                                    if (difference > highest) {
+                                        highest = difference;
+                                    }
+                                } finally {  // a necessary accompanyment to try (although I could have used catch)
+                                }
+                            });
+                            end1 = lowest;
+                            end2 = highest;
+                            tds.forEach(function(data) {  // assigns the background color of each of the tabular data
+                                try {  // accounts for parts that don't have data (doesn't color them)
+                                    data.style.backgroundColor = backgroundColor(timeDifference(data.innerHTML));
+                                } finally {  // a necessary accompanyment to try (although I could have used catch)
+                                }
+                            });
+                        } else {
+                            
+                        }
+                    }
+                } else if (Standards.checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
+                    if (element.innerHTML.trim() != "") {  // if the text isn't empty
+                        end1 = 0;
+                        end2 = element.innerHTML.trim().length - 1;
+                        var replacement = document.createElement(element.tagName);  // makes sure the replacement uses the same tag / element type
+                        element.innerHTML.trim().split("").forEach(function(character, index) {  // puts a <span> between each letter and colors the text
+                            var span = document.createElement("span");
+                            span.innerHTML = character;
+                            span.style.display = "inline";
+                            span.style.color = backgroundColor(index);
+                            replacement.appendChild(span);
+                        });
+                        element.parentNode.insertBefore(replacement, element);  // inserts the set of colored <span>s in the same place as the original text
+                        element.parentNode.removeChild(element);  // gets rid of the original uncolored text
+                    }
+                } else {
+                    end1 = 0;
+                    end2 = 100;
+                    if (isNaN(conversion)) {
+                        element.style.backgroundColor = backgroundColor(conversion());
+                    } else {
+                        element.style.backgroundColor = backgroundColor(conversion);
+                    }
+                }
             }
-        }
-    }
+        },
+        arguments: [element, conversion, Array.prototype.slice.call(arguments, 2)]
+    });
 };
 
 
