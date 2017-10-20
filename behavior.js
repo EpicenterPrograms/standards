@@ -631,7 +631,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         }
         for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
-            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
+            if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
                 break;
             }
         }
@@ -641,7 +641,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         }
         for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
-            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
+            if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
                 break;
             }
         }
@@ -711,7 +711,7 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
         let newObject = JSON.parse(JSON.stringify(this));
         while (index < keys.length) {
             returnValue = doStuff(newObject[keys[index]], keys[index], newObject, index);
-            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
+            if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
                 break;
             } else {
                 index++;
@@ -720,7 +720,7 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
     } else {
         while (index < keys.length) {
             returnValue = doStuff(this[keys[index]], keys[index], this, index);
-            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
+            if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
                 break;
             } else {
                 index++;
@@ -815,7 +815,11 @@ Standards.getType = function(item) {
     finds the type of an item since it's unnecessarily complicated to be sure normally
     non-native functions = none
     */
-    if (item.constructor === Boolean) {  // if it's a boolean
+    if (typeof item == "undefined") {
+        return "undefined";
+    } else if (typeof item == "null") {
+        return "null";
+    } else if (item.constructor === Boolean) {  // if it's a boolean
         return "Boolean";
     } else if (item.constructor === Number) {  // if it's a number
         return "Number";
@@ -1290,7 +1294,9 @@ Standards.storage.session = {
         } else {
             key = String(key);
             location = location || Standards.storage.session.defaultLocation;
-            if (item.constructor == String) {  // if the item is a string (typeof for new String() would return "object")
+            if (typeof item == "undefined") {
+                item = "u~";
+            } else if (item.constructor == String) {  // if the item is a string (typeof for new String() would return "object")
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1302,8 +1308,6 @@ Standards.storage.session = {
                 item = "h~" + container.innerHTML;
             } else if (item instanceof Object) {  // if the item is an object
                 item = "o~" + JSON.stringify(item);
-            } else if (typeof item == "undefined") {
-                item = "u~";
             } else {
                 item = "z~" + String(item);
             }
@@ -1324,7 +1328,7 @@ Standards.storage.session = {
             e.g. an array will be returned as an array, not a string representation
             null is considered a number and will return NaN (the number)
         if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
-            items without "s~", "n~", "a~", "h~", "o~", "u~", or "z~" at the beginning should return as a string
+            items without "u~", "s~", "n~", "a~", "h~", "o~", or "z~" at the beginning should return as a string
             including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
         non-native functions = none
         */
@@ -1343,6 +1347,8 @@ Standards.storage.session = {
                 alert("The information requested can't be retrieved.");
             }
             switch (information.slice(0, 2)) {
+                case "u~":
+                    return undefined;
                 case "s~":
                 case "z~":
                     return information.slice(2);
@@ -1356,8 +1362,6 @@ Standards.storage.session = {
                     return container.children[0];
                 case "o~":
                     return JSON.parse(information.slice(2));
-                case "u~":
-                    return undefined;
                 default:
                     console.warn("The information accessed is missing a data type tag.");
                     return information;
@@ -1419,7 +1423,9 @@ Standards.storage.local = {
         } else {
             key = String(key);
             location = location || Standards.storage.local.defaultLocation;
-            if (item.constructor == String) {  // if the item is a string
+            if (typeof item == "undefined") {
+                item = "u~";
+            } else if (item.constructor == String) {  // if the item is a string
                 item = "s~" + item;
             } else if (!isNaN(item)) {  // if the item is a number
                 item = "n~" + item;
@@ -1431,8 +1437,6 @@ Standards.storage.local = {
                 item = "h~" + container.innerHTML;
             } else if (item instanceof Object) {  // if the item is an object
                 item = "o~" + JSON.stringify(item);
-            } else if (typeof item == "undefined") {
-                item = "u~";
             } else {
                 item = "z~" + String(item);
             }
@@ -1453,7 +1457,7 @@ Standards.storage.local = {
             e.g. an array will be returned as an array, not a string representation
             null is considered a number and will return NaN (the number)
         if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
-            items without "s~", "n~", "a~", "h~", "o~", "u~", or "z~" at the beginning should return as a string
+            items without "u~", "s~", "n~", "a~", "h~", "o~", or "z~" at the beginning should return as a string
             including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
         non-native functions = none
         */
@@ -1472,6 +1476,8 @@ Standards.storage.local = {
                 alert("The information requested can't be retrieved.");
             }
             switch (information.slice(0, 2)) {
+                case "u~":
+                    return undefined;
                 case "s~":
                 case "z~":
                     return information.slice(2);
@@ -1485,8 +1491,6 @@ Standards.storage.local = {
                     return container.children[0];
                 case "o~":
                     return JSON.parse(information.slice(2));
-                case "u~":
-                    return undefined;
                 default:
                     console.warn("The information accessed is missing a data type tag.");
                     return information;
