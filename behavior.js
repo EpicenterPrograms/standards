@@ -631,7 +631,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         }
         for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
-            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
                 break;
             }
         }
@@ -641,7 +641,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
         }
         for (index=0; index<elements.length; index++) {
             returnValue = doStuff(elements[index], index, elements);
-            if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
+            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
                 break;
             }
         }
@@ -666,7 +666,7 @@ CSSRuleList.prototype.forEach = function(doStuff) {
         elements.push(this[index]);
     }
     for (index=0; index<elements.length; index++) {
-        var returnValue = doStuff(elements[index], index, elements);
+        let returnValue = doStuff(elements[index], index, elements);
         if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
             break;
         }
@@ -683,7 +683,7 @@ NodeList.prototype.forEach = function(doStuff) {
         elements.push(this[index]);
     }
     for (index=0; index<elements.length; index++) {
-        var returnValue = doStuff(elements[index], index, elements);
+        let returnValue = doStuff(elements[index], index, elements);
         if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
             break;
         }
@@ -694,45 +694,44 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
     /**
     loops through every property of the object
     -->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
-    if a for loop is used in place of this, the prototype properties I made will also be included
+    if a for loop is used in place of this, the prototype properties from this script will also be included
     doStuff will be run with the arguments (property value, property, original object, arbitrary index)
     properites that are numbers only are at the beginning in ascending order no matter what
-        e.g. {0:"value1", 3:"value2", 7:"value3", 42:"value4, "property1":"value5", "property2":"value6"}
+        e.g. {0:"value1", 3:"value2", 7:"value3", 42:"value4, "oranges":"value5", "apples":"value6"}
     doStuff can return a value of "break" to break out of the loop
-    if "copy" is set false, the actual list will be looped through
-        default = true
+    if "copy" is set to true, a copy of the object will be looped through
+        default = false
     non-native functions = none
     */
-    copy = copy || true;
-    var index = 0,
+    copy = copy==undefined ? false : copy;
+    let keys = Object.keys(this),
+        index = 0,
         returnValue;
     if (copy) {
-        var newObject = {};
-        for (var property in this) {
-            if (this.propertyIsEnumerable(property)) {  // This prevents looping through my Object prototypes.
-                newObject[property] = this[property];
-            }
-        }
-        for (property in newObject) {
-            if (this.propertyIsEnumerable(property)) {  // This needs to be done again because newObject has its own prototypes that could be looped through.
-                returnValue = doStuff(newObject[property], property, newObject, index);
+        let newObject = JSON.parse(JSON.stringify(this));
+        while (index < keys.length) {
+            returnValue = doStuff(newObject[keys[index]], keys[index], newObject, index);
+            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
+                break;
+            } else {
                 index++;
-                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-                    break;
-                }
             }
         }
     } else {
-        for (var property in this) {
-            if (this.propertyIsEnumerable(property)) {
-                returnValue = doStuff(this[property], property, newObject, index);
+        while (index < keys.length) {
+            returnValue = doStuff(this[keys[index]], keys[index], this, index);
+            if (returnValue.constructor == String && returnValue.toLowerCase() == "break") {
+                break;
+            } else {
                 index++;
-                if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-                    break;
-                }
             }
         }
     }
+    /// Using Object.keys() and a while loop is about 100 times faster than a for...in... loop.
+    /// That's not to mention the fact that this.propertyIsEnumerable() would also need to be used which is also slow.
+    /// This is still about 10 times slower than looping through things with number indicies, though.
+    /// (These time comparisons are based on usage outside of this function;
+    /// doing things by referencing a function makes things about 10 times longer.)
 };
 
 Object.prototype.keyHasValue = function(key, value) {
@@ -824,8 +823,8 @@ Standards.getType = function(item) {
         return "String";
     } else if (item instanceof Array) {  // if it's an array
         return "Array";
-    } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if it's an HTML object
-        return "HTML";
+    } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if it's an HTML element
+        return "HTMLElement";
     } else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
         return "HTMLCollection";
     } else if (item instanceof CSSRuleList) {  // if it's a CSSRuleList
@@ -1159,6 +1158,7 @@ Standards.pageJump = function(ID) {
     Standards.queue.add({
         runOrder: "first",
         function: function(ID) {
+            console.warn('The function Standards.pageJump is deprecated. Instead, give the target container a class of "page-jump-sections".');
             let division = document.getElementById(ID);
             let contents = document.createElement("div");
             contents.id = "pageJump";
