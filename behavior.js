@@ -1909,31 +1909,41 @@ if (!Standards.options.keyHasValue("automation", "none")) {
     
     //This is able to run without waiting for anything else to load.
     
-    // links a favicon
-    let icon = document.createElement("link");  // this uses "let" so "icon" is free to be used as a variable elsewhere
-    icon.rel = "icon";
-    document.head.insertBefore(icon, document.head.children[0]);
-    
-    if (Standards.options.hasOwnProperty("icon")) {
-        icon.href = Standards.options.icon;
-    } else {
-        // cycles the favicon
-        let canvas = document.createElement("canvas");
-        let context = canvas.getContext("2d");
-        let color = 0;
-        canvas.width = 64;
-        canvas.height = 64;
-        context.beginPath();
-        context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
-        setInterval(function() {
-            if (color >= 360) {
-                color = 0;
+    let needsIcon = true;
+    if (document.head.getElementsByTagName("link").length > 0) {
+        document.head.getElementsByTagName("link").forEach(function(link) {
+            if (link.rel == "icon") {
+                needsIcon = false;
             }
-            context.fillStyle = "hsl(" + color + ", 100%, 50%)";
-            context.fill();
-            icon.href = canvas.toDataURL();
-            color++;
-        }, 20);
+        });
+    }
+    if (needsIcon) {
+        // links a favicon
+        let icon = document.createElement("link");  // this uses "let" so "icon" is free to be used as a variable elsewhere
+        icon.rel = "icon";
+        document.head.insertBefore(icon, document.head.children[0]);
+        
+        if (Standards.options.hasOwnProperty("icon")) {
+            icon.href = Standards.options.icon;
+        } else {
+            // cycles the favicon
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            let color = 0;
+            canvas.width = 64;
+            canvas.height = 64;
+            context.beginPath();
+            context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
+            setInterval(function() {
+                if (color >= 360) {
+                    color = 0;
+                }
+                context.fillStyle = "hsl(" + color + ", 100%, 50%)";
+                context.fill();
+                icon.href = canvas.toDataURL();
+                color++;
+            }, 20);
+        }
     }
 }
 
