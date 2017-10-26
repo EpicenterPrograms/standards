@@ -601,8 +601,9 @@ String.prototype.splice = function(start, length, replacement) {
 String.prototype.keepOnly = function(searchValue, replacement) {
     /**
     keeps only the parts of the string satisfying the search value
-    the search value can be a string or a regular expression
+    the search value needs to be a regular expression with the global flag set
     a replacement value can be provided for replacement instead of deletion
+    //// This doesn't yet work without the global flag set.
     non-native functions = getType
     */
     if (searchValue === undefined) {
