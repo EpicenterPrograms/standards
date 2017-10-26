@@ -594,8 +594,38 @@ String.prototype.splice = function(start, length, replacement) {
     because JavaScript is dumb and won't let me do that
     non-native functions = none
     */
-    replacement = replacement || "";
+    replacement = replacement===undefined ? "" : replacement;
     return this.slice(0,start) + replacement + this.slice(start+length);
+};
+
+String.prototype.keepOnly = function(searchValue, replacement) {
+    /**
+    keeps only the parts of the string satisfying the search value
+    the search value can be a string or a regular expression
+    a replacement value can be provided for replacement instead of deletion
+    non-native functions = getType
+    */
+    if (searchValue === undefined) {
+        console.warn("No value was provided to be kept.");
+        return "";
+    } else if (Standards.getType(searchValue) == "String") {
+        searchValue = new RegExp(searchValue);
+    } else if (Standards.getType(searchValue) == "RegExp") {
+        searchValue = searchValue.toString();
+        let flagIndex = searchValue.search(/\/[gimuy]+(?!\/)/);
+        if (flagIndex > -1) {
+            searchValue = new RegExp("(" + searchValue.slice(1,flagIndex) + ")|.", searchValue.slice(flagIndex+1));
+        } else {
+            searchValue = new RegExp("(" + searchValue.slice(1,-1) + ")|.");
+        }
+    } else {
+        console.error("Invalid searchValue type");
+        return undefined;
+    }
+    replacement = replacement===undefined ? "" : replacement;
+    return this.replace(searchValue, function(match, validMatch) {
+        return validMatch===undefined ? replacement : validMatch;
+    });
 };
 
 Array.prototype.move = function(currentIndex, newIndex) {
@@ -825,8 +855,10 @@ Standards.getType = function(item) {
         return "Number";
     } else if (item.constructor === String) {  // if it's a string
         return "String";
-    } else if (item instanceof Array) {  // if it's an array
+    } else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
         return "Array";
+    } else if (item instanceof RegExp) {
+        return "RegExp";
     } else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if it's an HTML element
         return "HTMLElement";
     } else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
