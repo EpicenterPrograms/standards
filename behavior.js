@@ -1993,18 +1993,24 @@ window.addEventListener("load", function() {  // This waits for everything past 
         });
         
         // allows radio buttons to be unchecked
+        let radioButtonNames = [];
         document.getElementsByTagName("input").forEach(function(input) {
-            if (input.type == "radio") {
-                let previouslyChecked = false;
-                input.addEventListener("click", function() {
-                    if (previouslyChecked) {
+            if (input.type == "radio" && !radioButtonNames.includes(input.name)) {
+                radioButtonNames.push(input.name);
+            }
+        });
+        radioButtonNames.forEach(function(name) {
+            let previouslyChecked;
+            S.getName(name).forEach(function(button) {
+                button.addEventListener("click", function() {
+                    if (this == previouslyChecked) {
                         this.checked = false;
-                        previouslyChecked = false;
+                        previouslyChecked = undefined;
                     } else {
-                        previouslyChecked = true;
+                        previouslyChecked = this;
                     }
                 });
-            }
+            });
         });
         
         // interprets <note-> tags
