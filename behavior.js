@@ -1984,11 +1984,22 @@ window.addEventListener("load", function() {  // This waits for everything past 
     
     if (!Standards.options.hasOwnProperty("automation") || Standards.options.automation == "full") {
         
-        // make the target of every anchor tag "_blank"
+        // makes the target of every anchor tag "_blank"
         // (purposefully ignores yet-to-be-created links)
         document.getElementsByTagName("a").forEach(function(anchor) {
             if (!anchor.target) {
                 anchor.target = "_blank";
+            }
+        });
+        
+        // allows radio buttons to be unchecked
+        document.getElementsByTagName("input").forEach(function(input) {
+            if (input.type == "radio") {
+                input.addEventListener("click", function() {
+                    if (this.checked) {
+                        this.checked = false;
+                    }
+                });
             }
         });
         
