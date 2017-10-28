@@ -240,6 +240,10 @@ th {
 td {
 	background: white;
 }
+table.organizational th, table.organizational td {
+	border: none;
+	background: none;
+}
 input {
 	text-align: center;
 }
