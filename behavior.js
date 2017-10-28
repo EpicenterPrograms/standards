@@ -1995,9 +1995,13 @@ window.addEventListener("load", function() {  // This waits for everything past 
         // allows radio buttons to be unchecked
         document.getElementsByTagName("input").forEach(function(input) {
             if (input.type == "radio") {
+                let previouslyChecked = false;
                 input.addEventListener("click", function() {
-                    if (this.checked) {
+                    if (previouslyChecked) {
                         this.checked = false;
+                        previouslyChecked = false;
+                    } else {
+                        previouslyChecked = true;
                     }
                 });
             }
