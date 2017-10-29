@@ -396,6 +396,7 @@ note- > div, .trigger > div {
 	min-width: 15em;
 	background: white;
 	color: black;
+	overflow: visible;
 	box-shadow: 0.25em 0.25em 0.75em #222;
 	opacity: 0;
 	pointer-events: none;
