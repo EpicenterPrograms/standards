@@ -357,16 +357,72 @@ note- {
 	my custom tag
 	puts notes in text
 	*/
+	display: inline;
 	position: relative;
 	color: blue;
 	cursor: help;
 }
+note-::before {
+	content: attr(data-indicator) "*";
+}
+.trigger {
+	position: relative;
+}
 note-:hover {
 	text-decoration: underline;
 }
-note-:hover .pop-up {
+note- div, .trigger div {
+	/**
+	This needs to come before the styling for <div>s with child selectors
+	*/
+	max-height: 20em;
+	overflow: auto;
+}
+note-:hover > div, .trigger:hover > div {
+	/**
+	makes sure pop-up content is scrollable if it needs to be
+	(The popup itself can't be scrollable or else the ::before and ::after will disappear.)
+	*/
 	opacity: 1;
 	pointer-events: auto;
+}
+note- > div, .trigger > div {
+	font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
+	position: absolute;
+	left: -1em;
+	bottom: 2em;
+	border-radius: .5em;
+	padding: .5em;
+	min-width: 15em;
+	background: white;
+	color: black;
+	box-shadow: 0.25em 0.25em 0.75em #222;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity .5s linear .5s;
+}
+note- > div::before, .trigger > div::before {
+	/**
+	This makes sure you don't have the leave the trigger before hovering over the pop-up.
+	*/
+	content: "";
+	position: absolute;
+	left: 0em;
+	bottom: -.8em;
+	width: 15em;
+	height: .8em;
+}
+note- > div::after, .trigger > div::after {
+	/**
+	makes the protruding triangle of the pop-up
+	*/
+	content: "";
+	position: absolute;
+	left: 1em;
+	bottom: -1em;
+	border-width: .5em;
+	border-style: solid;
+	border-color: white transparent transparent transparent;
 }
 over- {
 	/**
@@ -386,58 +442,6 @@ over- {
 	display: table;
 	margin: auto;
 	text-align: left;
-}
-.trigger {
-	position: relative;
-}
-.trigger:hover .pop-up {
-	opacity: 1;
-	pointer-events: auto;
-}
-.pop-up {
-	font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
-	position: absolute;
-	left: -1em;
-	bottom: 2em;
-	border-radius: .5em;
-	padding: .25em;
-	min-width: 15em;
-	background: white;
-	color: black;
-	box-shadow: 0.25em 0.25em 0.75em #222;
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity .5s linear .5s;
-}
-.pop-up::before {
-	/**
-	This makes sure you don't have the leave the trigger before hovering over the pop-up.
-	*/
-	content: "";
-	position: absolute;
-	left: 0em;
-	bottom: -.8em;
-	width: 15em;
-	height: .8em;
-}
-.pop-up::after {
-	/**
-	makes the protruding triangle of the pop-up
-	*/
-	content: "";
-	position: absolute;
-	left: 1em;
-	bottom: -1em;
-	border-width: .5em;
-	border-style: solid;
-	border-color: white transparent transparent transparent;
-}
-.pop-up div {
-	/**
-	makes sure pop-up content is scrollable if it needs to be
-	(The popup itself can't be scrollable or else the ::before and ::after will disappear.)
-	*/
-	overflow: auto;
 }
 .page-jump-list {
 	/**
