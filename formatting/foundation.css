@@ -371,7 +371,12 @@ note- {
 	cursor: help;
 }
 note-::before {
-	content: attr(data-indicator) "*";
+	/**
+	makes a * where there's a note
+	setting the variable --before-content can change the content
+	*/
+	content: "*";  /* for browsers that don't support var() */
+	content: var(--before-content, "*");
 }
 .trigger {
 	position: relative;
@@ -379,22 +384,14 @@ note-::before {
 note-:hover {
 	text-decoration: underline;
 }
-note- div, .trigger div {
+note- div, .trigger div, .pop-up {
 	/**
 	This needs to come before the styling for <div>s with child selectors
 	*/
 	max-height: 20em;
 	overflow: auto;
 }
-note-:hover > div, .trigger:hover > div {
-	/**
-	makes sure pop-up content is scrollable if it needs to be
-	(The popup itself can't be scrollable or else the ::before and ::after will disappear.)
-	*/
-	opacity: 1;
-	pointer-events: auto;
-}
-note- > div, .trigger > div {
+note- > div, .trigger > div, .pop-up {
 	font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
 	position: absolute;
 	left: -1em;
@@ -410,7 +407,7 @@ note- > div, .trigger > div {
 	pointer-events: none;
 	transition: opacity .5s linear .5s;
 }
-note- > div::before, .trigger > div::before {
+note- > div::before, .trigger > div::before, .pop-up::before {
 	/**
 	This makes sure you don't have the leave the trigger before hovering over the pop-up.
 	*/
@@ -421,7 +418,7 @@ note- > div::before, .trigger > div::before {
 	width: 15em;
 	height: .8em;
 }
-note- > div::after, .trigger > div::after {
+note- > div::after, .trigger > div::after, .pop-up::after {
 	/**
 	makes the protruding triangle of the pop-up
 	*/
@@ -432,6 +429,13 @@ note- > div::after, .trigger > div::after {
 	border-width: .5em;
 	border-style: solid;
 	border-color: white transparent transparent transparent;
+}
+note-:hover > div, .trigger:hover > div, .pop-up.active {
+	/**
+	makes the pop-up appear when the note or trigger is hovered over
+	*/
+	opacity: 1;
+	pointer-events: auto;
 }
 over- {
 	/**
