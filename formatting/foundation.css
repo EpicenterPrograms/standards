@@ -384,7 +384,7 @@ note-::before {
 note-:hover {
 	text-decoration: underline;
 }
-note- div, .trigger div, .pop-up {
+note- div, .trigger div, .pop-up div {
 	/**
 	This needs to come before the styling for <div>s with child selectors
 	*/
