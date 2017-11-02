@@ -312,6 +312,14 @@ mark {
 label {
 	cursor: text;
 }
+section {
+	/**
+	This is basically a replacement for paragraph tags.
+	(<p> tags don't allow <div> tags inside them)
+	*/
+	display: block;
+	margin: 1em 0em;
+}
 dialog {
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
 	position: fixed;
