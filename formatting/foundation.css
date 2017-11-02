@@ -407,6 +407,9 @@ note- > div, .trigger > div, .pop-up {
 	pointer-events: none;
 	transition: opacity .5s linear .5s;
 }
+.pop-up {
+	transition: opacity .5s linear;
+}
 note- > div::before, .trigger > div::before, .pop-up::before {
 	/**
 	This makes sure you don't have the leave the trigger before hovering over the pop-up.
