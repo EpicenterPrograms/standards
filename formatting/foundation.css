@@ -201,27 +201,32 @@ nav.top-nav {
 	padding: 0em;
 	width: 100%;
 }
-nav.top-nav button {
+nav.top-nav div.drop-down {
 	position: relative;
 	margin: 0em;
 	border: none;
 	padding: 0em;
 	background: none;
+	overflow: visible;
 }
-nav.top-nav button div:first-child {
+nav.top-nav div.drop-down div:first-child {
 	display: block;
 	position: static;
 	z-index: 0;
 	padding: .5em;
 	font-size: 1.5em;
 }
-nav.top-nav button div {
+nav.top-nav div.drop-down div {
 	display: none;
 	position: absolute;
 	z-index: 1;
 	background: white;
 }
-nav.top-nav button:focus div {
+nav.top-nav div.drop-down:focus div {
+	/**
+	unhides the drop-down menu when focus is received
+	<div>s need a tabindex to receive focus
+	*/
 	display: block;
 }
 a {
