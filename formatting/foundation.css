@@ -223,6 +223,7 @@ nav.top-nav div.drop-down div {
 	position: absolute;
 	z-index: 1;
 	background: white;
+	cursor: default;
 }
 nav.top-nav div.drop-down:focus div, nav.top-nav div.drop-down:focus-within div {
 	/**
