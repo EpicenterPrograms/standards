@@ -209,6 +209,7 @@ nav.top-nav div.drop-down {
 	padding: 0em;
 	background: none;
 	overflow: visible;
+	cursor: pointer;
 }
 nav.top-nav div.drop-down div:first-child {
 	display: block;
@@ -223,7 +224,7 @@ nav.top-nav div.drop-down div {
 	z-index: 1;
 	background: white;
 }
-nav.top-nav div.drop-down:focus div {
+nav.top-nav div.drop-down:focus div, nav.top-nav div.drop-down:focus-within div {
 	/**
 	unhides the drop-down menu when focus is received
 	<div>s need a tabindex to receive focus
