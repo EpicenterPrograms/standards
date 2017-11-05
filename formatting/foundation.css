@@ -513,6 +513,9 @@ over- {
 	top: 2em;
 	right: 3em;
 }
+#logOut {
+	display: none;
+}
 .circle {
 	/**
 	circles things (like text)
