@@ -64,11 +64,13 @@ Standards.help = function(item, part) {
 				content = "undefined"
 			}
 	}
-	console.log(content);
+	console.info(content);
 	return content;
 };
 
 Standards.finished = false;  // for keeping track of whether this script is finished running
+
+Standards.identifier = 1;  // for anything that may need to have specific targeting
 
 Standards.audio = new (window.AudioContext || window.webkitAudioContext || Object)();  // used in Sound()
 	// Safari is dumb and doesn't like any form of AudioContext
@@ -164,7 +166,9 @@ Standards.Sound = function(specs) {
 		osc1 = Standards.audio.createOscillator(),
 		osc2 = Standards.audio.createOscillator(),
 		gain1 = Standards.audio.createGain(),
-		gain2 = Standards.audio.createGain();
+		gain2 = Standards.audio.createGain(),
+		playQueue = [];
+	this.identifier = Standards.identifier++;
 	this.frequency = 440;
 	this.volume = 0
 	this.waveform = "sine";
@@ -175,12 +179,15 @@ Standards.Sound = function(specs) {
 		this[spec] = specs[spec];
 	}
 	this.playing = false;
-	function setValues(time) {
+	function setValues(time, shouldSetPlaying) {
 		time = time===undefined ? 0 : time;
+		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
 		if (time > 0) {
-			setTimeout(function() {
-				sound.playing = sound.volume==0 ? false : true;
-			}, time);
+			if (shouldSetPlaying) {
+				setTimeout(function() {
+					sound.playing = sound.volume==0 ? false : true;
+				}, time);
+			}
 			time /= 1000;  // ramps use time in seconds
 			if (sound.volume == 0) {
 				gain1.gain.exponentialRampToValueAtTime(.0001, Standards.audio.currentTime + time);  // exponential ramping doesn't work with 0s
@@ -199,7 +206,9 @@ Standards.Sound = function(specs) {
 			osc1.frequency.value = sound.frequency;
 			gain2.gain.value = sound.hertzChange;
 			osc2.frequency.value = sound.modulation;
-			sound.playing = sound.volume==0 ? false : true;
+			if (shouldSetPlaying) {
+				sound.playing = sound.volume==0 ? false : true;
+			}
 		} else if (time < 0) {
 			console.error("It's impossible to travel back in time and change values.");
 		} else {
@@ -216,34 +225,64 @@ Standards.Sound = function(specs) {
 	osc1.start();
 	osc2.start();
 	
-	this.start = function(volume, time) {  // starts/unmutes the tone
-		sound.playing = true;
+	this.start = function(time, volume, shouldSetPlaying) {
+		/**
+		starts/unmutes the tone
+		*/
+		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
+		if (shouldSetPlaying) {
+			sound.playing = true;
+		}
 		time = time===undefined ? 0 : time;
 		gain1.gain.value = sound.volume+.0001;
-		sound.volume = volume || 1;
+		sound.volume = volume || 1;  // This doesn't allow you to set the volume to 0 (and rightfully so).
 		gain1.gain.exponentialRampToValueAtTime(sound.volume, Standards.audio.currentTime + time/1000);
 	};
-	this.stop = function(time) {  // stops/mutes the tone
+	this.stop = function(time, shouldSetPlaying) {
+		/**
+		stops/mutes the tone
+		*/
 		time = time===undefined ? 0 : time;
+		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
 		gain1.gain.exponentialRampToValueAtTime(.0001, Standards.audio.currentTime + time/1000);
 		setTimeout(function() {
 			gain1.gain.value = 0;
 			sound.volume = 0;
-			sound.playing = false;
+			if (shouldSetPlaying) {
+				sound.playing = false;
+				window.dispatchEvent(new Event(sound.identifier+"StoppedPlaying"));
+			}
 		}, time);
 	};
-	this.change = function(property, value, time) {
+	this.change = function(property, value, time, shouldSetPlaying) {
 		/**
 		changes a property of the tone
 		*/
 		sound[property] = value;
-		setValues(time);
+		setValues(time, shouldSetPlaying);
 	};
 	this.play = function(noteString, newDefaults, callback) {
 		/**
 		plays a song based on notes you put in a string
 		*/
-		if (arguments.length > 0) {
+		if (sound.playing) {
+			playQueue.push([noteString, newDefaults, callback]);
+			if (playQueue.length == 1) {
+				window.addEventListener(sound.identifier+"StoppedPlaying", function() {
+					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
+					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
+				});
+			}
+		} else if (arguments.length > 0) {
+			if (playQueue.length > 0) {
+				playQueue.splice(0, 1);
+			}
+			if (playQueue.length > 0) {
+				window.addEventListener(sound.identifier+"StoppedPlaying", function() {
+					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
+					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
+				});
+			}
 			noteString = noteString.trim().replace(/([A-G]{1}(?:#|N|b)?)|[a-g]/g, function(foundNote, properNote) {
 				// makes sure the string is formatted correctly even when people want to be lazy
 				if (foundNote == properNote) {
@@ -375,7 +414,7 @@ Standards.Sound = function(specs) {
 						return 246.94;
 					case "CN4":
 					case "B#3":
-						return 261.63;
+						return 261.63;  // This is just about as low as you can expect people to hear.
 					case "C#4":
 					case "Db4":
 						return 277.18;
@@ -442,6 +481,39 @@ Standards.Sound = function(specs) {
 					case "CN6":
 					case "B#5":
 						return 1046.50;
+					case "C#6":
+					case "Db6":
+						return 1108.73;
+					case "DN6":
+						return 1174.66;
+					case "Eb6":
+					case "D#6":
+						return 1244.51;
+					case "EN6":
+					case "Fb6":
+						return 1318.51;
+					case "FN6":
+					case "E#6":
+						return 1396.91;
+					case "F#6":
+					case "Gb6":
+						return 1479.98;
+					case "GN6":
+						return 1567.98;
+					case "Ab6":
+					case "G#6":
+						return 1661.22;
+					case "AN6":
+						return 1760.00;
+					case "Bb6":
+					case "A#6":
+						return 1864.66;
+					case "BN6":
+					case "Cb7":
+						return 1975.53;
+					case "CN7":
+					case "B#6":
+						return 2093.00;
 					default:
 						console.warn("The note " + note + " wasn't recognized and couldn't be assigned a frequency.");
 				}
@@ -455,8 +527,8 @@ Standards.Sound = function(specs) {
 					} else if (note == null) {
 						interpret(index+1);
 					} else {
-						sound.change("frequency", noteToFrequency(note.formatted));
-						sound.start(defaults.volume, defaults.attack);
+						sound.change("frequency", noteToFrequency(note.formatted), 0, false);
+						sound.start(defaults.attack, defaults.volume, false);
 						if (noteString[index + note.original.length]) {  // if there's anything after this note
 							let originalLength = note.original.length,
 								afterNote = "",
@@ -478,12 +550,12 @@ Standards.Sound = function(specs) {
 							}
 							setTimeout(function() {
                                 if (slur == 0) {
-    								sound.stop(defaults.decay);
+    								sound.stop(defaults.decay, false);
 	    							setTimeout(function() {
 		    							interpret(index + originalLength + afterNote.length);
 			    					}, defaults.decay + rest);
                                 } else {
-                                    sound.change("frequency", noteToFrequency(format(index+originalLength+afterNote.length).formatted), defaults.decay+slur);
+                                    sound.change("frequency", noteToFrequency(format(index+originalLength+afterNote.length).formatted), defaults.decay+slur, false);
                                     setTimeout(function() {
 		    							interpret(index + originalLength + afterNote.length);
 			    					}, defaults.decay + slur);
@@ -491,14 +563,22 @@ Standards.Sound = function(specs) {
 				  			}, defaults.attack + duration);
 						} else {
 							setTimeout(function() {
-								sound.stop(defaults.decay);
+								sound.stop(defaults.decay, false);
+								setTimeout(function() {  // makes sure the finishing block of code is called
+									interpret(index + note.original.length);
+								}, defaults.decay);
 							}, defaults.attack + defaults.noteLength);
 						}
 					}
-				} else if (callback) {
-					callback();
+				} else {  // called when the song is finished
+					sound.playing = false;
+					window.dispatchEvent(new Event(sound.identifier+"StoppedPlaying"));
+					if (callback) {
+						callback();
+					}
 				}
 			}
+			sound.playing = true;
 			interpret();
 		} else {  // when you inevitably use Sound.play() instead of Sound.start() like you should have
 			sound.start();
@@ -956,7 +1036,7 @@ Standards.toArray = function() {
 	return returnList;
 };
 
-Standards.listen = function(item, event, behavior) {
+Standards.listen = function(item, event, behavior, listenOnce) {
 	/**
 	adds an event listener to the item
 	waiting for an element to load is unnecessary if the item is a string (of an ID)
@@ -964,8 +1044,11 @@ Standards.listen = function(item, event, behavior) {
 	event = the event being listened for
 	behavior = what to do when the event is triggered
 		if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
+	listenOnce = whether the event listener should only be triggered once
+		default = false
 	non-native functions = Standards.queue.add() and toArray()
 	*/
+	listenOnce = listenOnce===undefined ? false : listenOnce;
 	Standards.queue.add({
 		runOrder: "first",
 		function: function(item, event, behavior) {
@@ -985,7 +1068,14 @@ Standards.listen = function(item, event, behavior) {
 					console.error('Trying to listen for the event "hover" without a second function isn\'t supported yet.');
 				}
 			} else {
-				item.addEventListener(event, behavior);
+				if (listenOnce) {
+					item.addEventListener(event, function() {
+						behavior();
+						item.removeEventListener(event, arguments.callee);
+					});
+				} else {
+					item.addEventListener(event, behavior);
+				}
 			}
 		},
 		arguments: [item, event, behavior]
@@ -2143,7 +2233,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
 	
 	Standards.finished = true;
 	Standards.queue.run();
-	window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
+	window.dispatchEvent(new Event("finished"));  // This can't be CustomEvent or else it won't work on any version of Internet Explorer.
 });
 
 // remember new Function(), function*, and ``
