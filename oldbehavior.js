@@ -1164,7 +1164,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
     }
     Standards.finished = true;
     Standards.queue.run();
-    window.dispatchEvent(new CustomEvent("finished", {"detail":"This can say stuff."}));
+    window.dispatchEvent(new Event("finished"));
 });
 
 // remember new Function(), function*, and ``

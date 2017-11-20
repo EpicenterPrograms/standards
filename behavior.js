@@ -665,6 +665,78 @@ if (!String.prototype.includes) {
 	};
 };
 
+if (!Array.prototype.every) {
+	Array.prototype.every = function(callbackfn, thisArg) {
+		'use strict';
+		/**
+		creates Array.every if it doesn't already exist
+		This has been copied from MDN.
+		usage of this doesn't count as non-native function
+		because it is native in modern browsers
+		and this works the exact same way
+		non-native functions = none
+		*/
+		var T, k;
+		
+		if (this == null) {
+			throw new TypeError('this is null or not defined');
+		}
+		
+		//  1. Let O be the result of calling ToObject passing the this 
+		//     value as the argument.
+		var O = Object(this);
+		
+		//  2. Let lenValue be the result of calling the Get internal method
+		//     of O with the argument "length".
+		//  3. Let len be ToUint32(lenValue).
+		var len = O.length >>> 0;
+		
+		//  4. If IsCallable(callbackfn) is false, throw a TypeError exception.
+		if (typeof callbackfn !== 'function') {
+			throw new TypeError();
+		}
+		
+		//  5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+		if (arguments.length > 1) {
+			T = thisArg;
+		}
+		
+		//  6. Let k be 0.
+		k = 0;
+		
+		//  7. Repeat, while k < len
+		while (k < len) {
+			
+			var kValue;
+			
+			//  a. Let Pk be ToString(k).
+			//    This is implicit for LHS operands of the in operator
+			//  b. Let kPresent be the result of calling the HasProperty internal 
+			//     method of O with argument Pk.
+			//     This step can be combined with c
+			//  c. If kPresent is true, then
+			if (k in O) {
+				
+				//  i. Let kValue be the result of calling the Get internal method
+				//     of O with argument Pk.
+				kValue = O[k];
+				
+				//  ii. Let testResult be the result of calling the Call internal method
+				//      of callbackfn with T as the this value and argument list 
+				//      containing kValue, k, and O.
+				var testResult = callbackfn.call(T, kValue, k, O);
+				
+				//  iii. If ToBoolean(testResult) is false, return false.
+				if (!testResult) {
+					return false;
+				}
+			}
+			k++;
+		}
+		return true;
+	};
+}
+
 String.prototype.forEach = function(doStuff) {
 	/**
 	.forEach() for strings
@@ -833,8 +905,9 @@ NodeList.prototype.forEach = function(doStuff) {
 	}
 };
 
-Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------- This is necessary.
-	/**
+/* Changing the object prototypes prevents the proper working of Google Firestore.
+Object.prototype.forEach = function(doStuff, copy) {
+	// /**
 	loops through every property of the object
 	-->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
 	if a for loop is used in place of this, the prototype properties from this script will also be included
@@ -845,8 +918,8 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
 	if "copy" is set to true, a copy of the object will be looped through
 		default = false
 	non-native functions = none
-	*/
-	copy = copy==undefined ? false : copy;
+	// *
+	copy = copy===undefined ? false : copy;
 	let keys = Object.keys(this),
 		index = 0,
 		returnValue;
@@ -877,14 +950,15 @@ Object.prototype.forEach = function(doStuff, copy) {  // <<<<<<<<---------------
 	/// doing things by referencing a function makes things about 10 times longer.)
 };
 
-Object.prototype.keyHasValue = function(key, value) {
-	/**
+Object.prototype.keyHasValue = function(key, value) {  // This was actually pretty pointless.
+	// /**
 	checks if an object has a property and then
 	checks if the property equals the value
 	non-native functions = none
-	*/
+	// *
 	return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
 };
+*/
 
 Standards.onLoad = function(doStuff) {
 	/**
@@ -980,6 +1054,8 @@ Standards.getType = function(item) {
 		return "CSSRuleList";
 	} else if (item instanceof NodeList) {  // if it's a NodeList
 		return "NodeList";
+	} else if (typeof item === "function") {  // if it's a function
+		return "Function";
 	} else if (item instanceof Object) {  // if it's a regular object
 		return "Object";
 	} else {  // if it's an enigma
@@ -1034,6 +1110,60 @@ Standards.toArray = function() {
 		}
 	}
 	return returnList;
+};
+
+Standards.forEach = function(list, doStuff, shouldCopy) {
+	/**
+	does stuff for every item of an iterable list (or object)
+	non-native functions = getType
+	*/
+	if (Standards.getType(doStuff) != "Function") {
+		throw "The second arument provided in Standards.forEach isn't a function.";
+	}
+	if (Standards.getType(list) == "Object") {
+		let associativeList,
+			keys = Object.keys(list),
+			index = 0,
+			returnValue;
+		shouldCopy = shouldCopy===undefined ? false : shouldCopy;
+		if (shouldCopy) {
+			associativeList = JSON.parse(JSON.stringify(list));
+		} else {
+			associativeList = list;
+		}
+		while (index < keys.length) {
+			returnValue = doStuff(associativeList[keys[index]], keys[index], associativeList, index);
+			if (returnValue == "break") {
+				break;
+			} else {
+				index++;
+			}
+		}
+		/// Using Object.keys() and a while loop is about 100 times faster than a for...in... loop.
+		/// That's not to mention the fact that this.propertyIsEnumerable() would also need to be used which is also slow.
+		/// This is still about 10 times slower than looping through things with number indicies, though.
+		/// (These time comparisons are based on usage outside of this function;
+		/// doing things by referencing a function makes things about 10 times longer.)
+	} else if (Standards.getType(list[Symbol.iterator]) == "Function") {
+		let items = [],
+			index,
+			returnValue;
+		while (index < list.length) {
+			items.push(list[index]);
+			index++;
+		}
+		index = 0;
+		while (index < list.length) {
+			returnValue = doStuff(list[index], index, list);
+			if (returnValue == "break") {
+				break;
+			} else {
+				index++;
+			}
+		}
+	} else {
+		throw "The item provided isn't iterable.";
+	}
 };
 
 Standards.listen = function(item, event, behavior, listenOnce) {
@@ -1179,6 +1309,9 @@ Standards.makeDialog = function(message) {
 
 Standards.checkAll = function(item, comparator, comparisons, type) {
 	/**
+	This is deprecated.
+	Use Array.each instead.
+	
 	comparisons = an array of things to be used in comparing things
 	type = whether you need all of the comparisons to be true or just one ("&&" or "||")
 	type must be a string
@@ -2056,11 +2189,11 @@ document.createElement("note-");  // The dash can't be at the beginning of the t
 document.createElement("over-");
 
 // determines whether "Standards" should also be imported as "S"
-if (Standards.options.keyHasValue("simplification", true)) {
+if (!(Standards.options.simplification == true)) {
 	var S = Standards;
 }
 
-if (!Standards.options.keyHasValue("automation", "none")) {
+if (!(Standards.options.automation == "none")) {
 	
 	//This is able to run without waiting for anything else to load.
 	
