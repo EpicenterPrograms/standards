@@ -1852,11 +1852,7 @@ Standards.storage.local = {
 };
 
 Standards.storage.server = {
-	database: (function() {
-		var firebase = firebase;  // using the "var" keyword circumvents errors with undefined variables ("let" doesn't)
-		console.log(firebase);
-		return firebase&&firebase.firestore ? firebase.firestore() : undefined;
-	})(),
+	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: window.location.href.slice(window.location.href.indexOf("//")).slice(0,window.location.href.indexOf("/")) + "/default",
 	user: undefined,
 	checkCompatibility: function(shouldNotCheckUser) {
