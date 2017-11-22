@@ -1864,7 +1864,7 @@ Standards.storage.server = {
 			alert("Access to the server isn't allowed from this URL.");
 			throw 'The URL doesn\'t use the protocol "http" or "https".';
 		}
-		if (!shouldNotCheckUser && !user) {
+		if (!shouldNotCheckUser && !Standards.storage.server.user) {
 			alert("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 		}
