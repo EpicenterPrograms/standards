@@ -374,7 +374,6 @@ dialog .buttons {
 }
 .dialog {  /* <dialog> formatting is replicated because <dialog> isn't widely supported yet */
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
-	position: fixed;
 	left: 50%;
 	top: 50%;
 	z-index: 10;
@@ -384,9 +383,13 @@ dialog .buttons {
 	max-width: 30%;  /* This would max out at about 50% anyway because the positioning and translation limit the width. */
 	max-height: 50%;
 	background: white;
+	-ms-transform: scale(.001, .001);
+	-webkit-transform: scale(.001, .001);
+	transform: scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
+	transition: .5s;
+}
+.dialog .contents {
 	overflow: auto;
-	transform: translate(-50%, -50%) scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
-	transition: .5s;    
 }
 .dialog .buttons {
 	display: block;
@@ -551,16 +554,18 @@ div.darkener {
 	/**
 	darkens the screen
 	*/
+	display: -webkit-flex;
+	display: -ms-flex;
+	display: flex;
 	position: fixed;
 	left: 0vw;
 	top: 0vh;
 	z-index: 5;
 	width: 100vw;
 	height: 100vh;
-	background: black;
-	opacity: 0;
+	background-color: rgba(0, 0, 0, 0);
 	pointer-events: none;
-	transition: opacity .5s;
+	transition: background-color .5s;
 }
 table.compact {
 	visibility: hidden;

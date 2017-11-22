@@ -1250,26 +1250,28 @@ Standards.makeDialog = function(message) {
 			["Yes", function() {console.log("You're awesome too!");}],
 			["No", function() {console.log("Nobody cares what you think anyway!");}]
 		);
-	non-native functions = none
+	non-native functions = getType and getHTML
 	*/
-	var pairs = Array.prototype.slice.call(arguments, 1);
+	let pairs = Array.prototype.slice.call(arguments, 1),
+		identifier = Standards.identifier++;
 	if (pairs.length < 1) {
-		throw "There must be at least one button-function pair.";
+		pairs = [["Okay", function() {return;}]];
 	}
 	pairs.forEach(function(pair, index) {
-		if (!(pair instanceof Array)) {
+		if (Standards.getType(pair) != "Array") {
 			throw "The item at position " + (index+1) + " isn't a two-item array.";
 		} else if (pair.length != 2) {
 			throw "The item at position " + (index+1) + " needs to have exactly two items.";
 		}
 	});
-	var darkener = document.createElement("div"),
+	let darkener = document.createElement("div"),
 		dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
+		contents = Standards.getHTML("~" + message),
 		buttons = document.createElement("div");
 	darkener.className = "darkener";
 	darkener.style.pointerEvents = "auto";
 	dialog.className = "dialog";
-	dialog.innerHTML = message;
+	contents.className = "contents";
 	buttons.className = "buttons";
 	pairs.forEach(function(pair, index) {
 		if (typeof pair[0] != "string") {
@@ -1277,33 +1279,33 @@ Standards.makeDialog = function(message) {
 		} else if (typeof pair[1] != "function") {
 			throw "The pair at position " + (index+1) + " doesn't have a function as the second value.";
 		}
-		var button = document.createElement("button");
+		let button = document.createElement("button");
 		button.innerHTML = pair[0];
 		buttons.appendChild(button);
 		button.addEventListener("click", function() {
 			pair[1](pair[0]);
-			dialog.dispatchEvent(new CustomEvent("dialogAnswered"));
+			dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
 			this.removeEventListener("click", arguments.callee);
 		});
 	});
-	dialog.appendChild(buttons);
+	contents.appendChild(buttons);
+	dialog.appendChild(contents);
+	darkener.appendChild(dialog);
 	document.body.appendChild(darkener);
-	document.body.appendChild(dialog);
-	dialog.addEventListener("dialogAnswered", function() {
-		darkener.style.opacity = 0;
-		this.style.MsTransform = "translate(-50%, -50%) scale(.001, .001)";
-		this.style.WebkitTransform = "translate(-50%, -50%) scale(.001, .001)";
-		this.style.transform = "translate(-50%, -50%) scale(.001, .001)";
+	dialog.addEventListener("dialog" + identifier + "Answered", function() {
+		darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
+		this.style.MsTransform = "scale(.001, .001)";
+		this.style.WebkitTransform = "scale(.001, .001)";
+		this.style.transform = "scale(.001, .001)";
 		setTimeout(function() {  // waits until the dialog box is finished transitioning before removing it
-			document.body.removeChild(document.body.lastChild);
-			document.body.removeChild(document.body.lastChild);
-		}, 800);
+			document.body.removeChild(darkener);
+		}, 500);
 	});
 	setTimeout(function() {  // This breaks out of the execution block and allows transitioning to the states.
-		darkener.style.opacity = .8;
-		dialog.style.MsTransform = "translate(-50%, -50%) scale(1, 1)";
-		dialog.style.WebkitTransform = "translate(-50%, -50%) scale(1, 1)";
-		dialog.style.transform = "translate(-50%, -50%) scale(1, 1)";
+		darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
+		dialog.style.MsTransform = "scale(1, 1)";
+		dialog.style.WebkitTransform = "scale(1, 1)";
+		dialog.style.transform = "scale(1, 1)";
 	}, 0);
 };
 
@@ -1410,35 +1412,59 @@ Standards.getHTML = function(URL, callback) {
 	puts the string into a <div>, and then
 	calls the callback function (which has no arguments)
 	with "this" equalling the <div>
+	Preceeding the URL string with "~"
+	causes it to be interpreted as the retrieved HTML.
+	(That happens synchonously and returns the <div>.)
 	non-native functions = none
 	*/
-	var file = new XMLHttpRequest();
-	file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
-	file.onreadystatechange = function () {
-		if(file.readyState === 4) {  // Is it done?
-			if(file.status === 200 || file.status == 0) {  // Was it successful?
-				// file.responseXML might have something
-				var container = document.createElement("div");
-				container.innerHTML = file.responseText;
-				// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
-				var scripts = file.responseText.split("<script");
-				if (scripts.length > 1) {
-					scripts.forEach(function(script, index) {
-						if (index > 0) {
-							var scriptTag = document.createElement("script");
-							scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
-							container.insertBefore(scriptTag, container.getElementsByTagName("script")[index-1]);
-							var oldTag = container.getElementsByTagName("script")[index];
-							oldTag.parentNode.removeChild(oldTag);
-						}
-					});
+	if (!URL) {
+		console.error("No resource was provided to get HTML.");
+	} else if (URL[0] == "~") {
+		let container = document.createElement("div");
+		container.innerHTML = URL.slice(1);
+		// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
+		let scripts = URL.slice(1).split("<script");  // adding the closing ">" in the splitting would close the script block
+		if (scripts.length > 1) {
+			scripts.forEach(function(script, index) {
+				if (index > 0) {
+					let scriptTag = document.createElement("script");
+					scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
+					container.insertBefore(scriptTag, container.getElementsByTagName("script")[index-1]);
+					let oldTag = container.getElementsByTagName("script")[index];
+					oldTag.parentNode.removeChild(oldTag);
 				}
-				callback.call(container);  // .call(calling object / value of "this", function arguments (listed individually))  .apply has function arguments in an array
-				// You could also use callback(argument(s)) like a normal function, but it wouldn't change the value of "this".
+			});
+		}
+		return container;  // a callback isn't needed here because you don't have to wait for a request
+	} else {
+		var file = new XMLHttpRequest();
+		file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
+		file.onreadystatechange = function () {
+			if(file.readyState === 4) {  // Is it done?
+				if(file.status === 200 || file.status == 0) {  // Was it successful?
+					// file.responseXML might have something
+					let container = document.createElement("div");
+					container.innerHTML = file.responseText;
+					// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
+					let scripts = file.responseText.split("<script");
+					if (scripts.length > 1) {
+						scripts.forEach(function(script, index) {
+							if (index > 0) {
+								let scriptTag = document.createElement("script");
+								scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
+								container.insertBefore(scriptTag, container.getElementsByTagName("script")[index-1]);
+								let oldTag = container.getElementsByTagName("script")[index];
+								oldTag.parentNode.removeChild(oldTag);
+							}
+						});
+					}
+					callback.call(container);  // .call(calling object / value of "this", function arguments (listed individually))  .apply has function arguments in an array
+					// You could also use callback(argument(s)) like a normal function, but it wouldn't change the value of "this".
+				}
 			}
 		}
+		file.send();
 	}
-	file.send();
 };
 
 Standards.pageJump = function(ID) {
@@ -1826,17 +1852,149 @@ Standards.storage.local = {
 };
 
 Standards.storage.server = {
+	database: (function() {
+		var firebase = firebase;  // using the "var" keyword circumvents errors with undefined variables ("let" doesn't)
+		return firebase&&firebase.firestore ? firebase.firestore() : undefined;
+	})(),
+	defaultLocation: window.location.href.slice(window.location.href.indexOf("//")).slice(0,window.location.href.indexOf("/")) + "/default",
+	user: undefined,
+	checkCompatibility: function(shouldNotCheckUser) {
+		if (Standards.storage.server.database === undefined) {
+			alert("There's no server to handle this action.");
+			throw "Firebase or Firestore doesn't exist.";
+		}
+		if (window.location.href.slice(0,4) != "http") {
+			alert("Access to the server isn't allowed from this URL.");
+			throw 'The URL doesn\'t use the protocol "http" or "https".';
+		}
+		if (!shouldNotCheckUser && !user) {
+			alert("That action isn't allowed without logging in.");
+			console.warn("The action couldn't be completed because the user wasn't logged on.");
+		}
+	},
+	getReference: function(location) {
+		let reference = Standards.storage.server.database;
+		Standards.storage.server.defaultLocation.split("/").forEach(function(place, index) {
+			if (index % 2 == 0) {
+				reference = reference.collection(place);
+			} else {
+				reference = reference.doc(place);
+			}
+		});
+		return reference;
+	},
+	signUp: function() {
+		Standards.storage.server.checkCompatibility(true);
+		Standards.makeDialog("Sign up with your prefered sign-in provider.",
+			["Google", function() {
+				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+			}]
+		);
+	},
+	signIn: function() {
+		Standards.storage.server.checkCompatibility(true);
+		Standards.makeDialog("Sign in with your prefered sign-in provider.",
+			["Google", function() {
+				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+			}]
+		);
+	},
+	signOut: function() {
+		Standards.storage.server.checkCompatibility();
+		firebase.auth().signOut();
+	},
+	mergeAccounts: function() {
+		
+	},
+	store: function(key, item, callback, location) {
+		Standards.storage.server.checkCompatibility();
+		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location.split("/").length % 2 == 0) {
+			Standards.storage.server.getReference(location).set({
+				[key]: item
+			}, {merge: true}).then(callback);
+		} else {
+			alert("An invalid storage location was given.");
+			throw "An attempt was made to store data in a collection instead of a document.";
+		}
+	},
+	recall: function(key, callback, location) {
+		Standards.storage.server.checkCompatibility();
+		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location.split("/").length % 2 == 0) {
+			Standards.storage.server.getReference(location).get().then(function(document) {
+				if (document.exists) {
+					callback(document.data()[key]);
+				} else {
+					alert("A document doesn't exist at the given location.");
+					console.warn("An attempt was made to access a non-existent document.");
+				}
+			});
+		} else {
+			alert("An invalid storage location was given.");
+			throw "An attempt was made to store data in a collection instead of a document.";
+		}
+	},
+	forget: function(key, callback, location) {
+		Standards.storage.server.checkCompatibility();
+		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location.split("/").length % 2 == 0) {
+			if (key === null) {
+				Standards.storage.server.getReference(location).update({
+					[key]: firebase.firestore.FieldValue.delete()
+				}).then(callback);
+			} else {
+				Standards.storage.server.getReference(location).delete().then(callback);
+			}
+		} else {
+			Standards.storage.server.getReference(location).get().then(function(snapshot) {
+				Standards.forEach(snapshot, function(document) {
+					document.delete();
+				});
+			}).then(callback);
+		}
+	},
+	list: function(callback, location) {
+		Standards.storage.server.checkCompatibility();
+		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location.split("/").length % 2 == 0) {
+			Standards.storage.server.getReference(location).get().then(function(document) {
+				if (document.exists) {
+					let keyList = [];
+					Standards.forEach(document.data(), function(value, key) {
+						keyList.push(key);
+					});
+					callback(keyList);
+				} else {
+					alert("A document doesn't exist at the given location.");
+					console.warn("An attempt was made to access a non-existent document.");
+				}
+			});
+		} else {
+			Standards.storage.server.getReference(location).get().then(function(snapshot) {
+				let keyList = [];
+				Standards.forEach(snapshot, function(document) {
+					keyList.push(document.id);
+				});
+				callback(keyList);
+			});
+		}
+	}
+};
+
+/*
+Standards.storage.server = {
 	"username": null,
 	"password": null,
 	"passwordLocation": null,
 	"storageLocation": "volatileserver.appspot.com",
 	"notificationType": "alert",
 	"store": function(key, item, location) {
-		/**
+		// /**
 		stores a user's information
 		creators of information are the owners
 		non-native functions = http_build_query() and parse_str()
-		*/
+		// *
 		location = location || Standards.storage.server.storageLocation;
 		var message = {
 			"username": Standards.storage.server.username,
@@ -1884,10 +2042,10 @@ Standards.storage.server = {
 		file.send(Standards.http_build_query(message));
 	},
 	"recall": function(key, location) {
-		/**
+		// /**
 		recalls a user's information (if they have the correct permissions)
 		non-native functions = http_build_query() and parse_str()
-		*/
+		// *
 		location = location || Standards.storage.server.storageLocation;
 		var message = {
 			"username": Standards.storage.server.username,
@@ -1936,10 +2094,10 @@ Standards.storage.server = {
 		file.send(Standards.http_build_query(message));
 	},
 	"forget": function(key, location) {
-		/**
+		// /**
 		deletes a user's information (if they have owner permissions)
 		non-native functions = http_build_query() and parse_str()
-		*/
+		// *
 		location = location || Standards.storage.server.storageLocation;
 		var message = {
 			"username": Standards.storage.server.username,
@@ -1986,18 +2144,19 @@ Standards.storage.server = {
 		file.send(Standards.http_build_query(message));
 	},
 	"list": function(location) {
-		/**
+		// /**
 		lists a user's information
 		non-native functions = http_build_query() and parse_str()
-		*/
+		// *
 	},
 	"permissions": function(user, level, key, location) {
-		/**
+		// /**
 		changes the permissions of other users to the information owned by you
 		non-native functions = http_build_query() and parse_str()
-		*/
+		// *
 	}
 };
+*/
 
 Standards.colorCode = function(element, conversion) {
 	/**
