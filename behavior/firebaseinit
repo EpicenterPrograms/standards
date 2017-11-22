@@ -24,7 +24,7 @@ if (Standards.options.serverSettings) {
 			storageBucket: "",
 			messagingSenderId: "705640376450"
 		};
-		console.warn("typeof Standards.options is not an object");
+		console.warn("typeof Standards.options.serverSettings is not an object");
 	}
 } else {
 	Standards.options.serverSettings = {
