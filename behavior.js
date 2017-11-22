@@ -1887,6 +1887,9 @@ Standards.storage.server = {
 			["Google", function() {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
 			}],
+			["Anonymous", function() {
+				firebase.auth().signInAnonymously();
+			}],
 			["Cancel", function() {return;}]
 		);
 	},
@@ -1895,6 +1898,9 @@ Standards.storage.server = {
 		Standards.makeDialog("Sign in with your prefered sign-in provider.",
 			["Google", function() {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+			}],
+			["Anonymous", function() {
+				firebase.auth().signInAnonymously();
 			}],
 			["Cancel", function() {return;}]
 		);
