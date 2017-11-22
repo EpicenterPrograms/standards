@@ -1867,6 +1867,7 @@ Standards.storage.server = {
 		if (!shouldNotCheckUser && !Standards.storage.server.user) {
 			alert("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
+			return false;
 		}
 	},
 	getReference: function(location) {
@@ -1903,10 +1904,14 @@ Standards.storage.server = {
 		firebase.auth().signOut();
 	},
 	mergeAccounts: function() {
-		
+		if (!Standards.storage.server.checkCompatibility()) {
+			return;
+		}
 	},
 	store: function(key, item, callback, location) {
-		Standards.storage.server.checkCompatibility();
+		if (!Standards.storage.server.checkCompatibility()) {
+			return;
+		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).set({
@@ -1918,7 +1923,9 @@ Standards.storage.server = {
 		}
 	},
 	recall: function(key, callback, location) {
-		Standards.storage.server.checkCompatibility();
+		if (!Standards.storage.server.checkCompatibility()) {
+			return;
+		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).get().then(function(document) {
@@ -1935,7 +1942,9 @@ Standards.storage.server = {
 		}
 	},
 	forget: function(key, callback, location) {
-		Standards.storage.server.checkCompatibility();
+		if (!Standards.storage.server.checkCompatibility()) {
+			return;
+		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
 			if (key === null) {
@@ -1954,7 +1963,9 @@ Standards.storage.server = {
 		}
 	},
 	list: function(callback, location) {
-		Standards.storage.server.checkCompatibility();
+		if (!Standards.storage.server.checkCompatibility()) {
+			return;
+		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).get().then(function(document) {
