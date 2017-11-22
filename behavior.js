@@ -1885,7 +1885,8 @@ Standards.storage.server = {
 		Standards.makeDialog("Sign up with your prefered sign-in provider.",
 			["Google", function() {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			}]
+			}],
+			["Cancel", function() {return;}]
 		);
 	},
 	signIn: function() {
@@ -1893,7 +1894,8 @@ Standards.storage.server = {
 		Standards.makeDialog("Sign in with your prefered sign-in provider.",
 			["Google", function() {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			}]
+			}],
+			["Cancel", function() {return;}]
 		);
 	},
 	signOut: function() {
