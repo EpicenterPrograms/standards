@@ -1952,13 +1952,19 @@ Standards.storage.server = {
 		}
 	},
 	recall: function(key, location, callback) {
+		console.log("Recall was run.");
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
+		console.log("Compatibility was passed.");
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
+			console.log("Document was indicated.");
 			Standards.storage.server.getReference(location).get().then(function(document) {
 				if (document.exists) {
+					console.log("Document was found.");
+					console.log(document);
+					console.log(document.data());
 					callback(document.data()[key]);
 				} else {
 					alert("A document doesn't exist at the given location.");
