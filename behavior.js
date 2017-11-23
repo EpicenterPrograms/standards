@@ -2028,7 +2028,7 @@ Standards.storage.server = {
 					console.warn("An attempt was made to access a non-existent document.");
 				}
 			}).catch(function(error) {
-				alert("The list of information couldn't be retieved.);
+				alert("The list of information couldn't be retieved.");
 				console.error(error);
 			});
 		} else {
@@ -2039,7 +2039,7 @@ Standards.storage.server = {
 				});
 				callback(keyList);
 			}).catch(function(error) {
-				alert("The list of information couldn't be retieved.);
+				alert("The list of information couldn't be retieved.");
 				console.error(error);
 			});
 		}
