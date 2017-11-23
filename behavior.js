@@ -1856,23 +1856,20 @@ Standards.storage.server = {
 	defaultLocation: "",
 	user: undefined,
 	checkCompatibility: function(shouldNotCheckUser) {
-		console.log("Started checking compatibility.");
 		if (Standards.storage.server.database === undefined) {
 			alert("There's no server to handle this action.");
 			throw "Firebase or Firestore doesn't exist.";
 		}
-		console.log("Passed first condition.");
 		if (window.location.href.slice(0,4) != "http") {
 			alert("Access to the server isn't allowed from this URL.");
 			throw 'The URL doesn\'t use the protocol "http" or "https".';
 		}
-		console.log("Passed second condition.");
 		if (!shouldNotCheckUser && !Standards.storage.server.user) {
 			alert("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 			return false;
 		}
-		console.log("Passed third condition.");
+		return true;
 	},
 	getReference: function(location) {
 		/**
@@ -1956,19 +1953,13 @@ Standards.storage.server = {
 		}
 	},
 	recall: function(key, location, callback) {
-		console.log("Recall was run.");
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		console.log("Compatibility was passed.");
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
-			console.log("Document was indicated.");
 			Standards.storage.server.getReference(location).get().then(function(document) {
 				if (document.exists) {
-					console.log("Document was found.");
-					console.log(document);
-					console.log(document.data());
 					callback(document.data()[key]);
 				} else {
 					alert("A document doesn't exist at the given location.");
