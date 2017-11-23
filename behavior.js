@@ -1856,19 +1856,23 @@ Standards.storage.server = {
 	defaultLocation: "",
 	user: undefined,
 	checkCompatibility: function(shouldNotCheckUser) {
+		console.log("Started checking compatibility.");
 		if (Standards.storage.server.database === undefined) {
 			alert("There's no server to handle this action.");
 			throw "Firebase or Firestore doesn't exist.";
 		}
+		console.log("Passed first condition.");
 		if (window.location.href.slice(0,4) != "http") {
 			alert("Access to the server isn't allowed from this URL.");
 			throw 'The URL doesn\'t use the protocol "http" or "https".';
 		}
+		console.log("Passed second condition.");
 		if (!shouldNotCheckUser && !Standards.storage.server.user) {
 			alert("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 			return false;
 		}
+		console.log("Passed third condition.");
 	},
 	getReference: function(location) {
 		/**
