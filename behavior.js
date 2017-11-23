@@ -1853,7 +1853,7 @@ Standards.storage.local = {
 
 Standards.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
-	defaultLocation: window.location.href.slice(window.location.href.indexOf("//")).slice(0,window.location.href.indexOf("/")) + "/default",
+	defaultLocation: "",
 	user: undefined,
 	checkCompatibility: function(shouldNotCheckUser) {
 		if (Standards.storage.server.database === undefined) {
@@ -1871,8 +1871,28 @@ Standards.storage.server = {
 		}
 	},
 	getReference: function(location) {
+		/**
+		creates a storage reference based on a provided location
+		different paths are separated by slashes ("/")
+		preceeding a location with a tilde ("~") will allow absolute location setting
+		(no optimization for user storage)
+		non-native functions = getType
+		*/
 		let reference = Standards.storage.server.database;
-		Standards.storage.server.defaultLocation.split("/").forEach(function(place, index) {
+		if (!location) {
+			location = Standards.storage.server.defaultLocation;
+			reference = reference.collection("users").doc(Standards.storage.server.user.id);
+		} else if (Standards.getType(location) == "String") {
+			if (location[0] == "~") {
+				location = location.slice(1);
+			} else {
+				reference = reference.collection("users").doc(Standards.storage.server.user.id);
+			}
+		} else {
+			alert("The action couldn't be completed.");
+			throw "The provided location is an invalid type.";
+		}
+		location.split("/").forEach(function(place, index) {
 			if (index % 2 == 0) {
 				reference = reference.collection(place);
 			} else {
@@ -1914,7 +1934,7 @@ Standards.storage.server = {
 			return;
 		}
 	},
-	store: function(key, item, callback, location) {
+	store: function(key, item, location, callback) {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
@@ -1922,13 +1942,16 @@ Standards.storage.server = {
 		if (location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).set({
 				[key]: item
-			}, {merge: true}).then(callback);
+			}, {merge: true}).then(callback).catch(function(error) {
+				alert("The information couldn't be stored.");
+				console.error(error);
+			});
 		} else {
 			alert("An invalid storage location was given.");
 			throw "An attempt was made to store data in a collection instead of a document.";
 		}
 	},
-	recall: function(key, callback, location) {
+	recall: function(key, location, callback) {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
@@ -1941,34 +1964,53 @@ Standards.storage.server = {
 					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
 				}
+			}).catch(function(error) {
+				alert("The information couldn't be retrieved.");
+				console.error(error);
 			});
 		} else {
 			alert("An invalid storage location was given.");
 			throw "An attempt was made to store data in a collection instead of a document.";
 		}
 	},
-	forget: function(key, callback, location) {
+	forget: function(key, location, callback) {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
 		if (location.split("/").length % 2 == 0) {
 			if (key === null) {
+				Standards.storage.server.getReference(location).delete().then(callback).catch(function(error) {
+					alert("The information couldn't be deleted.");
+					console.error(error);
+				});
+			} else {
 				Standards.storage.server.getReference(location).update({
 					[key]: firebase.firestore.FieldValue.delete()
-				}).then(callback);
-			} else {
-				Standards.storage.server.getReference(location).delete().then(callback);
+				}).then(callback).catch(function(error) {
+					alert("The information couldn't be deleted.");
+					console.error(error);
+				});
 			}
 		} else {
-			Standards.storage.server.getReference(location).get().then(function(snapshot) {
-				Standards.forEach(snapshot, function(document) {
-					document.delete();
+			if (key === null) {
+				Standards.storage.server.getReference(location).get().then(function(snapshot) {
+					Standards.forEach(snapshot, function(document) {
+						document.delete();
+					});
+				}).then(callback).catch(function(error) {
+					alert("The information couldn't be deleted.");
+					console.error(error);
 				});
-			}).then(callback);
+			} else {
+				Standards.storage.server.getReference(location).doc(key).delete().then(callback).catch(function(error) {
+					alert("The information couldn't be deleted.");
+					console.error(error);
+				});
+			}
 		}
 	},
-	list: function(callback, location) {
+	list: function(location, callback) {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
@@ -1985,6 +2027,9 @@ Standards.storage.server = {
 					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
 				}
+			}).catch(function(error) {
+				alert("The list of information couldn't be retieved.);
+				console.error(error);
 			});
 		} else {
 			Standards.storage.server.getReference(location).get().then(function(snapshot) {
@@ -1993,6 +2038,9 @@ Standards.storage.server = {
 					keyList.push(document.id);
 				});
 				callback(keyList);
+			}).catch(function(error) {
+				alert("The list of information couldn't be retieved.);
+				console.error(error);
 			});
 		}
 	}
