@@ -1935,7 +1935,10 @@ Standards.storage.server = {
 	},
 	signOut: function() {
 		Standards.storage.server.checkCompatibility();
-		firebase.auth().signOut();
+		Standards.makeDialog("Are you sure you want to log out?",
+			["Yes", firebase.auth().signOut],
+			["No", function() {return;}]
+		);
 	},
 	mergeAccounts: function() {
 		if (!Standards.storage.server.checkCompatibility()) {
