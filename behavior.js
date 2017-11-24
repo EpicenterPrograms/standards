@@ -1854,7 +1854,7 @@ Standards.storage.local = {
 Standards.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "",
-	user: undefined,
+	user: firebase.auth().currentUser,
 	checkCompatibility: function(shouldNotCheckUser) {
 		if (Standards.storage.server.database === undefined) {
 			alert("There's no server to handle this action.");
@@ -1939,7 +1939,7 @@ Standards.storage.server = {
 	},
 	mergeAccounts: function() {
 		if (!Standards.storage.server.checkCompatibility()) {
-			return;
+			//// do stuff
 		}
 	},
 	store: function(key, item, location, callback) {
@@ -2466,6 +2466,39 @@ if (!(Standards.options.automation == "none")) {
 	}
 }
 
+if (!(Standards.options.runAuthCode == false) && typeof firebase != "undefined" && firebase.firestore) {
+	firebase.auth().onAuthStateChanged(function(person) {  // listens for a change in authorization status (future onAuthStateChanged calls don't overwrite this one)
+		if (person) {  // if the user is signed in
+			if (Standards.getId("signIn")) {  // if there's a signIn button
+				Standards.getId("signIn").style.display = "none";
+			}
+			if (Standards.getId("signUp")) {  // if there's a signUp button
+				Standards.getId("signUp").style.display = "none";
+			}
+			if (Standards.getId("userSettings")) {  // if there's a userSettings button
+				Standards.getId("userSettings").style.display = "inline-block";
+			}
+			if (Standards.getId("signOut")) {  // if there's a signOut button
+				Standards.getId("signOut").style.display = "inline-block";
+			}
+		} else {
+			if (Standards.getId("signIn")) {  // if there's a signIn button
+				Standards.getId("signIn").style.display = "inline-block";
+			}
+			if (Standards.getId("signUp")) {  // if there's a signUp button
+				Standards.getId("signUp").style.display = "inline-block";
+			}
+			if (Standards.getId("userSettings")) {  // if there's a userSettings button
+				Standards.getId("userSettings").style.display = "none";
+			}
+			if (Standards.getId("signOut")) {  // if there's a signOut button
+				Standards.getId("signOut").style.display = "none";
+			}
+		}
+		Standards.storage.server.user = person;
+	});
+}
+
 window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
 	
 	if (!Standards.options.hasOwnProperty("automation") || Standards.options.automation == "full") {
@@ -2536,6 +2569,20 @@ window.addEventListener("load", function() {  // This waits for everything past 
 				});
 			});
 			table.style.visibility = "visible";
+		}
+		
+		// gives the login/user buttons functionality
+		if (Standards.getId("signIn")) {  // if there's a signIn button
+			Standards.getId("signIn").addEventListener("click", Standards.storage.server.signIn);
+		}
+		if (Standards.getId("signUp")) {  // if there's a signUp button
+			Standards.getId("signUp").addEventListener("click", Standards.storage.server.signUp);
+		}
+		if (Standards.getId("userSettings")) {  // if there's a userSettings button
+			//// do stuff
+		}
+		if (Standards.getId("signOut")) {  // if there's a signOut button
+			Standards.getId("signOut").addEventListener("click", Standards.storage.server.signOut);
 		}
 	}
 	
