@@ -1882,12 +1882,12 @@ Standards.storage.server = {
 		let reference = Standards.storage.server.database;
 		if (!location) {
 			location = Standards.storage.server.defaultLocation;
-			reference = reference.collection("users").doc(Standards.storage.server.user.id);
+			reference = reference.collection("users").doc(Standards.storage.server.user.uid);
 		} else if (Standards.getType(location) == "String") {
 			if (location[0] == "~") {
 				location = location.slice(1);
 			} else {
-				reference = reference.collection("users").doc(Standards.storage.server.user.id);
+				reference = reference.collection("users").doc(Standards.storage.server.user.uid);
 			}
 		} else {
 			alert("The action couldn't be completed.");
