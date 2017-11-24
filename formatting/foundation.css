@@ -511,10 +511,13 @@ over- {
 	*/
 	padding-left: 1.5em;
 }
-.login-section {
+.user-section {
 	position: absolute;
 	top: 2em;
 	right: 3em;
+}
+#userSettings {
+	display: none;
 }
 #signOut {
 	display: none;
