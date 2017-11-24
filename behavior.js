@@ -1885,7 +1885,12 @@ Standards.storage.server = {
 			reference = reference.collection("users").doc(Standards.storage.server.user.uid);
 		} else if (Standards.getType(location) == "String") {
 			if (location[0] == "~") {
-				location = location.slice(1);
+				if (location == "~") {
+					alert("An invalid storage location was given");
+					throw "An absolute storage location was indicated but not provided.";
+				} else {
+					location = location.slice(1);
+				}
 			} else {
 				reference = reference.collection("users").doc(Standards.storage.server.user.uid);
 			}
@@ -1893,13 +1898,15 @@ Standards.storage.server = {
 			alert("The action couldn't be completed.");
 			throw "The provided location is an invalid type.";
 		}
-		location.split("/").forEach(function(place, index) {
-			if (index % 2 == 0) {
-				reference = reference.collection(place);
-			} else {
-				reference = reference.doc(place);
-			}
-		});
+		if (location != "") {
+			location.split("/").forEach(function(place, index) {
+				if (index % 2 == 0) {
+					reference = reference.collection(place);
+				} else {
+					reference = reference.doc(place);
+				}
+			});
+		}
 		return reference;
 	},
 	signUp: function() {
@@ -1940,7 +1947,7 @@ Standards.storage.server = {
 			return;
 		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
-		if (location.split("/").length % 2 == 0) {
+		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).set({
 				[key]: item
 			}, {merge: true}).then(callback).catch(function(error) {
@@ -1957,7 +1964,7 @@ Standards.storage.server = {
 			return;
 		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
-		if (location.split("/").length % 2 == 0) {
+		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).get().then(function(document) {
 				if (document.exists) {
 					callback(document.data()[key]);
@@ -1979,7 +1986,7 @@ Standards.storage.server = {
 			return;
 		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
-		if (location.split("/").length % 2 == 0) {
+		if (location == "" || location.split("/").length % 2 == 0) {
 			if (key === null) {
 				Standards.storage.server.getReference(location).delete().then(callback).catch(function(error) {
 					alert("The information couldn't be deleted.");
@@ -2016,7 +2023,7 @@ Standards.storage.server = {
 			return;
 		}
 		location = location===undefined ? Standards.storage.server.defaultLocation : location;
-		if (location.split("/").length % 2 == 0) {
+		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).get().then(function(document) {
 				if (document.exists) {
 					let keyList = [];
