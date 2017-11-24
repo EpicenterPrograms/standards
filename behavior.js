@@ -1936,7 +1936,9 @@ Standards.storage.server = {
 	signOut: function() {
 		Standards.storage.server.checkCompatibility();
 		Standards.makeDialog("Are you sure you want to log out?",
-			["Yes", firebase.auth().signOut],
+			["Yes", function() {
+				firebase.auth().signOut();
+			}],
 			["No", function() {return;}]
 		);
 	},
