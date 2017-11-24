@@ -1854,7 +1854,7 @@ Standards.storage.local = {
 Standards.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "",
-	user: firebase.auth().currentUser,
+	user: undefined,  //// firebase.auth().currentUser,
 	checkCompatibility: function(shouldNotCheckUser) {
 		if (Standards.storage.server.database === undefined) {
 			alert("There's no server to handle this action.");
