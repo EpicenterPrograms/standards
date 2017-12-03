@@ -1875,7 +1875,7 @@ Standards.storage.server = {
 		/**
 		creates a storage reference based on a provided location
 		different paths are separated by slashes ("/")
-		preceeding a location with a tilde ("~") will allow absolute location setting
+		preceding a location with a tilde ("~") will allow absolute location setting
 		(no optimization for user storage)
 		non-native functions = getType
 		*/
@@ -1951,7 +1951,21 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location === undefined) {
+			location = Standards.storage.server.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location.length > 0 && location[0] == "/") {
+				if (location == "/") {
+					alert("An invalid storage location was given");
+					throw "An relative storage location was indicated but not provided.";
+				} else {
+					location = Standards.storage.server.defaultLocation + location;
+				}
+			}
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.\nThe default location was used instead.";
+		}
 		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).set({
 				[key]: item
@@ -1968,7 +1982,21 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location === undefined) {
+			location = Standards.storage.server.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location.length > 0 && location[0] == "/") {
+				if (location == "/") {
+					alert("An invalid storage location was given");
+					throw "An relative storage location was indicated but not provided.";
+				} else {
+					location = Standards.storage.server.defaultLocation + location;
+				}
+			}
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.\nThe default location was used instead.";
+		}
 		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).get().then(function(document) {
 				if (document.exists) {
@@ -1983,14 +2011,28 @@ Standards.storage.server = {
 			});
 		} else {
 			alert("An invalid storage location was given.");
-			throw "An attempt was made to store data in a collection instead of a document.";
+			throw "An attempt was made to recall a collection instead of a document.";
 		}
 	},
 	forget: function(key, location, callback) {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		location = location===undefined ? Standards.storage.server.defaultLocation : location;
+		if (location === undefined) {
+			location = Standards.storage.server.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location.length > 0 && location[0] == "/") {
+				if (location == "/") {
+					alert("An invalid storage location was given");
+					throw "An relative storage location was indicated but not provided.";
+				} else {
+					location = Standards.storage.server.defaultLocation + location;
+				}
+			}
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.\nThe default location was used instead.";
+		}
 		if (location == "" || location.split("/").length % 2 == 0) {
 			if (key === null) {
 				Standards.storage.server.getReference(location).delete().then(callback).catch(function(error) {
@@ -2027,8 +2069,22 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		location = location===undefined ? Standards.storage.server.defaultLocation : location;
-		if (location == "" || location.split("/").length % 2 == 0) {
+		if (location === undefined) {
+			location = Standards.storage.server.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location.length > 0 && location[0] == "/") {
+				if (location == "/") {
+					alert("An invalid storage location was given");
+					throw "An relative storage location was indicated but not provided.";
+				} else {
+					location = Standards.storage.server.defaultLocation + location;
+				}
+			}
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.\nThe default location was used instead.";
+		}
+		if (location == "" || location.split("/").length % 2 == 0) {  // if the location goes to a document
 			Standards.storage.server.getReference(location).get().then(function(document) {
 				if (document.exists) {
 					let keyList = [];
@@ -2037,14 +2093,14 @@ Standards.storage.server = {
 					});
 					callback(keyList);
 				} else {
-					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
+					callback(keyList);
 				}
 			}).catch(function(error) {
 				alert("The list of information couldn't be retieved.");
 				console.error(error);
 			});
-		} else {
+		} else {  // if the location goes to a collection
 			Standards.storage.server.getReference(location).get().then(function(snapshot) {
 				let keyList = [];
 				Standards.forEach(snapshot, function(document) {
