@@ -288,6 +288,28 @@ table.organizational th, table.organizational td {
 	border: none;
 	background: none;
 }
+table.conversation th {
+	/**
+	styles the name of the speaker
+	*/
+	border: none;
+	background: none;
+	text-align: right;
+}
+table.conversation td {
+	/**
+	styles what the speaker said
+	*/
+	border: none;
+	background: none;
+	text-align: left;
+}
+table.conversation td:first-child {
+	/**
+	allows unspoken events to be centered
+	*/
+	text-align: center;
+}
 input {
 	text-align: center;
 }
