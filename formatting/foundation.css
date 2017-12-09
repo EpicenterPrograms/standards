@@ -34,8 +34,6 @@ body {
 	background: -moz-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Firefox 3.6 to 15 */
 	background: repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* standard syntax */
 	text-align: center;
-	transition:.8s;
-	transition: var(--nav-slide-time);
 }
 main {
 	/**
