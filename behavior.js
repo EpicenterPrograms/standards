@@ -600,6 +600,67 @@ Standards.Sound = function(specs) {
 	};
 };
 
+Standards.Listenable = function () {
+	/**
+	creates an object which has a "value" property which can be listened to
+	*/
+	return {
+		internalValue: undefined,
+		callbacks: [],
+		get value() {
+			let self = this;
+			setTimeout(function () {
+				let index = 0;
+				while (index < self.callbacks.length) {
+					if (self.callbacks[index][0] == "get") {
+						self.callbacks[index][1]();
+					}
+					if (self.callbacks[index] !== undefined && self.callbacks[index][2]) {  // The first test is needed in case a callback removes a listener.
+						self.callbacks.splice(index, 1);
+					} else {
+						index++;
+					}
+				}
+			}, 0);
+			/// Putting the running of callbacks in a timeout ensures that the value is returned first.
+			/// (Returning first would end function execution.)
+			return this.internalValue;
+		},
+		set value(variable) {
+			let originalValue = this.internalValue;
+			this.internalValue = variable;
+			let index = 0;
+			while (index < this.callbacks.length) {
+				if (this.callbacks[index][0] == "set") {
+					this.callbacks[index][1](variable);
+				} else if (this.callbacks[index][0] == "change" && originalValue !== this.internalValue) {
+					this.callbacks[index][1](variable);
+				}
+				if (this.callbacks[index] !== undefined && this.callbacks[index][2]) {
+					this.callbacks.splice(index, 1);
+				} else {
+					index++;
+				}
+			}
+		},
+		addEventListener: function (type, doStuff, listenOnce) {
+			this.callbacks.push([type, doStuff, listenOnce]);
+			//// add the ability to listen for adding listeners
+		},
+		removeEventListener: function (type, doStuff) {
+			let index = 0;
+			while (index < this.callbacks.length) {
+				if (this.callbacks[index][0] == type && this.callbacks[index][1] == doStuff) {
+					this.callbacks.splice(index, 1);
+				} else {
+					index++;
+				}
+			}
+			//// add the ability to listen for removing listeners
+		}
+	};
+};
+
 
 if (!Array.prototype.includes) {
 	Array.prototype.includes = function(searchItem, index) {
