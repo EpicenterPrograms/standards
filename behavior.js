@@ -629,20 +629,16 @@ Standards.Listenable = function () {
 		set value(variable) {
 			let originalValue = this.internalValue;
 			this.internalValue = variable;
-			console.log(variable);
 			let index = 0;
 			while (index < this.callbacks.length) {
-				console.log("Running callbacks");
 				if (this.callbacks[index][0] == "set") {
 					this.callbacks[index][1](variable);
 				} else if (this.callbacks[index][0] == "change" && originalValue !== this.internalValue) {
-					console.log("Value changed");
 					this.callbacks[index][1](variable);
 				}
 				if (this.callbacks[index] !== undefined && this.callbacks[index][2]) {
 					this.callbacks.splice(index, 1);
 				} else {
-					console.log("Incrementing index");
 					index++;
 				}
 			}
@@ -2032,10 +2028,13 @@ Standards.storage.server = {
 				throw "The location given wasn't a string.";
 			}
 			if (location == "" || location.split("/").length % 2 == 0) {
+				console.log("Setting server information");
 				Standards.storage.server.getReference(location).set({
 					[key]: item
 				}, { merge: true }).then(function () {
+					console.log("Finished storing");
 					if (callback) {
+						console.log("Running callback");
 						callback();
 					}
 				}).catch(function (error) {
