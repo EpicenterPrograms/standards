@@ -2014,7 +2014,7 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined) {
+		if (location === undefined || location === "") {
 			location = Standards.storage.server.defaultLocation;
 		} else if (S.getType(location) == "String") {
 			if (location.length > 0 && location[0] == "/") {
@@ -2045,7 +2045,7 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined) {
+		if (location === undefined || location === "") {
 			location = Standards.storage.server.defaultLocation;
 		} else if (S.getType(location) == "String") {
 			if (location.length > 0 && location[0] == "/") {
@@ -2081,7 +2081,7 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined) {
+		if (location === undefined || location === "") {
 			location = Standards.storage.server.defaultLocation;
 		} else if (S.getType(location) == "String") {
 			if (location.length > 0 && location[0] == "/") {
@@ -2132,7 +2132,7 @@ Standards.storage.server = {
 		if (!Standards.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined) {
+		if (location === undefined || location === "") {
 			location = Standards.storage.server.defaultLocation;
 		} else if (S.getType(location) == "String") {
 			if (location.length > 0 && location[0] == "/") {
