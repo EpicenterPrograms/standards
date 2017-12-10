@@ -2006,39 +2006,42 @@ Standards.storage.server = {
 		);
 	},
 	mergeAccounts: function() {
-		if (!Standards.storage.server.checkCompatibility()) {
+		if (Standards.storage.server.checkCompatibility()) {
 			//// do stuff
 		}
 	},
 	store: function(key, item, location, callback) {
-		if (!Standards.storage.server.checkCompatibility()) {
-			return;
-		}
-		if (location === undefined || location === "") {
-			location = Standards.storage.server.defaultLocation;
-		} else if (S.getType(location) == "String") {
-			if (location.length > 0 && location[0] == "/") {
-				if (location == "/") {
-					alert("An invalid storage location was given");
-					throw "An relative storage location was indicated but not provided.";
-				} else {
-					location = Standards.storage.server.defaultLocation + location;
+		if (Standards.storage.server.checkCompatibility()) {
+			if (location === undefined || location === "") {
+				location = Standards.storage.server.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location.length > 0 && location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An relative storage location was indicated but not provided.";
+					} else {
+						location = Standards.storage.server.defaultLocation + location;
+					}
 				}
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
 			}
-		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.";
-		}
-		if (location == "" || location.split("/").length % 2 == 0) {
-			Standards.storage.server.getReference(location).set({
-				[key]: item
-			}, {merge: true}).then(callback).catch(function(error) {
-				alert("The information couldn't be stored.");
-				console.error(error);
-			});
-		} else {
-			alert("An invalid storage location was given.");
-			throw "An attempt was made to store data in a collection instead of a document.";
+			if (location == "" || location.split("/").length % 2 == 0) {
+				Standards.storage.server.getReference(location).set({
+					[key]: item
+				}, { merge: true }).then(function () {
+					if (callback) {
+						callback();
+					}
+				}).catch(function (error) {
+					alert("The information couldn't be stored.");
+					console.error(error);
+				});
+			} else {
+				alert("An invalid storage location was given.");
+				throw "An attempt was made to store data in a collection instead of a document.";
+			}
 		}
 	},
 	recall: function(key, location, callback) {
@@ -2098,14 +2101,22 @@ Standards.storage.server = {
 		}
 		if (location == "" || location.split("/").length % 2 == 0) {
 			if (key === null) {
-				Standards.storage.server.getReference(location).delete().then(callback).catch(function(error) {
+				Standards.storage.server.getReference(location).delete().then(function () {
+					if (callback) {
+						callback();
+					}
+				}).catch(function(error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
 			} else {
 				Standards.storage.server.getReference(location).update({
 					[key]: firebase.firestore.FieldValue.delete()
-				}).then(callback).catch(function(error) {
+				}).then(function () {
+					if (callback) {
+						callback();
+					}
+				}).catch(function(error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
@@ -2116,12 +2127,20 @@ Standards.storage.server = {
 					Standards.forEach(snapshot, function(document) {
 						document.delete();
 					});
-				}).then(callback).catch(function(error) {
+				}).then(function () {
+					if (callback) {
+						callback();
+					}
+				}).catch(function(error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
 			} else {
-				Standards.storage.server.getReference(location).doc(key).delete().then(callback).catch(function(error) {
+				Standards.storage.server.getReference(location).doc(key).delete().then(function () {
+					if (callback) {
+						callback();
+					}
+				}).catch(function(error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
