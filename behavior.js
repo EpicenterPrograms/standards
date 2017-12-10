@@ -2165,13 +2165,8 @@ Standards.storage.server = {
 			});
 		} else {  // if the location goes to a collection
 			Standards.storage.server.getReference(location).get().then(function(snapshot) {
-				let keyList = [];
 				//// if snapshot.empty might need to be used here
-				//// snapshot.docs provides an array of all documents in the snapshot
-				Standards.forEach(snapshot, function(document) {
-					keyList.push(document.id);
-				});
-				callback(keyList);
+				callback(snapshot.docs);
 			}).catch(function(error) {
 				alert("The list of information couldn't be retieved.");
 				console.error(error);
