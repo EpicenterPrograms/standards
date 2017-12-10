@@ -2033,13 +2033,7 @@ Standards.storage.server = {
 				console.log("Setting server information");
 				Standards.storage.server.getReference(location).set({
 					[key]: item
-				}, { merge: true }).then(function (filler) {
-					console.log("Finished storing");
-					if (callback) {
-						console.log("Running callback");
-						callback();
-					}
-				}).catch(function (error) {
+				}, { merge: true }).then(callback).catch(function (error) {
 					alert("The information couldn't be stored.");
 					console.error(error);
 				});
