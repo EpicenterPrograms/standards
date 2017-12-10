@@ -1255,10 +1255,12 @@ Standards.makeDialog = function(message) {
 	let pairs = Array.prototype.slice.call(arguments, 1),
 		identifier = Standards.identifier++;
 	if (pairs.length < 1) {
-		pairs = [["Okay", function() {return;}]];
+		pairs = [["Okay", function () {return;}]];
 	}
 	pairs.forEach(function(pair, index) {
-		if (Standards.getType(pair) != "Array") {
+		if (Standards.getType(pair) == "String") {
+			pairs.splice(index, 1, [pair, function () {return;}]);
+		} else if (Standards.getType(pair) != "Array") {
 			throw "The item at position " + (index+1) + " isn't a two-item array.";
 		} else if (pair.length != 2) {
 			throw "The item at position " + (index+1) + " needs to have exactly two items.";
@@ -1964,7 +1966,7 @@ Standards.storage.server = {
 			}
 		} else {
 			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.\nThe default location was used instead.";
+			throw "The location given wasn't a string.";
 		}
 		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.storage.server.getReference(location).set({
@@ -2085,9 +2087,9 @@ Standards.storage.server = {
 			throw "The location given wasn't a string.\nThe default location was used instead.";
 		}
 		if (location == "" || location.split("/").length % 2 == 0) {  // if the location goes to a document
-			Standards.storage.server.getReference(location).get().then(function(document) {
+			Standards.storage.server.getReference(location).get().then(function (document) {
+				let keyList = [];
 				if (document.exists) {
-					let keyList = [];
 					Standards.forEach(document.data(), function(value, key) {
 						keyList.push(key);
 					});
@@ -2103,6 +2105,8 @@ Standards.storage.server = {
 		} else {  // if the location goes to a collection
 			Standards.storage.server.getReference(location).get().then(function(snapshot) {
 				let keyList = [];
+				//// if snapshot.empty might need to be used here
+				//// snapshot.docs provides an array of all documents in the snapshot
 				Standards.forEach(snapshot, function(document) {
 					keyList.push(document.id);
 				});
@@ -2648,7 +2652,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
 	}
 	
 	// adds navigation content
-	if (document.getElementsByTagName("nav").length > 0) {
+	if (document.getElementsByTagName("nav").length > 0) {  // This is deprecated. Use iframes with links with "_parent" targets instead.
 		let navigation = document.getElementsByTagName("nav")[0];
 		if (navigation.hasAttribute("data-href")) {
 			Standards.getHTML(navigation.getAttribute("data-href"), function() {
