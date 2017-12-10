@@ -2161,6 +2161,7 @@ Standards.storage.server = {
 				}
 			}).catch(function(error) {
 				alert("The list of information couldn't be retieved.");
+				console.error("List retrieval or callback execution failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
 				console.error(error);
 			});
 		} else {  // if the location goes to a collection
