@@ -1961,6 +1961,7 @@ Standards.storage.server = {
 			alert("The action couldn't be completed.");
 			throw "The provided location is an invalid type.";
 		}
+		console.log(location);
 		if (location != "") {
 			location.split("/").forEach(function(place, index) {
 				if (index % 2 == 0) {
@@ -1970,6 +1971,7 @@ Standards.storage.server = {
 				}
 			});
 		}
+		console.log("Returning reference");
 		return reference;
 	},
 	signUp: function() {
