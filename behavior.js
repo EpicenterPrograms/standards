@@ -1765,6 +1765,45 @@ Standards.storage.session = {
 			}
 		}
 	},
+	move: function (oldPlace, newPlace, location) {
+		/**
+		moves information in one place to another place
+		non-native functions = getType
+		*/
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+		} else if (oldPlace != newPlace) {
+			location = location || Standards.storage.session.defaultLocation;
+			let information = "";
+			// retrieves the information
+			if (location == null) {
+				information = sessionStorage.getItem(oldPlace);
+			} else if (Standards.getType(location) == "String") {
+				information = sessionStorage.getItem(location + "/" + oldPlace);
+			} else {
+				console.error("Invalid storage location type");
+				alert("The operation couldn't be completed.");
+				return;
+			}
+			if (information == null) {
+				console.error("There's no information at the indicated location");
+				alert("There was no information to move.");
+				return;
+			}
+			// stores the information in the new place
+			if (location == null) {
+				sessionStorage.setItem(newPlace, information);
+			} else {
+				sessionStorage.setItem(location + "/" + newPlace, information);
+			}
+			// deletes the information at the old place
+			if (location == null) {
+				sessionStorage.removeItem(oldPlace);
+			} else {
+				sessionStorage.removeItem(location + "/" + oldPlace);
+			}
+		}
+	},
 	list: function(location) {
 		/**
 		lists the keys of everything in session storage
