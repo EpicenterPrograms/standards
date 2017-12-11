@@ -1843,7 +1843,7 @@ Standards.storage.local = {
 		} else {
 			key = String(key);
 			location = location || Standards.storage.local.defaultLocation;
-			var information = "";
+			let information = "";
 			if (location == null) {
 				information = localStorage.getItem(key);
 			} else if (location.constructor == String) {
@@ -1851,6 +1851,7 @@ Standards.storage.local = {
 			} else {
 				console.error("Invalid storage location type");
 				alert("The information requested can't be retrieved.");
+				return;
 			}
 			switch (information.slice(0, 2)) {
 				case "u~":
@@ -1891,6 +1892,45 @@ Standards.storage.local = {
 			} else {
 				console.error("Invalid storage location type");
 				alert("The information couldn't be deleted.");
+			}
+		}
+	},
+	move: function (oldPlace, newPlace, location) {
+		/**
+		moves information in one place to another place
+		non-native functions = getType
+		*/
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+		} else if (oldPlace != newPlace) {
+			location = location || Standards.storage.local.defaultLocation;
+			let information = "";
+			// retrieves the information
+			if (location == null) {
+				information = localStorage.getItem(oldPlace);
+			} else if (Standards.getType(location) == "String") {
+				information = localStorage.getItem(location + "/" + oldPlace);
+			} else {
+				console.error("Invalid storage location type");
+				alert("The operation couldn't be completed.");
+				return;
+			}
+			if (information == null) {
+				console.error("There's no information at the indicated location");
+				alert("There was no information to move.");
+				return;
+			}
+			// stores the information in the new place
+			if (location == null) {
+				localStorage.setItem(newPlace, information);
+			} else {
+				localStorage.setItem(location + "/" + newPlace, information);
+			}
+			// deletes the information at the old place
+			if (location == null) {
+				localStorage.removeItem(oldPlace);
+			} else {
+				localStorage.removeItem(location + "/" + oldPlace);
 			}
 		}
 	},
