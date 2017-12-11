@@ -2033,13 +2033,35 @@ Standards.storage.server = {
 				console.log("Setting server information");
 				Standards.storage.server.getReference(location).set({
 					[key]: item
-				}, { merge: true }).then(callback).catch(function (error) {
+				}, { merge: true }).then(function () {
+					console.log("Finished storing");
+					if (callback) {
+						console.log("Running callback");
+						callback();
+					}
+				}).catch(function (error) {
 					alert("The information couldn't be stored.");
+					console.error("There was an error storing the information.");
 					console.error(error);
 				});
 			} else {
-				alert("An invalid storage location was given.");
-				throw "An attempt was made to store data in a collection instead of a document.";
+				if (Standards.getType(item) == "Object") {
+					key = key ? "/"+key : "";
+					Standards.storage.server.getReference(location+key).set(item).then(function () {
+						console.log("Finished storing");
+						if (callback) {
+							console.log("Running callback");
+							callback();
+						}
+					}).catch(function (error) {
+						alert("The information couldn't be stored.");
+						console.error("There was an error storing the information.");
+						console.error(error);
+					});
+				} else {
+					alert("The information couldn't be stored.");
+					throw "The item to be stored wasn't an object.";
+				}
 			}
 		}
 	},
@@ -2063,20 +2085,25 @@ Standards.storage.server = {
 			throw "The location given wasn't a string.\nThe default location was used instead.";
 		}
 		if (location == "" || location.split("/").length % 2 == 0) {
-			Standards.storage.server.getReference(location).get().then(function(document) {
+			Standards.storage.server.getReference(location).get().then(function (document) {
 				if (document.exists) {
 					callback(document.data()[key]);
 				} else {
 					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
 				}
-			}).catch(function(error) {
+			}).catch(function (error) {
 				alert("The information couldn't be retrieved.");
 				console.error(error);
 			});
 		} else {
-			alert("An invalid storage location was given.");
-			throw "An attempt was made to recall a collection instead of a document.";
+			Standards.storage.server.getReference(location).get().then(function (snapshot) {
+				callback(snapshot.docs[key].data());
+			}).catch(function (error) {
+				alert("The information couldn't be retrieved.");
+				console.error("An error occurred during recall.");
+				console.error(error);
+			});
 		}
 	},
 	forget: function(key, location, callback) {
