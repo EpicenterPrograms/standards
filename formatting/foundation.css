@@ -221,13 +221,14 @@ nav.top-nav div.drop-down {
 	position: relative;
 	overflow: visible;
 }
-nav.top-nav div.drop-down div:first-child {
+nav.top-nav div.drop-down>div:first-child {
 	/**
 	makes the part of the drop-down that you see
 	*/
 	display: block;
 	position: static;
 	padding: .5em;
+	background: darkblue;
 	font-size: 1.5em;
 	color: steelblue;
 	cursor: pointer;
@@ -239,6 +240,7 @@ nav.top-nav div.drop-down div {
 	display: none;
 	position: absolute;
 	background: steelblue;
+	white-space: nowrap;
 	cursor: default;
 }
 nav.top-nav label {
@@ -247,14 +249,14 @@ nav.top-nav label {
 	*/
 	white-space: nowrap;
 }
-nav.top-nav div.drop-down:focus div, nav.top-nav div.drop-down div:hover, nav.top-nav div.drop-down:focus-within div {
+nav.top-nav div.drop-down:focus>div, nav.top-nav div.drop-down>div:hover, nav.top-nav div.drop-down:focus-within>div {
 	/**
 	unhides the drop-down menu when focus is received
 	<div>s need a tabindex to receive focus
 	*/
 	display: block;
 }
-nav.top-nav div.drop-down:hover div:first-child, nav.top-nav div.drop-down:focus div:first-child, nav.top-nav div.drop-down:focus-within div:first-child {
+nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
 	/**
 	lightens the initially visible part of the drop-down
 	when hovered or the drop-down part is visible
