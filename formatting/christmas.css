@@ -32,6 +32,7 @@ button::before {
 	bottom: 120%;
 	left: calc(50% - .3em);
 	border: .05em solid black;
+	border-radius: .3em;
 	width: .6em;
 	height: .6em;
 }
