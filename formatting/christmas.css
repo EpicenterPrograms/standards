@@ -1,0 +1,47 @@
+body {
+	background: repeating-linear-gradient(#0b0, #0b0 10vh, white 10vh, white 20vh, red 20vh, red 30vh, white 30vh, white 40vh);
+	font-family: sans-serif;
+}
+h1 {
+	color: silver;
+}
+nav.top-nav {
+	background: green;
+}
+nav.top-nav div.drop-down div {
+	background: silver;
+}
+nav.top-nav div.drop-down div:first-child {
+	color: silver;
+}
+nav.top-nav div.drop-down:hover div:first-child, nav.top-nav div.drop-down:focus div:first-child, nav.top-nav div.drop-down:focus-within div:first-child {
+	background: #cfc;
+}
+button {
+	position: relative;
+	border: .05em solid rgba(0, 0, 255, .5);
+	border-radius: 1.2em;
+	padding: .4em;
+	background: radial-gradient(#aaf, blue);
+	color: white;
+}
+button::before {
+	content: "";
+	position: absolute;
+	bottom: 0.4em;
+	left: 0em;
+	right: 0em;
+	border: .05em solid black;
+	width: .6em;
+	height: .6em;
+}
+button::after {
+	content: "";
+	position: absolute;
+	bottom: 0em;
+	left: 0em;
+	right: 0em;
+	width: .8em;
+	height: .5em;
+	background: silver;
+}
