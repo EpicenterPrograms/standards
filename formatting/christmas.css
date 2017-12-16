@@ -45,3 +45,7 @@ button::after {
 	height: .5em;
 	background: silver;
 }
+button:disabled, button[disabled] {
+	background: radial-gradient(#aaa, #555);
+	border-color: rgba(85, 85, 85, .5);
+}
