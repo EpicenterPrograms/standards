@@ -18,6 +18,17 @@ nav.top-nav div.drop-down>div:first-child {
 nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
 	background: #cfc;
 }
+nav.top-nav>button {
+	border-radius: 0em;
+	background: green;
+	color: silver;
+}
+nav.top-nav>button::before {
+	display: none;
+}
+nav.top-nav>button::after {
+	display: none;
+}
 button {
 	position: relative;
 	border: .05em solid rgba(0, 0, 255, .5);
