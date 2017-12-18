@@ -126,7 +126,7 @@ body.left-nav.right-section {
 	margin: 0% 15% 0% 15%;
 	min-width: 70%;
 }
-iframe.hidden-left-nav, nav.hidden-left-nav {
+nav.hidden-left-nav {
 	/**
 	creates a fixed navigation section hidden behind the left side of the screen
 	*/
@@ -140,7 +140,7 @@ iframe.hidden-left-nav, nav.hidden-left-nav {
 	transition: .8s;
 	transition: var(--nav-slide-time);
 }
-iframe.hidden-left-nav:hover, nav.hidden-left-nav:hover {
+nav.hidden-left-nav:hover {
 	/**
 	unhides the navigation section
 	*/
@@ -149,7 +149,7 @@ iframe.hidden-left-nav:hover, nav.hidden-left-nav:hover {
 	transform: translateX(45vh);  /* standard syntax */
 	/* These aren't 45.5vh because, otherwise, the far left end of the screen would stop the hovering. */
 }
-iframe.hidden-left-nav::before, nav.hidden-left-nav::before {
+nav.hidden-left-nav::before {
 	/**
 	creates darkness to cover the rest of the screen
 	*/
@@ -166,13 +166,13 @@ iframe.hidden-left-nav::before, nav.hidden-left-nav::before {
 	transition: .8s;  /* I don't understand why this (or the next line) is necessary. */
 	transition: var(--nav-slide-time);
 }
-iframe.hidden-left-nav:hover::before, nav.hidden-left-nav:hover::before {
+nav.hidden-left-nav:hover::before {
 	/**
 	causes the darkness to fade in
 	*/
 	opacity: .8;
 }
-iframe.hidden-left-nav::after, nav.hidden-left-nav::after {
+nav.hidden-left-nav::after {
 	/**
 	creates a tab sticking out of the side to access the hidden left navigation
 	*/
@@ -204,11 +204,15 @@ iframe.hidden-left-nav::after, nav.hidden-left-nav::after {
 	user-select: none;  /* non-prefixed version of preventing text selection */
 	cursor: default;
 }
-iframe.hidden-left-nav:hover::after, nav.hidden-left-nav:hover::after {
+nav.hidden-left-nav:hover::after {
 	/**
 	changes the arrow direction
 	*/
 	content: "<";
+}
+nav.hidden-left-nav>iframe {
+	width: 100%;
+	height: 100%;
 }
 iframe.top-nav, nav.top-nav {
 	/**
@@ -577,6 +581,7 @@ over- {
 	position: absolute;
 	top: 2em;
 	right: 3em;
+	z-index: 2;
 }
 #userSettings {
 	display: none;
