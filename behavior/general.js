@@ -40,7 +40,7 @@ if (Standards.general.options) {
 			default = false
 	*/
 
-Standards.general.help = function(item, part) {
+Standards.general.help = function (item, part) {
 	/**
 	This prints out the source code of what you want to learn about
 	which also includes my comments on usage.
@@ -95,7 +95,7 @@ Standards.general.audio = new (window.AudioContext || window.webkitAudioContext 
 
 if (Standards.general.queue) {
 	if (Standards.general.queue instanceof Array) {
-		Standards.general.queue.forEach(function(item, index) {
+		Standards.general.queue.forEach(function (item, index) {
 			if (typeof item != "object") {
 				Standards.general.queue.splice(index, 1);
 				console.warn("The item at the index of " + index + " in Standards.general.queue is not an object.");
@@ -122,12 +122,12 @@ if (Standards.general.queue) {
 		var Standards = {};
 		Standards.general.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
 	*/
-Standards.general.queue.run = function() {
+Standards.general.queue.run = function () {
 	/**
 	runs the functions in the queue
 	non-native functions = none
 	*/
-	Standards.general.queue.forEach(function(fn) {
+	Standards.general.queue.forEach(function (fn) {
 		if (typeof fn.function == "string") {
 			throw 'The value of "function" must not be a string.';
 		}
@@ -135,12 +135,12 @@ Standards.general.queue.run = function() {
 			fn.function.apply(window, fn.arguments);
 		}
 	});
-	Standards.general.queue.forEach(function(fn) {
+	Standards.general.queue.forEach(function (fn) {
 		if (fn.runOrder == "later") {
 			fn.function.apply(window, fn.arguments);
 		}
 	});
-	Standards.general.queue.forEach(function(fn, index) {
+	Standards.general.queue.forEach(function (fn, index) {
 		if (fn.runOrder == "last") {
 			fn.function.apply(window, fn.arguments);
 		} else if (!(fn.runOrder == "first" || fn.runOrder == "later")) {
@@ -153,7 +153,7 @@ Standards.general.queue.run = function() {
 	/// The items in Standards.general.queue can't be deleted as they're run because Array.forEach() doesn't copy things like my .forEach() functions do.
 	/// (Only every other item would be run because an item would be skipped every time the preceding item was deleted.)
 };
-Standards.general.queue.add = function(object) {
+Standards.general.queue.add = function (object) {
 	/**
 	adds an item to the queue
 	non-native functions = Standards.general.queue.run()
@@ -165,7 +165,7 @@ Standards.general.queue.add = function(object) {
 	}
 };
 
-Standards.general.Sound = function(specs) {
+Standards.general.Sound = function (specs) {
 	/**
 	creates tones which can be modified in certain way
 	frequency = frequency of the primary tone/wave
@@ -201,15 +201,15 @@ Standards.general.Sound = function(specs) {
 		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
 		if (time > 0) {
 			if (shouldSetPlaying) {
-				setTimeout(function() {
+				setTimeout(function () {
 					sound.playing = sound.volume==0 ? false : true;
 				}, time);
 			}
 			time /= 1000;  // ramps use time in seconds
 			if (sound.volume == 0) {
 				gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time);  // exponential ramping doesn't work with 0s
-				setTimeout(function() {
-					gain1.gain.value = 0;
+				setTimeout(function () {
+					gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
 				}, time*1000);
 			} else {
 				gain1.gain.exponentialRampToValueAtTime(sound.volume, Standards.general.audio.currentTime + time);
@@ -219,10 +219,10 @@ Standards.general.Sound = function(specs) {
 			osc2.frequency.linearRampToValueAtTime(sound.modulation, Standards.general.audio.currentTime + time);;
 			//// The second set of transitions are linear because I want them to be able to have values of 0?
 		} else if (time == 0) {
-			gain1.gain.value = sound.volume;
-			osc1.frequency.value = sound.frequency;
-			gain2.gain.value = sound.hertzChange;
-			osc2.frequency.value = sound.modulation;
+			gain1.gain.setValueAtTime(sound.volume, Standards.general.audio.currentTime);
+			osc1.frequency.setValueAtTime(sound.frequency, Standards.general.audio.currentTime);
+			gain2.gain.setValueAtTime(sound.hertzChange, Standards.general.audio.currentTime);
+			osc2.frequency.setValueAtTime(sound.modulation, Standards.general.audio.currentTime);
 			if (shouldSetPlaying) {
 				sound.playing = sound.volume==0 ? false : true;
 			}
@@ -242,7 +242,7 @@ Standards.general.Sound = function(specs) {
 	osc1.start();
 	osc2.start();
 	
-	this.start = function(time, volume, shouldSetPlaying) {
+	this.start = function (time, volume, shouldSetPlaying) {
 		/**
 		starts/unmutes the tone
 		*/
@@ -251,19 +251,19 @@ Standards.general.Sound = function(specs) {
 			sound.playing = true;
 		}
 		time = time===undefined ? 0 : time;
-		gain1.gain.value = sound.volume+.0001;
+		gain1.gain.setValueAtTime(sound.volume + .0001, Standards.general.audio.currentTime);
 		sound.volume = volume || 1;  // This doesn't allow you to set the volume to 0 (and rightfully so).
 		gain1.gain.exponentialRampToValueAtTime(sound.volume, Standards.general.audio.currentTime + time/1000);
 	};
-	this.stop = function(time, shouldSetPlaying) {
+	this.stop = function (time, shouldSetPlaying) {
 		/**
 		stops/mutes the tone
 		*/
 		time = time===undefined ? 0 : time;
 		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
 		gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time/1000);
-		setTimeout(function() {
-			gain1.gain.value = 0;
+		setTimeout(function () {
+			gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
 			sound.volume = 0;
 			if (shouldSetPlaying) {
 				sound.playing = false;
@@ -271,21 +271,21 @@ Standards.general.Sound = function(specs) {
 			}
 		}, time);
 	};
-	this.change = function(property, value, time, shouldSetPlaying) {
+	this.change = function (property, value, time, shouldSetPlaying) {
 		/**
 		changes a property of the tone
 		*/
 		sound[property] = value;
 		setValues(time, shouldSetPlaying);
 	};
-	this.play = function(noteString, newDefaults, callback) {
+	this.play = function (noteString, newDefaults, callback) {
 		/**
 		plays a song based on notes you put in a string
 		*/
 		if (sound.playing) {
 			playQueue.push([noteString, newDefaults, callback]);
 			if (playQueue.length == 1) {
-				window.addEventListener(sound.identifier+"StoppedPlaying", function() {
+				window.addEventListener(sound.identifier+"StoppedPlaying", function () {
 					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
 					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
 				});
@@ -295,12 +295,12 @@ Standards.general.Sound = function(specs) {
 				playQueue.splice(0, 1);
 			}
 			if (playQueue.length > 0) {
-				window.addEventListener(sound.identifier+"StoppedPlaying", function() {
+				window.addEventListener(sound.identifier+"StoppedPlaying", function () {
 					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
 					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
 				});
 			}
-			noteString = noteString.trim().replace(/([A-G]{1}(?:#|N|b)?)|[a-g]/g, function(foundNote, properNote) {
+			noteString = noteString.trim().replace(/([A-G]{1}(?:#|N|b)?)|[a-g]/g, function (foundNote, properNote) {
 				// makes sure the string is formatted correctly even when people want to be lazy
 				if (foundNote == properNote) {
 					return properNote;
@@ -565,23 +565,23 @@ Standards.general.Sound = function(specs) {
 									rest *= afterNote.match(/ /g).length;
 								}
 							}
-							setTimeout(function() {
+							setTimeout(function () {
                                 if (slur == 0) {
     								sound.stop(defaults.decay, false);
-	    							setTimeout(function() {
+	    							setTimeout(function () {
 		    							interpret(index + originalLength + afterNote.length);
 			    					}, defaults.decay + rest);
                                 } else {
                                     sound.change("frequency", noteToFrequency(format(index+originalLength+afterNote.length).formatted), defaults.decay+slur, false);
-                                    setTimeout(function() {
+                                    setTimeout(function () {
 		    							interpret(index + originalLength + afterNote.length);
 			    					}, defaults.decay + slur);
                                 }
 				  			}, defaults.attack + duration);
 						} else {
-							setTimeout(function() {
+							setTimeout(function () {
 								sound.stop(defaults.decay, false);
-								setTimeout(function() {  // makes sure the finishing block of code is called
+								setTimeout(function () {  // makes sure the finishing block of code is called
 									interpret(index + note.original.length);
 								}, defaults.decay);
 							}, defaults.attack + defaults.noteLength);
@@ -602,10 +602,10 @@ Standards.general.Sound = function(specs) {
 			console.warn("Sound.play() was called without any parameters.\nSound.start() was used instead.");
 		}
 	};
-	this.destroy = function(time) {  // gets rid of the tone (can't be used again)
+	this.destroy = function (time) {  // gets rid of the tone (can't be used again)
 		time = time===undefined ? 0 : time;
 		gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time/1000);
-		setTimeout(function() {
+		setTimeout(function () {
 			sound.playing = false;
 			osc1.stop();
 			osc2.stop();
@@ -680,7 +680,7 @@ Standards.general.Listenable = function () {
 
 
 if (!Array.prototype.includes) {
-	Array.prototype.includes = function(searchItem, index) {
+	Array.prototype.includes = function (searchItem, index) {
 		/**
 		creates the Array.includes() function if it doesn't already exist
 		usage of this doesn't count as non-native function
@@ -712,7 +712,7 @@ if (!Array.prototype.includes) {
 };
 
 if (!String.prototype.includes) {
-	String.prototype.includes = function(searchItem, index) {
+	String.prototype.includes = function (searchItem, index) {
 		/**
 		creates the String.includes() function if it doesn't already exist
 		usage of this doesn't count as non-native function
@@ -744,7 +744,7 @@ if (!String.prototype.includes) {
 };
 
 if (!Array.prototype.every) {
-	Array.prototype.every = function(callbackfn, thisArg) {
+	Array.prototype.every = function (callbackfn, thisArg) {
 		'use strict';
 		/**
 		creates Array.every if it doesn't already exist
@@ -816,7 +816,7 @@ if (!Array.prototype.every) {
 	};
 }
 
-String.prototype.forEach = function(doStuff) {
+String.prototype.forEach = function (doStuff) {
 	/**
 	.forEach() for strings
 	iterates through each character
@@ -835,7 +835,7 @@ String.prototype.forEach = function(doStuff) {
 	}
 };
 
-String.prototype.format = function() {
+String.prototype.format = function () {
 	/**
 	inserts specified items at a location indicated by an index number within curly braces
 	takes an indefinite number of arguments
@@ -845,12 +845,12 @@ String.prototype.format = function() {
 	non-native functions = none
 	*/
 	var args = arguments;  // If "arguments" was used in place of "args", if would return the values of the inner function arguments.
-	return this.replace(/{(\d+)}/g, function(match, number) {  // These function variables represent the match found and the number inside.
+	return this.replace(/{(\d+)}/g, function (match, number) {  // These function variables represent the match found and the number inside.
 		return (typeof args[number]!="undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
 	});
 };
 
-String.prototype.splice = function(start, length, replacement) {
+String.prototype.splice = function (start, length, replacement) {
 	/**
 	acts like Array.splice() except that
 	the value is returned instead of implemented
@@ -861,7 +861,7 @@ String.prototype.splice = function(start, length, replacement) {
 	return this.slice(0,start) + replacement + this.slice(start+length);
 };
 
-String.prototype.keepOnly = function(searchValue, replacement) {
+String.prototype.keepOnly = function (searchValue, replacement) {
 	/**
 	keeps only the parts of the string satisfying the search value
 	the search value needs to be a regular expression with the global flag set
@@ -887,12 +887,12 @@ String.prototype.keepOnly = function(searchValue, replacement) {
 		return undefined;
 	}
 	replacement = replacement===undefined ? "" : replacement;
-	return this.replace(searchValue, function(match, validMatch) {
+	return this.replace(searchValue, function (match, validMatch) {
 		return validMatch===undefined ? replacement : validMatch;
 	});
 };
 
-Array.prototype.move = function(currentIndex, newIndex) {
+Array.prototype.move = function (currentIndex, newIndex) {
 	/**
 	moves an item from one index to another
 	if no new index is specified, the item is placed at the end of the array
@@ -902,7 +902,7 @@ Array.prototype.move = function(currentIndex, newIndex) {
 	this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
 };
 
-HTMLCollection.prototype.forEach = function(doStuff, copy) {
+HTMLCollection.prototype.forEach = function (doStuff, copy) {
 	/**
 	HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
 	creates a static list of HTMLCollection elements
@@ -942,7 +942,7 @@ HTMLCollection.prototype.forEach = function(doStuff, copy) {
 	}
 };
 
-CSSRuleList.prototype.forEach = function(doStuff) {
+CSSRuleList.prototype.forEach = function (doStuff) {
 	/**
 	CSSRuleList = a list of rules for a stylesheet
 	creates a static list of CSSRuleList elements
@@ -967,7 +967,7 @@ CSSRuleList.prototype.forEach = function(doStuff) {
 	}
 };
 
-NodeList.prototype.forEach = function(doStuff) {
+NodeList.prototype.forEach = function (doStuff) {
 	/**
 	similar to HTMLCollection.forEach()
 	non-native functions = none
@@ -985,7 +985,7 @@ NodeList.prototype.forEach = function(doStuff) {
 };
 
 /* Changing the object prototypes prevents the proper working of Google Firestore.
-Object.prototype.forEach = function(doStuff, copy) {
+Object.prototype.forEach = function (doStuff, copy) {
 	// /**
 	loops through every property of the object
 	-->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
@@ -1029,7 +1029,7 @@ Object.prototype.forEach = function(doStuff, copy) {
 	/// doing things by referencing a function makes things about 10 times longer.)
 };
 
-Object.prototype.keyHasValue = function(key, value) {  // This was actually pretty pointless.
+Object.prototype.keyHasValue = function (key, value) {  // This was actually pretty pointless.
 	// /**
 	checks if an object has a property and then
 	checks if the property equals the value
@@ -1039,7 +1039,7 @@ Object.prototype.keyHasValue = function(key, value) {  // This was actually pret
 };
 */
 
-Standards.general.onLoad = function(doStuff) {
+Standards.general.onLoad = function (doStuff) {
 	/**
 	does whatever the argument of the function says after the page loads and this script finishes running
 	non-native functions = none
@@ -1047,7 +1047,7 @@ Standards.general.onLoad = function(doStuff) {
 	return window.addEventListener("finished", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
 };
 
-Standards.general.getId = function(ID) {
+Standards.general.getId = function (ID) {
 	/**
 	gets an element by ID
 	non-native functions = none
@@ -1055,7 +1055,7 @@ Standards.general.getId = function(ID) {
 	return document.getElementById(ID);
 };
 
-Standards.general.getTag = function(tag) {
+Standards.general.getTag = function (tag) {
 	/**
 	gets all of the elements made by a certain tag
 	non-native functions = none
@@ -1063,7 +1063,7 @@ Standards.general.getTag = function(tag) {
 	return document.getElementsByTagName(tag);
 };
 
-Standards.general.getClass = function(name) {
+Standards.general.getClass = function (name) {
 	/**
 	gets elements with a certain class
 	non-native functions = none
@@ -1071,7 +1071,7 @@ Standards.general.getClass = function(name) {
 	return document.getElementsByClassName(name);
 };
 
-Standards.general.getName = function(name, specific) {
+Standards.general.getName = function (name, specific) {
 	/**
 	gets the elements with a certain name
 	If "specific" is present and set to true, the result will be specific.
@@ -1106,7 +1106,7 @@ Standards.general.getName = function(name, specific) {
 	return elements;
 };
 
-Standards.general.getType = function(item) {
+Standards.general.getType = function (item) {
 	/**
 	finds the type of an item since it's unnecessarily complicated to be sure normally
 	non-native functions = none
@@ -1145,7 +1145,7 @@ Standards.general.getType = function(item) {
 	}
 };
 
-Standards.general.insertBefore = function(insertion, place) {
+Standards.general.insertBefore = function (insertion, place) {
 	/**
 	inserts the insertion before the place
 	applies to HTML elements
@@ -1159,7 +1159,7 @@ Standards.general.insertBefore = function(insertion, place) {
 	}
 };
 
-Standards.general.insertAfter = function(insertion, place) {
+Standards.general.insertAfter = function (insertion, place) {
 	/**
 	inserts the insertion after the place
 	applies to HTML elements
@@ -1173,7 +1173,7 @@ Standards.general.insertAfter = function(insertion, place) {
 	}
 };
 
-Standards.general.toArray = function() {
+Standards.general.toArray = function () {
 	/**
 	returns an array made from any number of elements with an index and length
 	non-native functions = none
@@ -1193,7 +1193,7 @@ Standards.general.toArray = function() {
 	return returnList;
 };
 
-Standards.general.forEach = function(list, doStuff, shouldCopy) {
+Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	/**
 	does stuff for every item of an iterable list (or object)
 	non-native functions = getType
@@ -1247,7 +1247,7 @@ Standards.general.forEach = function(list, doStuff, shouldCopy) {
 	}
 };
 
-Standards.general.listen = function(item, event, behavior, listenOnce) {
+Standards.general.listen = function (item, event, behavior, listenOnce) {
 	/**
 	adds an event listener to the item
 	waiting for an element to load is unnecessary if the item is a string (of an ID)
@@ -1262,7 +1262,7 @@ Standards.general.listen = function(item, event, behavior, listenOnce) {
 	listenOnce = listenOnce===undefined ? false : listenOnce;
 	Standards.general.queue.add({
 		runOrder: "first",
-		function: function(item, event, behavior) {
+		function: function (item, event, behavior) {
 			if (typeof item == "string") {
 				item = document.getElementById(item);
 			} else if (typeof item == "function") {
@@ -1280,7 +1280,7 @@ Standards.general.listen = function(item, event, behavior, listenOnce) {
 				}
 			} else {
 				if (listenOnce) {
-					item.addEventListener(event, function() {
+					item.addEventListener(event, function () {
 						behavior();
 						item.removeEventListener(event, arguments.callee);
 					});
@@ -1293,7 +1293,7 @@ Standards.general.listen = function(item, event, behavior, listenOnce) {
 	});
 };
 
-Standards.general.safeWhile = function(condition, doStuff, loops) {
+Standards.general.safeWhile = function (condition, doStuff, loops) {
 	/**
 	runs a while loop with a maximum recursion depth
 	prevents getting stuck in a while loop
@@ -1315,7 +1315,7 @@ Standards.general.safeWhile = function(condition, doStuff, loops) {
 	}
 };
 
-Standards.general.makeDialog = function(message) {
+Standards.general.makeDialog = function (message) {
 	/**
 	makes a dialog box pop up
 	message = the content of the dialog box (can be HTML)
@@ -1328,8 +1328,8 @@ Standards.general.makeDialog = function(message) {
 	example:
 		Standards.general.makeDialog(
 			"Don't you think this dialog box is awesome?",
-			["Yes", function() {console.log("You're awesome too!");}],
-			["No", function() {console.log("Nobody cares what you think anyway!");}]
+			["Yes", function () {console.log("You're awesome too!");}],
+			["No", function () {console.log("Nobody cares what you think anyway!");}]
 		);
 	non-native functions = getType and getHTML
 	*/
@@ -1338,7 +1338,7 @@ Standards.general.makeDialog = function(message) {
 	if (pairs.length < 1) {
 		pairs = [["Okay", function () {return;}]];
 	}
-	pairs.forEach(function(pair, index) {
+	pairs.forEach(function (pair, index) {
 		if (Standards.general.getType(pair) == "String") {
 			pairs.splice(index, 1, [pair, function () {return;}]);
 		} else if (Standards.general.getType(pair) != "Array") {
@@ -1356,7 +1356,7 @@ Standards.general.makeDialog = function(message) {
 	dialog.className = "dialog";
 	contents.className = "contents";
 	buttons.className = "buttons";
-	pairs.forEach(function(pair, index) {
+	pairs.forEach(function (pair, index) {
 		if (typeof pair[0] != "string") {
 			throw "The pair at position " + (index+1) + " doesn't have a string as the first value.";
 		} else if (typeof pair[1] != "function") {
@@ -1365,7 +1365,7 @@ Standards.general.makeDialog = function(message) {
 		let button = document.createElement("button");
 		button.innerHTML = pair[0];
 		buttons.appendChild(button);
-		button.addEventListener("click", function() {
+		button.addEventListener("click", function () {
 			pair[1](pair[0]);
 			dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
 			this.removeEventListener("click", arguments.callee);
@@ -1375,16 +1375,16 @@ Standards.general.makeDialog = function(message) {
 	dialog.appendChild(contents);
 	darkener.appendChild(dialog);
 	document.body.appendChild(darkener);
-	dialog.addEventListener("dialog" + identifier + "Answered", function() {
+	dialog.addEventListener("dialog" + identifier + "Answered", function () {
 		darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
 		this.style.MsTransform = "scale(.001, .001)";
 		this.style.WebkitTransform = "scale(.001, .001)";
 		this.style.transform = "scale(.001, .001)";
-		setTimeout(function() {  // waits until the dialog box is finished transitioning before removing it
+		setTimeout(function () {  // waits until the dialog box is finished transitioning before removing it
 			document.body.removeChild(darkener);
 		}, 500);
 	});
-	setTimeout(function() {  // This breaks out of the execution block and allows transitioning to the states.
+	setTimeout(function () {  // This breaks out of the execution block and allows transitioning to the states.
 		darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
 		dialog.style.MsTransform = "scale(1, 1)";
 		dialog.style.WebkitTransform = "scale(1, 1)";
@@ -1392,103 +1392,7 @@ Standards.general.makeDialog = function(message) {
 	}, 0);
 };
 
-Standards.general.checkAll = function(item, comparator, comparisons, type) {
-	/**
-	This is deprecated.
-	Use Array.each instead.
-	
-	comparisons = an array of things to be used in comparing things
-	type = whether you need all of the comparisons to be true or just one ("&&" or "||")
-	type must be a string
-	when comparator isn't null:
-		compares a given item to all items in an array
-		comparator = how the items are being compared e.g. "==", ">", etc.
-		comparator must be a string
-		example:
-			Standards.general.checkAll(document.getElementById("tester").innerHTML, "==", ["testing", "hello", "I'm really cool."], "||");
-	when comparator is null:
-		evaluates a formattable string (item) after formatting with the comparisons
-		uses String.format() (my own function)
-		items in comparisons = arguments to go in the () in .format()
-			strings = one string is used per iteration
-			arrays containing strings = one array is used per iteration
-		variables don't work in the item string: they have to be used as one of the items in comparisons
-		examples:
-			Standards.general.checkAll("{0} > 0 ", null, [2,"6",7,4,"3"], "||");
-			Standards.general.checkAll("('abc'+'{0}'+'{1}'+'xyz').length == {2}", null, [["def","ghi",12],["qrstu","vw",13]], "&&");  // notice quotation marks around {}s for insertion of a string
-			// Don't do this.
-			var number = 42;
-			if (Standards.general.checkAll("number < {0}", null, [30,40,50], "||")) {
-				console.log("It worked!");
-			}
-			// Instead, do this.
-			var number = 42;
-			if (Standards.general.checkAll("{0} < {1}", null, [[number,30],[number,40],[number,50]], "||")) {
-				console.log("It worked!");
-			}
-			// Quotation marks must be added to the {} when the variable is a string.
-	non-native functions used = String.format()
-	*/
-	if (! comparator == null) {
-		// >== and <== might not be comparators
-		if (["==", "===", "!=", "!==", ">", "<", ">=", "<=", ">==", "<=="].indexOf(comparator) == -1) {
-			throw "Invalid type of comparator.";
-		}
-	}
-	var trueFalse;
-	if (type == "||" || type.toLowerCase() == "or") {
-		trueFalse = false;
-		if (comparator == null) {
-			if (typeof comparisons[0] == "array") {
-				comparisons.forEach(function(comparison) {
-					if (eval(item.format.apply(this, comparison))) {
-						trueFalse = true;
-					}
-				});
-			} else {
-				comparisons.forEach(function(comparison) {
-					if (eval(item.format(comparison))) {
-						trueFalse = true;
-					}
-				});
-			}
-		} else {
-			comparisons.forEach(function(comparison) {
-				if (eval((typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison))) {
-					trueFalse = true;
-				}
-			});
-		}
-	} else if (type == "&&" || type.toLowerCase() == "and") {
-		trueFalse = true;
-		if (comparator == null) {
-			if (typeof comparisons[0] == "array") {
-				comparisons.forEach(function(comparison) {
-					if (! eval(item.format.apply(this, comparison))) {
-						trueFalse = false;
-					}
-				});
-			} else {
-				comparisons.forEach(function(comparison) {
-					if (! eval(item.format(comparison))) {
-						trueFalse = false;
-					}
-				});
-			}
-		} else {
-			comparisons.forEach(function(comparison) {
-				if (eval("!(" + (typeof item == "string" ? '"' + item + '"' : item) + comparator + (typeof comparison == "string" ? '"' + comparison + '"' : comparison) + ")")) {
-					trueFalse = false;
-				}
-			});
-		}
-	} else {
-		throw "Invalid type of comparison.";
-	}
-	return trueFalse;
-};
-
-Standards.general.getHTML = function(URL, callback) {
+Standards.general.getHTML = function (URL, callback) {
 	/**
 	reads the contents of the file at the URL,
 	converts it into a string,
@@ -1508,7 +1412,7 @@ Standards.general.getHTML = function(URL, callback) {
 		// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
 		let scripts = URL.slice(1).split("<script");  // adding the closing ">" in the splitting would close the script block
 		if (scripts.length > 1) {
-			scripts.forEach(function(script, index) {
+			scripts.forEach(function (script, index) {
 				if (index > 0) {
 					let scriptTag = document.createElement("script");
 					scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
@@ -1531,7 +1435,7 @@ Standards.general.getHTML = function(URL, callback) {
 					// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
 					let scripts = file.responseText.split("<script");
 					if (scripts.length > 1) {
-						scripts.forEach(function(script, index) {
+						scripts.forEach(function (script, index) {
 							if (index > 0) {
 								let scriptTag = document.createElement("script");
 								scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
@@ -1550,60 +1454,7 @@ Standards.general.getHTML = function(URL, callback) {
 	}
 };
 
-Standards.general.pageJump = function(ID) {
-	/**
-	******** This is deprecated. Use the "page-jump-sections" class instead (interpreted when the page loads). ********
-	makes a section to jump to certain parts of the page
-	non-native functions = Standards.general.queue.add() and HTMLCollection.forEach()
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function(ID) {
-			console.warn('The function Standards.general.pageJump is deprecated. Instead, give the target container a class of "page-jump-sections".');
-			let division = document.getElementById(ID);
-			let contents = document.createElement("div");
-			contents.id = "pageJump";
-			contents.className = "page-jump-list";
-			contents.innerHTML = "<h2>Jump to:</h2>";
-			let sections = division.getElementsByTagName("h2");
-			let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
-			toTop.innerHTML = "<a href='#'>To top</a>";
-			let listItems = document.createElement("ol");
-			sections.forEach(function(heading, index, sections) {
-				let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
-				sections[index].id = inside;
-				let link = document.createElement("a");
-				link.href = "#" + inside;
-				link.innerHTML = inside;
-				let listItem = document.createElement("li");
-				listItem.appendChild(link);
-				listItems.appendChild(listItem);
-				division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
-				// toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
-			});
-			contents.appendChild(listItems);
-			division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
-			contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
-			// This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
-			if (window.location.href.indexOf("#") > -1) {
-				let found = false;
-				document.getElementById("pageJump").getElementsByTagName("a").forEach(function(link) {
-					if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
-						found = true;
-						link.click();
-						return "break";
-					}
-				});
-				if (!found) {  // Was the section found?
-					console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
-				}
-			}
-		},
-		arguments: [ID]
-	});
-};
-
-Standards.general.http_build_query = function(options) {
+Standards.general.http_build_query = function (options) {
 	/**
 	a replication of the PHP function http_build_query()
 	turns an object into a URL-encoded string (returns the string)
@@ -1616,24 +1467,31 @@ Standards.general.http_build_query = function(options) {
 		};
 		var result = Standards.general.http_build_query(options);
 		// result --> "greeting=Hello!&number=42&animal=cuttlefish"
-	non-native functions = Object.forEach
+	non-native functions = forEach and getType
 	*/
 	var queryString = "";
-	options.forEach(function(value, key) {
-		if (value instanceof Object) {
-			queryString += encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value)) + "&";
-		} else if (value instanceof Array) {
-			queryString += encodeURIComponent(key) + "=" + encodeURIComponent(value.toString()) + "&";  // This might not be proper.
+	function iterateDeeper(value, key) {
+		Standards.general.forEach(value, function (item, property) {
+			if (Standards.general.getType(item) == "Array" || Standards.general.getType(item) == "Object") {
+				iterateDeeper(item, key + "[" + encodeURIComponent(String(property)) + "]");
+			} else {
+				queryString += key + "[" + encodeURIComponent(String(property)) + "]=" + encodeURIComponent(String(item)) + "&";
+			}
+		});
+	}
+	Standards.general.forEach(options, function (value, key) {
+		if (Standards.general.getType(value) == "Array" || Standards.general.getType(value) == "Object") {
+			iterateDeeper(value, encodeURIComponent(String(key)));
 		} else {
-			queryString += encodeURIComponent(key) + "=" + encodeURIComponent(String(value)) + "&";
+			queryString += encodeURIComponent(String(key)) + "=" + encodeURIComponent(String(value)) + "&";
 		}
 	});
-	queryString.splice(0, -1);  // gets rid of the last "&"
-	queryString.replace(/(%20)/g, "+");  // changes the encoded spaces into the correct form for application/x-www-form-urlencoded
+	queryString = queryString.slice(0, -1);  // gets rid of the last "&"
+	queryString = queryString.replace(/%20/g, "+");  // changes the encoded spaces into the correct form for application/x-www-form-urlencoded
 	return queryString;
 };
 
-Standards.general.parse_str = function(encodedString) {
+Standards.general.parse_str = function (encodedString) {
 	/**
 	a close approximation of the PHP function parse_str()
 	turns a URL-encoded string into an object (returns the object)
@@ -1642,34 +1500,54 @@ Standards.general.parse_str = function(encodedString) {
 		var options = "greeting=Hello!&number=42&animal=cuttlefish";
 		var result = Standards.general.parse_str(options);
 		// result --> {"greeting": "Hello!", "number": "42", "animal": "cuttlefish"}
-	non-native functions = none
+	non-native functions = forEach
 	*/
 	var decodedObject = {};
-	encodedString.split("&").forEach(function(item) {
+	encodedString = encodedString.replace(/\+/g, "%20");
+	Standards.general.forEach(encodedString.split("&"), function (item) {
 		var key = item.split("=")[0];
 		var value = item.split("=")[1];
-		key = decodeURIComponent(key.replace(/\+/g, " "));
-		value = decodeURIComponent(value.replace(/\+/g, " "));
 		if (key.slice(-1) == "]") {
 			key = key.split("[");
-			key.forEach(function(subkey, index) {
+			Standards.general.forEach(key, function (subkey, index) {
 				if (subkey.slice(-1) == "]") {
 					key[index] = subkey.slice(0, -1);
 				}
 			});
 			let path = decodedObject;
-			key.slice(0, -1).forEach(function(subkey) {
+			Standards.general.forEach(key.slice(0, -1), function (subkey) {
+				subkey = decodeURIComponent(subkey);
 				if (!path.hasOwnProperty(subkey)) {
 					path[subkey] = {};
 				}
 				path = path[subkey];
 			});
-			path[key[key.length-1]] = value;
+			path[decodeURIComponent(key[key.length-1])] = decodeURIComponent(value);
 			/// "decodedObject" doesn't need to be used because "path" is "decodedObject".
 		} else {
-			decodedObject[key] = value;
+			decodedObject[decodeURIComponent(key)] = decodeURIComponent(value);
 		}
 	});
+	function recognizeArrays(candidate) {
+		let returnValue;
+		if (Object.keys(candidate).every(function (key) {
+			return Standards.general.getType(Number(key)) == "Number";
+		})) {
+			returnValue = [];
+			Standards.general.forEach(candidate, function (item) {
+				returnValue.push(item);
+			});
+		} else {
+			returnValue = candidate;
+		}
+		Standards.general.forEach(returnValue, function (item, property) {
+			if (Standards.general.getType(item) == "Object") {
+				returnValue[property] = recognizeArrays(item);
+			}
+		});
+		return returnValue;
+	}
+	decodedObject = recognizeArrays(decodedObject);
 	return decodedObject;
 };
 
@@ -1677,7 +1555,7 @@ Standards.general.storage = {};
 
 Standards.general.storage.session = {
 	defaultLocation: null,
-	store: function(key, item, location) {
+	store: function (key, item, location) {
 		/**
 		stores information in session storage
 		any primitive data type can be stored
@@ -1718,7 +1596,7 @@ Standards.general.storage.session = {
 			}
 		}
 	},
-	recall: function(key, location) {
+	recall: function (key, location) {
 		/**
 		recalls information from session storage
 		information is returned in its original form
@@ -1765,7 +1643,7 @@ Standards.general.storage.session = {
 			}
 		}
 	},
-	forget: function(key, location) {
+	forget: function (key, location) {
 		/**
 		deletes information in session storage
 		non-native functions = none
@@ -1824,7 +1702,7 @@ Standards.general.storage.session = {
 			}
 		}
 	},
-	list: function(location) {
+	list: function (location) {
 		/**
 		lists the keys of everything in session storage
 		non-native functions = none
@@ -1846,7 +1724,7 @@ Standards.general.storage.session = {
 
 Standards.general.storage.local = {
 	defaultLocation: null,
-	store: function(key, item, location) {
+	store: function (key, item, location) {
 		/**
 		stores information in local storage
 		any primitive data type can be stored
@@ -1886,7 +1764,7 @@ Standards.general.storage.local = {
 			}
 		}
 	},
-	recall: function(key, location) {
+	recall: function (key, location) {
 		/**
 		recalls information from local storage
 		information is returned in its original form
@@ -1934,7 +1812,7 @@ Standards.general.storage.local = {
 			}
 		}
 	},
-	forget: function(key, location) {
+	forget: function (key, location) {
 		/**
 		deletes information in local storage
 		non-native functions = none
@@ -1993,7 +1871,7 @@ Standards.general.storage.local = {
 			}
 		}
 	},
-	list: function(location) {
+	list: function (location) {
 		/**
 		lists the keys of everything in local storage
 		non-native functions = none
@@ -2017,7 +1895,7 @@ Standards.general.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "",
 	user: undefined,  //// firebase.auth().currentUser,
-	checkCompatibility: function(shouldNotCheckUser) {
+	checkCompatibility: function (shouldNotCheckUser) {
 		if (Standards.general.storage.server.database === undefined) {
 			alert("There's no server to handle this action.");
 			throw "Firebase or Firestore doesn't exist.";
@@ -2033,7 +1911,7 @@ Standards.general.storage.server = {
 		}
 		return true;
 	},
-	getReference: function(location) {
+	getReference: function (location) {
 		/**
 		creates a storage reference based on a provided location
 		different paths are separated by slashes ("/")
@@ -2062,7 +1940,7 @@ Standards.general.storage.server = {
 		}
 		console.log(location);
 		if (location != "") {
-			location.split("/").forEach(function(place, index) {
+			location.split("/").forEach(function (place, index) {
 				if (index % 2 == 0) {
 					reference = reference.collection(place);
 				} else {
@@ -2073,45 +1951,45 @@ Standards.general.storage.server = {
 		console.log("Returning reference");
 		return reference;
 	},
-	signUp: function() {
+	signUp: function () {
 		Standards.general.storage.server.checkCompatibility(true);
 		Standards.general.makeDialog("Sign up with your prefered sign-in provider.",
-			["Google", function() {
+			["Google", function () {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
 			}],
-			["Anonymous", function() {
+			["Anonymous", function () {
 				firebase.auth().signInAnonymously();
 			}],
-			["Cancel", function() {return;}]
+			["Cancel", function () {return;}]
 		);
 	},
-	signIn: function() {
+	signIn: function () {
 		Standards.general.storage.server.checkCompatibility(true);
 		Standards.general.makeDialog("Sign in with your prefered sign-in provider.",
-			["Google", function() {
+			["Google", function () {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
 			}],
-			["Anonymous", function() {
+			["Anonymous", function () {
 				firebase.auth().signInAnonymously();
 			}],
-			["Cancel", function() {return;}]
+			["Cancel", function () {return;}]
 		);
 	},
-	signOut: function() {
+	signOut: function () {
 		Standards.general.storage.server.checkCompatibility();
 		Standards.general.makeDialog("Are you sure you want to log out?",
-			["Yes", function() {
+			["Yes", function () {
 				firebase.auth().signOut();
 			}],
-			["No", function() {return;}]
+			["No", function () {return;}]
 		);
 	},
-	mergeAccounts: function() {
+	mergeAccounts: function () {
 		if (Standards.general.storage.server.checkCompatibility()) {
 			//// do stuff
 		}
 	},
-	store: function(key, item, location, callback) {
+	store: function (key, item, location, callback) {
 		if (Standards.general.storage.server.checkCompatibility()) {
 			if (location === undefined || location === "") {
 				location = Standards.general.storage.server.defaultLocation;
@@ -2164,7 +2042,7 @@ Standards.general.storage.server = {
 			}
 		}
 	},
-	recall: function(key, location, callback) {
+	recall: function (key, location, callback) {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
@@ -2205,7 +2083,7 @@ Standards.general.storage.server = {
 			});
 		}
 	},
-	forget: function(key, location, callback) {
+	forget: function (key, location, callback) {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
@@ -2230,7 +2108,7 @@ Standards.general.storage.server = {
 					if (callback) {
 						callback();
 					}
-				}).catch(function(error) {
+				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
@@ -2241,22 +2119,22 @@ Standards.general.storage.server = {
 					if (callback) {
 						callback();
 					}
-				}).catch(function(error) {
+				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
 			}
 		} else {
 			if (key === null) {
-				Standards.general.storage.server.getReference(location).get().then(function(snapshot) {
-					Standards.general.forEach(snapshot, function(document) {
+				Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
+					Standards.general.forEach(snapshot, function (document) {
 						document.delete();
 					});
 				}).then(function () {
 					if (callback) {
 						callback();
 					}
-				}).catch(function(error) {
+				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
@@ -2265,14 +2143,14 @@ Standards.general.storage.server = {
 					if (callback) {
 						callback();
 					}
-				}).catch(function(error) {
+				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
 					console.error(error);
 				});
 			}
 		}
 	},
-	list: function(location, callback) {
+	list: function (location, callback) {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
@@ -2295,7 +2173,7 @@ Standards.general.storage.server = {
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				let keyList = [];
 				if (document.exists) {
-					Standards.general.forEach(document.data(), function(value, key) {
+					Standards.general.forEach(document.data(), function (value, key) {
 						keyList.push(key);
 					});
 					callback(keyList);
@@ -2303,16 +2181,16 @@ Standards.general.storage.server = {
 					console.warn("An attempt was made to access a non-existent document.");
 					callback(keyList);
 				}
-			}).catch(function(error) {
+			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
 				console.error("List retrieval or callback execution failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
 				console.error(error);
 			});
 		} else {  // if the location goes to a collection
-			Standards.general.storage.server.getReference(location).get().then(function(snapshot) {
+			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
 				//// if snapshot.empty might need to be used here
 				callback(snapshot.docs);
-			}).catch(function(error) {
+			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
 				console.error(error);
 			});
@@ -2327,7 +2205,7 @@ Standards.general.storage.server = {
 	"passwordLocation": null,
 	"storageLocation": "volatileserver.appspot.com",
 	"notificationType": "alert",
-	"store": function(key, item, location) {
+	"store": function (key, item, location) {
 		// /**
 		stores a user's information
 		creators of information are the owners
@@ -2353,12 +2231,12 @@ Standards.general.storage.server = {
 					var response = Standards.general.parse_str(file.responseText);
 					var notification = Standards.general.storage.server.notificationType.toLowerCase();
 					if (response.hasOwnProperty("errors")) {
-						response.errors.forEach(function(error) {
+						response.errors.forEach(function (error) {
 							console.error(error);
 						});
 					}
 					if (response.hasOwnProperty("warnings")) {
-						response.warnings.forEach(function(warning) {
+						response.warnings.forEach(function (warning) {
 							if (notification == "alert") {
 								alert(warning);
 							} else if (notification == "return") {
@@ -2379,7 +2257,7 @@ Standards.general.storage.server = {
 		// file.onload might also be able to be used without the states and statuses
 		file.send(Standards.general.http_build_query(message));
 	},
-	"recall": function(key, location) {
+	"recall": function (key, location) {
 		// /**
 		recalls a user's information (if they have the correct permissions)
 		non-native functions = http_build_query() and parse_str()
@@ -2403,12 +2281,12 @@ Standards.general.storage.server = {
 					var response = Standards.general.parse_str(file.responseText);
 					var notification = Standards.general.storage.server.notificationType.toLowerCase();
 					if (response.hasOwnProperty("errors")) {
-						response.errors.forEach(function(error) {
+						response.errors.forEach(function (error) {
 							console.error(error);
 						});
 					}
 					if (response.hasOwnProperty("warnings")) {
-						response.warnings.forEach(function(warning) {
+						response.warnings.forEach(function (warning) {
 							if (notification == "alert") {
 								alert(warning);
 							} else if (notification == "return") {
@@ -2431,7 +2309,7 @@ Standards.general.storage.server = {
 		// file.onload might also be able to be used without the states and statuses
 		file.send(Standards.general.http_build_query(message));
 	},
-	"forget": function(key, location) {
+	"forget": function (key, location) {
 		// /**
 		deletes a user's information (if they have owner permissions)
 		non-native functions = http_build_query() and parse_str()
@@ -2455,12 +2333,12 @@ Standards.general.storage.server = {
 					var response = Standards.general.parse_str(file.responseText);
 					var notification = Standards.general.storage.server.notificationType.toLowerCase();
 					if (response.hasOwnProperty("errors")) {
-						response.errors.forEach(function(error) {
+						response.errors.forEach(function (error) {
 							console.error(error);
 						});
 					}
 					if (response.hasOwnProperty("warnings")) {
-						response.warnings.forEach(function(warning) {
+						response.warnings.forEach(function (warning) {
 							if (notification == "alert") {
 								alert(warning);
 							} else if (notification == "return") {
@@ -2481,13 +2359,13 @@ Standards.general.storage.server = {
 		// file.onload might also be able to be used without the states and statuses
 		file.send(Standards.general.http_build_query(message));
 	},
-	"list": function(location) {
+	"list": function (location) {
 		// /**
 		lists a user's information
 		non-native functions = http_build_query() and parse_str()
 		// *
 	},
-	"permissions": function(user, level, key, location) {
+	"permissions": function (user, level, key, location) {
 		// /**
 		changes the permissions of other users to the information owned by you
 		non-native functions = http_build_query() and parse_str()
@@ -2496,7 +2374,7 @@ Standards.general.storage.server = {
 };
 */
 
-Standards.general.colorCode = function(element, conversion) {
+Standards.general.colorCode = function (element, conversion) {
 	/**
 	color codes an element
 	conversion is either a number from 0 to 100, a function that returns a value in the same range, or null (if an applicable element)
@@ -2509,16 +2387,16 @@ Standards.general.colorCode = function(element, conversion) {
 		default colors = red and green
 	for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
 	a table needs to have at least 7 items before it's color-coded
-	non-native functions = Standards.general.queue.add(), HTMLCollection.forEach(), toArray(), and checkAll()
+	non-native functions = Standards.general.queue.add(), HTMLCollection.forEach(), and toArray()
 	*/
 	Standards.general.queue.add({
 		runOrder: "first",
-		function: function(element, conversion, args) {
+		function: function (element, conversion, args) {
 			var list = false;  // for whether "element" is a list (array)
 			if (typeof element == "string") {
 				element = document.getElementById(element);
 			} else if (element instanceof Array) {  // using "typeof" always returns false because arrays are apparently objects (in this script)
-				element.forEach(function(item, index) {
+				element.forEach(function (item, index) {
 					if (typeof item == "string") {
 						element[index] = document.getElementById(item);
 					}
@@ -2531,7 +2409,7 @@ Standards.general.colorCode = function(element, conversion) {
 			var colors = args.length>0 ? args : [[255, 0, 0], [255, 255, 0], [0, 255, 0]];  // Are there colors specified?
 			function backgroundColor(value) {
 				var ends = [end1];
-				colors.slice(1).forEach(function(color, index, shortColors) {  // establishes the values where the different colors are centered
+				colors.slice(1).forEach(function (color, index, shortColors) {  // establishes the values where the different colors are centered
 					ends.push(end1+(end2-end1)*(index+1)/shortColors.length);
 				});
 				var endIndex = 1,
@@ -2539,7 +2417,7 @@ Standards.general.colorCode = function(element, conversion) {
 				while (value > ends[endIndex]) {  // determines which 2 colors the value falls between
 					endIndex++;
 				}
-				[0, 1, 2].forEach(function(index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
+				[0, 1, 2].forEach(function (index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
 					finalColors.push(Math.round(colors[endIndex-1][index] + (colors[endIndex][index]-colors[endIndex-1][index]) * (value-ends[endIndex-1]) / (ends[endIndex]-ends[endIndex-1])));
 				});
 				return "rgb(" + finalColors[0] + ", " + finalColors[1] + ", " + finalColors[2] + ")";
@@ -2557,7 +2435,7 @@ Standards.general.colorCode = function(element, conversion) {
 					var tds = [];  // This needs to be set to an array for it to be used in toArray().
 						// tds[3] and tds[6] are representative samples of the type of data
 					if (list) {
-						list.forEach(function(table) {
+						list.forEach(function (table) {
 							tds = Standards.general.toArray(tds, table.getElementsByTagName("td"));
 						});
 					} else {
@@ -2566,7 +2444,7 @@ Standards.general.colorCode = function(element, conversion) {
 					if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
 						var lowest = Infinity,
 							highest = -Infinity;
-						tds.forEach(function(item) {  // determines the high and low ends of the data
+						tds.forEach(function (item) {  // determines the high and low ends of the data
 							try {  // accounts for parts without data
 								if (Number(item.innerHTML) < lowest) {
 									lowest = Number(item.innerHTML);
@@ -2579,7 +2457,7 @@ Standards.general.colorCode = function(element, conversion) {
 						});
 						end1 = lowest;
 						end2 = highest;
-						tds.forEach(function(data) {
+						tds.forEach(function (data) {
 							if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {  // sets the background color of the tabular data
 								data.style.backgroundColor = backgroundColor(Number(data.innerHTML.trim()));
 							}
@@ -2625,7 +2503,7 @@ Standards.general.colorCode = function(element, conversion) {
 							}
 							var lowest = Infinity,
 								highest = -Infinity;
-							tds.forEach(function(item) {  // determines the high and low ends of the data set
+							tds.forEach(function (item) {  // determines the high and low ends of the data set
 								try {  // accounts for parts that don't have data
 									var difference = timeDifference(item.innerHTML);
 									if (difference < lowest) {
@@ -2639,7 +2517,7 @@ Standards.general.colorCode = function(element, conversion) {
 							});
 							end1 = lowest;
 							end2 = highest;
-							tds.forEach(function(data) {  // assigns the background color of each of the tabular data
+							tds.forEach(function (data) {  // assigns the background color of each of the tabular data
 								try {  // accounts for parts that don't have data (doesn't color them)
 									data.style.backgroundColor = backgroundColor(timeDifference(data.innerHTML));
 								} finally {  // a necessary accompanyment to try (although I could have used catch)
@@ -2649,12 +2527,14 @@ Standards.general.colorCode = function(element, conversion) {
 							
 						}
 					}
-				} else if (Standards.general.checkAll(element.tagName, "==", ["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"], "||")) {
+				} else if (["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"].some(function (tag) {
+					return element.tagName == tag;
+				})) {
 					if (element.innerHTML.trim() != "") {  // if the text isn't empty
 						end1 = 0;
 						end2 = element.innerHTML.trim().length - 1;
 						var replacement = document.createElement(element.tagName);  // makes sure the replacement uses the same tag / element type
-						element.innerHTML.trim().split("").forEach(function(character, index) {  // puts a <span> between each letter and colors the text
+						element.innerHTML.trim().split("").forEach(function (character, index) {  // puts a <span> between each letter and colors the text
 							var span = document.createElement("span");
 							span.innerHTML = character;
 							span.style.display = "inline";
@@ -2696,7 +2576,7 @@ if (!(Standards.general.options.automation == "none")) {
 	
 	let needsIcon = true;
 	if (document.head.getElementsByTagName("link").length > 0) {
-		document.head.getElementsByTagName("link").forEach(function(link) {
+		document.head.getElementsByTagName("link").forEach(function (link) {
 			if (link.rel == "icon") {
 				needsIcon = false;
 			}
@@ -2719,7 +2599,7 @@ if (!(Standards.general.options.automation == "none")) {
 			canvas.height = 64;
 			context.beginPath();
 			context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
-			setInterval(function() {
+			setInterval(function () {
 				if (color >= 360) {
 					color = 0;
 				}
@@ -2733,7 +2613,7 @@ if (!(Standards.general.options.automation == "none")) {
 }
 
 if (!(Standards.general.options.runAuthCode == false) && typeof firebase != "undefined" && firebase.firestore) {
-	firebase.auth().onAuthStateChanged(function(person) {  // listens for a change in authorization status (future onAuthStateChanged calls don't overwrite this one)
+	firebase.auth().onAuthStateChanged(function (person) {  // listens for a change in authorization status (future onAuthStateChanged calls don't overwrite this one)
 		if (person) {  // if the user is signed in
 			if (document.getElementById("signIn")) {  // if there's a signIn button
 				document.getElementById("signIn").style.display = "none";
@@ -2765,21 +2645,21 @@ if (!(Standards.general.options.runAuthCode == false) && typeof firebase != "und
 	});
 }
 
-window.addEventListener("load", function() {  // This waits for everything past the script import to load before running.
+window.addEventListener("load", function () {  // This waits for everything past the script import to load before running.
 	
 	if (!Standards.general.options.hasOwnProperty("automation") || Standards.general.options.automation == "full") {
 		
 		// allows radio buttons to be unchecked
 		let radioButtonNames = [];
-		document.getElementsByTagName("input").forEach(function(input) {
+		document.getElementsByTagName("input").forEach(function (input) {
 			if (input.type == "radio" && !radioButtonNames.includes(input.name)) {
 				radioButtonNames.push(input.name);
 			}
 		});
-		radioButtonNames.forEach(function(name) {
+		radioButtonNames.forEach(function (name) {
 			let previouslyChecked;
-			S.getName(name).forEach(function(button) {
-				button.addEventListener("click", function() {
+			S.getName(name).forEach(function (button) {
+				button.addEventListener("click", function () {
 					if (this == previouslyChecked) {
 						this.checked = false;
 						previouslyChecked = undefined;
@@ -2793,7 +2673,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
 		// interprets <note-> tags
 		/*
 		var noteNumber = 1;
-		document.getElementsByTagName("note-").forEach(function(note, index, notes) {
+		document.getElementsByTagName("note-").forEach(function (note, index, notes) {
 			if (note.innerHTML[0] == "[" && note.innerHTML[note.innerHTML.length-1] == "]") {
 				var reference = document.getElementById(note.innerHTML.slice(1,-1));
 				note.title = reference.title;
@@ -2810,19 +2690,19 @@ window.addEventListener("load", function() {  // This waits for everything past 
 		var tables = document.getElementsByClassName("compact");
 		for (var counter=0; counter<tables.length; counter++) {
 			var table = tables[counter];
-			table.getElementsByTagName("th").forEach(function(thList) {
+			table.getElementsByTagName("th").forEach(function (thList) {
 				var parent = thList.parentNode;
 				var newHeadings = thList.innerHTML.split("|");
 				parent.removeChild(thList);
-				newHeadings.forEach(function(heading) {
+				newHeadings.forEach(function (heading) {
 					parent.innerHTML += "<th>" + heading.trim() + "</th>";
 				});
 			});
-			table.getElementsByTagName("td").forEach(function(tdList) {
+			table.getElementsByTagName("td").forEach(function (tdList) {
 				var parent = tdList.parentNode;
 				var newData = tdList.innerHTML.split("|");
 				parent.removeChild(tdList);
-				newData.forEach(function(data) {
+				newData.forEach(function (data) {
 					parent.innerHTML += "<td>" + data.trim() + "</td>";
 				});
 			});
@@ -2846,7 +2726,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
 		
 	// adds page jumping capabilities
 	// (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
-	document.getElementsByClassName("page-jump-sections").forEach(function(division) {
+	document.getElementsByClassName("page-jump-sections").forEach(function (division) {
 		let contents = document.createElement("div");
 		contents.className = "page-jump-list";
 		contents.innerHTML = "<h2>Jump to:</h2>";
@@ -2855,7 +2735,7 @@ window.addEventListener("load", function() {  // This waits for everything past 
 		toTop.className = "to-top";
 		toTop.innerHTML = '<a href="#">To top</a>';
 		let listItems = document.createElement("ol");
-		sections.forEach(function(heading, index, sections) {
+		sections.forEach(function (heading, index, sections) {
 			let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
 			sections[index].id = inside;
 			let link = document.createElement("a");
@@ -2869,16 +2749,17 @@ window.addEventListener("load", function() {  // This waits for everything past 
 		});
 		contents.appendChild(listItems);
 		division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
-		contents.outerHTML += "<br>";  // Elements need to have a parent node before the outer HTML can be modified. (This makes sure the "Jump to:" section appears on its own line.)
 		// This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
 		if (window.location.href.indexOf("#") > -1) {
 			let found = false;
-			document.getElementById("pageJump").getElementsByTagName("a").forEach(function(link) {
-				if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
-					found = true;
-					link.click();
-					return "break";
-				}
+			Standards.general.forEach(document.getElementsByClassName("page-jump-list"), function (section) {
+				Standards.general.forEach(section.getElementsByTagName("a"), function (link) {
+					if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
+						found = true;
+						link.click();
+						return "break";
+					}
+				});
 			});
 			if (!found) {  // Was the section found?
 				console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
