@@ -2075,7 +2075,11 @@ Standards.general.storage.server = {
 			});
 		} else {
 			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
-				callback(snapshot.docs[key].data());
+				snapshot.forEach(function (document) {
+					if (document.id == key) {
+						callback(document.data());
+					}
+				});
 			}).catch(function (error) {
 				alert("The information couldn't be retrieved.");
 				console.error("An error occurred during recall.");
