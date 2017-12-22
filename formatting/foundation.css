@@ -11,18 +11,22 @@ and class manipulation
 could be used to modify CSS
 (in particular pseudo-elements)
 */
+
 * {  /* makes everything include padding and borders in its height and width */
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
+
 :root {  /* This accesses the outer-most element (html). */
 	--nav-slide-time: .8s;
 }
+
 html {
 	min-width: 100%;
 	min-height: 100%;
 }
+
 body {
 	margin: 0%;
 	min-width: 100%;
@@ -35,6 +39,7 @@ body {
 	background: repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* standard syntax */
 	text-align: center;
 }
+
 main {
 	/**
 	meant to hold the main content of the page
@@ -46,32 +51,40 @@ main {
 	padding: 1% 5% 5% 5%;
 	background: rgba(255, 255, 255, .5);
 }
+
 div {
 	margin: auto;
 	display: inline-block;
 }
+
 nav {
 	background: white;
 	padding: 1em;
 }
+
 iframe {
 	border: none;
 }
+
 body.navigation {
 	margin: 0em;
 	padding: 1em;
 	background: white;
 }
+
 nav div {
 	overflow: auto;
 }
+
 body.navigation h2, nav h2 {
 	margin-top: 0em;
 }
+
 body.navigation ul, body.navigation ol, nav ul, nav ol {
 	padding-left: 1em;
 	padding-right: 0em;
 }
+
 iframe.left-nav, nav.left-nav {
 	/**
 	creates a fixed navigation section on the left side of the screen
@@ -79,10 +92,22 @@ iframe.left-nav, nav.left-nav {
 	position: fixed;
 	left: 0em;
 	top: 0em;
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 	border-right: .05em solid #aaaaaa;
 	width: 15%;
 	height: 100%;
 }
+
+body.left-nav {
+	/**
+	makes the body move over to make room for the navigation section on the left side of the screen
+	*/
+	margin: 0% 0% 0% 15%;
+	min-width: 85%;
+}
+
 aside {
 	position: fixed;
 	left: 100%;
@@ -93,6 +118,7 @@ aside {
 	transition: .8s;
 	transition: var(--nav-slide-time);
 }
+
 .right-section {
 	/**
 	creates a fixed section on the right side of the screen
@@ -104,13 +130,7 @@ aside {
 	width: 15%;
 	height: 100%;
 }
-body.left-nav {
-	/**
-	makes the body move over to make room for the navigation section on the left side of the screen
-	*/
-	margin: 0% 0% 0% 15%;
-	min-width: 85%;
-}
+
 body.right-section {
 	/**
 	makes the body move over to make room for a section on the right side of the screen
@@ -121,6 +141,7 @@ body.right-section {
 	min-width: 85%;
 	height: auto;
 }
+
 body.left-nav.right-section {
 	/**
 	makes the body make room for a section on the left and right side of the screen
@@ -128,6 +149,7 @@ body.left-nav.right-section {
 	margin: 0% 15% 0% 15%;
 	min-width: 70%;
 }
+
 nav.hidden-left-nav {
 	/**
 	creates a fixed navigation section hidden behind the left side of the screen
@@ -142,6 +164,7 @@ nav.hidden-left-nav {
 	transition: .8s;
 	transition: var(--nav-slide-time);
 }
+
 nav.hidden-left-nav:hover {
 	/**
 	unhides the navigation section
@@ -151,6 +174,7 @@ nav.hidden-left-nav:hover {
 	transform: translateX(45vh);  /* standard syntax */
 	/* These aren't 45.5vh because, otherwise, the far left end of the screen would stop the hovering. */
 }
+
 nav.hidden-left-nav::before {
 	/**
 	creates darkness to cover the rest of the screen
@@ -168,12 +192,14 @@ nav.hidden-left-nav::before {
 	transition: .8s;  /* I don't understand why this (or the next line) is necessary. */
 	transition: var(--nav-slide-time);
 }
+
 nav.hidden-left-nav:hover::before {
 	/**
 	causes the darkness to fade in
 	*/
 	opacity: .8;
 }
+
 nav.hidden-left-nav::after {
 	/**
 	creates a tab sticking out of the side to access the hidden left navigation
@@ -206,16 +232,19 @@ nav.hidden-left-nav::after {
 	user-select: none;  /* non-prefixed version of preventing text selection */
 	cursor: default;
 }
+
 nav.hidden-left-nav:hover::after {
 	/**
 	changes the arrow direction
 	*/
 	content: "<";
 }
+
 nav.hidden-left-nav > iframe {
 	width: 100%;
 	height: 100%;
 }
+
 iframe.top-nav, nav.top-nav {
 	/**
 	creates a navigation section that moves to the top and stays there
@@ -228,11 +257,13 @@ iframe.top-nav, nav.top-nav {
 	width: 100%;
 	background: darkblue;
 }
+
 nav.top-nav div.drop-down {
 	display: inline-table;
 	position: relative;
 	overflow: visible;
 }
+
 nav.top-nav div.drop-down > div:first-child, nav.top-nav > button {
 	/**
 	makes the part of the drop-down that you see
@@ -246,11 +277,13 @@ nav.top-nav div.drop-down > div:first-child, nav.top-nav > button {
 	color: steelblue;
 	cursor: pointer;
 }
+
 nav.top-nav > button {
 	display: inline-block;
 	margin: 0em;
 	border: none;
 }
+
 nav.top-nav div.drop-down div {
 	/**
 	makes the part of the drop-down that appears
@@ -261,12 +294,14 @@ nav.top-nav div.drop-down div {
 	white-space: nowrap;
 	cursor: default;
 }
+
 nav.top-nav label {
 	/**
 	makes sure labels don't wrap strangely
 	*/
 	white-space: nowrap;
 }
+
 nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, nav.top-nav div.drop-down:focus-within > div {
 	/**
 	unhides the drop-down menu when focus is received
@@ -274,6 +309,7 @@ nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, na
 	*/
 	display: block;
 }
+
 nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child {
 	/**
 	lightens the initially visible part of the drop-down
@@ -281,25 +317,31 @@ nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:foc
 	*/
 	background: lightsteelblue;
 }
+
 a {
 	text-decoration: none;
 }
+
 a:hover {
 	text-decoration: underline;
 }
+
 ol, ul {
 	display: table;
 	margin: .5em auto;
 	padding-right: 1em;
 	text-align: left;
 }
+
 ul {
 	padding-left: 2em;
 }
+
 li {
 	margin-top: .5em;
 	margin-bottom: .5em;
 }
+
 table {
 	margin: auto;
 	border: none;
@@ -307,21 +349,26 @@ table {
 	background: none;
 	text-align: center;
 }
+
 th, td {
 	border: .05em solid black;
 	border-collapse: collapse;
 	padding: .5em;
 }
+
 th {
 	background: #dddddd;
 }
+
 td {
 	background: white;
 }
+
 table.organizational th, table.organizational td {
 	border: none;
 	background: none;
 }
+
 table.conversation th {
 	/**
 	styles the name of the speaker
@@ -330,6 +377,7 @@ table.conversation th {
 	background: none;
 	text-align: right;
 }
+
 table.conversation td {
 	/**
 	styles what the speaker said
@@ -338,80 +386,102 @@ table.conversation td {
 	background: none;
 	text-align: left;
 }
+
 table.conversation td:first-child {
 	/**
 	allows unspoken events to be centered
 	*/
 	text-align: center;
 }
+
 input {
 	text-align: center;
 }
+
 input[type="text"] {
 	cursor: text;
 }
+
 input[type="text"][disabled], input[type="text"]:disabled {
 	cursor: default;
 }
+
 input[type="checkbox"] {
 	margin: .5em;
 	cursor: pointer;
 }
+
 input[type="checkbox"][disabled], input[type="checkbox"]:disabled {
 	cursor: default;
 }
+
 input[type="button"] {
 	margin: .5em;
 	cursor: pointer;
 }
+
 input[type="button"][disabled], input[type="button"]:disabled {
 	cursor: default;
 }
+
 button {
 	margin: .5em;
 	cursor: pointer;
 }
+
 button[disabled], button:disabled {
 	cursor: default;
 }
+
 select {
 	cursor: pointer;
 }
+
 select[disabled], select:disabled {
 	cursor: default;
 }
+
 option {
 	cursor: pointer;
 }
+
 option[disabled], option:disabled {
 	cursor: default;
 }
+
 aside {
 	background-color: white;
 	padding: 1em;
 	overflow: auto;
 }
+
 aside h2 {
 	margin-top: 0em;
 }
+
 textarea {
 	font-family: inherit;
 	font-size: 1em;
 }
+
 sup, sub {
 	position: relative;
 	top: -.4em;
 	vertical-align: baseline;
 }
+
 sub { 
 	top: .4em; 
 }
+
 mark {
 	padding: .1em;
 }
+
 label {
 	cursor: text;
 }
+
 section {
 	/**
 	This is basically a replacement for paragraph tags.
@@ -420,6 +490,7 @@ section {
 	display: block;
 	margin: 1em 0em;
 }
+
 dialog {
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
 	position: fixed;
@@ -436,10 +507,12 @@ dialog {
 	transform: translate(-50%, -50%) scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
 	transition: .5s;
 }
+
 dialog .buttons {
 	display: block;
 	margin-top: .5em;
 }
+
 .dialog {  /* <dialog> formatting is replicated because <dialog> isn't widely supported yet */
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
 	left: 50%;
@@ -456,13 +529,16 @@ dialog .buttons {
 	transform: scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
 	transition: .5s;
 }
+
 .dialog .contents {
 	overflow: auto;
 }
+
 .dialog .buttons {
 	display: block;
 	margin-top: .5em;
 }
+
 note- {
 	/**
 	my custom tag
@@ -473,6 +549,7 @@ note- {
 	color: blue;
 	cursor: help;
 }
+
 note-::before {
 	/**
 	makes a * where there's a note
@@ -481,12 +558,15 @@ note-::before {
 	content: "*";  /* for browsers that don't support var() */
 	content: var(--before-content, "*");
 }
+
 .trigger {
 	position: relative;
 }
+
 note-:hover {
 	text-decoration: underline;
 }
+
 note- div, .trigger div, .pop-up div {
 	/**
 	This needs to come before the styling for <div>s with child selectors
@@ -494,6 +574,7 @@ note- div, .trigger div, .pop-up div {
 	max-height: 20em;
 	overflow: auto;
 }
+
 note- > div, .trigger > div, .pop-up {
 	font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
 	position: absolute;
@@ -510,10 +591,12 @@ note- > div, .trigger > div, .pop-up {
 	pointer-events: none;
 	transition: opacity .5s linear .5s;
 }
+
 .pop-up {
 	text-align: center;
 	transition: opacity .5s linear;
 }
+
 note- > div::before, .trigger > div::before, .pop-up::before {
 	/**
 	This makes sure you don't have the leave the trigger before hovering over the pop-up.
@@ -525,6 +608,7 @@ note- > div::before, .trigger > div::before, .pop-up::before {
 	width: 15em;
 	height: .8em;
 }
+
 note- > div::after, .trigger > div::after, .pop-up::after {
 	/**
 	makes the protruding triangle of the pop-up
@@ -537,6 +621,7 @@ note- > div::after, .trigger > div::after, .pop-up::after {
 	border-style: solid;
 	border-color: white transparent transparent transparent;
 }
+
 note-:hover > div, .trigger:hover > div, .pop-up.active {
 	/**
 	makes the pop-up appear when the note or trigger is hovered over
@@ -544,6 +629,7 @@ note-:hover > div, .trigger:hover > div, .pop-up.active {
 	opacity: 1;
 	pointer-events: auto;
 }
+
 over- {
 	/**
 	my custom tag
@@ -555,6 +641,7 @@ over- {
 	padding: 0em;
 	text-decoration: overline;
 }
+
 .list {
 	/**
 	for left-aligned content as close to the middle of the page as possible
@@ -563,6 +650,7 @@ over- {
 	margin: auto;
 	text-align: left;
 }
+
 .page-jump-list {
 	/**
 	styles the section of the page that navigates to other sections of the page
@@ -573,6 +661,7 @@ over- {
 	background: white;
 	background: rgba(255, 255, 255, .5);
 }
+
 .page-jump-list ol {
 	/**
 	makes ordered lists in page-jump-list sections account for the padding of that section
@@ -580,18 +669,22 @@ over- {
 	*/
 	padding-left: 1.5em;
 }
+
 .user-section {
 	position: absolute;
 	top: 2em;
 	right: 3em;
 	z-index: 2;
 }
+
 #userSettings {
 	display: none;
 }
+
 #signOut {
 	display: none;
 }
+
 .circle {
 	/**
 	circles things (like text)
@@ -599,6 +692,7 @@ over- {
 	border: .05em solid black;
 	border-radius: .5em;
 }
+
 .full-spin {
 	/**
 	spins something (like a <div>) in a full rotation
@@ -608,6 +702,7 @@ over- {
 	-webkit-transform: rotate(360deg);  /* Safari */
 	transform: rotate(360deg);  /* standard syntax */
 }
+
 .half-spin {
 	/**
 	spins something (like a div) in a half rotation
@@ -617,12 +712,14 @@ over- {
 	-webkit-transform: rotate(180deg);  /* Safari */
 	transform: rotate(180deg);  /* standard syntax */
 }
+
 h1.main-title {
 	/**
 	formats the main title of the website/page
 	*/
 	color: white;
 }
+
 div.darkener {
 	/**
 	darkens the screen
@@ -640,19 +737,24 @@ div.darkener {
 	pointer-events: none;
 	transition: background-color .5s;
 }
+
 table.compact {
 	visibility: hidden;
 }
+
 /*
 @keyframes animation-name {
 	from {
 		starting position(s)
 	}
+
 	to {
 		ending position(s)
 	}
+
 	An indefinite number of percentages (with "%") can be used instead of "from" and "to".
 }
+
 .class {
 	animation-name: animation-name;
 	animation-duration: 0s;
@@ -662,12 +764,15 @@ table.compact {
 	animation-direction: normal;
 	animation-fill-mode: none;  // I like "forwards" better.
 }
+
 */
 @font-face {
 	font-family: "Bad Duck";
 	src: url(https://epicenterprograms.github.io/standards/fonts/Bad Duck.ttf) format("truetype");
 }
+
 @font-face {
 	font-family: "Braille";
 	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
+
