@@ -2,9 +2,6 @@ body {
 	background: repeating-linear-gradient(#0b0, #0b0 10vh, white 10vh, white 20vh, red 20vh, red 30vh, white 30vh, white 40vh);
 	font-family: sans-serif;
 }
-h1.main-title {
-	color: silver;
-}
 nav.top-nav {
 	background: green;
 }
