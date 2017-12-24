@@ -1351,25 +1351,36 @@ Standards.general.makeDialog = function (message) {
 		dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
 		contents = Standards.general.getHTML("~" + message),
 		buttons = document.createElement("div");
+	let placedButtonsNumber = contents.getElementsByTagName("button").length;
 	darkener.className = "darkener";
 	darkener.style.pointerEvents = "auto";
 	dialog.className = "dialog";
 	contents.className = "contents";
 	buttons.className = "buttons";
 	pairs.forEach(function (pair, index) {
-		if (typeof pair[0] != "string") {
+		if (Standards.general.getType(pair[0]) != "String") {
 			throw "The pair at position " + (index+1) + " doesn't have a string as the first value.";
-		} else if (typeof pair[1] != "function") {
+		} else if (Standards.general.getType(pair[1]) != "Function") {
 			throw "The pair at position " + (index+1) + " doesn't have a function as the second value.";
 		}
-		let button = document.createElement("button");
-		button.innerHTML = pair[0];
-		buttons.appendChild(button);
-		button.addEventListener("click", function () {
-			pair[1](pair[0]);
-			dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
-			this.removeEventListener("click", arguments.callee);
-		});
+		if (placedButtonsNumber - 1 >= index) {
+			let button = contents.getElementsByTagName("button")[index];
+			button.innerHTML = pair[0];
+			button.addEventListener("click", function () {
+				pair[1](pair[0]);
+				dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+				this.removeEventListener("click", arguments.callee);
+			});
+		} else {
+			let button = document.createElement("button");
+			button.innerHTML = pair[0];
+			buttons.appendChild(button);
+			button.addEventListener("click", function () {
+				pair[1](pair[0]);
+				dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+				this.removeEventListener("click", arguments.callee);
+			});
+		}
 	});
 	contents.appendChild(buttons);
 	dialog.appendChild(contents);
@@ -2721,7 +2732,10 @@ window.addEventListener("load", function () {  // This waits for everything past
 			document.getElementById("signUp").addEventListener("click", Standards.general.storage.server.signUp);
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
-			//// do stuff
+			document.getElementById("userSettings").addEventListener("click", function () {
+				Standards.general.makeDialog("You're currently signed in as " + Standards.general.storage.server.user.displayName +
+					"<br>with the email " + Standards.general.storage.user.email + ".");
+			});
 		}
 		if (document.getElementById("signOut")) {  // if there's a signOut button
 			document.getElementById("signOut").addEventListener("click", Standards.general.storage.server.signOut);
