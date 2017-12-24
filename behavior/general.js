@@ -2733,8 +2733,8 @@ window.addEventListener("load", function () {  // This waits for everything past
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
 			document.getElementById("userSettings").addEventListener("click", function () {
-				Standards.general.makeDialog("You're currently signed in as " + Standards.general.storage.server.user.displayName +
-					"<br>with the email " + Standards.general.storage.user.email + ".");
+				Standards.general.makeDialog("You're currently signed in as " + Standards.general.storage.server.user.providerData.displayName +
+					"<br>with the email " + Standards.general.storage.user.providerData.email + ".");
 			});
 		}
 		if (document.getElementById("signOut")) {  // if there's a signOut button
