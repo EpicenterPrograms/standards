@@ -670,6 +670,10 @@ over- {
 	text-align: left;
 }
 
+.list > * {
+	text-align: left;
+}
+
 .page-jump-list {
 	/**
 	styles the section of the page that navigates to other sections of the page
