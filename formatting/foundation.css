@@ -16,6 +16,8 @@ could be used to modify CSS
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
+	text-align: center;
+	font-size: inherit;
 }
 
 :root {  /* This accesses the outer-most element (html). */
@@ -37,7 +39,6 @@ body {
 	background: -o-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Opera 11.1 to 12.0 */
 	background: -moz-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Firefox 3.6 to 15 */
 	background: repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* standard syntax */
-	text-align: center;
 }
 
 main {
@@ -50,6 +51,30 @@ main {
 	height: 100%;
 	padding: 1% 5% 5% 5%;
 	background: rgba(255, 255, 255, .5);
+}
+
+h1 {
+	font-size: 2em;
+}
+
+h2 {
+	font-size: 1.5em;
+}
+
+h3 {
+	font-size: 1.17em;
+}
+
+h4 {
+	font-size: 1em;
+}
+
+h5 {
+	font-size: .83em;
+}
+
+h6 {
+	font-size: .67em;
 }
 
 div {
@@ -347,7 +372,6 @@ table {
 	border: none;
 	border-collapse: collapse;
 	background: none;
-	text-align: center;
 }
 
 th, td {
@@ -394,10 +418,6 @@ table.conversation td:first-child {
 	text-align: center;
 }
 
-input {
-	text-align: center;
-}
-
 input[type="text"] {
 	cursor: text;
 }
@@ -417,6 +437,8 @@ input[type="checkbox"][disabled], input[type="checkbox"]:disabled {
 
 input[type="button"] {
 	margin: .5em;
+	font-family: sans-serif;
+	font-size: .83em;
 	cursor: pointer;
 }
 
@@ -426,6 +448,8 @@ input[type="button"][disabled], input[type="button"]:disabled {
 
 button {
 	margin: .5em;
+	font-family: sans-serif;
+	font-size: .83em;
 	cursor: pointer;
 }
 
@@ -460,6 +484,7 @@ aside h2 {
 }
 
 textarea {
+	text-align: left;
 	font-family: inherit;
 	font-size: 1em;
 }
@@ -513,25 +538,20 @@ dialog .buttons {
 	margin-top: .5em;
 }
 
-.dialog {  /* <dialog> formatting is replicated because <dialog> isn't widely supported yet */
+.dialog {  /* <dialog> formatting is replicated because it isn't widely supported yet */
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
-	left: 50%;
-	top: 50%;
 	z-index: 10;
-	border: 2vh solid #aadddd;  /* I use vh because I know the border won't be any smaller than what I see, even on mobile devices. */
+	border: 12px solid #aadddd;  /* This is in pixels in order to prevent random scroll bars appearing (probably because of otherwise getting a fraction of a pixel). */
 	border-radius: 4vh;
 	padding: 1em;
-	max-width: 30%;  /* This would max out at about 50% anyway because the positioning and translation limit the width. */
+	max-width: 30%;
 	max-height: 50%;
 	background: white;
+	overflow: auto;
 	-ms-transform: scale(.001, .001);
 	-webkit-transform: scale(.001, .001);
 	transform: scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
 	transition: .5s;
-}
-
-.dialog .contents {
-	overflow: auto;
 }
 
 .dialog .buttons {
@@ -593,7 +613,6 @@ note- > div, .trigger > div, .pop-up {
 }
 
 .pop-up {
-	text-align: center;
 	transition: opacity .5s linear;
 }
 
@@ -776,3 +795,56 @@ table.compact {
 	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
 
+
+@media screen and (max-width: 1000px) {
+	* {
+		font-size: 1.5em;
+	}
+
+	h1 {
+		font-size: 3em;
+	}
+
+	h2 {
+		font-size: 2.25em;
+	}
+
+	h3 {
+		font-size: 1.75em;
+	}
+
+	h4 {
+		font-size: 1.5em;
+	}
+
+	h5 {
+		font-size: 1.25em;
+	}
+
+	h6 {
+		font-size: 1em;
+	}
+
+	input {
+		-ms-transform: scale(1.5);
+		-webkit-transform: scale(1.5);
+		transform: scale(1.5);
+	}
+
+	input[type="button"] {
+		font-size: 1.25em;
+	}
+
+	button {
+		font-size: 1.25em;
+	}
+
+	nav.top-nav div.drop-down div:first-child {
+		font-size: 2.25em;
+	}
+
+	.user-section {
+		display: block;
+		position: static;
+	}
+}

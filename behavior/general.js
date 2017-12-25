@@ -1355,7 +1355,6 @@ Standards.general.makeDialog = function (message) {
 	darkener.className = "darkener";
 	darkener.style.pointerEvents = "auto";
 	dialog.className = "dialog";
-	contents.className = "contents";
 	buttons.className = "buttons";
 	pairs.forEach(function (pair, index) {
 		if (Standards.general.getType(pair[0]) != "String") {
