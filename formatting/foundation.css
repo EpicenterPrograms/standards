@@ -842,11 +842,11 @@ table.compact {
 	button {
 		font-size: 1.25em;
 	}
-
+	/*
 	nav.top-nav div.drop-down div:first-child {
 		font-size: 2.25em;
 	}
-
+	*/
 	.user-section {
 		display: block;
 		position: static;
