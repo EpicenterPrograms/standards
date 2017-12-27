@@ -1948,7 +1948,6 @@ Standards.general.storage.server = {
 			alert("The action couldn't be completed.");
 			throw "The provided location is an invalid type.";
 		}
-		console.log(location);
 		if (location != "") {
 			location.split("/").forEach(function (place, index) {
 				if (index % 2 == 0) {
@@ -1958,7 +1957,6 @@ Standards.general.storage.server = {
 				}
 			});
 		}
-		console.log("Returning reference");
 		return reference;
 	},
 	signUp: function () {
@@ -2017,13 +2015,10 @@ Standards.general.storage.server = {
 				throw "The location given wasn't a string.";
 			}
 			if (location == "" || location.split("/").length % 2 == 0) {
-				console.log("Setting server information");
 				Standards.general.storage.server.getReference(location).set({
 					[key]: item
 				}, { merge: true }).then(function () {
-					console.log("Finished storing");
 					if (callback) {
-						console.log("Running callback");
 						callback();
 					}
 				}).catch(function (error) {
@@ -2035,9 +2030,7 @@ Standards.general.storage.server = {
 				if (Standards.general.getType(item) == "Object") {
 					key = key ? "/"+key : "";
 					Standards.general.storage.server.getReference(location+key).set(item).then(function () {
-						console.log("Finished storing");
 						if (callback) {
-							console.log("Running callback");
 							callback();
 						}
 					}).catch(function (error) {

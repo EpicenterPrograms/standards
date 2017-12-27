@@ -271,6 +271,7 @@ nav.top-nav div.drop-down > div:first-child, nav.top-nav > button {
 	*/
 	display: block;
 	position: static;
+	z-index: 1;
 	padding: .5em;
 	background: darkblue;
 	font-size: 1.5em;
@@ -290,6 +291,7 @@ nav.top-nav div.drop-down div {
 	*/
 	display: none;
 	position: absolute;
+	z-index: 2;
 	background: steelblue;
 	white-space: nowrap;
 	cursor: default;
