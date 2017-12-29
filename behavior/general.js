@@ -1293,6 +1293,205 @@ Standards.general.listen = function (item, event, behavior, listenOnce) {
 	});
 };
 
+Standards.general.onKeyDown = function (key, doStuff, allowDefault) {
+	/**
+	allows actions when a key is pressed down
+	this doesn't replace any previous uses
+	arguments:
+		key = required; the key or array of keys of interest
+			keys are designated by the "key" property of a KeyboardEvent object
+		doStuff = required; the function to call when the desired key(s) is/are pressed
+			the KeyboardEvent object of the keydown listener is passed to the function as an argument
+		allowDefault = optional; whether the default action of the key press should be allowed
+			default: false
+	non-native functions = getType
+	*/
+	if (Standards.general.getType(key) == "Array") {
+		if (allowDefault) {
+			document.addEventListener("keydown", function (event) {
+				if (key.includes(event.key)) {
+					doStuff(event);
+				}
+			});
+		} else {
+			document.addEventListener("keydown", function (event) {
+				if (key.includes(event.key)) {
+					event.preventDefault();
+					doStuff(event);
+				}
+			});
+		}
+	} else if (Standards.general.getType(key) == "String") {
+		if (allowDefault) {
+			document.addEventListener("keydown", function (event) {
+				if (event.key == key) {
+					doStuff(event);
+				}
+			});
+		} else {
+			document.addEventListener("keydown", function (event) {
+				if (event.key == key) {
+					event.preventDefault();
+					doStuff(event);
+				}
+			});
+		}
+	} else {
+		console.error("An invalid key type was given.");
+	}
+};
+
+Standards.general.onKeyHold = function (key, doStuff, allowDefault, intervalTime) {
+	/**
+	allows actions when a key is held down
+	this doesn't replace any previous uses
+	there's no distinction between a press and a hold
+	arguments:
+		key = required; the key or array of keys of interest
+			keys are designated by the "key" property of a KeyboardEvent object
+		doStuff = required; the function to call when the desired key(s) is/are pressed
+			an array of pressed keys is passed the the function as an argument
+				(that includes modifier keys such as "Control" or "Alt")
+			no argument is passed if only one key is being listened to (and it's not in an array)
+		allowDefault = optional; whether the default action of the key press should be allowed
+			default: false
+		intervalTime = optional; the number of milliseconds before doStuff is called again
+			default: 15
+	non-native functions = getType
+	*/
+	intervalTime = intervalTime || 15;
+	var recurrenceLoop;
+	if (Standards.general.getType(key) == "Array") {
+		var activeKeys = [];
+		if (allowDefault) {
+			document.addEventListener("keydown", function (event) {
+				if (key.includes(event.key) && !activeKeys.includes(event.key)) {
+					activeKeys.push(event.key);
+					if (activeKeys.length == 1) {
+						recurrenceLoop = setInterval(function () {
+							doStuff(activeKeys);
+						}, intervalTime);
+					}
+				}
+			});
+			document.addEventListener("keyup", function (event) {
+				if (key.includes(event.key)) {
+					activeKeys.splice(activeKeys.indexOf(event.key), 1);
+					if (activeKeys.length == 0) {
+						clearInterval(recurrenceLoop);
+					}
+				}
+			});
+		} else {
+			document.addEventListener("keydown", function (event) {
+				if (key.includes(event.key)) {
+					event.preventDefault();
+					if (!activeKeys.includes(event.key)) {
+						activeKeys.push(event.key);
+						if (activeKeys.length == 1) {
+							recurrenceLoop = setInterval(function () {
+								doStuff(activeKeys);
+							}, intervalTime);
+						}
+					}
+				}
+			});
+			document.addEventListener("keyup", function (event) {
+				if (key.includes(event.key)) {
+					event.preventDefault();
+					activeKeys.splice(activeKeys.indexOf(event.key), 1);
+					if (activeKeys.length == 0) {
+						clearInterval(recurrenceLoop);
+					}
+				}
+			});
+		}
+	} else if (Standards.general.getType(key) == "String") {
+		var keyActive = false;
+		if (allowDefault) {
+			document.addEventListener("keydown", function (event) {
+				if (event.key == key && !keyActive) {
+					keyActive = true;
+					recurrenceLoop = setInterval(doStuff, intervalTime);
+				}
+			});
+			document.addEventListener("keyup", function (event) {
+				if (event.key == key) {
+					keyActive = false;
+					clearInterval(recurrenceLoop);
+				}
+			});
+		} else {
+			document.addEventListener("keydown", function (event) {
+				if (event.key == key) {
+					event.preventDefault();
+					if (!keyActive) {
+						keyActive = true;
+						recurrenceLoop = setInterval(doStuff, intervalTime);
+					}
+				}
+			});
+			document.addEventListener("keyup", function (event) {
+				if (event.key == key) {
+					event.preventDefault();
+					keyActive = false;
+					clearInterval(recurrenceLoop);
+				}
+			});
+		}
+	} else {
+		console.error("An invalid key type was given.");
+	}
+};
+
+Standards.general.onKeyUp = function (key, doStuff, allowDefault) {
+	/**
+	allows actions when a key is let up
+	this doesn't replace any previous uses
+	arguments:
+		key = required; the key or array of keys of interest
+			keys are designated by the "key" property of a KeyboardEvent object
+		doStuff = required; the function to call when the desired key(s) is/are pressed
+			the KeyboardEvent object of the keyup listener is passed to the function as an argument
+		allowDefault = optional; whether the default action of the key press should be allowed
+			default: false
+	non-native functions = getType
+	*/
+	if (Standards.general.getType(key) == "Array") {
+		if (allowDefault) {
+			document.addEventListener("keyup", function (event) {
+				if (key.includes(event.key)) {
+					doStuff(event);
+				}
+			});
+		} else {
+			document.addEventListener("keyup", function (event) {
+				if (key.includes(event.key)) {
+					event.preventDefault();
+					doStuff(event);
+				}
+			});
+		}
+	} else if (Standards.general.getType(key) == "String") {
+		if (allowDefault) {
+			document.addEventListener("keyup", function (event) {
+				if (event.key == key) {
+					doStuff(event);
+				}
+			});
+		} else {
+			document.addEventListener("keyup", function (event) {
+				if (event.key == key) {
+					event.preventDefault();
+					doStuff(event);
+				}
+			});
+		}
+	} else {
+		console.error("An invalid key type was given.");
+	}
+};
+
 Standards.general.safeWhile = function (condition, doStuff, loops) {
 	/**
 	runs a while loop with a maximum recursion depth
@@ -1968,7 +2167,7 @@ Standards.general.storage.server = {
 			["Anonymous", function () {
 				firebase.auth().signInAnonymously();
 			}],
-			["Cancel", function () {return;}]
+			"Cancel"
 		);
 	},
 	signIn: function () {
@@ -1980,7 +2179,7 @@ Standards.general.storage.server = {
 			["Anonymous", function () {
 				firebase.auth().signInAnonymously();
 			}],
-			["Cancel", function () {return;}]
+			"Cancel"
 		);
 	},
 	signOut: function () {
@@ -1989,7 +2188,7 @@ Standards.general.storage.server = {
 			["Yes", function () {
 				firebase.auth().signOut();
 			}],
-			["No", function () {return;}]
+			"No"
 		);
 	},
 	mergeAccounts: function () {
