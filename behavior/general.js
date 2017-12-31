@@ -1300,12 +1300,26 @@ Standards.general.onKeyDown = function (key, doStuff, allowDefault) {
 	arguments:
 		key = required; the key or array of keys of interest
 			keys are designated by the "key" property of a KeyboardEvent object
+			special values:
+				"letter" = all capital and lowercase letters
+				"number" = a key that produces a number
+				"character" = any key that produces a character (includes whitespace characters)
+				"any" = when any key is pressed
 		doStuff = required; the function to call when the desired key(s) is/are pressed
 			the KeyboardEvent object of the keydown listener is passed to the function as an argument
 		allowDefault = optional; whether the default action of the key press should be allowed
 			default: false
 	non-native functions = getType
 	*/
+	if (key == "letter") {
+		key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
+	} else if (key == "number") {
+		key = "0123456789".split();
+	} else if (key == "character") {
+		key = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
+		key.push("Enter");
+		key.push("Tab");
+	}
 	if (Standards.general.getType(key) == "Array") {
 		if (allowDefault) {
 			document.addEventListener("keydown", function (event) {
@@ -1322,19 +1336,30 @@ Standards.general.onKeyDown = function (key, doStuff, allowDefault) {
 			});
 		}
 	} else if (Standards.general.getType(key) == "String") {
-		if (allowDefault) {
-			document.addEventListener("keydown", function (event) {
-				if (event.key == key) {
-					doStuff(event);
-				}
-			});
-		} else {
-			document.addEventListener("keydown", function (event) {
-				if (event.key == key) {
+		if (key == "any") {
+			if (allowDefault) {
+				document.addEventListener("keydown", doStuff);
+			} else {
+				document.addEventListener("keydown", function (event) {
 					event.preventDefault();
 					doStuff(event);
-				}
-			});
+				});
+			}
+		} else {
+			if (allowDefault) {
+				document.addEventListener("keydown", function (event) {
+					if (event.key == key) {
+						doStuff(event);
+					}
+				});
+			} else {
+				document.addEventListener("keydown", function (event) {
+					if (event.key == key) {
+						event.preventDefault();
+						doStuff(event);
+					}
+				});
+			}
 		}
 	} else {
 		console.error("An invalid key type was given.");
@@ -1349,6 +1374,11 @@ Standards.general.onKeyHold = function (key, doStuff, allowDefault, intervalTime
 	arguments:
 		key = required; the key or array of keys of interest
 			keys are designated by the "key" property of a KeyboardEvent object
+			special values:
+				"letter" = all capital and lowercase letters
+				"number" = a key that produces a number
+				"character" = any key that produces a character (includes whitespace characters)
+				"any" = when any key is pressed
 		doStuff = required; the function to call when the desired key(s) is/are pressed
 			an array of pressed keys is passed the the function as an argument
 				(that includes modifier keys such as "Control" or "Alt")
@@ -1359,9 +1389,57 @@ Standards.general.onKeyHold = function (key, doStuff, allowDefault, intervalTime
 			default: 15
 	non-native functions = getType
 	*/
+	if (key == "letter") {
+		key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
+	} else if (key == "number") {
+		key = "0123456789".split();
+	} else if (key == "character") {
+		key = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
+		key.push("Enter");
+		key.push("Tab");
+	}
 	intervalTime = intervalTime || 15;
 	var recurrenceLoop;
-	if (Standards.general.getType(key) == "Array") {
+	if (key == "any") {
+		var activeKeys = [];
+		if (allowDefault) {
+			document.addEventListener("keydown", function (event) {
+				if (!activeKeys.includes(event.key)) {
+					activeKeys.push(event.key);
+					if (activeKeys.length == 1) {
+						recurrenceLoop = setInterval(function () {
+							doStuff(activeKeys);
+						}, intervalTime);
+					}
+				}
+			});
+			document.addEventListener("keyup", function (event) {
+				activeKeys.splice(activeKeys.indexOf(event.key), 1);
+				if (activeKeys.length == 0) {
+					clearInterval(recurrenceLoop);
+				}
+			});
+		} else {
+			document.addEventListener("keydown", function (event) {
+				event.preventDefault();
+				if (!activeKeys.includes(event.key)) {
+					activeKeys.push(event.key);
+					if (activeKeys.length == 1) {
+						recurrenceLoop = setInterval(function () {
+							doStuff(activeKeys);
+						}, intervalTime);
+					}
+				}
+			});
+			document.addEventListener("keyup", function (event) {
+				event.preventDefault();
+				activeKeys.splice(activeKeys.indexOf(event.key), 1);
+				if (activeKeys.length == 0) {
+					clearInterval(recurrenceLoop);
+				}
+			});
+		}
+	} else if (Standards.general.getType(key) == "Array") {
 		var activeKeys = [];
 		if (allowDefault) {
 			document.addEventListener("keydown", function (event) {
@@ -1451,12 +1529,26 @@ Standards.general.onKeyUp = function (key, doStuff, allowDefault) {
 	arguments:
 		key = required; the key or array of keys of interest
 			keys are designated by the "key" property of a KeyboardEvent object
+			special values:
+				"letter" = all capital and lowercase letters
+				"number" = a key that produces a number
+				"character" = any key that produces a character (includes whitespace characters)
+				"any" = when any key is pressed
 		doStuff = required; the function to call when the desired key(s) is/are pressed
 			the KeyboardEvent object of the keyup listener is passed to the function as an argument
 		allowDefault = optional; whether the default action of the key press should be allowed
 			default: false
 	non-native functions = getType
 	*/
+	if (key == "letter") {
+		key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
+	} else if (key == "number") {
+		key = "0123456789".split();
+	} else if (key == "character") {
+		key = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
+		key.push("Enter");
+		key.push("Tab");
+	}
 	if (Standards.general.getType(key) == "Array") {
 		if (allowDefault) {
 			document.addEventListener("keyup", function (event) {
@@ -1473,19 +1565,30 @@ Standards.general.onKeyUp = function (key, doStuff, allowDefault) {
 			});
 		}
 	} else if (Standards.general.getType(key) == "String") {
-		if (allowDefault) {
-			document.addEventListener("keyup", function (event) {
-				if (event.key == key) {
-					doStuff(event);
-				}
-			});
-		} else {
-			document.addEventListener("keyup", function (event) {
-				if (event.key == key) {
+		if (key == "any") {
+			if (allowDefault) {
+				document.addEventListener("keyup", doStuff);
+			} else {
+				document.addEventListener("keyup", function (event) {
 					event.preventDefault();
 					doStuff(event);
-				}
-			});
+				});
+			}
+		} else {
+			if (allowDefault) {
+				document.addEventListener("keyup", function (event) {
+					if (event.key == key) {
+						doStuff(event);
+					}
+				});
+			} else {
+				document.addEventListener("keyup", function (event) {
+					if (event.key == key) {
+						event.preventDefault();
+						doStuff(event);
+					}
+				});
+			}
 		}
 	} else {
 		console.error("An invalid key type was given.");
@@ -1522,18 +1625,45 @@ Standards.general.makeDialog = function (message) {
 	Arguments after the message are two-item arrays which form buttons.
 		first item = text of the button
 		second item = the function to run if that button is pressed
+		the two-item arrays can be replaced with a single object
+			key = text of the button
+			value = the function called when the button is pressed
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
-	example:
+	examples:
 		Standards.general.makeDialog(
 			"Don't you think this dialog box is awesome?",
 			["Yes", function () {console.log("You're awesome too!");}],
 			["No", function () {console.log("Nobody cares what you think anyway!");}]
 		);
-	non-native functions = getType and getHTML
+		Standards.general.makeDialog(
+			"What do you think is the answer to life, the universe, and everything?",
+			{
+				love: function () {console.log("Don't make me laugh!");},
+				money: function () {console.log("You're not too far off.");},
+				42: function () {console.log("You're intelligence is indisputably immense.");}
+			}
+		);
+	non-native functions = getType, forEach, and getHTML
 	*/
 	let pairs = Array.prototype.slice.call(arguments, 1),
 		identifier = Standards.general.identifier++;
+	if (Standards.general.getType(pairs[0]) == "Object") {
+		let list = [];
+		Standards.general.forEach(pairs[0], function (value, key) {
+			if (Standards.general.getType(value) == "Function") {
+				list.push([key, value]);
+			} else if (!value) {
+				list.push([key, function () {return;}]);
+			} else {
+				console.error('Behavior for the button "' + key + '" couldn\'t be recognized.');
+			}
+		});
+		pairs = list;
+		if (Standards.general.getType(pairs[0]) == "Object") {  // if the object was empty
+			pairs = [];
+		}
+	}
 	if (pairs.length < 1) {
 		pairs = [["Okay", function () {return;}]];
 	}
@@ -2158,29 +2288,37 @@ Standards.general.storage.server = {
 		}
 		return reference;
 	},
-	signUp: function () {
+	signUp: function (methods) {
 		Standards.general.storage.server.checkCompatibility(true);
-		Standards.general.makeDialog("Sign up with your prefered sign-in provider.",
-			["Google", function () {
+		let buttons = {};
+		if (methods.includes("Google")) {
+			buttons.Google = function () {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			}],
-			["Anonymous", function () {
+			};
+		}
+		if (methods.includes("Anonymous")) {
+			buttons.Anonymous = function () {
 				firebase.auth().signInAnonymously();
-			}],
-			"Cancel"
-		);
+			};
+		}
+		buttons.Cancel = function () { return; };
+		Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
 	},
-	signIn: function () {
+	signIn: function (methods) {
 		Standards.general.storage.server.checkCompatibility(true);
-		Standards.general.makeDialog("Sign in with your prefered sign-in provider.",
-			["Google", function () {
+		let buttons = {};
+		if (methods.includes("Google")) {
+			buttons.Google = function () {
 				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			}],
-			["Anonymous", function () {
+			};
+		}
+		if (methods.includes("Anonymous")) {
+			buttons.Anonymous = function () {
 				firebase.auth().signInAnonymously();
-			}],
-			"Cancel"
-		);
+			};
+		}
+		buttons.Cancel = function () { return; };
+		Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
 	},
 	signOut: function () {
 		Standards.general.storage.server.checkCompatibility();
@@ -2917,10 +3055,14 @@ window.addEventListener("load", function () {  // This waits for everything past
 		
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
-			document.getElementById("signIn").addEventListener("click", Standards.general.storage.server.signIn);
+			document.getElementById("signIn").addEventListener("click", function () {
+				Standards.general.storage.server.signIn(["Google", "Anonymous"]);
+			});
 		}
 		if (document.getElementById("signUp")) {  // if there's a signUp button
-			document.getElementById("signUp").addEventListener("click", Standards.general.storage.server.signUp);
+			document.getElementById("signUp").addEventListener("click", function () {
+				Standards.general.storage.server.signUp(["Google", "Anonymous"]);
+			});
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
 			document.getElementById("userSettings").addEventListener("click", function () {
