@@ -1,7 +1,7 @@
 if (Standards) {
 	if (!(Standards instanceof Object)) {
 		var Standards = {};
-		console.warn("typeof Standards is not an object");
+		console.warn("Standards is not an object");
 	}
 } else {
 	var Standards = {};
@@ -9,7 +9,7 @@ if (Standards) {
 if (Standards.general) {
 	if (!(Standards.general instanceof Object)) {
 		Standards.general = {};
-		console.warn("typeof Standards.general is not an object");
+		console.warn("Standards.general is not an object");
 	}
 } else {
 	Standards.general = {};
@@ -17,7 +17,7 @@ if (Standards.general) {
 if (Standards.general.options) {
 	if (!(Standards.general.options instanceof Object)) {
 		Standards.general.options = {};
-		console.warn("typeof Standards.general.options is not an object");
+		console.warn("Standards.general.options is not an object");
 	}
 } else {
 	Standards.general.options = {};
@@ -1109,11 +1109,24 @@ Standards.general.getName = function (name, specific) {
 Standards.general.getType = function (item) {
 	/**
 	finds the type of an item since it's unnecessarily complicated to be sure normally
+	extra arguments can be added to check against special types first
+		each argument must be a string representation of the constructor
+		checks are done with instanceof
 	non-native functions = none
 	*/
-	if (typeof item === "undefined") {
+	var extraTypes = Array.prototype.slice.call(arguments, 1);
+	var reverseIndex = extraTypes.length;
+	if (reverseIndex > 0) {
+		while (reverseIndex--) {
+			let type = extraTypes[reverseIndex];
+			if (type && type.constructor === String && type.search(/[^A-Za-z0-9.()]/) === -1 && item instanceof eval(type)) {
+				return type;
+			}
+		}
+	}
+	if (item === undefined) {  // if it's undefined
 		return "undefined";
-	} else if (typeof item === "null") {
+	} else if (item === null) {  // if it's null
 		return "null";
 	} else if (item.constructor === Boolean) {  // if it's a boolean
 		return "Boolean";
@@ -1125,9 +1138,9 @@ Standards.general.getType = function (item) {
 		return "String";
 	} else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
 		return "Array";
-	} else if (item instanceof RegExp) {
+	} else if (item instanceof RegExp) {  // if it's a regular expression
 		return "RegExp";
-	} else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if it's an HTML element
+	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
 		return "HTMLElement";
 	} else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
 		return "HTMLCollection";
@@ -1140,7 +1153,7 @@ Standards.general.getType = function (item) {
 	} else if (item instanceof Object) {  // if it's a regular object
 		return "Object";
 	} else {  // if it's an enigma
-		console.error(item + " has no type");
+		console.error(item + " has an unknown type");
 		return undefined;
 	}
 };
@@ -2356,7 +2369,10 @@ Standards.general.storage.server = {
 					[key]: item
 				}, { merge: true }).then(function () {
 					if (callback) {
-						callback();
+						callback().catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be stored.");
@@ -2368,7 +2384,10 @@ Standards.general.storage.server = {
 					key = key ? "/"+key : "";
 					Standards.general.storage.server.getReference(location+key).set(item).then(function () {
 						if (callback) {
-							callback();
+							callback().catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							});
 						}
 					}).catch(function (error) {
 						alert("The information couldn't be stored.");
@@ -2404,7 +2423,10 @@ Standards.general.storage.server = {
 		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				if (document.exists) {
-					callback(document.data()[key]);
+					callback(document.data()[key]).catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					});
 				} else {
 					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
@@ -2417,7 +2439,10 @@ Standards.general.storage.server = {
 			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
 				snapshot.forEach(function (document) {
 					if (document.id == key) {
-						callback(document.data());
+						callback(document.data()).catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
 					}
 				});
 			}).catch(function (error) {
@@ -2450,7 +2475,10 @@ Standards.general.storage.server = {
 			if (key === null) {
 				Standards.general.storage.server.getReference(location).delete().then(function () {
 					if (callback) {
-						callback();
+						callback().catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2461,7 +2489,10 @@ Standards.general.storage.server = {
 					[key]: firebase.firestore.FieldValue.delete()
 				}).then(function () {
 					if (callback) {
-						callback();
+						callback().catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2476,7 +2507,10 @@ Standards.general.storage.server = {
 					});
 				}).then(function () {
 					if (callback) {
-						callback();
+						callback().catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2485,7 +2519,10 @@ Standards.general.storage.server = {
 			} else {
 				Standards.general.storage.server.getReference(location).doc(key).delete().then(function () {
 					if (callback) {
-						callback();
+						callback().catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2520,20 +2557,29 @@ Standards.general.storage.server = {
 					Standards.general.forEach(document.data(), function (value, key) {
 						keyList.push(key);
 					});
-					callback(keyList);
+					callback(keyList).catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					});
 				} else {
 					console.warn("An attempt was made to access a non-existent document.");
-					callback(keyList);
+					callback(keyList).catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					});
 				}
 			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
-				console.error("List retrieval or callback execution failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+				console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
 				console.error(error);
 			});
 		} else {  // if the location goes to a collection
 			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
 				//// if snapshot.empty might need to be used here
-				callback(snapshot.docs);
+				callback(snapshot.docs).catch(function (error) {
+					console.error("There was a problem running the callback.");
+					console.error(error);
+				});
 			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
 				console.error(error);
