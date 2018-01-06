@@ -546,7 +546,6 @@ note- {
 	color: blue;
 	cursor: help;
 }
-
 note-::before {
 	/**
 	makes a * where there's a note
@@ -555,15 +554,12 @@ note-::before {
 	content: "*";  /* for browsers that don't support var() */
 	content: var(--before-content, "*");
 }
-
 .trigger {
 	position: relative;
 }
-
 note-:hover {
 	text-decoration: underline;
 }
-
 note- div, .trigger div, .pop-up div {
 	/**
 	This needs to come before the styling for <div>s with child selectors
@@ -571,7 +567,6 @@ note- div, .trigger div, .pop-up div {
 	max-height: 20em;
 	overflow: auto;
 }
-
 note- > div, .trigger > div, .pop-up {
 	font-size: .75em;  /* This changes the "em" value for everything else (including "::before" and "::after"). */
 	position: absolute;
@@ -588,12 +583,10 @@ note- > div, .trigger > div, .pop-up {
 	pointer-events: none;
 	transition: opacity .5s linear .5s;
 }
-
 .pop-up {
 	text-align: center;
 	transition: opacity .5s linear;
 }
-
 note- > div::before, .trigger > div::before, .pop-up::before {
 	/**
 	This makes sure you don't have the leave the trigger before hovering over the pop-up.
@@ -605,7 +598,6 @@ note- > div::before, .trigger > div::before, .pop-up::before {
 	width: 15em;
 	height: .8em;
 }
-
 note- > div::after, .trigger > div::after, .pop-up::after {
 	/**
 	makes the protruding triangle of the pop-up
@@ -618,7 +610,6 @@ note- > div::after, .trigger > div::after, .pop-up::after {
 	border-style: solid;
 	border-color: white transparent transparent transparent;
 }
-
 note-:hover > div, .trigger:hover > div, .pop-up.active {
 	/**
 	makes the pop-up appear when the note or trigger is hovered over
@@ -652,13 +643,17 @@ over- {
 	/**
 	styles the section of the page that navigates to other sections of the page
 	*/
-	display: block;
+	display: table;
 	margin: 2em auto;
 	padding: 0em 1em 1em;
 	background: white;
 	background: rgba(255, 255, 255, .5);
 }
-
+.page-jump-list::after {
+	content: "";
+	display: table;
+	clear: both;
+}
 .page-jump-list ol {
 	/**
 	makes ordered lists in page-jump-list sections account for the padding of that section
@@ -673,13 +668,17 @@ over- {
 	right: 3em;
 	z-index: 2;
 }
-
 #userSettings {
 	display: none;
 }
-
 #signOut {
 	display: none;
+}
+
+.site-editor {
+	position: -webkit-sticky;
+	position: -ms-sticky;
+	position: sticky;
 }
 
 .circle {

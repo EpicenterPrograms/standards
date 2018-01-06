@@ -200,10 +200,11 @@ Standards.presentation.slides.goTo = function (identifier, slideNumber) {
 	while (reverseIndex--) {
 		item = document.getElementsByClassName("slides")[index].children[reverseIndex];
 		item.style.transition = "0s";
-		item.style.left = "100%";
+		item.style.left = "-100%";
 	}
 	reverseIndex = document.getElementsByClassName("slides")[index].children.length;
 	while (reverseIndex--) {
+		document.getElementsByClassName("slides")[index].children[reverseIndex].style.left = "100%";
 		if (slideNumber - 1 == reverseIndex) {
 			document.getElementsByClassName("slides")[index].children[reverseIndex].style.left = "0%";
 			break;

@@ -1,0 +1,236 @@
+:root {
+	--face-positioning: absolute;
+}
+
+.happy-face {
+	position: absolute;
+	position: var(--face-positioning);
+	left: 0em;
+	top: 0em;
+	border: .05em solid black;
+	border-radius: 1em;
+	width: 2em;
+	height: 2em;
+	background-color: yellow;
+}
+.happy-face .face-left-eye {
+	position: absolute;
+	left: .4em;
+	top: .4em;
+	border-radius: .2em;
+	width: .4em;
+	height: .4em;
+	background-color: black;
+}
+.happy-face .face-right-eye {
+	position: absolute;
+	right: .4em;
+	top: .4em;
+	border-radius: .2em;
+	width: .4em;
+	height: .4em;
+	background-color: black;
+}
+.happy-face .face-mouth {
+	position: absolute;
+	left: .5em;
+	bottom: .25em;
+	border: .15em solid black;
+	border-top: none;
+	border-radius: 0em 0em .5em .5em;
+	width: 1em;
+	height: .5em;
+}
+.sad-face {
+	position: absolute;
+	position: var(--face-positioning);
+	left: 0em;
+	top: 0em;
+	border: .05em solid black;
+	border-radius: 1em;
+	width: 2em;
+	height: 2em;
+	background-color: blue;
+}
+.sad-face .face-left-eye {
+	position: absolute;
+	left: .4em;
+	top: .4em;
+	border-radius: .2em;
+	width: .4em;
+	height: .4em;
+	background-color: black;
+}
+.sad-face .face-right-eye {
+	position: absolute;
+	right: .4em;
+	top: .4em;
+	border-radius: .2em;
+	width: .4em;
+	height: .4em;
+	background-color: black;
+}
+.sad-face .face-mouth {
+	position: absolute;
+	left: .5em;
+	bottom: .3em;
+	border: .15em solid black;
+	border-bottom: none;
+	border-radius: .5em .5em 0em 0em;
+	width: 1em;
+	height: .5em;
+}
+.angry-face {
+	position: absolute;
+	position: var(--face-positioning);
+	left: 0em;
+	top: 0em;
+	border: .05em solid black;
+	border-radius: 1em;
+	width: 2em;
+	height: 2em;
+	background-color: red;
+}
+.angry-face .face-left-eye {
+	position: absolute;
+	left: .4em;
+	top: .35em;
+	border: .25em solid black;
+	border-radius: .25em;
+	border-top-color: transparent;
+	border-right-color: transparent;
+}
+.angry-face .face-right-eye {
+	position: absolute;
+	right: .4em;
+	top: .35em;
+	border: .25em solid black;
+	border-radius: .25em;
+	border-top-color: transparent;
+	border-left-color: transparent;
+}
+.angry-face .face-mouth {
+	position: absolute;
+	left: .5em;
+	bottom: .5em;
+	width: 1em;
+	height: .15em;
+	background-color: black;
+}
+.alien-face {
+	position: absolute;
+	position: var(--face-positioning);
+	left: 0em;
+	top: 0em;
+	border: .05em solid black;
+	border-radius: 1em;
+	width: 2em;
+	height: 2em;
+	background-color: #0f0;
+	overflow: visible;  /* This makes sure the ::before and ::after are visible since they extend beyond the border. */
+}
+.alien-face::before {
+	content: "";  /* ::before and ::after elements don't show up without a "content" property */
+	position: absolute;
+	left: .85em;
+	bottom: 100%;
+	border: .05em solid black;
+	width: .2em;
+	height: .3em;
+	background: #0f0;
+}
+.alien-face::after {
+	content: "";
+	position: absolute;
+	left: .7em;
+	bottom: calc(100% + .3em);
+	border: .05em solid black;
+	border-radius: .25em;
+	width: .5em;
+	height: .5em;
+	background-color: #0f0;
+}
+.alien-face .face-left-eye {
+	position: absolute;
+	left: .3em;
+	top: .3em;
+	border-radius: .4em;
+	width: .55em;
+	height: .8em;
+	background-color: black;
+}
+.alien-face .face-right-eye {
+	position: absolute;
+	right: .3em;
+	top: .3em;
+	border-radius: .4em;
+	width: .55em;
+	height: .8em;
+	background-color: black;
+}
+.alien-face .face-mouth {
+	position: absolute;
+	left: .85em;
+	bottom: .3em;
+	border-radius: .15em;
+	width: .3em;
+	height: .3em;
+	background-color: black;
+}
+.robot-face {
+	position: absolute;
+	position: var(--face-positioning);
+	left: 0em;
+	top: 0em;
+	border: .05em solid black;
+	width: 2em;
+	height: 2em;
+	background-color: lightgray;
+	overflow: visible;  /* This makes sure the ::before and ::after are visible since they extend beyond the border. */
+}
+.robot-face::before {
+	content: "";  /* ::before and ::after elements don't show up without a "content" property */
+	position: absolute;
+	left: .85em;
+	bottom: 100%;
+	border: .05em solid black;
+	width: .2em;
+	height: .3em;
+	background: lightgray;
+}
+.robot-face::after {
+	content: "";
+	position: absolute;
+	left: .7em;
+	bottom: calc(100% + .3em);
+	border: .05em solid black;
+	border-radius: .25em;
+	width: .5em;
+	height: .5em;
+	background-color: red;
+}
+.robot-face .face-left-eye {
+	position: absolute;
+	left: .4em;
+	top: .35em;
+	width: .35em;
+	height: .35em;
+	background-color: black;
+}
+.robot-face .face-right-eye {
+	position: absolute;
+	right: .4em;
+	top: .35em;
+	width: .35em;
+	height: .35em;
+	background-color: black;
+}
+.robot-face .face-mouth {
+	position: absolute;
+	left: .5em;
+	bottom: .35em;
+	border: .15em solid black;
+	border-top: none;
+	width: 1em;
+	height: .4em;
+}
