@@ -2369,10 +2369,10 @@ Standards.general.storage.server = {
 					[key]: item
 				}, { merge: true }).then(function () {
 					if (callback) {
-						callback().catch(function (error) {
+						callback()/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						});
+						})*/;
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be stored.");
@@ -2384,10 +2384,10 @@ Standards.general.storage.server = {
 					key = key ? "/"+key : "";
 					Standards.general.storage.server.getReference(location+key).set(item).then(function () {
 						if (callback) {
-							callback().catch(function (error) {
+							callback()/*.catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
-							});
+							})*/;
 						}
 					}).catch(function (error) {
 						alert("The information couldn't be stored.");
@@ -2423,10 +2423,10 @@ Standards.general.storage.server = {
 		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				if (document.exists) {
-					callback(document.data()[key]).catch(function (error) {
+					callback(document.data()[key])/*.catch(function (error) {
 						console.error("There was a problem running the callback.");
 						console.error(error);
-					});
+					})*/;
 				} else {
 					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
@@ -2439,10 +2439,10 @@ Standards.general.storage.server = {
 			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
 				snapshot.forEach(function (document) {
 					if (document.id == key) {
-						callback(document.data()).catch(function (error) {
+						callback(document.data())/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						});
+						})*/;
 					}
 				});
 			}).catch(function (error) {
@@ -2475,10 +2475,10 @@ Standards.general.storage.server = {
 			if (key === null) {
 				Standards.general.storage.server.getReference(location).delete().then(function () {
 					if (callback) {
-						callback().catch(function (error) {
+						callback()/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						});
+						})*/;
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2489,10 +2489,10 @@ Standards.general.storage.server = {
 					[key]: firebase.firestore.FieldValue.delete()
 				}).then(function () {
 					if (callback) {
-						callback().catch(function (error) {
+						callback()/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						});
+						})*/;
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2507,10 +2507,10 @@ Standards.general.storage.server = {
 					});
 				}).then(function () {
 					if (callback) {
-						callback().catch(function (error) {
+						callback()/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						});
+						})*/;
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2519,10 +2519,10 @@ Standards.general.storage.server = {
 			} else {
 				Standards.general.storage.server.getReference(location).doc(key).delete().then(function () {
 					if (callback) {
-						callback().catch(function (error) {
+						callback()/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						});
+						})*/;
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be deleted.");
@@ -2557,16 +2557,16 @@ Standards.general.storage.server = {
 					Standards.general.forEach(document.data(), function (value, key) {
 						keyList.push(key);
 					});
-					callback(keyList).catch(function (error) {
+					callback(keyList)/*.catch(function (error) {
 						console.error("There was a problem running the callback.");
 						console.error(error);
-					});
+					})*/;
 				} else {
 					console.warn("An attempt was made to access a non-existent document.");
-					callback(keyList).catch(function (error) {
+					callback(keyList)/*.catch(function (error) {
 						console.error("There was a problem running the callback.");
 						console.error(error);
-					});
+					})*/;
 				}
 			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
@@ -2576,10 +2576,10 @@ Standards.general.storage.server = {
 		} else {  // if the location goes to a collection
 			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
 				//// if snapshot.empty might need to be used here
-				callback(snapshot.docs).catch(function (error) {
+				callback(snapshot.docs)/*.catch(function (error) {
 					console.error("There was a problem running the callback.");
 					console.error(error);
-				});
+				})*/;
 			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
 				console.error(error);
