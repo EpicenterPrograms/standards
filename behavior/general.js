@@ -2025,7 +2025,7 @@ Standards.general.onTouchHold = function (element, doStuff, allowDefault, trigge
 						movement = true;
 					});
 					element.addEventListener("touchend", function (event) {
-						//// event.preventDefault();  // This prevents things like pressing buttons.
+						event.preventDefault();  // This prevents things like pressing buttons.
 						if (!movement) {
 							clearInterval(recurrenceLoop);
 						} else {
@@ -2056,7 +2056,7 @@ Standards.general.onTouchHold = function (element, doStuff, allowDefault, trigge
 						movement = true;
 					});
 					element.addEventListener("touchend", function (event) {
-						//// event.preventDefault();  // This prevents things like pressing buttons.
+						event.preventDefault();  // This prevents things like pressing buttons.
 						if (!movement) {
 							clearInterval(recurrenceLoop);
 							runTimes = 0;
