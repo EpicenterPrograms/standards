@@ -1379,7 +1379,7 @@ Standards.general.onKeyDown = function (key, doStuff, allowDefault) {
 	}
 };
 
-Standards.general.onKeyHold = function (key, doStuff, allowDefault, intervalTime) {
+Standards.general.onKeyHold = function (key, doStuff, allowDefault, triggerTime, intervalTime) {
 	/**
 	allows actions when a key is held down
 	this doesn't replace any previous uses
@@ -1607,6 +1607,587 @@ Standards.general.onKeyUp = function (key, doStuff, allowDefault) {
 		console.error("An invalid key type was given.");
 	}
 };
+
+Standards.general.onMouseDown = function (element, doStuff, allowDefault) {
+	/**
+	does something when the mouse is pressed down
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = optional; whether the default behavior of the action should be allowed
+			default: false
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "HTMLElement":
+						break;
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			if (allowDefault) {
+				element.addEventListener("mousedown", function (event) {
+					doStuff(event);
+				});
+			} else {
+				element.addEventListener("mousedown", function (event) {
+					event.preventDefault();
+					doStuff(event);
+				});
+			}
+		},
+		arguments: [element, doStuff, allowDefault]
+	});
+};
+
+Standards.general.onMouseHold = function (element, doStuff, allowDefault, triggerTime, intervalTime) {
+	/**
+	does something while the mouse is held down
+	there's no distinction between a press and a hold
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = optional; whether the default behavior of the action should be allowed
+			default: false
+		triggerTime = optional; the time, in milliseconds, after which the provided function should be called
+			falsy values (or Infinity) cause the function to be continually called
+			causes the need for the hold to be sustained for a certain amount of time before executing doStuff
+			default: undefined
+		intervalTime = optional; the number of milliseconds before doStuff is (potentially) called again
+			doesn't call the function every time if a triggerTime is provided
+			default: 15;
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault, triggerTime, intervalTime) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLElement":
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			intervalTime = intervalTime || 15;
+			let recurrenceLoop,
+				mouseDown = false;
+			if (allowDefault) {
+				if (!triggerTime || triggerTime == Infinity) {
+					element.addEventListener("mousedown", function () {
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(doStuff, intervalTime);
+						}
+					});
+					element.addEventListener("mouseup", function () {
+						clearInterval(recurrenceLoop);
+					});
+				} else {
+					if (Standards.general.getType(triggerTime) != "Number") {
+						throw "The trigger time isn't a number.";
+					} else if (triggerTime < 0) {
+						throw "Negative trigger times aren't allowed.";
+					}
+					let runTimes = 0;
+					element.addEventListener("mousedown", function () {
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(function () {
+								if (++runTimes == Math.round(triggerTime / intervalTime)) {
+									doStuff();
+								}
+							}, intervalTime);
+						}
+					});
+					element.addEventListener("mouseup", function () {
+						clearInterval(recurrenceLoop);
+						runTimes = 0;
+					});
+				}
+			} else {
+				if (!triggerTime || triggerTime == Infinity) {
+					element.addEventListener("mousedown", function (event) {
+						event.preventDefault();
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(doStuff, intervalTime);
+						}
+					});
+					element.addEventListener("mouseup", function (event) {
+						event.preventDefault();
+						clearInterval(recurrenceLoop);
+					});
+				} else {
+					if (Standards.general.getType(triggerTime) != "Number") {
+						throw "The trigger time isn't a number.";
+					} else if (triggerTime < 0) {
+						throw "Negative trigger times aren't allowed.";
+					}
+					let runTimes = 0;
+					element.addEventListener("mousedown", function (event) {
+						event.preventDefault();
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(function () {
+								if (++runTimes == Math.round(triggerTime / intervalTime)) {
+									doStuff();
+								}
+							}, intervalTime);
+						}
+					});
+					element.addEventListener("mouseup", function (event) {
+						event.preventDefault();
+						clearInterval(recurrenceLoop);
+						runTimes = 0;
+					});
+				}
+			}
+		},
+		arguments: [element, doStuff, allowDefault, triggerTime, intervalTime]
+	});
+};
+
+Standards.general.onMouseUp = function (element, doStuff, allowDefault) {
+	/**
+	does something when the mouse is let up
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = whether the default behavior of the action should be allowed
+			default: false
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLElement":
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			if (allowDefault) {
+				element.addEventListener("mouseup", function (event) {
+					doStuff(event);
+				});
+			} else {
+				element.addEventListener("mouseup", function (event) {
+					event.preventDefault();
+					doStuff(event);
+				});
+			}
+		},
+		arguments: [element, doStuff, allowDefault]
+	});
+};
+
+Standards.general.onTouchStart = function (element, doStuff, allowDefault) {
+	/**
+	does something when a screen touch begins
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = whether the default behavior of the action should be allowed
+			default: false
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLElement":
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			if (allowDefault) {
+				element.addEventListener("touchstart", function (event) {
+					doStuff(event);
+				});
+			} else {
+				element.addEventListener("touchstart", function (event) {
+					event.preventDefault();
+					doStuff(event);
+				});
+			}
+		},
+		arguments: [element, doStuff, allowDefault]
+	});
+};
+
+Standards.general.onTouchHold = function (element, doStuff, allowDefault, triggerTime, intervalTime) {
+	/**
+	does something while a touch is sustained
+	there's no distinction between a tap and a hold
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = optional; whether the default behavior of the action should be allowed
+			default: false
+		triggerTime = optional; the time, in milliseconds, after which the provided function should be called
+			falsy values (or Infinity) cause the function to be continually called
+			causes the need for the hold to be sustained for a certain amount of time before executing doStuff
+			default: undefined
+		intervalTime = optional; the number of milliseconds before doStuff is (potentially) called again
+			doesn't call the function every time if a triggerTime is provided
+			default: 15;
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault, triggerTime, intervalTime) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLElement":
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			intervalTime = intervalTime || 15;
+			let recurrenceLoop,
+				mouseDown = false,
+				movement = false;
+			if (allowDefault) {
+				if (!triggerTime || triggerTime == Infinity) {
+					element.addEventListener("touchstart", function () {
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(doStuff, intervalTime);
+						}
+					});
+					element.addEventListener("touchmove", function () {
+						clearInterval(recurrenceLoop);
+						movement = true;
+					});
+					element.addEventListener("touchend", function () {
+						if (!movement) {
+							clearInterval(recurrenceLoop);
+						} else {
+							movement = false;
+						}
+					});
+				} else {
+					if (Standards.general.getType(triggerTime) != "Number") {
+						throw "The trigger time isn't a number.";
+					} else if (triggerTime < 0) {
+						throw "Negative trigger times aren't allowed.";
+					}
+					let runTimes = 0;
+					element.addEventListener("touchstart", function () {
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(function () {
+								if (++runTimes == Math.round(triggerTime / intervalTime)) {
+									doStuff();
+								}
+							}, intervalTime);
+						}
+					});
+					element.addEventListener("touchmove", function () {
+						clearInterval(recurrenceLoop);
+						runTimes = 0;
+						movement = true;
+					});
+					element.addEventListener("touchend", function () {
+						if (!movement) {
+							clearInterval(recurrenceLoop);
+							runTimes = 0;
+						} else {
+							movement = false;
+						}
+					});
+				}
+			} else {
+				if (!triggerTime || triggerTime == Infinity) {
+					element.addEventListener("touchstart", function (event) {
+						//// event.preventDefault();
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(doStuff, intervalTime);
+						}
+					});
+					element.addEventListener("touchmove", function (event) {
+						//// event.preventDefault();
+						clearInterval(recurrenceLoop);
+						movement = true;
+					});
+					element.addEventListener("touchend", function (event) {
+						//// event.preventDefault();  // This prevents things like pressing buttons.
+						if (!movement) {
+							clearInterval(recurrenceLoop);
+						} else {
+							movement = false;
+						}
+					});
+				} else {
+					if (Standards.general.getType(triggerTime) != "Number") {
+						throw "The trigger time isn't a number.";
+					} else if (triggerTime < 0) {
+						throw "Negative trigger times aren't allowed.";
+					}
+					let runTimes = 0;
+					element.addEventListener("touchstart", function (event) {
+						//// event.preventDefault();
+						if (!mouseDown) {
+							recurrenceLoop = setInterval(function () {
+								if (++runTimes == Math.round(triggerTime / intervalTime)) {
+									doStuff();
+								}
+							}, intervalTime);
+						}
+					});
+					element.addEventListener("touchmove", function (event) {
+						//// event.preventDefault();
+						clearInterval(recurrenceLoop);
+						runTimes = 0;
+						movement = true;
+					});
+					element.addEventListener("touchend", function (event) {
+						//// event.preventDefault();  // This prevents things like pressing buttons.
+						if (!movement) {
+							clearInterval(recurrenceLoop);
+							runTimes = 0;
+						} else {
+							movement = false;
+						}
+					});
+				}
+			}
+		},
+		arguments: [element, doStuff, allowDefault, triggerTime, intervalTime]
+	});
+};
+
+Standards.general.onTouchMove = function (element, doStuff, allowDefault) {
+	/**
+	does something when a screen touch is moved
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = whether the default behavior of the action should be allowed
+			default: false
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLElement":
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			if (allowDefault) {
+				element.addEventListener("touchmove", function (event) {
+					doStuff(event);
+				});
+			} else {
+				element.addEventListener("touchmove", function (event) {
+					event.preventDefault();
+					doStuff(event);
+				});
+			}
+		},
+		arguments: [element, doStuff, allowDefault]
+	});
+};
+
+Standards.general.onTouchEnd = function (element, doStuff, allowDefault) {
+	/**
+	does something when a screen touch ends
+	doesn't replace previous uses
+	arguments:
+		element = required; the HTML element to place the listener on
+			types of values:
+				falsy value = uses the "document" object
+				HTML element = not converted
+				string = uses the element with an ID of that string
+				HTML collection = uses the first item of the collection
+				node list = uses the first item of the list
+				function = uses the result of the function
+		doStuff = required; the stuff to do
+		allowDefault = whether the default behavior of the action should be allowed
+			default: false
+	non-native functions = queue.add and getType
+	*/
+	Standards.general.queue.add({
+		runOrder: "first",
+		function: function (element, doStuff, allowDefault) {
+			if (element) {
+				switch (Standards.general.getType(element)) {
+					case "String":
+						element = document.getElementById(element);
+						break;
+					case "HTMLElement":
+						break;
+					case "HTMLCollection":
+						element = element[0];
+						break;
+					case "NodeList":
+						element = element[0];
+						break;
+					case "Function":
+						element = element();
+						break;
+					default:
+						throw "The element reference provided isn't a valid type.";
+				}
+			} else {
+				element = document;
+			}
+			if (allowDefault) {
+				element.addEventListener("touchend", function (event) {
+					doStuff(event);
+				});
+			} else {
+				element.addEventListener("touchend", function (event) {
+					event.preventDefault();
+					doStuff(event);
+				});
+			}
+		},
+		arguments: [element, doStuff, allowDefault]
+	});
+};
+
+/// There are more touch events.
 
 Standards.general.safeWhile = function (condition, doStuff, loops) {
 	/**

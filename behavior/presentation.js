@@ -82,7 +82,7 @@ Standards.presentation.slides.next = function (identifier) {
 	var index;
 	if (identifier) {
 		switch (Standards.presentation.getType(identifier)) {
-			case "string":
+			case "String":
 				viewFrame = document.getElementById(identifier);
 				break;
 			case "HTMLElement":
@@ -120,7 +120,7 @@ Standards.presentation.slides.previous = function (identifier) {
 	var index;
 	if (identifier) {
 		switch (Standards.presentation.getType(identifier)) {
-			case "string":
+			case "String":
 				viewFrame = document.getElementById(identifier);
 				break;
 			case "HTMLElement":
@@ -161,7 +161,7 @@ Standards.presentation.slides.goTo = function (identifier, slideNumber) {
 	var index;
 	if (identifier) {
 		switch (Standards.presentation.getType(identifier)) {
-			case "string":
+			case "String":
 				viewFrame = document.getElementById(identifier);
 				break;
 			case "HTMLElement":

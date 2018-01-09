@@ -677,8 +677,8 @@ over- {
 
 .site-editor {
 	position: -webkit-sticky;
-	position: -ms-sticky;
 	position: sticky;
+	top: 0em;
 }
 
 .circle {
