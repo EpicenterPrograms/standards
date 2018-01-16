@@ -1138,6 +1138,8 @@ Standards.general.getType = function (item) {
 		return "String";
 	} else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
 		return "Array";
+	} else if (typeof item === "function") {  // if it's a function
+		return "Function";
 	} else if (item instanceof RegExp) {  // if it's a regular expression
 		return "RegExp";
 	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
@@ -1146,10 +1148,12 @@ Standards.general.getType = function (item) {
 		return "HTMLCollection";
 	} else if (item instanceof CSSRuleList) {  // if it's a CSSRuleList
 		return "CSSRuleList";
+	} else if (item instanceof Date) {  // if it's a Date object
+		return "Date";
+	} else if (item instanceof DOMStringMap) {  // if it's a DOMStringMap
+		return "DOMStringMap";
 	} else if (item instanceof NodeList) {  // if it's a NodeList
 		return "NodeList";
-	} else if (typeof item === "function") {  // if it's a function
-		return "Function";
 	} else if (item instanceof Object) {  // if it's a regular object
 		return "Object";
 	} else {  // if it's an enigma
@@ -1204,6 +1208,13 @@ Standards.general.toArray = function () {
 		}
 	}
 	return returnList;
+};
+
+Standards.general.toObject = function () {
+	/**
+
+	*/
+	
 };
 
 Standards.general.forEach = function (list, doStuff, shouldCopy) {

@@ -25,6 +25,75 @@ if (Standards.game.options) {
 
 Standards.game.timers = {};  // holds intervals and timeouts
 
+Standards.game.getType = function (item) {
+	/**
+	finds the type of an item since it's unnecessarily complicated to be sure normally
+	extra arguments can be added to check against special types first
+		each argument must be a string representation of the constructor
+		checks are done with instanceof
+	non-native functions = none
+	*/
+	var extraTypes = Array.prototype.slice.call(arguments, 1);
+	var reverseIndex = extraTypes.length;
+	if (reverseIndex > 0) {
+		while (reverseIndex--) {
+			let type = extraTypes[reverseIndex];
+			if (type && type.constructor === String && type.search(/[^A-Za-z0-9.()]/) === -1 && item instanceof eval(type)) {
+				return type;
+			}
+		}
+	}
+	if (item === undefined) {  // if it's undefined
+		return "undefined";
+	} else if (item === null) {  // if it's null
+		return "null";
+	} else if (item.constructor === Boolean) {  // if it's a boolean
+		return "Boolean";
+	} else if (item.constructor === Number && isNaN(item)) {  // if it's not a number
+		return "NaN";
+	} else if (item.constructor === Number) {  // if it is a number
+		return "Number";
+	} else if (item.constructor === String) {  // if it's a string
+		return "String";
+	} else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
+		return "Array";
+	} else if (typeof item === "function") {  // if it's a function
+		return "Function";
+	} else if (item instanceof RegExp) {  // if it's a regular expression
+		return "RegExp";
+	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
+		return "HTMLElement";
+	} else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
+		return "HTMLCollection";
+	} else if (item instanceof CSSRuleList) {  // if it's a CSSRuleList
+		return "CSSRuleList";
+	} else if (item instanceof Date) {  // if it's a Date object
+		return "Date";
+	} else if (item instanceof DOMStringMap) {  // if it's a DOMStringMap
+		return "DOMStringMap";
+	} else if (item instanceof NodeList) {  // if it's a NodeList
+		return "NodeList";
+	} else if (item instanceof Object) {  // if it's a regular object
+		return "Object";
+	} else {  // if it's an enigma
+		console.error(item + " has an unknown type");
+		return undefined;
+	}
+};
+
+Standards.game.refreshInterval = Standards.game.refreshInterval || 15;
+
+Standards.game.setRefresh = function (time) {
+	/**
+
+	*/
+	if (Standards.game.getType(time) == "Number") {
+		Standards.game.refreshInterval = time;
+	} else {
+		throw "An incorrect type was given for the refresh interval.";
+	}
+};
+
 Standards.game.Character = function (source, options) {
 	/**
 	makes a character
@@ -38,20 +107,20 @@ Standards.game.Character = function (source, options) {
 			classes: a list of classes for the character
 				can be an array or space-separated string of classes
 			movementUnit: the unit of movement for the character, e.g. "px", "em", "vw", ...
-	non-native functions: none
+	non-native functions: getType
 	*/
 
 	var character = this;  // necessary for accessing this within a function
 
 	if (source) {
-		if (typeof source != "string" && source.constructor.toString().search(/HTML.*Element/) == -1) {
+		if (Standards.game.getType(source) != "String" && Standards.game.getType(source) != "HTMLElement") {
 			throw "The type of character isn't a string or an HTML element.";
 		}
 	} else {
 		source = "happy-face";
 	}
 	options = options || {};
-	if (source.constructor.toString().search(/HTML.*Element/) > -1) {  // if it's an HTML element
+	if (Standards.game.getType(source) == "HTMLElement") {  // if it's an HTML element
 		this.HTMLElement = source;
 	} else if (source.includes(".")) {
 		this.HTMLElement = document.createElement("img");
@@ -78,14 +147,14 @@ Standards.game.Character = function (source, options) {
 		this.HTMLElement.id = options.id;
 	}
 	if (options.classes) {
-		if (options.classes instanceof Array || typeof options.classes == "string") {
+		if (Standards.game.getType(options.classes) == "Array" || Standards.game.getType(options.classes) == "String") {
 			let list;
-			if (extraClasses instanceof Array) {
-				list = options.classes.join(" ");
-			} else {
+			if (Standards.game.getType(options.classes) == "String") {
 				list = options.classes;
+			} else {
+				list = options.classes.join(" ");
 			}
-			this.HTMLElement.className = this.HTMLElement.className=="" ? list : this.HTMLElement.className + " " + list;
+			this.HTMLElement.className = this.HTMLElement.className == "" ? list : this.HTMLElement.className + " " + list;
 		} else {
 			console.warn("The extra classes of the face maker are of an incorrect type.");
 		}
@@ -94,6 +163,234 @@ Standards.game.Character = function (source, options) {
 	this.xPosition = 0;
 	this.yPosition = 0;
 	this.movementUnit = options.movementUnit || "%";
+
+	this.move = function (specs) {
+		/**
+
+		*/
+		specs = specs || {};
+		if (specs.speed === undefined) {
+			specs.speed = 0;
+		} else if (Standards.game.getType(specs.speed) != "Number") {
+			throw "The provided speed isn't a number.";
+		}
+		if (specs.direction === undefined) {
+			specs.direction = 0;
+		} else if (Standards.game.getType(specs.direction) != "Number") {
+			throw "The provided direction isn't a number";
+		}
+		if (specs.directionUnit === undefined) {
+			specs.directionUnit = "degrees";
+		} else if (specs.directionUnit != "degrees" && specs.directionUnit != "radians") {
+			throw "An improper unit of direction was provided.";
+		}
+		if (specs.directionUnit == "degrees") {
+			specs.direction = specs.direction / 180 * Math.PI;
+		}
+		if (specs.stopType === undefined) {
+			specs.stopType = "box";
+		} else if (!["time", "distance", "function", "xBounding", "yBounding", "box", "point"].some(function (type) {
+			specs.stopType == type;
+		})) {
+			throw "An inproper type of stop was provided.";
+		}
+
+		function moveOneFrame() {
+			character.xPosition += specs.speed * Math.cos(specs.direction);
+			character.HTMLElement.style.left = character.xPosition + character.movementUnit;
+			character.yPosition -= specs.speed * Math.sin(specs.direction);
+			character.HTMLElement.style.top = character.yPosition + character.movementUnit;
+		};
+
+		var mover;
+		switch (specs.stopType) {
+			case "time":
+				console.warn("This type of stop isn't supported yet.");
+				break;
+			case "distance":
+				console.warn("This type of stop isn't supported yet.");
+				break;
+			case "function":
+				if (Standards.game.getType(specs.stopPlace) == "Function") {
+					mover = setInterval(function () {
+						if (!specs.stopPlace.call(character)) {
+							clearInterval(mover);
+						} else {
+							moveOneFrame();
+						}
+					}, Standards.game.refreshInterval);
+				} else {
+					throw "The provided type of the stop place is incorrect.";
+				}
+				break;
+			case "xBounding":
+				if (!specs.stopPlace) {
+					specs.stopPlace = [0, 100];
+				}
+				if (Standards.game.getType(specs.stopPlace) == "Number") {
+					if (specs.stopPlace >= character.xPosition) {
+						mover = setInterval(function () {
+							if (character.xPosition > specs.stopPlace) {
+								clearInterval(mover);
+							} else {
+								moveOneFrame();
+							}
+						}, Standards.game.refreshInterval);
+					} else {
+						mover = setInterval(function () {
+							if (character.xPosition <= specs.stopPlace) {
+								clearInterval(mover);
+							} else {
+								moveOneFrame();
+							}
+						}, Standards.game.refreshInterval);
+					}
+				} else if (Standards.game.getType(specs.stopPlace) == "Array") {
+					if (specs.stopPlace.length == 1) {
+						if (specs.stopPlace[0] >= character.xPosition) {
+							mover = setInterval(function () {
+								if (character.xPosition > specs.stopPlace[0]) {
+									clearInterval(mover);
+								} else {
+									moveOneFrame();
+								}
+							}, Standards.game.refreshInterval);
+						} else {
+							mover = setInterval(function () {
+								if (character.xPosition <= specs.stopPlace[0]) {
+									clearInterval(mover);
+								} else {
+									moveOneFrame();
+								}
+							}, Standards.game.refreshInterval);
+						}
+					} else if (specs.stopPlace.length == 2) {
+						if (specs.stopPlace[0] > specs.stopPlace[1]) {
+							specs.stopPlace = [specs.stopPlace[1], specs.stopPlace[0]];
+						}
+						mover = setInterval(function () {
+							if (character.xPosition <= specs.stopPlace[0] || character.xPosition >= specs.stopPlace[1]) {
+								clearInterval(mover);
+							} else {
+								moveOneFrame();
+							}
+						}, Standards.game.refreshInterval);
+					} else {
+						throw "The array of bounding x-values has an incorrect length.";
+					}
+				} else {
+					throw "The provided type of the stop place is incorrect.";
+				}
+				break;
+			case "yBounding":
+				if (!specs.stopPlace) {
+					specs.stopPlace = [0, 100];
+				}
+				if (Standards.game.getType(specs.stopPlace) == "Number") {
+					if (specs.stopPlace >= character.yPosition) {
+						mover = setInterval(function () {
+							if (character.yPosition > specs.stopPlace) {
+								clearInterval(mover);
+							} else {
+								moveOneFrame();
+							}
+						}, Standards.game.refreshInterval);
+					} else {
+						mover = setInterval(function () {
+							if (character.yPosition <= specs.stopPlace) {
+								clearInterval(mover);
+							} else {
+								moveOneFrame();
+							}
+						}, Standards.game.refreshInterval);
+					}
+				} else if (Standards.game.getType(specs.stopPlace) == "Array") {
+					if (Standards.game.getType(specs.stopPlace[0]) != "Number" || Standards.game.getType(specs.stopPlace[1]) != "Number") {
+						throw "At least one item of the bounding array isn't a number.";
+					}
+					if (specs.stopPlace.length == 1) {
+						if (specs.stopPlace[0] >= character.yPosition) {
+							mover = setInterval(function () {
+								if (character.yPosition > specs.stopPlace[0]) {
+									clearInterval(mover);
+								} else {
+									moveOneFrame();
+								}
+							}, Standards.game.refreshInterval);
+						} else {
+							mover = setInterval(function () {
+								if (character.yPosition <= specs.stopPlace[0]) {
+									clearInterval(mover);
+								} else {
+									moveOneFrame();
+								}
+							}, Standards.game.refreshInterval);
+						}
+					} else if (specs.stopPlace.length == 2) {
+						if (specs.stopPlace[0] > specs.stopPlace[1]) {
+							specs.stopPlace = [specs.stopPlace[1], specs.stopPlace[0]];
+						}
+						mover = setInterval(function () {
+							if (character.yPosition <= specs.stopPlace[0] || character.yPosition >= specs.stopPlace[1]) {
+								clearInterval(mover);
+							} else {
+								moveOneFrame();
+							}
+						}, Standards.game.refreshInterval);
+					} else {
+						throw "The array of bounding y-values has an incorrect length.";
+					}
+				} else {
+					throw "The provided type of the stop place is incorrect.";
+				}
+				break;
+			case "box":
+				if (!specs.stopPlace) {
+					specs.stopPlace = [0, 100, 0, 100];
+				}
+				if (Standards.game.getType(specs.stopPlace) != "Array") {
+					throw "The provided type of stop place is incorrect.";
+				} else if (specs.stopPlace.length != 4) {
+					throw "The array of bounding values is of an incorrect length";
+				} else if (!specs.stopPlace.every(function (number) {
+					return Standards.game.getType(number) == "Number";
+				})) {
+					throw "At least one value of the bounding array isn't a number.";
+				}
+				if (specs.stopPlace[0] > specs.stopPlace[1]) {
+					specs.stopPlace = [specs.stopPlace[1], specs.stopPlace[0], specs.stopPlace[2], specs.stopPlace[3]];
+				}
+				if (specs.stopPlace[2] > specs.stopPlace[3]) {
+					specs.stopPlace = [specs.stopPlace[0], specs.stopPlace[1], specs.stopPlace[3], specs.stopPlace[2]];
+				}
+				mover = setInterval(function () {
+					if (
+						character.xPosition <= specs.stopPlace[0] ||
+						character.xPosition >= specs.stopPlace[1] ||
+						character.yPosition <= specs.stopPlace[2] ||
+						character.yPosition >= specs.stopPlace[3]
+					) {
+						clearInterval(mover);
+					} else {
+						moveOneFrame();
+					}
+				}, Standards.game.refreshInterval);
+				break;
+			case "point":
+				console.warn("This type of stop isn't supported yet.");
+				break;
+		}
+	};
+
+	this.goTo = function (x, y) {
+		if (Standards.game.getType(x) != "Number" || Standards.game.getType(y) != "Number") {
+			throw "At least one of the given coordinates wasn't a number.";
+		}
+		character.xPosition = x;
+		character.yPosition = y;
+		character.HTMLElement.style.left = x + character.movementUnit;
+		character.HTMLElement.style.top = y + character.movementUnit;
+	};
 
 	this.moveLeft = function (distance) {
 		if (document.body.contains(character.HTMLElement)) {
@@ -125,16 +422,17 @@ Standards.game.Character = function (source, options) {
 	};
 
 	this.timers = {};
+	this.actions = {};
 
 	this.startAction = function (name, action, delay) {
-		delay = delay || 15;
+		delay = delay || Standards.game.refreshInterval;
 		var runTimes = 0;
-		character[name] = setInterval(function () {
+		character.actions[name] = setInterval(function () {
 			action.call(character, runTimes++);  // using .call on the function allows setting "character" as the "this" value
 		}, delay);
 	};
 	this.stopAction = function (name) {
-		clearInterval(character[name]);
+		clearInterval(character.actions[name]);
 	};
 
 	this.moveRandomly = function (options) {
@@ -146,7 +444,6 @@ Standards.game.Character = function (source, options) {
 			minY = the minimum allowable y-position
 			maxY = the maximum allowable y-position
 			maxDistance = the maximum travel distance
-			movementInterval = the amount of time between each iteration of movement
 			duration = the duration of the movement
 		non-native functions: none
 		*/
@@ -196,9 +493,8 @@ Standards.game.Character = function (source, options) {
 		}
 
 		// starts movement
-		var movementInterval = options.movementInterval || 15;
 		var duration = options.duration === undefined ? 1500 : options.duration;
-		var totalRunTimes = Math.round(duration / movementInterval);
+		var totalRunTimes = Math.round(duration / Standards.game.refreshInterval);
 		var currentRunTime = 0;
 		var interval = setInterval(function () {
 			character.moveRight(xMovement / totalRunTimes);
@@ -206,7 +502,7 @@ Standards.game.Character = function (source, options) {
 			if (++currentRunTime > totalRunTimes) {
 				clearInterval(interval);
 			}
-		}, movementInterval);
+		}, Standards.game.refreshInterval);
 	};
 };
 
@@ -226,13 +522,13 @@ Standards.game.repeatAction = function (times, action, delay) {
 				(the first time is 0)
 		times = required; the number of times the function should be run
 		delay = optional; the number of miliseconds separating each running of the function
-			default: 15
+			default: Standards.game.refreshInterval
 	non-native functions: none
 	*/
 	if (times < 1) {
 		throw "The times to repeat is less than one.";
 	}
-	delay = delay || 15;
+	delay = delay || Standards.game.refreshInterval;
 	let runTimes = 0;
 	let interval = setInterval(function () {
 		action(runTimes++);

@@ -245,7 +245,7 @@ nav.hidden-left-nav > iframe {
 	height: 100%;
 }
 
-iframe.top-nav, nav.top-nav {
+iframe.top-nav, nav.top-nav, .site-editor {
 	/**
 	creates a navigation section that moves to the top and stays there
 	*/
@@ -258,13 +258,13 @@ iframe.top-nav, nav.top-nav {
 	background: darkblue;
 }
 
-nav.top-nav div.drop-down {
+nav.top-nav div.drop-down, div div.drop-down {
 	display: inline-table;
 	position: relative;
 	overflow: visible;
 }
 
-nav.top-nav div.drop-down > div:first-child, nav.top-nav > button {
+nav.top-nav div.drop-down > div:first-child, nav.top-nav > button, div div.drop-down > div:first-child, .site-editor > button {
 	/**
 	makes the part of the drop-down that you see
 	or the buttons of a top navigation
@@ -279,13 +279,14 @@ nav.top-nav div.drop-down > div:first-child, nav.top-nav > button {
 	cursor: pointer;
 }
 
-nav.top-nav > button {
+nav.top-nav > button, .site-editor > button {
 	display: inline-block;
 	margin: 0em;
 	border: none;
+	font-family: serif;
 }
 
-nav.top-nav div.drop-down div {
+nav.top-nav div.drop-down div, div div.drop-down div {
 	/**
 	makes the part of the drop-down that appears
 	*/
@@ -297,14 +298,14 @@ nav.top-nav div.drop-down div {
 	cursor: default;
 }
 
-nav.top-nav label {
+nav.top-nav label, div div.drop-down label {
 	/**
 	makes sure labels don't wrap strangely
 	*/
 	white-space: nowrap;
 }
 
-nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, nav.top-nav div.drop-down:focus-within > div {
+nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, nav.top-nav div.drop-down:focus-within > div, div div.drop-down:focus > div, div div.drop-down > div:hover, div div.drop-down:focus-within > div {
 	/**
 	unhides the drop-down menu when focus is received
 	<div>s need a tabindex to receive focus
@@ -312,12 +313,33 @@ nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, na
 	display: block;
 }
 
-nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child {
+nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav button:hover, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child, div div.drop-down:hover > div:first-child, div div.drop-down:focus > div:first-child, div div.drop-down:focus-within > div:first-child {
 	/**
 	lightens the initially visible part of the drop-down
 	when hovered or the drop-down part is visible
 	*/
 	background: lightsteelblue;
+}
+
+.site-editor {
+	z-index: 9;
+	border-bottom: .15em solid #888;
+	background: #ddd;
+}
+
+.site-editor div.drop-down > div:first-child, .site-editor > button {
+	z-index: 9;
+	background: #ddd;
+	color: black;
+}
+
+.site-editor div.drop-down:hover > div:first-child, .site-editor div.drop-down:focus > div:first-child, .site-editor div.drop-down:focus-within > div:first-child, .site-editor button:hover {
+	background: lightblue;
+}
+
+.site-editor div.drop-down div {
+	z-index: 10;
+	background: white;
 }
 
 a {
@@ -673,12 +695,6 @@ over- {
 }
 #signOut {
 	display: none;
-}
-
-.site-editor {
-	position: -webkit-sticky;
-	position: sticky;
-	top: 0em;
 }
 
 .circle {
