@@ -942,8 +942,9 @@ HTMLCollection.prototype.forEach = function (doStuff, copy) {
 	}
 };
 
+/*
 CSSRuleList.prototype.forEach = function (doStuff) {
-	/**
+	// /**
 	CSSRuleList = a list of rules for a stylesheet
 	creates a static list of CSSRuleList elements
 	and does stuff for each one like Array.forEach()
@@ -954,7 +955,7 @@ CSSRuleList.prototype.forEach = function (doStuff) {
 	the .selectorText of a stylesheet rule will return something like p, .class, #ID, etc.
 	the properties and values of a stylesheet rule can be accessed and set like a normal object
 	non-native functions = none
-	*/
+	// *
 	var elements = [];
 	for (var index=0; index<this.length; index++) {
 		elements.push(this[index]);
@@ -968,10 +969,10 @@ CSSRuleList.prototype.forEach = function (doStuff) {
 };
 
 NodeList.prototype.forEach = function (doStuff) {
-	/**
+	// /**
 	similar to HTMLCollection.forEach()
 	non-native functions = none
-	*/
+	// *
 	var elements = [];
 	for (var index=0; index<this.length; index++) {
 		elements.push(this[index]);
@@ -984,7 +985,7 @@ NodeList.prototype.forEach = function (doStuff) {
 	}
 };
 
-/* Changing the object prototypes prevents the proper working of Google Firestore.
+// Changing the object prototypes prevents the proper working of Google Firestore.
 Object.prototype.forEach = function (doStuff, copy) {
 	// /**
 	loops through every property of the object
@@ -1119,7 +1120,7 @@ Standards.general.getType = function (item) {
 	if (reverseIndex > 0) {
 		while (reverseIndex--) {
 			let type = extraTypes[reverseIndex];
-			if (type && type.constructor === String && type.search(/[^A-Za-z0-9.()]/) === -1 && item instanceof eval(type)) {
+			if (type && type.constructor === String && type.search(/[^\w.()]/) === -1 && item instanceof eval(type)) {  //// expand this for errors
 				return type;
 			}
 		}
@@ -3392,7 +3393,10 @@ Standards.general.colorCode = function (element, conversion) {
 			function backgroundColor(value) {
 				var ends = [end1];
 				colors.slice(1).forEach(function (color, index, shortColors) {  // establishes the values where the different colors are centered
-					ends.push(end1+(end2-end1)*(index+1)/shortColors.length);
+					ends.push(end1 + (end2 - end1) * ((index + 1) / shortColors.length));
+					/// The parentheses are needed around the fraction to prevent rounding errors for the highest values.
+					/// (The endIndex would be increase once too many times because "value" might be higher than the end value.)
+					/// example: 42 > 41.9999999999999998 (<-- computer rounding error due to base-two storage)
 				});
 				var endIndex = 1,
 					finalColors = [];
@@ -3402,7 +3406,7 @@ Standards.general.colorCode = function (element, conversion) {
 				[0, 1, 2].forEach(function (index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
 					finalColors.push(Math.round(colors[endIndex-1][index] + (colors[endIndex][index]-colors[endIndex-1][index]) * (value-ends[endIndex-1]) / (ends[endIndex]-ends[endIndex-1])));
 				});
-				return "rgb(" + finalColors[0] + ", " + finalColors[1] + ", " + finalColors[2] + ")";
+				return "rgb(" + finalColors.join(", ") + ")";
 			}
 			if (element == null) {
 				end1 = 0;
@@ -3423,16 +3427,16 @@ Standards.general.colorCode = function (element, conversion) {
 					} else {
 						tds = element.getElementsByTagName("td");
 					}
-					if (!isNaN(tds[3].innerHTML) || !isNaN(tds[6].innerHTML)) {  // Is the data numbers?
+					if (!isNaN(tds[3].textContent) || !isNaN(tds[6].textContent)) {  // Is the data numbers?
 						var lowest = Infinity,
 							highest = -Infinity;
 						tds.forEach(function (item) {  // determines the high and low ends of the data
 							try {  // accounts for parts without data
-								if (Number(item.innerHTML) < lowest) {
-									lowest = Number(item.innerHTML);
+								if (Number(item.textContent) < lowest) {
+									lowest = Number(item.textContent);
 								}
-								if (Number(item.innerHTML) > highest) {
-									highest = Number(item.innerHTML);
+								if (Number(item.textContent) > highest) {
+									highest = Number(item.textContent);
 								}
 							} finally {  // a necessary accompanyment to try (although I could have used catch)
 							}
@@ -3440,11 +3444,11 @@ Standards.general.colorCode = function (element, conversion) {
 						end1 = lowest;
 						end2 = highest;
 						tds.forEach(function (data) {
-							if (!isNaN(data.innerHTML.trim()) && data.innerHTML.trim()!="") {  // sets the background color of the tabular data
-								data.style.backgroundColor = backgroundColor(Number(data.innerHTML.trim()));
+							if (!isNaN(data.textContent.trim()) && data.textContent.trim()!="") {  // sets the background color of the tabular data
+								data.style.backgroundColor = backgroundColor(Number(data.textContent.trim()));
 							}
 						});
-					} else if (tds[3].innerHTML.indexOf(":") > -1 || tds[6].innerHTML.indexOf(":") > -1) {  // if the data has a : (if it's a time or ratio)
+					} else if (tds[3].textContent.indexOf(":") > -1 || tds[6].textContent.indexOf(":") > -1) {  // if the data has a : (if it's a time or ratio)
 						function toTimeNumber(time) {
 							// converts the time into hours (or possibly minutes if minutes:seconds)
 							var hours = time.split(":")[0].trim(),
@@ -3467,7 +3471,7 @@ Standards.general.colorCode = function (element, conversion) {
 							minutes = Number(minutes.slice(0,2))/60;
 							return hours + minutes;
 						}
-						if (tds[3].innerHTML.indexOf("-") > -1 || tds[6].innerHTML.indexOf("-") > -1) {  // if the data has a - (if it's a time range)
+						if (tds[3].textContent.indexOf("-") > -1 || tds[6].textContent.indexOf("-") > -1) {  // if the data has a - (if it's a time range)
 							function timeDifference(difference, unit) {  // converts a time difference into a number
 								unit = unit || "hours";
 								var first = difference.split("-")[0].trim(),
@@ -3487,7 +3491,7 @@ Standards.general.colorCode = function (element, conversion) {
 								highest = -Infinity;
 							tds.forEach(function (item) {  // determines the high and low ends of the data set
 								try {  // accounts for parts that don't have data
-									var difference = timeDifference(item.innerHTML);
+									var difference = timeDifference(item.textContent);
 									if (difference < lowest) {
 										lowest = difference;
 									}
@@ -3501,7 +3505,7 @@ Standards.general.colorCode = function (element, conversion) {
 							end2 = highest;
 							tds.forEach(function (data) {  // assigns the background color of each of the tabular data
 								try {  // accounts for parts that don't have data (doesn't color them)
-									data.style.backgroundColor = backgroundColor(timeDifference(data.innerHTML));
+									data.style.backgroundColor = backgroundColor(timeDifference(data.textContent));
 								} finally {  // a necessary accompanyment to try (although I could have used catch)
 								}
 							});
@@ -3512,13 +3516,13 @@ Standards.general.colorCode = function (element, conversion) {
 				} else if (["P", "H1", "H2", "H3", "H4", "H5", "H6", "SPAN"].some(function (tag) {
 					return element.tagName == tag;
 				})) {
-					if (element.innerHTML.trim() != "") {  // if the text isn't empty
+					if (element.textContent.trim() != "") {  // if the text isn't empty
 						end1 = 0;
-						end2 = element.innerHTML.trim().length - 1;
+						end2 = element.textContent.trim().length - 1;
 						var replacement = document.createElement(element.tagName);  // makes sure the replacement uses the same tag / element type
-						element.innerHTML.trim().split("").forEach(function (character, index) {  // puts a <span> between each letter and colors the text
+						element.textContent.trim().split("").forEach(function (character, index) {  // puts a <span> between each letter and colors the text
 							var span = document.createElement("span");
-							span.innerHTML = character;
+							span.textContent = character;
 							span.style.display = "inline";
 							span.style.color = backgroundColor(index);
 							replacement.appendChild(span);
