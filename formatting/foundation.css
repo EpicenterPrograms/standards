@@ -697,6 +697,44 @@ over- {
 	display: none;
 }
 
+.details {
+	/**
+	allows items to be hidden or displayed like the <details> element when that element isn't supported
+	*/
+	margin: .5rem;
+	border: .05rem solid black;
+	border-top: none;
+	border-radius: .5rem;
+	overflow: hidden;
+}
+.details > * {
+	display: none;
+}
+.details > .summary {
+	display: block;
+	border-top: .05rem solid black;
+	border-radius: .5rem;
+	padding: .25rem;
+	background-color: #eeeeee;
+	text-align: center;
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+.details > .summary:hover {
+	text-decoration: underline;
+}
+.details > input:first-child {
+	display: none;
+}
+.details > input:first-child:checked ~ * {
+	display: initial;
+}
+.details > input:first-child:checked ~ .summary {
+	display: block;
+	margin-bottom: 1rem;
+	border: .05rem solid black;
+}
+
 .circle {
 	/**
 	circles things (like text)

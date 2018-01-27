@@ -3671,6 +3671,23 @@ window.addEventListener("load", function () {  // This waits for everything past
 			}
 		});
 		*/
+
+		// interprets .summary substitutions for <summary>
+		Standards.general.forEach(document.getElementsByClassName("summary"), function (element) {
+			let hiddenCheckbox = document.createElement("input");
+			hiddenCheckbox.type = "checkbox";
+			hiddenCheckbox.id = "summaryCheckbox" + Standards.general.identifier++;
+			let newSummary = document.createElement("label");
+			newSummary.className = element.className;
+			newSummary.htmlFor = hiddenCheckbox.id;
+			newSummary.innerHTML = element.innerHTML;
+			if (element.id) {
+				newSummary.id = element.id;
+			}
+			element.parentNode.insertBefore(hiddenCheckbox, element.parentNode.children[0]);
+			element.parentNode.insertBefore(newSummary, element);
+			element.parentNode.removeChild(element);
+		});
 		
 		// interprets condensed tables
 		var tables = document.getElementsByClassName("compact");
