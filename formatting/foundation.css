@@ -4,7 +4,8 @@ element.style,
 stylesheet.addRule(),
 stylesheet.insertRule(),
 stylesheet.deleteRule(),
-document.querySelector(),
+element.querySelector(),
+element.querySelectorAll(),
 window.getComputedValue().getPropertyValue(),
 CSS attr(),
 and class manipulation
@@ -258,7 +259,7 @@ iframe.top-nav, nav.top-nav, .site-editor {
 	background: darkblue;
 }
 
-nav.top-nav div.drop-down, div div.drop-down {
+nav.top-nav div.drop-down:not(:first-child), div div.drop-down:not(:first-child) {
 	display: inline-table;
 	position: relative;
 	overflow: visible;
@@ -367,7 +368,7 @@ li {
 }
 
 table {
-	margin: auto;
+	margin: 1rem auto;
 	border: none;
 	border-collapse: collapse;
 	background: none;
@@ -566,6 +567,7 @@ note- {
 	display: inline;
 	position: relative;
 	color: blue;
+	font-weight: normal;
 	cursor: help;
 }
 note-::before {
@@ -701,11 +703,12 @@ over- {
 	/**
 	allows items to be hidden or displayed like the <details> element when that element isn't supported
 	*/
+	display: block;
 	margin: .5rem;
 	border: .05rem solid black;
 	border-top: none;
 	border-radius: .5rem;
-	overflow: hidden;
+	overflow: visible;
 }
 .details > * {
 	display: none;
@@ -719,20 +722,38 @@ over- {
 	text-align: center;
 	font-size: 1.5rem;
 	font-weight: bold;
+	overflow: visible;
 }
 .details > .summary:hover {
 	text-decoration: underline;
+	cursor: pointer;
 }
 .details > input:first-child {
 	display: none;
 }
-.details > input:first-child:checked ~ * {
+.details > input:first-child:checked ~ * {  /* :not(.summary) is more specific than * (and overrides some of the following formatting) */
 	display: initial;
 }
 .details > input:first-child:checked ~ .summary {
 	display: block;
 	margin-bottom: 1rem;
 	border: .05rem solid black;
+}
+.details > input:first-child:checked ~ div {
+	display: inline-block;
+}
+.details > input:first-child:checked ~ ol, .details > input:first-child:checked ~ ul, .details > input:first-child:checked ~ .list, .details > input:first-child:checked ~ table {
+	/**
+	ensures elements styled as "table" here continue to be so
+	(it makes no sense why table elements need this)
+	*/
+	display: table;
+}
+.details > input:first-child:checked ~ section {
+	display: block;
+}
+.details > input:first-child:checked ~ note-, .details > input:first-child:checked ~ over- {
+	display: inline;
 }
 
 .circle {

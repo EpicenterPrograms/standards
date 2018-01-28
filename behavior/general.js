@@ -3370,7 +3370,7 @@ Standards.general.colorCode = function (element, conversion) {
 		default colors = red and green
 	for tables, the type of data contained is determined by a sample of the fourth and/or seventh item
 	a table needs to have at least 7 items before it's color-coded
-	non-native functions = Standards.general.queue.add(), HTMLCollection.forEach(), and toArray()
+	non-native functions = queue.add() and toArray()
 	*/
 	Standards.general.queue.add({
 		runOrder: "first",
@@ -3425,18 +3425,20 @@ Standards.general.colorCode = function (element, conversion) {
 							tds = Standards.general.toArray(tds, table.getElementsByTagName("td"));
 						});
 					} else {
-						tds = element.getElementsByTagName("td");
+						tds = Standards.general.toArray(element.getElementsByTagName("td"));
 					}
-					if (!isNaN(tds[3].textContent) || !isNaN(tds[6].textContent)) {  // Is the data numbers?
+					if (!isNaN(tds[3].textContent) || !isNaN(tds[6].textContent)) {  // Is the data numbers?  //// This should be improved. isNaN("") == false
 						var lowest = Infinity,
 							highest = -Infinity;
 						tds.forEach(function (item) {  // determines the high and low ends of the data
 							try {  // accounts for parts without data
-								if (Number(item.textContent) < lowest) {
-									lowest = Number(item.textContent);
-								}
-								if (Number(item.textContent) > highest) {
-									highest = Number(item.textContent);
+								if (item.textContent.trim() != "") {  // Number(" ") == 0
+									if (Number(item.textContent) < lowest) {
+										lowest = Number(item.textContent);
+									}
+									if (Number(item.textContent) > highest) {
+										highest = Number(item.textContent);
+									}
 								}
 							} finally {  // a necessary accompanyment to try (although I could have used catch)
 							}
@@ -3645,7 +3647,7 @@ window.addEventListener("load", function () {  // This waits for everything past
 		radioButtonNames.forEach(function (name) {
 			let previouslyChecked;
 			S.getName(name).forEach(function (button) {
-				button.addEventListener("click", function () {
+				button.addEventListener("change", function () {
 					if (this == previouslyChecked) {
 						this.checked = false;
 						previouslyChecked = undefined;
