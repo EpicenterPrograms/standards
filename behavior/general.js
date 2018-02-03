@@ -3645,17 +3645,32 @@ window.addEventListener("load", function () {  // This waits for everything past
 			}
 		});
 		radioButtonNames.forEach(function (name) {
-			let previouslyChecked;
-			S.getName(name).forEach(function (button) {
-				button.addEventListener("change", function () {
-					if (this == previouslyChecked) {
-						this.checked = false;
-						previouslyChecked = undefined;
-					} else {
-						previouslyChecked = this;
+			if (!Standards.general.toArray(document.getElementsByName(name)).some(function (box) {
+				return box.checked;
+			})) {  // if none of the boxes are checked
+				let previouslyChecked;
+				document.getElementsByName(name).forEach(function (box) {
+					box.addEventListener("click", function () {
+						if (this == previouslyChecked) {
+							this.checked = false;
+							previouslyChecked = undefined;
+						} else {
+							previouslyChecked = this;
+						}
+					});
+					if (box.nextSibling.nodeName == "LABEL") {
+						box.nextSibling.addEventListener("click", function () {
+							if (box == previouslyChecked) {
+								box.checked = false;
+								previouslyChecked = undefined;
+							} else {
+								box.checked = true;
+								previouslyChecked = box;
+							}
+						});
 					}
 				});
-			});
+			}
 		});
 		
 		// interprets <note-> tags
