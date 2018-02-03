@@ -259,7 +259,7 @@ iframe.top-nav, nav.top-nav, .site-editor {
 	background: darkblue;
 }
 
-nav.top-nav div.drop-down:not(:first-child), div div.drop-down:not(:first-child) {
+nav.top-nav div.drop-down, div div.drop-down {
 	display: inline-table;
 	position: relative;
 	overflow: visible;
