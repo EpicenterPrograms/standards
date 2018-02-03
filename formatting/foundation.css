@@ -314,7 +314,7 @@ nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, na
 	display: block;
 }
 
-nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav button:hover, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child, div div.drop-down:hover > div:first-child, div div.drop-down:focus > div:first-child, div div.drop-down:focus-within > div:first-child {
+nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child, div div.drop-down:hover > div:first-child, div div.drop-down:focus > div:first-child, div div.drop-down:focus-within > div:first-child {
 	/**
 	lightens the initially visible part of the drop-down
 	when hovered or the drop-down part is visible
@@ -334,7 +334,7 @@ nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav button:hover, nav
 	color: black;
 }
 
-.site-editor div.drop-down:hover > div:first-child, .site-editor div.drop-down:focus > div:first-child, .site-editor div.drop-down:focus-within > div:first-child, .site-editor button:hover {
+.site-editor div.drop-down:hover > div:first-child, .site-editor div.drop-down:focus > div:first-child, .site-editor div.drop-down:focus-within > div:first-child, .site-editor > button:hover {
 	background: lightblue;
 }
 
@@ -422,55 +422,50 @@ table.conversation td:first-child {
 input {
 	text-align: center;
 }
-
 input[type="text"] {
 	cursor: text;
 }
-
-input[type="text"][disabled], input[type="text"]:disabled {
+input[type="text"]:disabled {
 	cursor: default;
 }
-
 input[type="checkbox"] {
-	margin: .5em;
+	margin: .5rem;
 	cursor: pointer;
 }
-
-input[type="checkbox"][disabled], input[type="checkbox"]:disabled {
+input[type="checkbox"]:disabled {
 	cursor: default;
 }
-
+input[type="radio"] {
+	margin: .5rem;
+	cursor: pointer;
+}
+input[type="radio"]:disabled {
+	cursor: default;
+}
 input[type="button"] {
-	margin: .5em;
+	margin: .5rem;
 	cursor: pointer;
 }
-
-input[type="button"][disabled], input[type="button"]:disabled {
+input[type="button"]:disabled {
 	cursor: default;
 }
-
 button {
-	margin: .5em;
+	margin: .5rem;
 	cursor: pointer;
 }
-
-button[disabled], button:disabled {
+button:disabled {
 	cursor: default;
 }
-
 select {
 	cursor: pointer;
 }
-
-select[disabled], select:disabled {
+select:disabled {
 	cursor: default;
 }
-
 option {
 	cursor: pointer;
 }
-
-option[disabled], option:disabled {
+option:disabled {
 	cursor: default;
 }
 
