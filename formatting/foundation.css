@@ -591,6 +591,7 @@ note- > div, .trigger > div, .pop-up {
 	position: absolute;
 	left: -1em;
 	bottom: 2em;
+	z-index: 1;
 	border-radius: .5em;
 	padding: .5em;
 	min-width: 15em;

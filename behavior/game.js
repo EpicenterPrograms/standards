@@ -101,6 +101,7 @@ Standards.game.Character = function (source, options) {
 		source = optional; a URL, file location, or class to be used for the character's appearance
 			a class ending in "-face" will be optimized for creating a face
 			built-in faces are "happy-face", "sad-face", "angry-face", "alien-face", and "robot-face"
+				built-in faces are only styled if the game standard stylesheet is included
 			a source containing a "." will be interpreted as an src attribute to an image
 		options = optional; an object ({}) with various optional parameters setting different aspects of the character
 			id: an ID for the character
@@ -121,30 +122,30 @@ Standards.game.Character = function (source, options) {
 	}
 	options = options || {};
 	if (Standards.game.getType(source) == "HTMLElement") {  // if it's an HTML element
-		this.HTMLElement = source;
+		this.body = source;
 	} else if (source.includes(".")) {
-		this.HTMLElement = document.createElement("img");
-		this.HTMLElement.src = source;
-		this.HTMLElement.style.width = "2em";
+		this.body = document.createElement("img");
+		this.body.src = source;
+		this.body.style.width = "2em";
 	} else {
 		if (source.split("-")[source.split("-").length - 1] == "face") {
-			this.HTMLElement = document.createElement("div");
-			this.HTMLElement.className = source;
+			this.body = document.createElement("div");
+			this.body.className = source;
 			let leftEye = document.createElement("div"),
 				rightEye = document.createElement("div"),
 				mouth = document.createElement("div");
 			leftEye.className = "face-left-eye";
 			rightEye.className = "face-right-eye";
 			mouth.className = "face-mouth";
-			this.HTMLElement.appendChild(leftEye);
-			this.HTMLElement.appendChild(rightEye);
-			this.HTMLElement.appendChild(mouth);
+			this.body.appendChild(leftEye);
+			this.body.appendChild(rightEye);
+			this.body.appendChild(mouth);
 		} else {
-			this.HTMLElement = document.createElement("div");
+			this.body = document.createElement("div");
 		}
 	}
 	if (options.id) {
-		this.HTMLElement.id = options.id;
+		this.body.id = options.id;
 	}
 	if (options.classes) {
 		if (Standards.game.getType(options.classes) == "Array" || Standards.game.getType(options.classes) == "String") {
@@ -154,7 +155,7 @@ Standards.game.Character = function (source, options) {
 			} else {
 				list = options.classes.join(" ");
 			}
-			this.HTMLElement.className = this.HTMLElement.className == "" ? list : this.HTMLElement.className + " " + list;
+			this.body.className = this.body.className == "" ? list : this.body.className + " " + list;
 		} else {
 			console.warn("The extra classes of the face maker are of an incorrect type.");
 		}
@@ -197,9 +198,9 @@ Standards.game.Character = function (source, options) {
 
 		function moveOneFrame() {
 			character.xPosition += specs.speed * Math.cos(specs.direction);
-			character.HTMLElement.style.left = character.xPosition + character.movementUnit;
+			character.body.style.left = character.xPosition + character.movementUnit;
 			character.yPosition -= specs.speed * Math.sin(specs.direction);
-			character.HTMLElement.style.top = character.yPosition + character.movementUnit;
+			character.body.style.top = character.yPosition + character.movementUnit;
 		};
 
 		var mover;
@@ -388,36 +389,36 @@ Standards.game.Character = function (source, options) {
 		}
 		character.xPosition = x;
 		character.yPosition = y;
-		character.HTMLElement.style.left = x + character.movementUnit;
-		character.HTMLElement.style.top = y + character.movementUnit;
+		character.body.style.left = x + character.movementUnit;
+		character.body.style.top = y + character.movementUnit;
 	};
 
 	this.moveLeft = function (distance) {
-		if (document.body.contains(character.HTMLElement)) {
+		if (document.body.contains(character.body)) {
 			distance = distance===undefined ? 1 : distance;
 			character.xPosition -= distance;
-			character.HTMLElement.style.left = character.xPosition + character.movementUnit;
+			character.body.style.left = character.xPosition + character.movementUnit;
 		}
 	};
 	this.moveRight = function (distance) {
-		if (document.body.contains(character.HTMLElement)) {
+		if (document.body.contains(character.body)) {
 			distance = distance === undefined ? 1 : distance;
 			character.xPosition += distance;
-			character.HTMLElement.style.left = character.xPosition + character.movementUnit;
+			character.body.style.left = character.xPosition + character.movementUnit;
 		}
 	};
 	this.moveUp = function (distance) {
-		if (document.body.contains(character.HTMLElement)) {
+		if (document.body.contains(character.body)) {
 			distance = distance === undefined ? 1 : distance;
 			character.yPosition -= distance;
-			character.HTMLElement.style.top = character.yPosition + character.movementUnit;
+			character.body.style.top = character.yPosition + character.movementUnit;
 		}
 	};
 	this.moveDown = function (distance) {
-		if (document.body.contains(character.HTMLElement)) {
+		if (document.body.contains(character.body)) {
 			distance = distance === undefined ? 1 : distance;
 			character.yPosition += distance;
-			character.HTMLElement.style.top = character.yPosition + character.movementUnit;
+			character.body.style.top = character.yPosition + character.movementUnit;
 		}
 	};
 
