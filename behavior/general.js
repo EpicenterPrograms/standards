@@ -127,31 +127,40 @@ Standards.general.queue.run = function () {
 	runs the functions in the queue
 	non-native functions = none
 	*/
-	Standards.general.queue.forEach(function (fn) {
-		if (typeof fn.function == "string") {
+	if (Standards.general.finished) {
+		if (typeof Standards.general.queue[0].function == "string") {
 			throw 'The value of "function" must not be a string.';
 		}
-		if (fn.runOrder == "first") {
-			fn.function.apply(window, fn.arguments);
-		}
-	});
-	Standards.general.queue.forEach(function (fn) {
-		if (fn.runOrder == "later") {
-			fn.function.apply(window, fn.arguments);
-		}
-	});
-	Standards.general.queue.forEach(function (fn, index) {
-		if (fn.runOrder == "last") {
-			fn.function.apply(window, fn.arguments);
-		} else if (!(fn.runOrder == "first" || fn.runOrder == "later")) {
-			console.warn("The item at the index of " + index + " in Standards.general.queue wasn't run because it doesn't have a valid runOrder.");
-		}
-	});
-	while (Standards.general.queue.length > 0) {  // gets rid of all of the items in Standards.general.queue (Standards.general.queue = []; would get rid of the functions as well)
+		let returnValue = Standards.general.queue[0].function.apply(window, Standards.general.queue[0].arguments);
 		Standards.general.queue.pop();
+		return returnValue;
+	} else {
+		Standards.general.queue.forEach(function (fn) {
+			if (typeof fn.function == "string") {
+				throw 'The value of "function" must not be a string.';
+			}
+			if (fn.runOrder == "first") {
+				fn.function.apply(window, fn.arguments);
+			}
+		});
+		Standards.general.queue.forEach(function (fn) {
+			if (fn.runOrder == "later") {
+				fn.function.apply(window, fn.arguments);
+			}
+		});
+		Standards.general.queue.forEach(function (fn, index) {
+			if (fn.runOrder == "last") {
+				fn.function.apply(window, fn.arguments);
+			} else if (!(fn.runOrder == "first" || fn.runOrder == "later")) {
+				console.warn("The item at the index of " + index + " in Standards.general.queue wasn't run because it doesn't have a valid runOrder.");
+			}
+		});
+		while (Standards.general.queue.length > 0) {  // gets rid of all of the items in Standards.general.queue (Standards.general.queue = []; would get rid of the functions as well)
+			Standards.general.queue.pop();
+		}
+		/// The items in Standards.general.queue can't be deleted as they're run because Array.forEach() doesn't copy things like my .forEach() function does.
+		/// (Only every other item would be run because an item would be skipped every time the preceding item was deleted.)
 	}
-	/// The items in Standards.general.queue can't be deleted as they're run because Array.forEach() doesn't copy things like my .forEach() functions do.
-	/// (Only every other item would be run because an item would be skipped every time the preceding item was deleted.)
 };
 Standards.general.queue.add = function (object) {
 	/**
@@ -161,7 +170,7 @@ Standards.general.queue.add = function (object) {
 	*/
 	Standards.general.queue.push(object);
 	if (Standards.general.finished) {
-		Standards.general.queue.run();
+		return Standards.general.queue.run();
 	}
 };
 
@@ -3372,7 +3381,7 @@ Standards.general.colorCode = function (element, conversion) {
 	a table needs to have at least 7 items before it's color-coded
 	non-native functions = queue.add() and toArray()
 	*/
-	Standards.general.queue.add({
+	return Standards.general.queue.add({
 		runOrder: "first",
 		function: function (element, conversion, args) {
 			var list = false;  // for whether "element" is a list (array)
@@ -3411,10 +3420,12 @@ Standards.general.colorCode = function (element, conversion) {
 			if (element == null) {
 				end1 = 0;
 				end2 = 100;
-				if (isNaN(conversion)) {
+				if (typeof conversion == "function") {
 					return backgroundColor(conversion());
-				} else {
+				} else if (typeof conversion == "number") {
 					return backgroundColor(conversion);
+				} else {
+					console.error("No element was given and an improper conversion was provided.");
 				}
 			} else {
 				if (element.tagName == "TABLE") {  // This might have to be capitalized.
@@ -3794,8 +3805,8 @@ window.addEventListener("load", function () {  // This waits for everything past
 		}
 	}, false);
 	
-	Standards.general.finished = true;
 	Standards.general.queue.run();
+	Standards.general.finished = true;
 	window.dispatchEvent(new Event("finished"));  // This can't be CustomEvent or else it won't work on any version of Internet Explorer.
 });
 
