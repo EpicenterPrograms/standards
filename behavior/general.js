@@ -184,6 +184,8 @@ Standards.general.Sound = function (specs) {
 		defaults to "sine"
 	modulation = frequency of modulating wave = how often the primary wave is modified
 	hertzChange = the frequency change of the primary wave upon modulation
+		the hertzChange acts in both directions
+		example: 440 waveform & 220 hertzChange = 220-660 frequency
 	changeWave = waveform of the modulating wave
 	playing (shouldn't be changed) = whether a sound is being played
 	times for all subfunctions are in milliseconds
@@ -1270,6 +1272,17 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		index = 0;
 		while (index < list.length) {
 			returnValue = doStuff(list[index], index, list);
+			if (returnValue == "break") {
+				break;
+			} else {
+				index++;
+			}
+		}
+	} else if (Standards.general.getType(list) == "Number") {
+		let index = 0,
+			returnValue;
+		while (index < list) {
+			returnValue = doStuff(undefined, index, list);
 			if (returnValue == "break") {
 				break;
 			} else {
@@ -2933,7 +2946,7 @@ Standards.general.storage.server = {
 			};
 		}
 		buttons.Cancel = function () { return; };
-		Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
+		Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
 	},
 	signOut: function () {
 		Standards.general.storage.server.checkCompatibility();
