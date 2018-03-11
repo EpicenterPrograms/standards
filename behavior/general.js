@@ -26,18 +26,9 @@ if (Standards.general.options) {
 	allows specifications to be added if the variable is already present
 	(otherwise uses default values and settings)
 	valid options =
-		"automation" : "none", "basic", "full"
+		"automation": "none", "basic", "full"
 			runs a corresponding amount of code after defining everything
 			default = "full"
-		"icon" : URL
-			gives the window the icon located at the URL
-			default = a color-changing circle
-		"navigation" : URL  ****deprecated****
-			fills a <nav> section with the (HTML) document located at the URL
-			default = none
-		"simplification" : true, false  ****deprecated****
-			determines whether "Standards" should also be imported as "S"
-			default = false
 	*/
 
 Standards.general.help = function (item, part) {
@@ -178,7 +169,10 @@ Standards.general.Sound = function (specs) {
 	/**
 	creates tones which can be modified in certain way
 	frequency = frequency of the primary tone/wave
-	volume = volume
+	volume = the current volume
+		starts at 0
+	maxVolume = the maximum volume
+		defaults to 1
 	waveform = waveform of primary wave
 		"sine", "square", "sawtooth", or "triangle"
 		defaults to "sine"
@@ -198,7 +192,8 @@ Standards.general.Sound = function (specs) {
 		playQueue = [];
 	this.identifier = Standards.general.identifier++;
 	this.frequency = 440;
-	this.volume = 0
+	this.volume = 0;
+	this.maxVolume = 1;
 	this.waveform = "sine";
 	this.modulation = 0;
 	this.hertzChange = 0;
@@ -223,14 +218,18 @@ Standards.general.Sound = function (specs) {
 					gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
 				}, time*1000);
 			} else {
-				gain1.gain.exponentialRampToValueAtTime(sound.volume, Standards.general.audio.currentTime + time);
+				gain1.gain.exponentialRampToValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime + time);
 			}
 			osc1.frequency.linearRampToValueAtTime(sound.frequency, Standards.general.audio.currentTime + time);
 			gain2.gain.linearRampToValueAtTime(sound.hertzChange, Standards.general.audio.currentTime + time);
 			osc2.frequency.linearRampToValueAtTime(sound.modulation, Standards.general.audio.currentTime + time);;
 			//// The second set of transitions are linear because I want them to be able to have values of 0?
 		} else if (time == 0) {
-			gain1.gain.setValueAtTime(sound.volume, Standards.general.audio.currentTime);
+			if (sound.volume == 0) {
+				gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
+			} else {
+				gain1.gain.setValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime);
+			}
 			osc1.frequency.setValueAtTime(sound.frequency, Standards.general.audio.currentTime);
 			gain2.gain.setValueAtTime(sound.hertzChange, Standards.general.audio.currentTime);
 			osc2.frequency.setValueAtTime(sound.modulation, Standards.general.audio.currentTime);
@@ -263,8 +262,8 @@ Standards.general.Sound = function (specs) {
 		}
 		time = time===undefined ? 0 : time;
 		gain1.gain.setValueAtTime(sound.volume + .0001, Standards.general.audio.currentTime);
-		sound.volume = volume || 1;  // This doesn't allow you to set the volume to 0 (and rightfully so).
-		gain1.gain.exponentialRampToValueAtTime(sound.volume, Standards.general.audio.currentTime + time/1000);
+		sound.volume = volume || sound.maxVolume;
+		gain1.gain.exponentialRampToValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime + time/1000);
 	};
 	this.stop = function (time, shouldSetPlaying) {
 		/**
@@ -320,7 +319,7 @@ Standards.general.Sound = function (specs) {
 				}
 			});
 			var defaults = {
-				volume: 1,
+				volume: sound.maxVolume,
 				attack: 50,
 				noteLength: 200,
 				decay: 50,
@@ -625,6 +624,41 @@ Standards.general.Sound = function (specs) {
 			osc1.disconnect(gain1);
 			gain1.disconnect(Standards.general.audio.destination);
 		}, time);
+	};
+};
+
+Standards.general.Speaker = function (specs) {
+	/**
+	creates a speaker that can say typed words
+	non-native functions = none
+	*/
+	var speaker = this;
+	var talker = window.speechSynthesis;
+	this.voices;
+
+	this.internalValues = {
+		voiceNumber: 0
+	};
+
+	window.speechSynthesis.addEventListener("voiceschanged", function () {
+		speaker.voices = window.speechSynthesis.getVoices();
+	});
+
+	Object.defineProperty(speaker, "voiceNumber", {
+		get: function () {
+			return speaker.internalValues.voiceNumber;
+		},
+		set: function (value) {
+			speaker.internalValues.voiceNumber = value;
+		}
+	});
+
+	this.speak = function (content) {
+		let speech = new SpeechSynthesisUtterance(content);
+		if (speaker.voices) {
+			speech.voice = speaker.voices[speaker.voiceNumber];
+		}
+		talker.speak(speech);
 	};
 };
 
@@ -2245,6 +2279,36 @@ Standards.general.safeWhile = function (condition, doStuff, loops) {
 	}
 };
 
+Standards.general.toHTML = function (HTML) {
+	/**
+	converts a string representation of HTML into (an) actual element(s) inside a <div>
+	argument:
+		HTML = required; the HTML string to convert
+	non-native functions = getType
+	*/
+	if (!HTML) {
+		throw "No HTML was provided to convert.";
+	} else if (Standards.general.getType(HTML) != "String") {
+		throw "The provided argument is of an incorrect type.";
+	}
+	let container = document.createElement("div");
+	container.innerHTML = HTML;
+	// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
+	let scripts = HTML.split("<script");  // adding the closing ">" in the splitting would close the script block
+	if (scripts.length > 1) {
+		scripts.forEach(function (script, index) {
+			if (index > 0) {
+				let scriptTag = document.createElement("script");
+				scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">") + 1, script.indexOf("</script>"))));
+				container.insertBefore(scriptTag, container.getElementsByTagName("script")[index - 1]);
+				let oldTag = container.getElementsByTagName("script")[index];
+				oldTag.parentNode.removeChild(oldTag);
+			}
+		});
+	}
+	return container;
+};
+
 Standards.general.makeDialog = function (message) {
 	/**
 	makes a dialog box pop up
@@ -2269,10 +2333,10 @@ Standards.general.makeDialog = function (message) {
 			{
 				love: function () {console.log("Don't make me laugh!");},
 				money: function () {console.log("You're not too far off.");},
-				42: function () {console.log("You're intelligence is indisputably immense.");}
+				42: function () {console.log("Your intelligence is indisputably immense.");}
 			}
 		);
-	non-native functions = getType, forEach, and getHTML
+	non-native functions = getType, forEach, and toHTML
 	*/
 	let pairs = Array.prototype.slice.call(arguments, 1),
 		identifier = Standards.general.identifier++;
@@ -2306,7 +2370,7 @@ Standards.general.makeDialog = function (message) {
 	});
 	let darkener = document.createElement("div"),
 		dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
-		contents = Standards.general.getHTML("~" + message),
+		contents = Standards.general.toHTML(message),
 		buttons = document.createElement("div");
 	let placedButtonsNumber = contents.getElementsByTagName("button").length;
 	darkener.className = "darkener";
@@ -2359,61 +2423,55 @@ Standards.general.makeDialog = function (message) {
 	}, 0);
 };
 
-Standards.general.getHTML = function (URL, callback) {
+Standards.general.getFile = function (URL, callback, convert) {
 	/**
-	reads the contents of the file at the URL,
-	converts it into a string,
-	puts the string into a <div>, and then
-	calls the callback function (which has no arguments)
-	with "this" equalling the <div>
-	Preceeding the URL string with "~"
-	causes it to be interpreted as the retrieved HTML.
-	(That happens synchonously and returns the <div>.)
-	non-native functions = none
+	asynchronously retieves a file as a string using an XMLHttpRequest
+	only files from the same domain can be retrieved without CORS
+	arguments:
+		URL = required; the URL of the desired file
+			can be absolute or relative
+		callback = required; what to do after receiving the file
+			one argument will be provided: the received file
+		convert = optional; a boolean indicating whether the file should be converted to a different form
+			URLs ending in ".html": converted into an HTML element
+			URLs ending in ".json": converted into a JSON object
+			URLs ending in ".txt": What are you trying to accomplish with this?
+			other URLs: ignored
+			default: false
+	non-native functions = getType and toHTML
 	*/
 	if (!URL) {
 		console.error("No resource was provided to get HTML.");
-	} else if (URL[0] == "~") {
-		let container = document.createElement("div");
-		container.innerHTML = URL.slice(1);
-		// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
-		let scripts = URL.slice(1).split("<script");  // adding the closing ">" in the splitting would close the script block
-		if (scripts.length > 1) {
-			scripts.forEach(function (script, index) {
-				if (index > 0) {
-					let scriptTag = document.createElement("script");
-					scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
-					container.insertBefore(scriptTag, container.getElementsByTagName("script")[index-1]);
-					let oldTag = container.getElementsByTagName("script")[index];
-					oldTag.parentNode.removeChild(oldTag);
-				}
-			});
-		}
-		return container;  // a callback isn't needed here because you don't have to wait for a request
+	} else if (Standards.general.getType(URL) != "String") {
+		console.error("The provided URL wasn't a string.");
 	} else {
 		var file = new XMLHttpRequest();
 		file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
 		file.onreadystatechange = function () {
-			if(file.readyState === 4) {  // Is it done?
-				if(file.status === 200 || file.status == 0) {  // Was it successful?
+			if (file.readyState === 4) {  // Is it done?
+				if (file.status === 200 || file.status === 0) {  // Was it successful?
 					// file.responseXML might have something
-					let container = document.createElement("div");
-					container.innerHTML = file.responseText;
-					// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
-					let scripts = file.responseText.split("<script");
-					if (scripts.length > 1) {
-						scripts.forEach(function (script, index) {
-							if (index > 0) {
-								let scriptTag = document.createElement("script");
-								scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">")+1, script.indexOf("</script>"))));
-								container.insertBefore(scriptTag, container.getElementsByTagName("script")[index-1]);
-								let oldTag = container.getElementsByTagName("script")[index];
-								oldTag.parentNode.removeChild(oldTag);
-							}
-						});
+					if (convert) {
+						switch (URL.slice(URL.lastIndexOf(".") + 1).toLowerCase()) {
+							case "html":
+								callback(Standards.general.toHTML(file.responseText));
+								break;
+							case "json":
+								callback(JSON.parse(file.responseText));
+								break;
+							case "txt":
+								console.info("What do you think I'm supposed to convert a .txt file into?");
+								callback(file.responseText);
+								break;
+							default:
+								console.warn("The file doesn't have a convertible file extension.");
+								callback(file.responseText);
+						}
+					} else {
+						callback(file.responseText);
 					}
-					callback.call(container);  // .call(calling object / value of "this", function arguments (listed individually))  .apply has function arguments in an array
-					// You could also use callback(argument(s)) like a normal function, but it wouldn't change the value of "this".
+				} else {
+					console.error("The file couldn't be retieved.");
 				}
 			}
 		}
@@ -2462,7 +2520,7 @@ Standards.general.parse_str = function (encodedString) {
 	/**
 	a close approximation of the PHP function parse_str()
 	turns a URL-encoded string into an object (returns the object)
-	particularly useful when receiving information encoded into a string (as happens within Standards.general.recall())
+	particularly useful when receiving information encoded into a string (as happens within Standards.general.storage.____.recall())
 	example:
 		var options = "greeting=Hello!&number=42&animal=cuttlefish";
 		var result = Standards.general.parse_str(options);
@@ -3577,11 +3635,6 @@ document.createElement("note-");  // The dash can't be at the beginning of the t
 // makes my custom tag which overlines things (not necessary in most browsers)
 document.createElement("over-");
 
-// determines whether "Standards" should also be imported as "S"
-if (!(Standards.general.options.simplification == true)) {
-	var S = Standards;
-}
-
 if (!(Standards.general.options.automation == "none")) {
 	
 	//This is able to run without waiting for anything else to load.
@@ -3600,27 +3653,23 @@ if (!(Standards.general.options.automation == "none")) {
 		icon.rel = "icon";
 		document.head.insertBefore(icon, document.head.children[0]);
 		
-		if (Standards.general.options.hasOwnProperty("icon")) {
-			icon.href = Standards.general.options.icon;
-		} else {
-			// cycles the favicon
-			let canvas = document.createElement("canvas");
-			let context = canvas.getContext("2d");
-			let color = 0;
-			canvas.width = 64;
-			canvas.height = 64;
-			context.beginPath();
-			context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
-			setInterval(function () {
-				if (color >= 360) {
-					color = 0;
-				}
-				context.fillStyle = "hsl(" + color + ", 100%, 50%)";
-				context.fill();
-				icon.href = canvas.toDataURL();
-				color++;
-			}, 20);
-		}
+		// cycles the favicon
+		let canvas = document.createElement("canvas");
+		let context = canvas.getContext("2d");
+		let color = 0;
+		canvas.width = 64;
+		canvas.height = 64;
+		context.beginPath();
+		context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
+		setInterval(function () {
+			if (color >= 360) {
+				color = 0;
+			}
+			context.fillStyle = "hsl(" + color + ", 100%, 50%)";
+			context.fill();
+			icon.href = canvas.toDataURL();
+			color++;
+		}, 20);
 	}
 }
 
@@ -3773,50 +3822,50 @@ window.addEventListener("load", function () {  // This waits for everything past
 		if (document.getElementById("signOut")) {  // if there's a signOut button
 			document.getElementById("signOut").addEventListener("click", Standards.general.storage.server.signOut);
 		}
-	}
-		
-	// adds page jumping capabilities
-	// (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
-	document.getElementsByClassName("page-jump-sections").forEach(function (division) {
-		let contents = document.createElement("div");
-		contents.className = "page-jump-list";
-		contents.innerHTML = "<h2>Jump to:</h2>";
-		let sections = division.getElementsByTagName("h2");
-		let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
-		toTop.className = "to-top";
-		toTop.innerHTML = '<a href="#">To top</a>';
-		let listItems = document.createElement("ol");
-		sections.forEach(function (heading, index, sections) {
-			let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
-			sections[index].id = inside;
-			let link = document.createElement("a");
-			link.href = "#" + inside;
-			link.innerHTML = inside;
-			let listItem = document.createElement("li");
-			listItem.appendChild(link);
-			listItems.appendChild(listItem);
-			division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
-			// toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
-		});
-		contents.appendChild(listItems);
-		division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
-		// This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
-		if (window.location.href.indexOf("#") > -1) {
-			let found = false;
-			Standards.general.forEach(document.getElementsByClassName("page-jump-list"), function (section) {
-				Standards.general.forEach(section.getElementsByTagName("a"), function (link) {
-					if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
-						found = true;
-						link.click();
-						return "break";
-					}
-				});
+
+		// adds page jumping capabilities
+		// (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
+		Standards.general.forEach(document.getElementsByClassName("page-jump-sections"), function (division) {
+			let contents = document.createElement("div");
+			contents.className = "page-jump-list";
+			contents.innerHTML = "<h2>Jump to:</h2>";
+			let sections = division.getElementsByTagName("h2");
+			let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
+			toTop.className = "to-top";
+			toTop.innerHTML = '<a href="#">To top</a>';
+			let listItems = document.createElement("ol");
+			sections.forEach(function (heading, index, sections) {
+				let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
+				sections[index].id = inside;
+				let link = document.createElement("a");
+				link.href = "#" + inside;
+				link.innerHTML = inside;
+				let listItem = document.createElement("li");
+				listItem.appendChild(link);
+				listItems.appendChild(listItem);
+				division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
+				// toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
 			});
-			if (!found) {  // Was the section found?
-				console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
+			contents.appendChild(listItems);
+			division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
+			// This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
+			if (window.location.href.indexOf("#") > -1) {
+				let found = false;
+				Standards.general.forEach(document.getElementsByClassName("page-jump-list"), function (section) {
+					Standards.general.forEach(section.getElementsByTagName("a"), function (link) {
+						if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
+							found = true;
+							link.click();
+							return "break";
+						}
+					});
+				});
+				if (!found) {  // Was the section found?
+					console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
+				}
 			}
-		}
-	}, false);
+		}, false);
+	}
 	
 	Standards.general.queue.run();
 	Standards.general.finished = true;
