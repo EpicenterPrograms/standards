@@ -1,8 +1,8 @@
 .slides {
 	display: block;
 	position: relative;
-	width: 20em;
-	height: 20em;
+	width: 20rem;
+	height: 20rem;
 	background-color: white;
 	overflow: hidden;
 }
@@ -20,4 +20,20 @@
 }
 .slides.instant > div {
 	transition: 0s;
+}
+.slides:fullscreen {
+	width: 100%;
+	height: 100%;
+}
+.slides:-webkit-full-screen {
+	width: 100%;
+	height: 100%;
+}
+.slides:-moz-full-screen {
+	width: 100%;
+	height: 100%;
+}
+.slides:-ms-fullscreen {
+	width: 100%;
+	height: 100%;
 }

@@ -23,8 +23,6 @@ if (Standards.game.options) {
 	Standards.game.options = {};
 }
 
-Standards.game.timers = {};  // holds intervals and timeouts
-
 Standards.game.getType = function (item) {
 	/**
 	finds the type of an item since it's unnecessarily complicated to be sure normally
@@ -38,7 +36,7 @@ Standards.game.getType = function (item) {
 	if (reverseIndex > 0) {
 		while (reverseIndex--) {
 			let type = extraTypes[reverseIndex];
-			if (type && type.constructor === String && type.search(/[^A-Za-z0-9.()]/) === -1 && item instanceof eval(type)) {
+			if (type && type.constructor === String && type.search(/[^\w.()]/) === -1 && item instanceof eval(type)) {  //// expand this for errors
 				return type;
 			}
 		}
@@ -57,6 +55,8 @@ Standards.game.getType = function (item) {
 		return "String";
 	} else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
 		return "Array";
+	} else if (item instanceof Standards.game.Character) {  // if it's a Character
+		return "Character";
 	} else if (typeof item === "function") {  // if it's a function
 		return "Function";
 	} else if (item instanceof RegExp) {  // if it's a regular expression
@@ -81,7 +81,86 @@ Standards.game.getType = function (item) {
 	}
 };
 
+Standards.game.forEach = function (list, doStuff, shouldCopy) {
+	/**
+	does stuff for every item of an iterable list (or object)
+	non-native functions = getType
+	*/
+	if (Standards.game.getType(doStuff) != "Function") {
+		throw "The second arument provided in Standards.game.forEach isn't a function.";
+	}
+	if (Standards.game.getType(list) == "Object") {
+		let associativeList,
+			keys = Object.keys(list),
+			index = 0,
+			returnValue;
+		shouldCopy = shouldCopy === undefined ? false : shouldCopy;
+		if (shouldCopy) {
+			associativeList = JSON.parse(JSON.stringify(list));
+		} else {
+			associativeList = list;
+		}
+		while (index < keys.length) {
+			returnValue = doStuff(associativeList[keys[index]], keys[index], associativeList, index);
+			if (returnValue == "break") {
+				break;
+			} else {
+				index++;
+			}
+		}
+		/// Using Object.keys() and a while loop is about 100 times faster than a for...in... loop.
+		/// That's not to mention the fact that this.propertyIsEnumerable() would also need to be used which is also slow.
+		/// This is still about 10 times slower than looping through things with number indicies, though.
+		/// (These time comparisons are based on usage outside of this function;
+		/// doing things by referencing a function makes things about 10 times longer.)
+	} else if (Standards.game.getType(list[Symbol.iterator]) == "Function") {
+		let items = [],
+			index,
+			returnValue;
+		while (index < list.length) {
+			items.push(list[index]);
+			index++;
+		}
+		index = 0;
+		while (index < list.length) {
+			returnValue = doStuff(list[index], index, list);
+			if (returnValue == "break") {
+				break;
+			} else {
+				index++;
+			}
+		}
+	} else if (Standards.game.getType(list) == "Number") {
+		let index = 0,
+			returnValue;
+		while (index < list) {
+			returnValue = doStuff(index + 1, index, list);
+			if (returnValue == "break") {
+				break;
+			} else {
+				index++;
+			}
+		}
+	} else {
+		throw "The item provided isn't iterable.";
+	}
+	//// add a function type option
+};
+
+/*
+Object.defineProperty(Standards.game, "refreshInterval", {
+	set: function () {
+		//// set the refresh interval
+	}
+});
+*/
+
 Standards.game.refreshInterval = Standards.game.refreshInterval || 15;
+Standards.game.lengthUnit = Standards.game.lengthUnit || "100";
+
+Standards.game.lengthPixels = .8;
+Standards.game.displayWidth = 180;
+Standards.game.displayHeight = 100;
 
 Standards.game.setRefresh = function (time) {
 	/**
@@ -94,6 +173,195 @@ Standards.game.setRefresh = function (time) {
 	}
 };
 
+Standards.game.toPixels = function (number) {
+	/**
+	converts a length given in standard units into pixels
+	*/
+	if (Standards.game.getType(number) != "Number") {
+		throw "The given length isn't a number.";
+	}
+	let pixels;
+	switch (Standards.game.lengthUnit) {
+		case "100":
+		case 100:
+			pixels = number * Standards.game.lengthPixels;
+			break;
+		case "px":
+			pixels = number;
+			break;
+		case "em":
+			pixels = number * 16;
+			break;
+		case "%":   ////
+		case "vw":  ////
+		case "vh":  ////
+		default:
+			throw "The standard length unit isn't a recognized value.";
+	}
+	return pixels + "px";
+};
+
+Standards.game.toLengthStandard = function (number) {
+	/**
+	converts pixels into standard units
+	*/
+	switch (Standards.game.lengthUnit) {
+		case "100":
+		case 100:
+			return number / Standards.game.lengthPixels;
+		case "px":
+			return number;
+		case "em":
+			return number / 16;
+		case "%":   ////
+		case "vw":  ////
+		case "vh":  ////
+		default:
+			throw "The standard length unit isn't a recognized value.";
+	}
+};
+
+Standards.game.updateScaling = function (dimensions) {
+	/**
+	updates the scaling
+	(makes sure everything is the correct size when the display size is changed)
+	*/
+	if (Standards.game.lengthUnit == "100" || Standards.game.lengthUnit == 100) {
+		let oldWidth = Standards.game.displayWidth;
+		Standards.game.setDisplayDimensions(Standards.game.displayWidth * Standards.game.lengthPixels * dimensions[0], Standards.game.displayHeight * Standards.game.lengthPixels * dimensions[1]);
+		Standards.game.Character.instances.forEach(function (character) {
+			character.width += 0;
+			character.height += 0;
+			character.position.x = character.position.x / oldWidth * Standards.game.displayWidth;
+			character.position.y += 0;
+		});
+	} else {
+		Standards.game.setDisplayDimensions(Standards.game.displayWidth * dimensions[0], Standards.game.displayHeight * dimensions[1]);
+		Standards.game.Character.instances.forEach(function (character) {
+			character.width *= dimensions[1];  // This is the same to make sure things aren't stretched awkwardly.
+			character.height *= dimensions[1];
+			character.position.x *= dimensions[0];
+			character.position.y *= dimensions[1];
+		});
+	}
+};
+
+(function () {
+	var container;
+	Object.defineProperty(Standards.game, "container", {
+		get: function () {
+			return container;
+		},
+		set: function (candidate) {
+			if (Standards.game.getType(candidate) != "HTMLElement") {
+				throw "The container isn't an HTML element.";
+			}
+			container = candidate;
+			let x = Number(window.getComputedStyle(container).width.slice(0, -2));
+			let y = Number(window.getComputedStyle(container).height.slice(0, -2));
+			let originalDimensions = [x, y];
+			switch (Standards.game.lengthUnit) {
+				case "100":
+				case 100:
+					Standards.game.lengthPixels = y / 100;
+					Standards.game.displayWidth = x / y * 100;
+					Standards.game.displayHeight = 100;
+					break;
+				case "px":
+					Standards.game.lengthPixels = 1;
+					Standards.game.displayWidth = x;
+					Standards.game.displayHeight = y;
+					break;
+				case "em":
+					Standards.game.lengthPixels = 16;
+					Standards.game.displayWidth = x / 16;
+					Standards.game.displayHeight = y / 16;
+					break;
+				case "%":
+					Standards.game.displayWidth = 100;
+					Standards.game.displayHeight = 100;
+					break;
+				case "vw":
+					Standards.game.lengthPixels = x / 100;
+					Standards.game.displayWidth = 100 - (screen.width - x) / 100;
+					Standards.game.displayHeight = y / x * (100 - (screen.width - x) / 100);
+					break;
+				case "vh":
+					Standards.game.lengthPixels = y / 100;
+					Standards.game.displayHeight = 100 - (screen.height - y) / 100;
+					Standards.game.displayWidth = x / y * (100 - (screen.height - y) / 100);
+					break;
+			}
+			container.addEventListener("fullscreenchange", function () {
+				if (document.fullscreenElement === null) {  // if the container is in full-screen mode
+					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+				} else {
+					G.updateScaling(screenScaling);
+				}
+			});
+			container.addEventListener("webkitfullscreenchange", function () {
+				if (document.webkitFullscreenElement === null) {
+					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+				} else {
+					G.updateScaling(screenScaling);
+				}
+			});
+			container.addEventListener("mozfullscreenchange", function () {
+				if (document.mozFullScreenElement === null) {
+					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+				} else {
+					G.updateScaling(screenScaling);
+				}
+			});
+			container.addEventListener("msfullscreenchange", function () {
+				if (document.msFullscreenElement === null) {
+					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+				} else {
+					G.updateScaling(screenScaling);
+				}
+			});
+		}
+	});
+})();
+
+Standards.game.animationQueue = [];
+Standards.game.addAnimation = function (duration, doStuff) {
+	/**
+	arguments:
+		duration = required; how long you want an action to last
+			units are in seconds
+		doStuff = required; the stuff you want to be done (a function)
+			the index+1 of the frame number is provided as an agument to the function
+	*/
+	duration = Number(duration);
+	if (Standards.game.getType(duration) != "Number") {
+		throw "An improper type of duration was given.";
+	} else if (duration < 0) {
+		throw "Actions can't be done in the past.";
+	} else {
+		let frames = Math.round(duration * 1000 / Standards.game.refreshInterval + 1);  // This is the number of frames it will take to complete the action.
+		let index = 0;
+		while (index < frames) {
+			Standards.game.animationQueue.push({ fn: doStuff, args: [++index] });
+		}
+	}
+};
+Standards.game.runAnimations = function () {
+	Standards.game.animator = setInterval(function () {
+		if (Standards.game.animationQueue.length > 1) {
+			Standards.game.animationQueue[0].fn.apply(window, Standards.game.animationQueue[0].args);
+			Standards.game.animationQueue.shift();
+		} else {
+			Standards.game.animationQueue[0].fn.apply(window, Standards.game.animationQueue[0].args);
+			Standards.game.animationQueue.shift();
+			clearInterval(Standards.game.animator);
+		}
+	}, Standards.game.refreshInterval);
+};
+Standards.game.freezeAnimations = function () {
+	clearInterval(Standards.game.animator);
+};
+
 Standards.game.Character = function (source, options) {
 	/**
 	makes a character
@@ -103,11 +371,12 @@ Standards.game.Character = function (source, options) {
 			built-in faces are "happy-face", "sad-face", "angry-face", "alien-face", and "robot-face"
 				built-in faces are only styled if the game standard stylesheet is included
 			a source containing a "." will be interpreted as an src attribute to an image
+			default: "happy-face"
 		options = optional; an object ({}) with various optional parameters setting different aspects of the character
 			id: an ID for the character
 			classes: a list of classes for the character
 				can be an array or space-separated string of classes
-			movementUnit: the unit of movement for the character, e.g. "px", "em", "vw", ...
+			movementUnit: the unit of movement for the character, e.g. "%", "px", "em", "vw", ...
 	non-native functions: getType
 	*/
 
@@ -123,10 +392,11 @@ Standards.game.Character = function (source, options) {
 	options = options || {};
 	if (Standards.game.getType(source) == "HTMLElement") {  // if it's an HTML element
 		this.body = source;
+		this.body.className = "character";
 	} else if (source.includes(".")) {
 		this.body = document.createElement("img");
 		this.body.src = source;
-		this.body.style.width = "2em";
+		this.body.className = "character";
 	} else {
 		if (source.split("-")[source.split("-").length - 1] == "face") {
 			this.body = document.createElement("div");
@@ -155,17 +425,146 @@ Standards.game.Character = function (source, options) {
 			} else {
 				list = options.classes.join(" ");
 			}
-			this.body.className = this.body.className == "" ? list : this.body.className + " " + list;
+			this.body.className = this.body.className + " " + list;
 		} else {
 			console.warn("The extra classes of the face maker are of an incorrect type.");
 		}
 	}
 
-	this.xPosition = 0;
-	this.yPosition = 0;
-	this.movementUnit = options.movementUnit || "%";
+	this.movementUnit = options.movementUnit || "%" || Standards.game.lengthUnit;  ////
 
-	this.move = function (specs) {
+	this.insertBodyInto = function (container, onLoad) {
+		container.appendChild(character.body);
+		let width, height;
+		Object.defineProperty(character, "width", {
+			get: function () {
+				return width;
+			},
+			set: function (value) {
+				width = value;
+				character.body.style.width = Standards.game.toPixels(value);
+			}
+		});
+		Object.defineProperty(character, "height", {
+			get: function () {
+				return height;
+			},
+			set: function (value) {
+				height = value;
+				character.body.style.height = Standards.game.toPixels(value);
+			}
+		});
+		if (character.body.nodeName == "IMG") {
+			character.body.addEventListener("load", function () {
+				width = Standards.game.toLengthStandard(character.body.width);
+				height = Standards.game.toLengthStandard(character.body.height);
+				if (Standards.game.getType(onLoad) == "Function") {
+					onLoad();
+				}
+				character.body.removeEventListener("load", arguments.callee);
+			});
+		} else {
+			switch (Standards.game.lengthUnit) {
+				case "100":
+				case 100:
+					width = Number(window.getComputedStyle(character.body).width.slice(0, -2)) / Standards.game.lengthPixels;
+					height = Number(window.getComputedStyle(character.body).height.slice(0, -2)) / Standards.game.lengthPixels;
+					break;
+				case "%":
+					width = Number(window.getComputedStyle(character.body).width.slice(0, -2)) / Number(window.getComputedStyle(container).width.slice(0, -2)) * 100;
+					height = Number(window.getComputedStyle(character.body).height.slice(0, -2)) / Number(window.getComputedStyle(container).height.slice(0, -2)) * 100;
+					break;
+				case "em":
+					width = Number(window.getComputedStyle(character.body).width.slice(0, -2)) / 16;
+					height = Number(window.getComputedStyle(character.body).height.slice(0, -2)) / 16;
+					break;
+				case "px":
+					width = Number(window.getComputedStyle(character.body).width.slice(0, -2));
+					height = Number(window.getComputedStyle(character.body).height.slice(0, -2));
+					break;
+				case "vw":  ////
+				case "vh":  ////
+				default:
+					throw "The standard length unit isn't a recognized value.";
+			}
+			if (Standards.game.getType(onLoad) == "Function") {
+				onLoad();
+			}
+		}
+	};
+
+	this.position = {
+		internalX: 0,
+		get x() {
+			return this.internalX;
+		},
+		set x(value) {
+			this.internalX = value;
+			character.body.style.left = Standards.game.toPixels(value - character.width / 2);
+		},
+		internalY: 0,
+		get y() {
+			return this.internalY;
+		},
+		set y(value) {
+			this.internalY = value;
+			character.body.style.top = Standards.game.toPixels(value - character.height / 2);
+		}
+	};
+	this.velocity = { x: 0, y: 0 };
+	this.acceleration = { x: 0, y: 0 };
+
+	this.goTo = function (x, y) {
+		if (Standards.game.getType(x) != "Number" || Standards.game.getType(y) != "Number") {
+			throw "At least one of the given coordinates wasn't a number.";
+		}
+		character.position.x = x;
+		character.position.y = y;
+	};
+
+	this.setVelocity = function (arg1, arg2, notUsingDegrees) {
+		/**
+		sets the character's velocity
+		arguments:
+			arg1 = required; either the total magnitude of the velocity or just its x-component
+			arg2 = required; either the direction of the velocity (in degrees) or the y-component
+				(possible values are stated respective to arg1)
+				0 degrees is pointing right
+			notUsingDegrees = optional; whether whether the first or second set of arguments should be used
+				default: false (uses magnitude and degrees)
+		*/
+		if (notUsingDegrees) {
+			character.velocity.x = arg1;
+			character.velocity.y = arg2;
+		} else {
+			arg2 = arg2 * Math.PI / 180;  // converts degrees to radians
+			character.velocity.x = arg1 * Math.cos(arg2);
+			character.velocity.y = arg1 * Math.sin(-arg2);  // This needs a negative because the y-axis is lowest at the top (causing clockwise rotation).
+		}
+	};
+
+	this.setAcceleration = function (arg1, arg2, notUsingDegrees) {
+		/**
+		sets the character's acceleration
+		arguments:
+			arg1 = required; either the total magnitude of the acceleration or just its x-component
+			arg2 = required; either the direction of the acceleration (in degrees) or the y-component
+				(possible values are stated respective to arg1)
+				0 degrees is pointing right
+			notUsingDegrees = optional; whether whether the first or second set of arguments should be used
+				default: false (uses magnitude and degrees)
+		*/
+		if (notUsingDegrees) {
+			character.acceleration.x = arg1;
+			character.acceleration.y = arg2;
+		} else {
+			arg2 = arg2 * Math.PI / 180;  // converts degrees to radians
+			character.acceleration.x = arg1 * Math.cos(arg2);
+			character.acceleration.y = arg1 * Math.sin(-arg2);  // This needs a negative because the y-axis is lowest at the top (causing clockwise rotation).
+		}
+	};
+
+	this.oldMove = function (specs) {
 		/**
 
 		*/
@@ -188,28 +587,88 @@ Standards.game.Character = function (source, options) {
 		if (specs.directionUnit == "degrees") {
 			specs.direction = specs.direction / 180 * Math.PI;
 		}
+		if (specs.path === undefined) {
+			specs.path = "linear";
+		} else if (specs.path != "linear" && specs.path != "circular") {
+			throw "An improper path was provided.";
+		}
+		if (specs.radius === undefined) {
+			specs.radius = 10;
+		} else if (Standards.game.getType(specs.radius) != "Number") {
+			throw "The provided radius isn't a number";
+		}
 		if (specs.stopType === undefined) {
 			specs.stopType = "box";
 		} else if (!["time", "distance", "function", "xBounding", "yBounding", "box", "point"].some(function (type) {
-			specs.stopType == type;
+			return specs.stopType == type;
 		})) {
 			throw "An inproper type of stop was provided.";
 		}
 
-		function moveOneFrame() {
-			character.xPosition += specs.speed * Math.cos(specs.direction);
-			character.body.style.left = character.xPosition + character.movementUnit;
-			character.yPosition -= specs.speed * Math.sin(specs.direction);
-			character.body.style.top = character.yPosition + character.movementUnit;
-		};
+		if (specs.path == "linear") {
+			if (character.movementUnit == "%") {
+				var rightwardMovement = specs.speed * Math.cos(specs.direction);
+				let parent = window.getComputedStyle(character.body.parentNode);
+				let pixels = Number(parent.width.slice(0, -2)) * specs.speed;
+				var upwardMovement = pixels / Number(parent.height.slice(0, -2)) * Math.sin(specs.direction);
+			} else {
+				var rightwardMovement = specs.speed * Math.cos(specs.direction);
+				var upwardMovement = specs.speed * Math.sin(specs.direction);
+			}
+			function moveOneFrame() {
+				character.position.x += rightwardMovement;
+				character.position.y -= upwardMovement;
+			};
+		} else if (specs.path == "circular") {
+			let directionChange = specs.speed / specs.radius;
+			let parent = window.getComputedStyle(character.body.parentNode);
+			function moveOneFrame() {
+				specs.direction += directionChange;
+				if (character.movementUnit == "%") {
+					var rightwardMovement = specs.speed * Math.cos(specs.direction);
+					let pixels = Number(parent.width.slice(0, -2)) * specs.speed;
+					var upwardMovement = pixels / Number(parent.height.slice(0, -2)) * Math.sin(specs.direction);
+				} else {
+					var rightwardMovement = specs.speed * Math.cos(specs.direction);
+					var upwardMovement = specs.speed * Math.sin(specs.direction);
+				}
+				character.position.x += rightwardMovement;
+				character.position.y -= upwardMovement;
+			};
+		}
 
 		var mover;
 		switch (specs.stopType) {
 			case "time":
-				console.warn("This type of stop isn't supported yet.");
+				// This needs to be in milliseconds.
+				if (Standards.game.getType(specs.stopPlace) == "Number") {
+					let elapsedTime = 0;
+					mover = setInterval(function () {
+						if (elapsedTime >= specs.stopPlace) {
+							clearInterval(mover);
+						} else {
+							moveOneFrame();
+						}
+						elapsedTime += Standards.game.refreshInterval;
+					}, Standards.game.refreshInterval);
+				} else {
+					throw "The provided type of the stop place is incorrect.";
+				}
 				break;
 			case "distance":
-				console.warn("This type of stop isn't supported yet.");
+				if (Standards.game.getType(specs.stopPlace) == "Number") {
+					let elapsedDistance = 0;
+					mover = setInterval(function () {
+						if (elapsedDistance >= specs.stopPlace) {
+							clearInterval(mover);
+						} else {
+							moveOneFrame();
+						}
+						elapsedDistance += specs.speed;
+					}, Standards.game.refreshInterval);
+				} else {
+					throw "The provided type of the stop place is incorrect.";
+				}
 				break;
 			case "function":
 				if (Standards.game.getType(specs.stopPlace) == "Function") {
@@ -229,9 +688,9 @@ Standards.game.Character = function (source, options) {
 					specs.stopPlace = [0, 100];
 				}
 				if (Standards.game.getType(specs.stopPlace) == "Number") {
-					if (specs.stopPlace >= character.xPosition) {
+					if (specs.stopPlace >= character.position.x) {
 						mover = setInterval(function () {
-							if (character.xPosition > specs.stopPlace) {
+							if (character.position.x > specs.stopPlace) {
 								clearInterval(mover);
 							} else {
 								moveOneFrame();
@@ -239,7 +698,7 @@ Standards.game.Character = function (source, options) {
 						}, Standards.game.refreshInterval);
 					} else {
 						mover = setInterval(function () {
-							if (character.xPosition <= specs.stopPlace) {
+							if (character.position.x <= specs.stopPlace) {
 								clearInterval(mover);
 							} else {
 								moveOneFrame();
@@ -248,9 +707,9 @@ Standards.game.Character = function (source, options) {
 					}
 				} else if (Standards.game.getType(specs.stopPlace) == "Array") {
 					if (specs.stopPlace.length == 1) {
-						if (specs.stopPlace[0] >= character.xPosition) {
+						if (specs.stopPlace[0] >= character.position.x) {
 							mover = setInterval(function () {
-								if (character.xPosition > specs.stopPlace[0]) {
+								if (character.position.x > specs.stopPlace[0]) {
 									clearInterval(mover);
 								} else {
 									moveOneFrame();
@@ -258,7 +717,7 @@ Standards.game.Character = function (source, options) {
 							}, Standards.game.refreshInterval);
 						} else {
 							mover = setInterval(function () {
-								if (character.xPosition <= specs.stopPlace[0]) {
+								if (character.position.x <= specs.stopPlace[0]) {
 									clearInterval(mover);
 								} else {
 									moveOneFrame();
@@ -270,7 +729,7 @@ Standards.game.Character = function (source, options) {
 							specs.stopPlace = [specs.stopPlace[1], specs.stopPlace[0]];
 						}
 						mover = setInterval(function () {
-							if (character.xPosition <= specs.stopPlace[0] || character.xPosition >= specs.stopPlace[1]) {
+							if (character.position.x <= specs.stopPlace[0] || character.position.x >= specs.stopPlace[1]) {
 								clearInterval(mover);
 							} else {
 								moveOneFrame();
@@ -288,9 +747,9 @@ Standards.game.Character = function (source, options) {
 					specs.stopPlace = [0, 100];
 				}
 				if (Standards.game.getType(specs.stopPlace) == "Number") {
-					if (specs.stopPlace >= character.yPosition) {
+					if (specs.stopPlace >= character.position.y) {
 						mover = setInterval(function () {
-							if (character.yPosition > specs.stopPlace) {
+							if (character.position.y > specs.stopPlace) {
 								clearInterval(mover);
 							} else {
 								moveOneFrame();
@@ -298,7 +757,7 @@ Standards.game.Character = function (source, options) {
 						}, Standards.game.refreshInterval);
 					} else {
 						mover = setInterval(function () {
-							if (character.yPosition <= specs.stopPlace) {
+							if (character.position.y <= specs.stopPlace) {
 								clearInterval(mover);
 							} else {
 								moveOneFrame();
@@ -310,9 +769,9 @@ Standards.game.Character = function (source, options) {
 						throw "At least one item of the bounding array isn't a number.";
 					}
 					if (specs.stopPlace.length == 1) {
-						if (specs.stopPlace[0] >= character.yPosition) {
+						if (specs.stopPlace[0] >= character.position.y) {
 							mover = setInterval(function () {
-								if (character.yPosition > specs.stopPlace[0]) {
+								if (character.position.y > specs.stopPlace[0]) {
 									clearInterval(mover);
 								} else {
 									moveOneFrame();
@@ -320,7 +779,7 @@ Standards.game.Character = function (source, options) {
 							}, Standards.game.refreshInterval);
 						} else {
 							mover = setInterval(function () {
-								if (character.yPosition <= specs.stopPlace[0]) {
+								if (character.position.y <= specs.stopPlace[0]) {
 									clearInterval(mover);
 								} else {
 									moveOneFrame();
@@ -332,7 +791,7 @@ Standards.game.Character = function (source, options) {
 							specs.stopPlace = [specs.stopPlace[1], specs.stopPlace[0]];
 						}
 						mover = setInterval(function () {
-							if (character.yPosition <= specs.stopPlace[0] || character.yPosition >= specs.stopPlace[1]) {
+							if (character.position.y <= specs.stopPlace[0] || character.position.y >= specs.stopPlace[1]) {
 								clearInterval(mover);
 							} else {
 								moveOneFrame();
@@ -366,10 +825,10 @@ Standards.game.Character = function (source, options) {
 				}
 				mover = setInterval(function () {
 					if (
-						character.xPosition <= specs.stopPlace[0] ||
-						character.xPosition >= specs.stopPlace[1] ||
-						character.yPosition <= specs.stopPlace[2] ||
-						character.yPosition >= specs.stopPlace[3]
+						character.position.x <= specs.stopPlace[0] ||
+						character.position.x >= specs.stopPlace[1] ||
+						character.position.y <= specs.stopPlace[2] ||
+						character.position.y >= specs.stopPlace[3]
 					) {
 						clearInterval(mover);
 					} else {
@@ -380,45 +839,6 @@ Standards.game.Character = function (source, options) {
 			case "point":
 				console.warn("This type of stop isn't supported yet.");
 				break;
-		}
-	};
-
-	this.goTo = function (x, y) {
-		if (Standards.game.getType(x) != "Number" || Standards.game.getType(y) != "Number") {
-			throw "At least one of the given coordinates wasn't a number.";
-		}
-		character.xPosition = x;
-		character.yPosition = y;
-		character.body.style.left = x + character.movementUnit;
-		character.body.style.top = y + character.movementUnit;
-	};
-
-	this.moveLeft = function (distance) {
-		if (document.body.contains(character.body)) {
-			distance = distance===undefined ? 1 : distance;
-			character.xPosition -= distance;
-			character.body.style.left = character.xPosition + character.movementUnit;
-		}
-	};
-	this.moveRight = function (distance) {
-		if (document.body.contains(character.body)) {
-			distance = distance === undefined ? 1 : distance;
-			character.xPosition += distance;
-			character.body.style.left = character.xPosition + character.movementUnit;
-		}
-	};
-	this.moveUp = function (distance) {
-		if (document.body.contains(character.body)) {
-			distance = distance === undefined ? 1 : distance;
-			character.yPosition -= distance;
-			character.body.style.top = character.yPosition + character.movementUnit;
-		}
-	};
-	this.moveDown = function (distance) {
-		if (document.body.contains(character.body)) {
-			distance = distance === undefined ? 1 : distance;
-			character.yPosition += distance;
-			character.body.style.top = character.yPosition + character.movementUnit;
 		}
 	};
 
@@ -448,14 +868,14 @@ Standards.game.Character = function (source, options) {
 			duration = the duration of the movement
 		non-native functions: none
 		*/
-
+		
 		// sets the boundaries of the movement area
 		options = options || {};
-		var minX = options.minX === undefined ? 0 : options.minX;
+		var minX = options.minX === undefined ? 5 : options.minX;
 		if (options.maxX !== undefined) {
 			var maxX = options.maxX;
 		} else if (character.movementUnit == "%") {
-			var maxX = 100;
+			var maxX = 95;
 		} else if (character.movementUnit == "em") {
 			var maxX = document.body.clientWidth / 16;
 		} else if (character.movementUnit == "px") {
@@ -463,11 +883,11 @@ Standards.game.Character = function (source, options) {
 		} else {
 			throw "No maximum x-position could be determined.";
 		}
-		var minY = options.minY === undefined ? 0 : options.minY;
+		var minY = options.minY === undefined ? 5 : options.minY;
 		if (options.maxY !== undefined) {
 			var maxY = options.maxY;
 		} else if (character.movementUnit == "%") {
-			var maxY = 100;
+			var maxY = 95;
 		} else if (character.movementUnit == "em") {
 			var maxY = document.body.clientHeight / 16;
 		} else if (character.movementUnit == "px") {
@@ -475,66 +895,39 @@ Standards.game.Character = function (source, options) {
 		} else {
 			throw "No maximum y-position could be determined.";
 		}
-
-		// sets the movement distances
-		var maxDistance = options.maxDistance || 25;
-		if (character.xPosition > maxX) {
-			var xMovement = Math.floor(Math.random() * (maxDistance-1)) - maxDistance;
-		} else if (character.xPosition < minX) {
-			var xMovement = Math.floor(Math.random() * (maxDistance+1));
-		} else {
-			var xMovement = Math.floor(Math.random() * (2*maxDistance+1)) - maxDistance;
-		}
-		if (character.yPosition > maxY) {
-			var yMovement = Math.floor(Math.random() * (maxDistance-1)) - maxDistance;
-		} else if (character.yPosition < minY) {
-			var yMovement = Math.floor(Math.random() * (maxDistance+1));
-		} else {
-			var yMovement = Math.floor(Math.random() * (2*maxDistance+1)) - maxDistance;
-		}
-
+		
 		// starts movement
+		var maxDistance = options.maxDistance || 30;
 		var duration = options.duration === undefined ? 1500 : options.duration;
 		var totalRunTimes = Math.round(duration / Standards.game.refreshInterval);
 		var currentRunTime = 0;
-		var interval = setInterval(function () {
-			character.moveRight(xMovement / totalRunTimes);
-			character.moveDown(yMovement / totalRunTimes);
-			if (++currentRunTime > totalRunTimes) {
-				clearInterval(interval);
-			}
-		}, Standards.game.refreshInterval);
-	};
-};
-
-Standards.game.startAction = function (name, action, delay) {
-
-};
-Standards.game.stopAction = function (name) {
-
-};
-
-Standards.game.repeatAction = function (times, action, delay) {
-	/**
-	allows an action to be repeated a certain number of times at a certain rate
-	arguments:
-		action = required; the function to be run
-			the times run is provided as an argument
-				(the first time is 0)
-		times = required; the number of times the function should be run
-		delay = optional; the number of miliseconds separating each running of the function
-			default: Standards.game.refreshInterval
-	non-native functions: none
-	*/
-	if (times < 1) {
-		throw "The times to repeat is less than one.";
-	}
-	delay = delay || Standards.game.refreshInterval;
-	let runTimes = 0;
-	let interval = setInterval(function () {
-		action(runTimes++);
-		if (runTimes >= times) {
-			clearInterval(interval);
+		var path = Math.floor(Math.random()*3)==0 ? "circular" : "linear";
+		if (character.position.x < minX) {
+			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90-45, path: path, stopType: "time", stopPlace: duration });
+		} else if (character.position.x > maxX) {
+			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90+135, path: path, stopType: "time", stopPlace: duration });
+		} else if (character.position.y < minY) {
+			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*-90-45, path: path, stopType: "time", stopPlace: duration });
+		} else if (character.position.y > maxY) {
+			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90+45, path: path, stopType: "time", stopPlace: duration });
+		} else {
+			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*360, path: path, stopType: "time", stopPlace: duration });
 		}
-	}, delay);
+	};
+
+	this.moveOneFrame = function () {
+		character.position.x = character.position.x + character.velocity.x / 1000 * Standards.game.refreshInterval;
+		character.position.y = character.position.y + character.velocity.y / 1000 * Standards.game.refreshInterval;
+		character.velocity.x = character.velocity.x + character.acceleration.x / 1000 * Standards.game.refreshInterval;
+		character.velocity.y = character.velocity.y + character.acceleration.y / 1000 * Standards.game.refreshInterval;
+			/// changes to positions and velocities are done in units per second
+	};
+
+	this.move = function (time) {
+		Standards.game.addAnimation(time, this.moveOneFrame);
+		Standards.game.runAnimations();
+	};
+
+	Standards.game.Character.instances.push(this);
 };
+Standards.game.Character.instances = [];

@@ -2,6 +2,11 @@
 	--face-positioning: absolute;
 }
 
+.character {
+	position: absolute;
+	width: 5em;
+}
+
 .happy-face {
 	position: absolute;
 	position: var(--face-positioning);
