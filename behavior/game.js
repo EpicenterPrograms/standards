@@ -71,6 +71,8 @@ Standards.game.getType = function (item) {
 		return "Date";
 	} else if (item instanceof DOMStringMap) {  // if it's a DOMStringMap
 		return "DOMStringMap";
+	} else if (item instanceof DOMRect) {  // if it's a DOM rectangle
+		return "DOMRect";
 	} else if (item instanceof NodeList) {  // if it's a NodeList
 		return "NodeList";
 	} else if (item instanceof Object) {  // if it's a regular object
@@ -180,25 +182,21 @@ Standards.game.toPixels = function (number) {
 	if (Standards.game.getType(number) != "Number") {
 		throw "The given length isn't a number.";
 	}
-	let pixels;
 	switch (Standards.game.lengthUnit) {
 		case "100":
 		case 100:
-			pixels = number * Standards.game.lengthPixels;
-			break;
+			return number * Standards.game.lengthPixels;
 		case "px":
-			pixels = number;
-			break;
+			return number;
 		case "em":
-			pixels = number * 16;
-			break;
+		case "rem":
+			return number * 16;
 		case "%":   ////
 		case "vw":  ////
 		case "vh":  ////
 		default:
 			throw "The standard length unit isn't a recognized value.";
 	}
-	return pixels + "px";
 };
 
 Standards.game.toLengthStandard = function (number) {
@@ -212,6 +210,7 @@ Standards.game.toLengthStandard = function (number) {
 		case "px":
 			return number;
 		case "em":
+		case "rem":
 			return number / 16;
 		case "%":   ////
 		case "vw":  ////
@@ -221,14 +220,88 @@ Standards.game.toLengthStandard = function (number) {
 	}
 };
 
-Standards.game.updateScaling = function (dimensions) {
+Standards.game.setDisplayDimensions = function (x, y) {
+	/**
+	sets the display dimensions
+	arguments:
+		x = the number of pixels for the width
+		y = the number of pixels for the height
+	*/
+	switch (Standards.game.lengthUnit) {
+		case "100":
+		case 100:
+			Standards.game.lengthPixels = y / 100;
+			Standards.game.displayWidth = x / y * 100;
+			Standards.game.displayHeight = 100;
+			break;
+		case "px":
+			Standards.game.lengthPixels = 1;
+			Standards.game.displayWidth = x;
+			Standards.game.displayHeight = y;
+			break;
+		case "em":
+			Standards.game.lengthPixels = 16;
+			Standards.game.displayWidth = x / 16;
+			Standards.game.displayHeight = y / 16;
+			break;
+		case "%":
+			Standards.game.displayWidth = 100;
+			Standards.game.displayHeight = 100;
+			break;
+		case "vw":
+			Standards.game.lengthPixels = x / 100;
+			Standards.game.displayWidth = 100 - (screen.width - x) / 100;
+			Standards.game.displayHeight = y / x * (100 - (screen.width - x) / 100);
+			break;
+		case "vh":
+			Standards.game.lengthPixels = y / 100;
+			Standards.game.displayHeight = 100 - (screen.height - y) / 100;
+			Standards.game.displayWidth = x / y * (100 - (screen.height - y) / 100);
+			break;
+	}
+}
+
+Standards.game.updateScaling = function (x, y) {
 	/**
 	updates the scaling
 	(makes sure everything is the correct size when the display size is changed)
+	arguments:
+		x = the x-change multiplier
+		y = the y-change multiplier
 	*/
+	/*  ////
 	if (Standards.game.lengthUnit == "100" || Standards.game.lengthUnit == 100) {
 		let oldWidth = Standards.game.displayWidth;
-		Standards.game.setDisplayDimensions(Standards.game.displayWidth * Standards.game.lengthPixels * dimensions[0], Standards.game.displayHeight * Standards.game.lengthPixels * dimensions[1]);
+		let oldContainerValues = JSON.parse(JSON.stringify(Standards.game.container.getBoundingClientRect()));
+		console.log(JSON.stringify(oldContainerValues));
+		Standards.game.setDisplayDimensions(Standards.game.displayWidth * Standards.game.lengthPixels * x, Standards.game.displayHeight * Standards.game.lengthPixels * y);
+		if (Standards.game.container.className.includes("slides")) {
+			Standards.game.forEach(Standards.game.container.children, function (slide) {
+				Standards.game.forEach(slide.children, function (child) {
+					let oldDimensions = child.getBoundingClientRect();
+					let newContainerValues = Standards.game.container.getBoundingClientRect();
+					if (oldStyle.width != "auto") {  // if the width isn't "auto"
+						child.style.width = Number(oldDimensions.width.slice(0,-2)) * y + "px";
+						//// console.log(child.tagName + " = auto");
+					} else {
+						//// console.log(child.tagName + " = not auto");
+					}
+					if (oldStyle.height != "auto") {  // if the height isn't "auto"
+						child.style.height = Number(oldDimensions.height.slice(0,-2)) * y + "px";
+					}
+					child.style.left = newContainerValues.left + (oldDimensions.left - oldContainerValues.left) * x + "px";
+					child.style.top = newContainerValues.top + (oldDimensions.top - oldContainerValues.top) * y + "px";
+				});
+			});
+		} else {
+			Standards.game.forEach(Standards.game.container.children, function (child) {
+				let oldStyle = window.getComputedStyle(child);
+				child.style.width = Number(oldStyle.width.slice(0,-2)) * y + "px";
+				child.style.height = Number(oldStyle.height.slice(0,-2)) * y + "px";
+				child.style.left = Number(oldStyle.left.slice(0,-2)) * x + "px";
+				child.style.top = Number(oldStyle.top.slice(0,-2)) * y + "px";
+			});
+		}
 		Standards.game.Character.instances.forEach(function (character) {
 			character.width += 0;
 			character.height += 0;
@@ -236,14 +309,15 @@ Standards.game.updateScaling = function (dimensions) {
 			character.position.y += 0;
 		});
 	} else {
-		Standards.game.setDisplayDimensions(Standards.game.displayWidth * dimensions[0], Standards.game.displayHeight * dimensions[1]);
+		Standards.game.setDisplayDimensions(Standards.game.displayWidth * x, Standards.game.displayHeight * y);
 		Standards.game.Character.instances.forEach(function (character) {
-			character.width *= dimensions[1];  // This is the same to make sure things aren't stretched awkwardly.
-			character.height *= dimensions[1];
-			character.position.x *= dimensions[0];
-			character.position.y *= dimensions[1];
+			character.width *= y;  // This is the same to make sure things aren't stretched awkwardly.
+			character.height *= y;
+			character.position.x *= x;
+			character.position.y *= y;
 		});
 	}
+	*/
 };
 
 (function () {
@@ -260,72 +334,44 @@ Standards.game.updateScaling = function (dimensions) {
 			let x = Number(window.getComputedStyle(container).width.slice(0, -2));
 			let y = Number(window.getComputedStyle(container).height.slice(0, -2));
 			let originalDimensions = [x, y];
-			switch (Standards.game.lengthUnit) {
-				case "100":
-				case 100:
-					Standards.game.lengthPixels = y / 100;
-					Standards.game.displayWidth = x / y * 100;
-					Standards.game.displayHeight = 100;
-					break;
-				case "px":
-					Standards.game.lengthPixels = 1;
-					Standards.game.displayWidth = x;
-					Standards.game.displayHeight = y;
-					break;
-				case "em":
-					Standards.game.lengthPixels = 16;
-					Standards.game.displayWidth = x / 16;
-					Standards.game.displayHeight = y / 16;
-					break;
-				case "%":
-					Standards.game.displayWidth = 100;
-					Standards.game.displayHeight = 100;
-					break;
-				case "vw":
-					Standards.game.lengthPixels = x / 100;
-					Standards.game.displayWidth = 100 - (screen.width - x) / 100;
-					Standards.game.displayHeight = y / x * (100 - (screen.width - x) / 100);
-					break;
-				case "vh":
-					Standards.game.lengthPixels = y / 100;
-					Standards.game.displayHeight = 100 - (screen.height - y) / 100;
-					Standards.game.displayWidth = x / y * (100 - (screen.height - y) / 100);
-					break;
-			}
+			Standards.game.setDisplayDimensions(x, y);
+			/*  ////
 			container.addEventListener("fullscreenchange", function () {
-				if (document.fullscreenElement === null) {  // if the container is in full-screen mode
-					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+				if (document.fullscreenElement === null) {  // if the container is not in full-screen mode
+					Standards.game.updateScaling(x / screen.width, y / screen.height);
 				} else {
-					G.updateScaling(screenScaling);
+					Standards.game.updateScaling(screen.width / x, screen.height / y);
 				}
 			});
 			container.addEventListener("webkitfullscreenchange", function () {
 				if (document.webkitFullscreenElement === null) {
-					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+					Standards.game.updateScaling(x / screen.width, y / screen.height);
 				} else {
-					G.updateScaling(screenScaling);
+					Standards.game.updateScaling(screen.width / x, screen.height / y);
 				}
 			});
 			container.addEventListener("mozfullscreenchange", function () {
 				if (document.mozFullScreenElement === null) {
-					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+					Standards.game.updateScaling(x / screen.width, y / screen.height);
 				} else {
-					G.updateScaling(screenScaling);
+					Standards.game.updateScaling(screen.width / x, screen.height / y);
 				}
 			});
 			container.addEventListener("msfullscreenchange", function () {
 				if (document.msFullscreenElement === null) {
-					G.updateScaling([originalDimensions[0] / screen.width, originalDimensions[1] / screen.height]);
+					Standards.game.updateScaling(x / screen.width, y / screen.height);
 				} else {
-					G.updateScaling(screenScaling);
+					Standards.game.updateScaling(screen.width / x, screen.height / y);
 				}
 			});
+			*/
 		}
 	});
 })();
 
-Standards.game.animationQueue = [];
-Standards.game.addAnimation = function (duration, doStuff) {
+Standards.game.animations = {};
+Standards.game.animations.queue = [];
+Standards.game.animations.add = function (duration, doStuff) {
 	/**
 	arguments:
 		duration = required; how long you want an action to last
@@ -333,33 +379,62 @@ Standards.game.addAnimation = function (duration, doStuff) {
 		doStuff = required; the stuff you want to be done (a function)
 			the index+1 of the frame number is provided as an agument to the function
 	*/
-	duration = Number(duration);
-	if (Standards.game.getType(duration) != "Number") {
-		throw "An improper type of duration was given.";
-	} else if (duration < 0) {
-		throw "Actions can't be done in the past.";
-	} else {
+	if (Standards.game.getType(duration) == "String") {
+		Standards.game.animations.queue.push({ fn: doStuff, waitFor: duration });
+	} else if (Standards.game.getType(duration) == "Number") {
+		if (duration < 0) {
+			throw "Actions can't be done in the past.";
+		}
 		let frames = Math.round(duration * 1000 / Standards.game.refreshInterval + 1);  // This is the number of frames it will take to complete the action.
 		let index = 0;
 		while (index < frames) {
-			Standards.game.animationQueue.push({ fn: doStuff, args: [++index] });
+			Standards.game.animations.queue.push({ fn: doStuff, args: [++index] });
 		}
+	} else {
+		throw "An improper type of duration was given.";
 	}
 };
-Standards.game.runAnimations = function () {
-	Standards.game.animator = setInterval(function () {
-		if (Standards.game.animationQueue.length > 1) {
-			Standards.game.animationQueue[0].fn.apply(window, Standards.game.animationQueue[0].args);
-			Standards.game.animationQueue.shift();
-		} else {
-			Standards.game.animationQueue[0].fn.apply(window, Standards.game.animationQueue[0].args);
-			Standards.game.animationQueue.shift();
-			clearInterval(Standards.game.animator);
-		}
-	}, Standards.game.refreshInterval);
+Standards.game.animations.run = function () {
+	if (Standards.game.animations.loop === undefined || Standards.game.animations.loop == "frozen") {
+		let frozen = Standards.game.animations.loop == "frozen";
+		Standards.game.animations.loop = setInterval(function () {
+			if (Standards.game.animations.queue.length > 1) {
+				if (Standards.game.animations.queue[1].waitFor) {
+					clearInterval(Standards.game.animations.loop);
+					window.addEventListener(Standards.game.animations.queue[1].waitFor, function () {
+						if (Standards.game.animations.loop != "frozen") {
+							window.removeEventListener(Standards.game.animations.queue[1].waitFor, arguments.callee);
+							Standards.game.animations.queue.shift();
+							Standards.game.animations.loop = undefined;
+							Standards.game.animations.run();
+						} else {
+							Standards.game.animations.loop = Standards.game.animations.queue[1].waitFor;
+						}
+					});
+					if (!frozen) {
+						Standards.game.animations.queue[0].fn.apply(window, Standards.game.animations.queue[0].args);
+					}
+				} else {
+					Standards.game.animations.queue[0].fn.apply(window, Standards.game.animations.queue[0].args);
+					Standards.game.animations.queue.shift();
+				}
+			} else {
+				Standards.game.animations.queue[0].fn.apply(window, Standards.game.animations.queue[0].args);
+				Standards.game.animations.queue.shift();
+				clearInterval(Standards.game.animations.loop);
+				Standards.game.animations.loop = undefined;
+			}
+		}, Standards.game.refreshInterval);
+	} else {
+		window.dispatchEvent(new Event(Standards.game.animations.loop));
+	}
 };
-Standards.game.freezeAnimations = function () {
-	clearInterval(Standards.game.animator);
+Standards.game.animations.freeze = function () {
+	clearInterval(Standards.game.animations.loop);
+	Standards.game.animations.loop = "frozen";
+};
+Standards.game.animations.wait = function (time) {
+	Standards.game.animations.add(time, function () { });
 };
 
 Standards.game.Character = function (source, options) {
@@ -442,7 +517,7 @@ Standards.game.Character = function (source, options) {
 			},
 			set: function (value) {
 				width = value;
-				character.body.style.width = Standards.game.toPixels(value);
+				character.body.style.width = Standards.game.toPixels(value) + "px";
 			}
 		});
 		Object.defineProperty(character, "height", {
@@ -451,7 +526,7 @@ Standards.game.Character = function (source, options) {
 			},
 			set: function (value) {
 				height = value;
-				character.body.style.height = Standards.game.toPixels(value);
+				character.body.style.height = Standards.game.toPixels(value) + "px";
 			}
 		});
 		if (character.body.nodeName == "IMG") {
@@ -459,7 +534,7 @@ Standards.game.Character = function (source, options) {
 				width = Standards.game.toLengthStandard(character.body.width);
 				height = Standards.game.toLengthStandard(character.body.height);
 				if (Standards.game.getType(onLoad) == "Function") {
-					onLoad();
+					onLoad.call(character);
 				}
 				character.body.removeEventListener("load", arguments.callee);
 			});
@@ -488,7 +563,7 @@ Standards.game.Character = function (source, options) {
 					throw "The standard length unit isn't a recognized value.";
 			}
 			if (Standards.game.getType(onLoad) == "Function") {
-				onLoad();
+				onLoad.call(character);
 			}
 		}
 	};
@@ -500,7 +575,7 @@ Standards.game.Character = function (source, options) {
 		},
 		set x(value) {
 			this.internalX = value;
-			character.body.style.left = Standards.game.toPixels(value - character.width / 2);
+			character.body.style.left = Standards.game.toPixels(value - character.width / 2) + "px";
 		},
 		internalY: 0,
 		get y() {
@@ -508,7 +583,7 @@ Standards.game.Character = function (source, options) {
 		},
 		set y(value) {
 			this.internalY = value;
-			character.body.style.top = Standards.game.toPixels(value - character.height / 2);
+			character.body.style.top = Standards.game.toPixels(value - character.height / 2) + "px";
 		}
 	};
 	this.velocity = { x: 0, y: 0 };
@@ -563,6 +638,8 @@ Standards.game.Character = function (source, options) {
 			character.acceleration.y = arg1 * Math.sin(-arg2);  // This needs a negative because the y-axis is lowest at the top (causing clockwise rotation).
 		}
 	};
+
+	this.actionQueue = [];
 
 	this.oldMove = function (specs) {
 		/**
@@ -923,9 +1000,129 @@ Standards.game.Character = function (source, options) {
 			/// changes to positions and velocities are done in units per second
 	};
 
-	this.move = function (time) {
-		Standards.game.addAnimation(time, this.moveOneFrame);
-		Standards.game.runAnimations();
+	this.move = function (time, shouldRun) {
+		Standards.game.animations.add(time, this.moveOneFrame);
+		shouldRun = shouldRun === undefined ? true : shouldRun;
+		if (shouldRun) {
+			Standards.game.animations.run();
+		}
+	};
+
+	this.speak = function (speech, type) {
+		/**
+		allows a character to speak
+		*/
+		type = type === undefined ? "text" : type;
+		if (Standards.game.getType(type) != "String") {
+			console.error("The manner of speaking had an incorrect data type.");
+		} else if (type == "text") {
+			// creates the elements for the speech bubble
+			let speechBubble = document.createElement("div");
+			let speechTriangle = document.createElement("div");
+			speechBubble.className = "speech-bubble";
+			speechTriangle.className = "speech-triangle";
+			speechBubble.textContent = speech;
+			// sets the time of display for the speech bubble
+			let displayTime = Math.pow(speech.length, .5) * 500;  ////
+			// displays the speech bubble
+			if (Standards.game.container.className.includes("slides") && Standards.game.container.hasAttribute("data-current-slide")) {  // if the game container is a slideshow
+				let currentSlide = Standards.game.container.children[Standards.game.container.getAttribute("data-current-slide")];
+				Standards.game.animations.add(0, function () {
+					// positions the speech bubble
+					speechBubble.style.bottom = Standards.game.toPixels(100 - character.position.y + character.height / 2 + 10) + "px";
+					speechBubble.style.left = Standards.game.toPixels(character.position.x - character.width / 2) + "px";
+					speechTriangle.style.top = Standards.game.toPixels(character.position.y - character.height / 2 - 10) - 1 + "px";
+					speechTriangle.style.left = Standards.game.toPixels(character.position.x - 1) + "px";
+					// adds the speech bubble
+					currentSlide.appendChild(speechBubble);
+					currentSlide.appendChild(speechTriangle);
+					setTimeout(function () {
+						// removes the speech bubble
+						currentSlide.removeChild(speechBubble);
+						currentSlide.removeChild(speechTriangle);
+						window.dispatchEvent(new Event("finishedSpeaking"));
+					}, displayTime);
+				});
+			} else {
+				Standards.game.animations.add(0, function () {
+					// positions the speech bubble
+					speechBubble.style.bottom = Standards.game.toPixels(100 - character.position.y + character.height / 2 + 10) + "px";
+					speechBubble.style.left = Standards.game.toPixels(character.position.x - character.width / 2) + "px";
+					speechTriangle.style.top = Standards.game.toPixels(character.position.y - character.height / 2 - 10) - 1 + "px";
+					speechTriangle.style.left = Standards.game.toPixels(character.position.x - 1) + "px";
+					// adds the speech bubble
+					Standards.game.container.appendChild(speechBubble);
+					Standards.game.container.appendChild(speechTriangle);
+					setTimeout(function () {
+						// removes the speech bubble
+						Standards.game.container.removeChild(speechBubble);
+						Standards.game.container.removeChild(speechTriangle);
+						window.dispatchEvent(new Event("finishedSpeaking"));
+					}, displayTime);
+				});
+			}
+		} else if (type == "voice") {
+			console.error("This isn't supported yet.");  ////
+		} else if (type == "audio") {
+			console.error("This isn't supported yet.");  ////
+		} else {
+			console.error("An invalid type of speech was chosen.");
+		}
+	};
+	this.flip = function (y, x) {
+		/**
+		flips the character's body
+		arguments:
+			y = optional; whether to flip on the y-axis
+				default: true
+			x = optional; whether to flip on the x-axis
+				default: false
+		*/
+		if (y === undefined) {
+			y = true;
+		}
+		Standards.game.animations.add(0, function () {
+			let scaling;
+			// determines the original scaling
+			if (character.body.style.transform && character.body.style.transform.search(/scale\(-?\d+, ?-?\d+\)/) > -1) {
+				scaling = character.body.style.transform.match(/scale\((-?\d+), ?(-?\d+)\)/);
+				scaling = [Number(scaling[1]), Number(scaling[2])];
+			} else if (character.body.style.oTransform && character.body.style.oTransform.search(/scale\(-?\d+, ?-?\d+\)/) > -1) {
+				scaling = character.body.style.oTransform.match(/scale\((-?\d+), ?(-?\d+)\)/);
+				scaling = [Number(scaling[1]), Number(scaling[2])];
+			} else if (character.body.style.msTransform && character.body.style.msTransform.search(/scale\(-?\d+, ?-?\d+\)/) > -1) {
+				scaling = character.body.style.msTransform.match(/scale\((-?\d+), ?(-?\d+)\)/);
+				scaling = [Number(scaling[1]), Number(scaling[2])];
+			} else if (character.body.style.mozTransform && character.body.style.mozTransform.search(/scale\(-?\d+, ?-?\d+\)/) > -1) {
+				scaling = character.body.style.mozTransform.match(/scale\((-?\d+), ?(-?\d+)\)/);
+				scaling = [Number(scaling[1]), Number(scaling[2])];
+			} else if (character.body.style.webkitTransform && character.body.style.webkitTransform.search(/scale\(-?\d+, ?-?\d+\)/) > -1) {
+				scaling = character.body.style.webkitTransform.match(/scale\((-?\d+), ?(-?\d+)\)/);
+				scaling = [Number(scaling[1]), Number(scaling[2])];
+			} else {
+				scaling = [1, 1];
+			}
+			// flips the character
+			if (y && x) {
+				character.body.style.oTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] * -1 + ")";
+				character.body.style.msTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] * -1 + ")";
+				character.body.style.mozTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] * -1 + ")";
+				character.body.style.webkitTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] * -1 + ")";
+				character.body.style.transform = "scale(" + scaling[0] * -1 + ", " + scaling[1] * -1 + ")";
+			} else if (y) {
+				character.body.style.oTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] + ")";
+				character.body.style.msTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] + ")";
+				character.body.style.mozTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] + ")";
+				character.body.style.webkitTransform = "scale(" + scaling[0] * -1 + ", " + scaling[1] + ")";
+				character.body.style.transform = "scale(" + scaling[0] * -1 + ", " + scaling[1] + ")";
+			} else if (x) {
+				character.body.style.oTransform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
+				character.body.style.msTransform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
+				character.body.style.mozTransform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
+				character.body.style.webkitTransform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
+				character.body.style.transform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
+			}
+		});
 	};
 
 	Standards.game.Character.instances.push(this);

@@ -80,7 +80,7 @@ Standards.presentation.getType = function (item) {
 };
 
 Standards.presentation.slides = {};
-Standards.presentation.slides.currentSlides = [];
+Standards.presentation.slides.currentSlides = [];  // which slide a given slideshow is on
 Standards.presentation.slides.next = function (identifier) {
 	var viewFrame;
 	var index;
@@ -117,6 +117,7 @@ Standards.presentation.slides.next = function (identifier) {
 	if (Standards.presentation.slides.currentSlides[index] < viewFrame.children.length - 1) {
 		viewFrame.children[Standards.presentation.slides.currentSlides[index]].style.left = "-100%";
 		viewFrame.children[++Standards.presentation.slides.currentSlides[index]].style.left = "0%";
+		viewFrame.setAttribute("data-current-slide", Standards.presentation.slides.currentSlides[index]);
 	}
 };
 Standards.presentation.slides.previous = function (identifier) {
@@ -155,6 +156,7 @@ Standards.presentation.slides.previous = function (identifier) {
 	if (Standards.presentation.slides.currentSlides[index] > 0) {
 		viewFrame.children[Standards.presentation.slides.currentSlides[index]].style.left = "100%";
 		viewFrame.children[--Standards.presentation.slides.currentSlides[index]].style.left = "0%";
+		viewFrame.setAttribute("data-current-slide", Standards.presentation.slides.currentSlides[index]);
 	}
 };
 Standards.presentation.slides.goTo = function (identifier, slideNumber) {
@@ -196,6 +198,7 @@ Standards.presentation.slides.goTo = function (identifier, slideNumber) {
 	}
 	if (slideNumber > 0 && slideNumber <= document.getElementsByClassName("slides")[index].children.length) {
 		Standards.presentation.slides.currentSlides[index] = slideNumber - 1;
+		viewFrame.setAttribute("data-current-slide", slideNumber - 1);
 	} else {
 		throw "The desired slide is outside of the range of slides.";
 	}
@@ -314,8 +317,10 @@ Standards.presentation.slides.toggleFullscreen = function (identifier) {
 };
 
 window.addEventListener("load", function () {
-	let reverseIndex = document.getElementsByClassName("slides").length;
+	let slideshows = document.getElementsByClassName("slides");
+	let reverseIndex = slideshows.length;
 	while (reverseIndex--) {
 		Standards.presentation.slides.currentSlides.push(0);
+		slideshows[reverseIndex].setAttribute("data-current-slide", 0);
 	}
 });

@@ -239,3 +239,36 @@
 	width: 1em;
 	height: .4em;
 }
+
+div.speech-bubble {
+	position: absolute;
+	left: auto;
+	right: auto;
+	top: auto;
+	bottom: auto;
+	border: .05rem solid black;
+	border-radius: 1rem;
+	padding: .5em;
+	background: white;
+	max-width: 30%;
+	max-height: 50%;
+	width: auto;
+	height: auto;
+	font-size: 1.25rem;
+}
+div.speech-triangle {
+	position: absolute;
+	z-index: 1;
+	border-width: 1.5rem .5rem .5rem .5rem;
+	border-style: solid;
+	border-color: black transparent transparent transparent;
+}
+div.speech-triangle::before {
+	content: "";
+	position: absolute;
+	left: -.45rem;
+	top: -1.5rem;
+	border-width: 1.45rem .45rem .45rem .45rem;
+	border-style: solid;
+	border-color: white transparent transparent transparent;
+}
