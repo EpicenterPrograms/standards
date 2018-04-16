@@ -395,6 +395,30 @@ Standards.game.animations.add = function (duration, doStuff) {
 	}
 };
 Standards.game.animations.run = function () {
+	/**
+	runs the queued animations
+	*/
+	Standards.game.animations.loop = setInterval(function () {
+		if (Standards.game.animations.queue.length > 0) {
+			if (Standards.game.animations.queue[0].waitFor) {
+				let signal = Standards.game.animations.queue[0].waitFor;
+				clearInterval(Standards.game.animations.loop);
+				window.addEventListener(signal, function () {
+					window.removeEventListener(signal, arguments.callee);
+					Standards.game.animations.queue.shift();
+					Standards.game.animations.run();
+				});
+				Standards.game.animations.queue[0].fn.apply(window, Standards.game.animations.queue[0].args);
+			} else {
+				Standards.game.animations.queue[0].fn.apply(window, Standards.game.animations.queue[0].args);
+				Standards.game.animations.queue.shift();
+			}
+		} else {
+			clearInterval(Standards.game.animations.loop);
+			Standards.game.animations.loop = undefined;
+		}
+	}, Standards.game.refreshInterval);
+	/*  //// This is supposed to support freezing.
 	if (Standards.game.animations.loop === undefined || Standards.game.animations.loop == "frozen") {
 		let frozen = Standards.game.animations.loop == "frozen";
 		Standards.game.animations.loop = setInterval(function () {
@@ -428,10 +452,16 @@ Standards.game.animations.run = function () {
 	} else {
 		window.dispatchEvent(new Event(Standards.game.animations.loop));
 	}
+	*/
 };
 Standards.game.animations.freeze = function () {
 	clearInterval(Standards.game.animations.loop);
 	Standards.game.animations.loop = "frozen";
+};
+Standards.game.animations.clear = function () {
+	clearInterval(Standards.game.animations.loop);
+	Standards.game.animations.loop = undefined;
+	Standards.game.animations.queue = [];
 };
 Standards.game.animations.wait = function (time) {
 	Standards.game.animations.add(time, function () { });
@@ -509,7 +539,11 @@ Standards.game.Character = function (source, options) {
 	this.movementUnit = options.movementUnit || "%" || Standards.game.lengthUnit;  ////
 
 	this.insertBodyInto = function (container, onLoad) {
-		container.appendChild(character.body);
+		if (container.className.includes("slides") && container.hasAttribute("data-current-slide")) {
+			container.children[container.getAttribute("data-current-slide")].appendChild(character.body);
+		} else {
+			container.appendChild(character.body);
+		}
 		let width, height;
 		Object.defineProperty(character, "width", {
 			get: function () {
@@ -589,12 +623,19 @@ Standards.game.Character = function (source, options) {
 	this.velocity = { x: 0, y: 0 };
 	this.acceleration = { x: 0, y: 0 };
 
-	this.goTo = function (x, y) {
+	this.goTo = function (x, y, addToQueue) {
 		if (Standards.game.getType(x) != "Number" || Standards.game.getType(y) != "Number") {
 			throw "At least one of the given coordinates wasn't a number.";
 		}
-		character.position.x = x;
-		character.position.y = y;
+		if (addToQueue) {
+			Standards.game.animations.add(0, function () {
+				character.position.x = x;
+				character.position.y = y;
+			});
+		} else {
+			character.position.x = x;
+			character.position.y = y;
+		}
 	};
 
 	this.setVelocity = function (arg1, arg2, notUsingDegrees) {
@@ -997,7 +1038,7 @@ Standards.game.Character = function (source, options) {
 		character.position.y = character.position.y + character.velocity.y / 1000 * Standards.game.refreshInterval;
 		character.velocity.x = character.velocity.x + character.acceleration.x / 1000 * Standards.game.refreshInterval;
 		character.velocity.y = character.velocity.y + character.acceleration.y / 1000 * Standards.game.refreshInterval;
-			/// changes to positions and velocities are done in units per second
+		/// changes to positions and velocities are done in units per second
 	};
 
 	this.move = function (time, shouldRun) {
@@ -1038,8 +1079,12 @@ Standards.game.Character = function (source, options) {
 					currentSlide.appendChild(speechTriangle);
 					setTimeout(function () {
 						// removes the speech bubble
+						/*  ////
 						currentSlide.removeChild(speechBubble);
 						currentSlide.removeChild(speechTriangle);
+						*/
+						speechBubble.parentNode.removeChild(speechBubble);
+						speechTriangle.parentNode.removeChild(speechTriangle);
 						window.dispatchEvent(new Event("finishedSpeaking"));
 					}, displayTime);
 				});
@@ -1055,8 +1100,12 @@ Standards.game.Character = function (source, options) {
 					Standards.game.container.appendChild(speechTriangle);
 					setTimeout(function () {
 						// removes the speech bubble
+						/*  ////
 						Standards.game.container.removeChild(speechBubble);
 						Standards.game.container.removeChild(speechTriangle);
+						*/
+						speechBubble.parentNode.removeChild(speechBubble);
+						speechTriangle.parentNode.removeChild(speechTriangle);
 						window.dispatchEvent(new Event("finishedSpeaking"));
 					}, displayTime);
 				});
@@ -1069,7 +1118,7 @@ Standards.game.Character = function (source, options) {
 			console.error("An invalid type of speech was chosen.");
 		}
 	};
-	this.flip = function (y, x) {
+	this.flip = function (y, x, runImmediately) {
 		/**
 		flips the character's body
 		arguments:
@@ -1077,11 +1126,14 @@ Standards.game.Character = function (source, options) {
 				default: true
 			x = optional; whether to flip on the x-axis
 				default: false
+			runImmediately = optional; whether the flip should be done right away (not added to the queue)
+				default: false
 		*/
+		/*  //// This works but overrides something I need.
 		if (y === undefined) {
 			y = true;
 		}
-		Standards.game.animations.add(0, function () {
+		function doFlipping() {
 			let scaling;
 			// determines the original scaling
 			if (character.body.style.transform && character.body.style.transform.search(/scale\(-?\d+, ?-?\d+\)/) > -1) {
@@ -1122,6 +1174,20 @@ Standards.game.Character = function (source, options) {
 				character.body.style.webkitTransform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
 				character.body.style.transform = "scale(" + scaling[0] + ", " + scaling[1] * -1 + ")";
 			}
+		}
+		if (runImmediately) {
+			doFlipping();
+		} else {
+			Standards.game.animations.add(0, doFlipping);
+		}
+		*/
+	};
+	this.rotate = function (degrees) {
+		/**
+		rotates the character
+		*/
+		Standards.game.animations.add(0, function () {
+
 		});
 	};
 
