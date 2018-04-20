@@ -219,10 +219,12 @@ Standards.presentation.slides.goTo = function (identifier, slideNumber) {
 		}
 	}
 	setTimeout(function () {
-		reverseIndex = document.getElementsByClassName("slides")[index].children.length;
-		while (reverseIndex--) {
-			item = document.getElementsByClassName("slides")[index].children[reverseIndex];
-			item.style.transition = "1s";
+		if (!viewFrame.className.includes("instant")) {
+			reverseIndex = document.getElementsByClassName("slides")[index].children.length;
+			while (reverseIndex--) {
+				item = document.getElementsByClassName("slides")[index].children[reverseIndex];
+				item.style.transition = "1s";
+			}
 		}
 	}, 0);
 };

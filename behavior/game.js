@@ -482,6 +482,11 @@ Standards.game.Character = function (source, options) {
 			classes: a list of classes for the character
 				can be an array or space-separated string of classes
 			movementUnit: the unit of movement for the character, e.g. "%", "px", "em", "vw", ...
+
+	troubleshooting:
+		can't redefine width property = you inserted the same character into something twice
+		the given length isn't a number / no width = you didn't insert the character
+
 	non-native functions: getType
 	*/
 
