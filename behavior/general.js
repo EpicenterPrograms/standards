@@ -58,7 +58,13 @@ Standards.general.help = function (item, part) {
 			case "non-natives":
 				if (content.indexOf("non-native functions") > -1) {
 					content = content.slice(content.lastIndexOf("non-native functions", content.indexOf("*/")), content.indexOf("*/"));
-					content = content.slice(content.indexOf("=") + 2, content.indexOf("\n"));
+					if (content.includes("=")) {
+						content = content.slice(content.indexOf("=") + 2, content.indexOf("\n"));
+					} else if (content.includes(":")) {
+						content = content.slice(content.indexOf(":") + 2, content.indexOf("\n"));
+					} else {
+						console.warn("There's not a clear beginning to the non-native functions.");
+					}
 				} else {
 					content = 'A "non-native functions" indication isn\'t present.'
 				}
@@ -80,9 +86,48 @@ Standards.general.finished = false;  // for keeping track of whether this script
 
 Standards.general.identifier = 1;  // for anything that may need to have specific targeting
 
-Standards.general.audio = new (window.AudioContext || window.webkitAudioContext || Object)();  // used in Sound()
-	// Safari is dumb and doesn't like any form of AudioContext
-	// Standards.general.audio.close() gets rid of the instance (if you used multiple instances, you'd max out at around 6)
+Standards.general.makeToneGenerator = function (makeDialog, affirmativeCallback, negativeCallback) {
+	/**
+	makes an audio context for creating tones
+	This can't be done without user input.
+	Safari doesn't seem to like any type of AudioContext even though recent versions are supposed to support it with "webkit".
+	Only one audio context can be created since you'd otherwise max out at around 6.
+	arguments:
+		makeDialog = optional; whether a dialog box should appear asking permission to make the audio context
+		affirmativeCallback = optional; a function to run once the tone generator has been created
+		negativeCallback = optional; a function to be run if permission to make tones is denied
+	non-native functions: makeDialog
+	*/  // Standards.general.audio.close() can get rid of the instance.
+	if (makeDialog) {
+		Standards.general.makeDialog("Do you want to enable tone generation?", ["Yes", function () {
+			if (window.AudioContext) {
+				Standards.general.audio = new window.AudioContext();
+			} else if (window.webkitAudioContext) {
+				Standards.general.audio = new window.webkitAudioContext();
+			} else {
+				console.error("Your browser doesn't support audio contexts.");
+			}
+			if (affirmativeCallback) {
+				affirmativeCallback();
+			}
+		}], ["No", function () {
+			if (negativeCallback) {
+				negativeCallback();
+			}
+		}]);
+	} else {
+		if (window.AudioContext) {
+			Standards.general.audio = new window.AudioContext();
+		} else if (window.webkitAudioContext) {
+			Standards.general.audio = new window.webkitAudioContext();
+		} else {
+			console.error("Your browser doesn't support audio contexts.");
+		}
+		if (affirmativeCallback) {
+			affirmativeCallback();
+		}
+	}
+};
 
 if (Standards.general.queue) {
 	if (Standards.general.queue instanceof Array) {
@@ -184,6 +229,25 @@ Standards.general.Sound = function (specs) {
 	playing (shouldn't be changed) = whether a sound is being played
 	times for all subfunctions are in milliseconds
 	*/
+	if (Standards.general.audio === undefined) {
+		console.error("No audio context exists.");
+		return {
+			identifier: 0,
+			frequency: 0,
+			volume: 0,
+			maxVolume: 0,
+			waveform: "",
+			modulation: 0,
+			hertzChange: 0,
+			changeWave: "",
+			playing: false,
+			start: function () { },
+			stop: function () { },
+			change: function () { },
+			play: function () { },
+			destroy: function () { },
+		};
+	}
 	var sound = this,
 		osc1 = Standards.general.audio.createOscillator(),
 		osc2 = Standards.general.audio.createOscillator(),
