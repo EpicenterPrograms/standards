@@ -1308,7 +1308,7 @@ Standards.general.toArray = function () {
 		index2,
 		returnList = [];
 	for (index1; index1<arguments.length; index1++) {
-		if (arguments[index1][0] && arguments[index1].length) {
+		if (arguments[index1][0] && arguments[index1].length) {  //// Standards.general.getType(list[Symbol.iterator]) == "Function"
 			for (index2=0; index2<arguments[index1].length; index2++) {
 				returnList.push(arguments[index1][index2]);
 			}
@@ -2487,10 +2487,11 @@ Standards.general.makeDialog = function (message) {
 	}, 0);
 };
 
-Standards.general.getFile = function (URL, callback, convert) {
+Standards.general.getFile = function (URL, callback, convert) {  ////
 	/**
 	asynchronously retieves a file as a string using an XMLHttpRequest
 	only files from the same domain can be retrieved without CORS
+	local files can only be accessed from a file selector
 	arguments:
 		URL = required; the URL of the desired file
 			can be absolute or relative
@@ -2505,9 +2506,15 @@ Standards.general.getFile = function (URL, callback, convert) {
 	non-native functions = getType and toHTML
 	*/
 	if (!URL) {
-		console.error("No resource was provided to get HTML.");
+		console.error("No resource was provided to get the file.");
 	} else if (Standards.general.getType(URL) != "String") {
 		console.error("The provided URL wasn't a string.");
+	} else if (new URL(URL, window.location.href).href.slice(0, 7) == "file://") {
+		if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return URL.slice(URL.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
+
+		} else {
+
+		}
 	} else {
 		var file = new XMLHttpRequest();
 		file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
@@ -2694,7 +2701,7 @@ Standards.general.storage.session = {
 		if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
 			items without "u~", "s~", "n~", "a~", "h~", "o~", or "z~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
-		non-native functions = none
+		non-native functions = getType
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
@@ -2709,6 +2716,13 @@ Standards.general.storage.session = {
 			} else {
 				console.error("Invalid storage location type");
 				alert("The information requested can't be retrieved.");
+			}
+			if (information === null) {
+				console.error("The information couldn't be found.");
+				return null;
+			} else if (Standards.general.getType(information) != "String") {
+				console.error("An error occurred while retrieving the information.");
+				return information;
 			}
 			switch (information.slice(0, 2)) {
 				case "u~":
@@ -2862,7 +2876,7 @@ Standards.general.storage.local = {
 		if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
 			items without "u~", "s~", "n~", "a~", "h~", "o~", or "z~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
-		non-native functions = none
+		non-native functions = getType
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
@@ -2878,6 +2892,13 @@ Standards.general.storage.local = {
 				console.error("Invalid storage location type");
 				alert("The information requested can't be retrieved.");
 				return;
+			}
+			if (information === null) {
+				console.error("The information couldn't be found.");
+				return null;
+			} else if (Standards.general.getType(information) != "String") {
+				console.error("An error occurred while retrieving the information.");
+				return information;
 			}
 			switch (information.slice(0, 2)) {
 				case "u~":

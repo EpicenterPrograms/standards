@@ -847,3 +847,27 @@ table.compact {
 	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
 
+@media screen and (max-width: 1000px) {
+	/*
+	styles things for mobile devices
+	*/
+	body {
+		font-size: 1.5rem;
+	}
+	main {
+		font-size: 1.5rem;
+	}
+	div {
+		font-size: 1.5rem;
+	}
+	h1 {
+		font-size: 3rem;
+	}
+	button {
+		font-size: 1.25rem;
+	}
+	.user-section {
+		display: block;
+		position: static;
+	}
+}
