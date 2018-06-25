@@ -2819,6 +2819,7 @@ Standards.general.storage.session = {
 				} else if (key.indexOf(location) == 0 && key.length > location.length+1) {
 					keyList.push(key.slice(location.length+1));
 				}
+				/// the length+1 is for the slash
 			}
 		}
 		return keyList;
@@ -2995,6 +2996,7 @@ Standards.general.storage.local = {
 				} else if (key.indexOf(location) == 0 && key.length > location.length+1) {
 					keyList.push(key.slice(location.length+1));
 				}
+				/// the length+1 is for the slash
 			}
 		}
 		return keyList;
@@ -3807,7 +3809,7 @@ window.addEventListener("load", function () {  // This waits for everything past
 				return box.checked;
 			})) {  // if none of the boxes are checked
 				let previouslyChecked;
-				document.getElementsByName(name).forEach(function (box) {
+				Standards.general.forEach(document.getElementsByName(name), function (box) {
 					box.addEventListener("click", function () {
 						if (this == previouslyChecked) {
 							this.checked = false;
@@ -3816,13 +3818,12 @@ window.addEventListener("load", function () {  // This waits for everything past
 							previouslyChecked = this;
 						}
 					});
-					if (box.nextSibling.nodeName == "LABEL") {
+					if (box.nextSibling && box.nextSibling.nodeName == "LABEL") {
 						box.nextSibling.addEventListener("click", function () {
 							if (box == previouslyChecked) {
 								box.checked = false;
 								previouslyChecked = undefined;
 							} else {
-								box.checked = true;
 								previouslyChecked = box;
 							}
 						});
