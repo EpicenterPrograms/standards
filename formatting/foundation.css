@@ -114,7 +114,7 @@ aside {
 	left: 100%;
 	top: 0%;
 	border-left: .05em solid #aaaaaa;
-	width: 15%;
+	width: 40%;
 	height: 100%;
 	transition: .8s;
 	transition: var(--nav-slide-time);
@@ -475,7 +475,7 @@ option:disabled {
 
 aside {
 	background-color: white;
-	padding: 1em;
+	padding: 1rem;
 	overflow: auto;
 }
 
