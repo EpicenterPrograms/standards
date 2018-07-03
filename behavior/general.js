@@ -3891,12 +3891,12 @@ window.addEventListener("load", function () {  // This waits for everything past
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
 			document.getElementById("signIn").addEventListener("click", function () {
-				Standards.general.storage.server.signIn(["Google", "Anonymous"]);
+				Standards.general.storage.server.signIn(["Google"]);
 			});
 		}
 		if (document.getElementById("signUp")) {  // if there's a signUp button
 			document.getElementById("signUp").addEventListener("click", function () {
-				Standards.general.storage.server.signUp(["Google", "Anonymous"]);
+				Standards.general.storage.server.signUp(["Google"]);
 			});
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
@@ -3910,7 +3910,6 @@ window.addEventListener("load", function () {  // This waits for everything past
 		}
 
 		// adds page jumping capabilities
-		// (This needs to be last in case other processing changes the length of the page, and the user wouldn't be able to be redirected to the place of the desired section.)
 		Standards.general.forEach(document.getElementsByClassName("page-jump-sections"), function (division) {
 			let contents = document.createElement("div");
 			contents.className = "page-jump-list";
@@ -3921,11 +3920,21 @@ window.addEventListener("load", function () {  // This waits for everything past
 			toTop.innerHTML = '<a href="#">To top</a>';
 			let listItems = document.createElement("ol");
 			sections.forEach(function (heading, index, sections) {
-				let inside = sections[index].innerHTML.trim();  // The inner HTML has a bunch of whitespace probably because of carriage returns.
+				let inside = encodeURIComponent(sections[index].textContent.trim());
+				let safety = 20;
+				while (document.getElementById(inside) && safety) {  // while the ID is already used
+					if (inside.search(/_\d+$/) > -1) {
+						let _index = inside.lastIndexOf("_");
+						inside = inside.slice(0,_index) + "_" + (Number(inside.slice(_index+1))+1);
+					} else {
+						inside = inside + "_1";
+					}
+					safety--;
+				}
 				sections[index].id = inside;
 				let link = document.createElement("a");
 				link.href = "#" + inside;
-				link.innerHTML = inside;
+				link.textContent = decodeURIComponent(inside);
 				let listItem = document.createElement("li");
 				listItem.appendChild(link);
 				listItems.appendChild(listItem);
@@ -3934,23 +3943,14 @@ window.addEventListener("load", function () {  // This waits for everything past
 			});
 			contents.appendChild(listItems);
 			division.parentNode.insertBefore(contents, division);  // .insertBefore() only works for the immediate descendants of the parent
-			// This takes you to a certain part of the page after the IDs and links load (if you were trying to go to a certain part of the page.
-			if (window.location.href.indexOf("#") > -1) {
-				let found = false;
-				Standards.general.forEach(document.getElementsByClassName("page-jump-list"), function (section) {
-					Standards.general.forEach(section.getElementsByTagName("a"), function (link) {
-						if (link.innerHTML.trim() == window.location.href.split("#")[1].trim()) {  // Does the URL match a destination?
-							found = true;
-							link.click();
-							return "break";
-						}
-					});
-				});
-				if (!found) {  // Was the section found?
-					console.warn('The section "' + window.location.href.split("#")[1].trim() + '" doesn\'t exist on this page.');
-				}
-			}
 		}, false);
+
+		// This takes you to a certain part of the page after the IDs and links load. (if you were trying to go to a certain part of the page)
+		if (window.location.href.indexOf("#") > -1) {
+			let link = document.createElement("a");
+			link.href = window.location.href.split("#")[1].trim();
+			link.click();
+		}
 	}
 	
 	Standards.general.queue.run();
