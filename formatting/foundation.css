@@ -537,13 +537,13 @@ dialog .buttons {
 	margin-top: .5em;
 }
 
-.dialog {  /* <dialog> formatting is replicated because it isn't widely supported yet */
+.dialog {  /* <dialog> formatting is replicated (mostly) because it isn't widely supported yet */
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
 	z-index: 10;
 	border: 12px solid #aadddd;  /* This is in pixels in order to prevent random scroll bars appearing (probably because of otherwise getting a fraction of a pixel). */
 	border-radius: 4vh;
 	padding: 1em;
-	max-width: 30%;
+	max-width: 35%;
 	max-height: 50%;
 	background: white;
 	overflow: auto;
@@ -869,5 +869,9 @@ table.compact {
 	.user-section {
 		display: block;
 		position: static;
+	}
+	.dialog {
+		max-width: 80%;
+		max-height: 80%;
 	}
 }

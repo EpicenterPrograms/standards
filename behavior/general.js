@@ -1426,7 +1426,7 @@ Standards.general.listen = function (item, event, behavior, listenOnce) {
 			} else {
 				if (listenOnce) {
 					item.addEventListener(event, function () {
-						behavior();
+						behavior.call(this);
 						item.removeEventListener(event, arguments.callee);
 					});
 				} else {
@@ -2386,6 +2386,7 @@ Standards.general.makeDialog = function (message) {
 			value = the function called when the button is pressed
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
+	HTML buttons in the message can be used as the dialog buttons if they have the class "replace".
 	examples:
 		Standards.general.makeDialog(
 			"Don't you think this dialog box is awesome?",
@@ -2434,9 +2435,16 @@ Standards.general.makeDialog = function (message) {
 	});
 	let darkener = document.createElement("div"),
 		dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
-		contents = Standards.general.toHTML(message),
+		contents,
 		buttons = document.createElement("div");
-	let placedButtonsNumber = contents.getElementsByTagName("button").length;
+	if (Standards.general.getType(message) == "String") {
+		contents = Standards.general.toHTML(message);
+	} else if (Standards.general.getType(message) == "HTMLElement") {
+		contents = message;
+	} else {
+		throw "The message is of an incorrect type.";
+	}
+	let placedButtonsNumber = contents.getElementsByClassName("replace").length - 1;
 	darkener.className = "darkener";
 	darkener.style.pointerEvents = "auto";
 	dialog.className = "dialog";
@@ -2447,8 +2455,8 @@ Standards.general.makeDialog = function (message) {
 		} else if (Standards.general.getType(pair[1]) != "Function") {
 			throw "The pair at position " + (index+1) + " doesn't have a function as the second value.";
 		}
-		if (placedButtonsNumber - 1 >= index) {
-			let button = contents.getElementsByTagName("button")[index];
+		if (placedButtonsNumber >= index) {
+			let button = contents.getElementsByClassName("replace")[index];
 			button.innerHTML = pair[0];
 			button.addEventListener("click", function () {
 				pair[1](pair[0]);
@@ -2466,8 +2474,10 @@ Standards.general.makeDialog = function (message) {
 			});
 		}
 	});
-	contents.appendChild(buttons);
 	dialog.appendChild(contents);
+	if (buttons.innerHTML) {
+		dialog.appendChild(buttons);
+	}
 	darkener.appendChild(dialog);
 	document.body.appendChild(darkener);
 	dialog.addEventListener("dialog" + identifier + "Answered", function () {
@@ -2485,6 +2495,7 @@ Standards.general.makeDialog = function (message) {
 		dialog.style.WebkitTransform = "scale(1, 1)";
 		dialog.style.transform = "scale(1, 1)";
 	}, 0);
+	return dialog;
 };
 
 Standards.general.getFile = function (URL, callback, convert) {  ////
@@ -2664,7 +2675,7 @@ Standards.general.storage.session = {
 			/// Alerting rather than just thowing an error notifies average users when things aren't working.
 		} else {
 			key = String(key);
-			location = location || Standards.general.storage.session.defaultLocation;
+			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
 			if (typeof item == "undefined") {
 				item = "u~";
 			} else if (item.constructor == String) {  // if the item is a string (typeof for new String() would return "object")
@@ -2707,7 +2718,7 @@ Standards.general.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location || Standards.general.storage.session.defaultLocation;
+			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
 			var information = ""
 			if (location == null) {
 				information = sessionStorage.getItem(key);
@@ -2755,7 +2766,7 @@ Standards.general.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location || Standards.general.storage.session.defaultLocation;
+			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
 			if (location == null) {
 				sessionStorage.removeItem(key);
 			} else if (location.constructor == String) {
@@ -2774,7 +2785,7 @@ Standards.general.storage.session = {
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 		} else if (oldPlace != newPlace) {
-			location = location || Standards.general.storage.session.defaultLocation;
+			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
 			let information = "";
 			// retrieves the information
 			if (location == null) {
@@ -2786,6 +2797,7 @@ Standards.general.storage.session = {
 				alert("The operation couldn't be completed.");
 				return;
 			}
+			// checks if the information exists
 			if (information == null) {
 				console.error("There's no information at the indicated location");
 				alert("There was no information to move.");
@@ -2810,7 +2822,7 @@ Standards.general.storage.session = {
 		lists the keys of everything in session storage
 		non-native functions = none
 		*/
-		location = location || Standards.general.storage.session.defaultLocation;
+		location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
 		var keyList = [];
 		for (let key in sessionStorage) {
 			if (sessionStorage.propertyIsEnumerable(key)) {
@@ -2840,7 +2852,7 @@ Standards.general.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location || Standards.general.storage.local.defaultLocation;
+			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
 			if (typeof item == "undefined") {
 				item = "u~";
 			} else if (item.constructor == String) {  // if the item is a string
@@ -2883,7 +2895,7 @@ Standards.general.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location || Standards.general.storage.local.defaultLocation;
+			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
 			let information = "";
 			if (location == null) {
 				information = localStorage.getItem(key);
@@ -2932,7 +2944,7 @@ Standards.general.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location || Standards.general.storage.local.defaultLocation;
+			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
 			if (location == null) {
 				localStorage.removeItem(key);
 			} else if (location.constructor == String) {
@@ -2951,7 +2963,7 @@ Standards.general.storage.local = {
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 		} else if (oldPlace != newPlace) {
-			location = location || Standards.general.storage.local.defaultLocation;
+			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
 			let information = "";
 			// retrieves the information
 			if (location == null) {
@@ -2963,6 +2975,7 @@ Standards.general.storage.local = {
 				alert("The operation couldn't be completed.");
 				return;
 			}
+			// checks if the information exists
 			if (information == null) {
 				console.error("There's no information at the indicated location");
 				alert("There was no information to move.");
@@ -2987,7 +3000,7 @@ Standards.general.storage.local = {
 		lists the keys of everything in local storage
 		non-native functions = none
 		*/
-		location = location || Standards.general.storage.local.defaultLocation;
+		location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
 		var keyList = [];
 		for (let key in localStorage) {
 			if (localStorage.propertyIsEnumerable(key)) {
