@@ -851,7 +851,7 @@ table.compact {
 	/*
 	styles things for mobile devices
 	*/
-	body {
+	body:not(.navigation) {
 		font-size: 1.5rem;
 	}
 	main {
