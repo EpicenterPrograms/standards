@@ -2675,7 +2675,36 @@ Standards.general.storage.session = {
 			/// Alerting rather than just thowing an error notifies average users when things aren't working.
 		} else {
 			key = String(key);
-			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.session.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			if (typeof item == "undefined") {
 				item = "u~";
 			} else if (item.constructor == String) {  // if the item is a string (typeof for new String() would return "object")
@@ -2718,7 +2747,36 @@ Standards.general.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.session.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			var information = ""
 			if (location == null) {
 				information = sessionStorage.getItem(key);
@@ -2766,7 +2824,36 @@ Standards.general.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.session.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			if (location == null) {
 				sessionStorage.removeItem(key);
 			} else if (location.constructor == String) {
@@ -2785,7 +2872,36 @@ Standards.general.storage.session = {
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 		} else if (oldPlace != newPlace) {
-			location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.session.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			let information = "";
 			// retrieves the information
 			if (location == null) {
@@ -2822,7 +2938,36 @@ Standards.general.storage.session = {
 		lists the keys of everything in session storage
 		non-native functions = none
 		*/
-		location = location === undefined ? Standards.general.storage.session.defaultLocation : location;
+		if (location === undefined) {
+			location = Standards.general.storage.session.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location[0] == "/") {
+				if (location == "/") {
+					alert("An invalid storage location was given");
+					throw "An absolute storage location was indicated but not provided.";
+				} else {
+					location = location.slice(1);
+				}
+			} else if (location === "") {
+				location = null;
+			} else {
+				let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+				while (location.slice(0, 2) == "..") {
+					prelocation.pop();
+					location = location.slice(3);
+				}
+				if (location === "") {
+					location = prelocation.join("/");
+				} else {
+					location = prelocation.join("/") + "/" + location;
+				}
+			}
+		} else if (location === null) {
+			// do nothing
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.";
+		}
 		var keyList = [];
 		for (let key in sessionStorage) {
 			if (sessionStorage.propertyIsEnumerable(key)) {
@@ -2852,7 +2997,36 @@ Standards.general.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.local.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			if (typeof item == "undefined") {
 				item = "u~";
 			} else if (item.constructor == String) {  // if the item is a string
@@ -2895,7 +3069,36 @@ Standards.general.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.local.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			let information = "";
 			if (location == null) {
 				information = localStorage.getItem(key);
@@ -2944,7 +3147,36 @@ Standards.general.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 		} else {
 			key = String(key);
-			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.local.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			if (location == null) {
 				localStorage.removeItem(key);
 			} else if (location.constructor == String) {
@@ -2963,7 +3195,36 @@ Standards.general.storage.local = {
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 		} else if (oldPlace != newPlace) {
-			location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
+			if (location === undefined) {
+				location = Standards.general.storage.local.defaultLocation;
+			} else if (S.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location == "/") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else if (location === "") {
+					location = null;
+				} else {
+					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);
+					}
+					if (location === "") {
+						location = prelocation.join("/");
+					} else {
+						location = prelocation.join("/") + "/" + location;
+					}
+				}
+			} else if (location === null) {
+				// do nothing
+			} else {
+				alert("An invalid storage location was given");
+				throw "The location given wasn't a string.";
+			}
 			let information = "";
 			// retrieves the information
 			if (location == null) {
@@ -3000,7 +3261,36 @@ Standards.general.storage.local = {
 		lists the keys of everything in local storage
 		non-native functions = none
 		*/
-		location = location === undefined ? Standards.general.storage.local.defaultLocation : location;
+		if (location === undefined) {
+			location = Standards.general.storage.local.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location[0] == "/") {
+				if (location == "/") {
+					alert("An invalid storage location was given");
+					throw "An absolute storage location was indicated but not provided.";
+				} else {
+					location = location.slice(1);
+				}
+			} else if (location === "") {
+				location = null;
+			} else {
+				let prelocation = Standards.general.storage.local.defaultLocation.split("/");
+				while (location.slice(0, 2) == "..") {
+					prelocation.pop();
+					location = location.slice(3);
+				}
+				if (location === "") {
+					location = prelocation.join("/");
+				} else {
+					location = prelocation.join("/") + "/" + location;
+				}
+			}
+		} else if (location === null) {
+			// do nothing
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.";
+		}
 		var keyList = [];
 		for (let key in localStorage) {
 			if (localStorage.propertyIsEnumerable(key)) {
@@ -3036,12 +3326,47 @@ Standards.general.storage.server = {
 		}
 		return true;
 	},
-	getReference: function (location) {
+	formatLocation: function (location) {
+		/**
+		formats the location
+		preceding a location with a slash ("/") will allow location setting from the top of the user's directory
+		".." goes up a level from the default location
+		non-native functions = getType
+		*/
+		if (location === undefined) {
+			return Standards.general.storage.server.defaultLocation;
+		} else if (S.getType(location) == "String") {
+			if (location === "" || location[0] == "/") {
+				if (location == "/" || location === "") {
+					alert("An invalid storage location was given");
+					throw "An absolute storage location was indicated but not provided.";
+				} else {
+					return location.slice(1);
+				}
+			} else {
+				let prelocation = Standards.general.storage.server.defaultLocation.split("/");
+				while (location.slice(0, 2) == "..") {
+					prelocation.pop();
+					location = location.slice(3);
+				}
+				if (location === "") {
+					return prelocation.join("/");
+				} else {
+					return prelocation.join("/") + "/" + location;
+				}
+			}
+		} else {
+			alert("An invalid storage location was given");
+			throw "The location given wasn't a string.";
+		}
+	},
+	getReference: function (location) {  //// make all location setting done here
 		/**
 		creates a storage reference based on a provided location
 		different paths are separated by slashes ("/")
-		preceding a location with a tilde ("~") will allow absolute location setting
+		preceding a location with a tilde ("~") will allow absolute location setting (not within a user's directory)
 		(no optimization for user storage)
+		uses Google Firebase
 		non-native functions = getType
 		*/
 		let reference = Standards.general.storage.server.database;
@@ -3122,21 +3447,7 @@ Standards.general.storage.server = {
 	},
 	store: function (key, item, location, callback) {
 		if (Standards.general.storage.server.checkCompatibility()) {
-			if (location === undefined || location === "") {
-				location = Standards.general.storage.server.defaultLocation;
-			} else if (S.getType(location) == "String") {
-				if (location.length > 0 && location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An relative storage location was indicated but not provided.";
-					} else {
-						location = Standards.general.storage.server.defaultLocation + location;
-					}
-				}
-			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
-			}
+			location = Standards.general.storage.server.formatLocation(location);
 			if (location == "" || location.split("/").length % 2 == 0) {
 				Standards.general.storage.server.getReference(location).set({
 					[key]: item
@@ -3178,21 +3489,7 @@ Standards.general.storage.server = {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined || location === "") {
-			location = Standards.general.storage.server.defaultLocation;
-		} else if (S.getType(location) == "String") {
-			if (location.length > 0 && location[0] == "/") {
-				if (location == "/") {
-					alert("An invalid storage location was given");
-					throw "An relative storage location was indicated but not provided.";
-				} else {
-					location = Standards.general.storage.server.defaultLocation + location;
-				}
-			}
-		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.\nThe default location was used instead.";
-		}
+		location = Standards.general.storage.server.formatLocation(location);
 		if (location == "" || location.split("/").length % 2 == 0) {
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				if (document.exists) {
@@ -3229,21 +3526,7 @@ Standards.general.storage.server = {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined || location === "") {
-			location = Standards.general.storage.server.defaultLocation;
-		} else if (S.getType(location) == "String") {
-			if (location.length > 0 && location[0] == "/") {
-				if (location == "/") {
-					alert("An invalid storage location was given");
-					throw "An relative storage location was indicated but not provided.";
-				} else {
-					location = Standards.general.storage.server.defaultLocation + location;
-				}
-			}
-		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.\nThe default location was used instead.";
-		}
+		location = Standards.general.storage.server.formatLocation(location);
 		if (location == "" || location.split("/").length % 2 == 0) {
 			if (key === null) {
 				Standards.general.storage.server.getReference(location).delete().then(function () {
@@ -3304,25 +3587,14 @@ Standards.general.storage.server = {
 			}
 		}
 	},
+	move: function (oldPlace, newPlace, location, callback) {
+		////
+	},
 	list: function (location, callback) {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location === undefined || location === "") {
-			location = Standards.general.storage.server.defaultLocation;
-		} else if (S.getType(location) == "String") {
-			if (location.length > 0 && location[0] == "/") {
-				if (location == "/") {
-					alert("An invalid storage location was given");
-					throw "An relative storage location was indicated but not provided.";
-				} else {
-					location = Standards.general.storage.server.defaultLocation + location;
-				}
-			}
-		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.\nThe default location was used instead.";
-		}
+		location = Standards.general.storage.server.formatLocation(location);
 		if (location == "" || location.split("/").length % 2 == 0) {  // if the location goes to a document
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				let keyList = [];
