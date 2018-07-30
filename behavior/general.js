@@ -3604,11 +3604,11 @@ Standards.general.storage.server = {
 					function deleteCollection(collection) {
 						Standards.general.forEach(collection, function (document) {
 							listener.value++;
-							document.collection("<collection>").get().then(function (subcollection) {
+							document.ref().collection("<collection>").get().then(function (subcollection) {
 								if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 									deleteCollection(subcollection);
 								}
-								document.delete().then(function () {
+								document.ref().delete().then(function () {
 									listener.value--;
 								}).catch(function (error) {
 									console.error("The information couldn't be deleted.");
@@ -3684,7 +3684,7 @@ Standards.general.storage.server = {
 				function exploreCollection(collection, path) {
 					Standards.general.forEach(collection, function (document) {
 						listener.value++;
-						document.collection("<collection>").get().then(function (subcollection) {
+						document.ref().collection("<collection>").get().then(function (subcollection) {
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 								exploreCollection(subcollection, document.id + "/");
 							}
