@@ -3586,7 +3586,7 @@ Standards.general.storage.server = {
 		if (key === null) {
 			reference.collection("<collection>").get().then(function (collectionProbe) {
 				if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-					let listener = new Standards.general.listenable();
+					let listener = new Standards.general.Listenable();
 					listener.value = 1;
 					listener.addEventListener("change", function (value) {
 						if (value == 0) {  // once all items have been deleted
@@ -3628,9 +3628,9 @@ Standards.general.storage.server = {
 					reference.delete().then(function () {
 						if (callback) {
 							callback()/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							})*/;
 						}
 					}).catch(function (error) {
 						console.error("The information couldn't be deleted.");
@@ -3666,7 +3666,7 @@ Standards.general.storage.server = {
 		reference.collection("<collection>").get().then(function (collectionProbe) {
 			if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 				let keyList = [];
-				let listener = new Standards.general.listenable();
+				let listener = new Standards.general.Listenable();
 				listener.value = 1;
 				listener.addEventListener("change", function (value) {
 					if (value == 0) {  // once all items have been listed
