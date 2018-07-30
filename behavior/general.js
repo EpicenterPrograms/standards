@@ -3369,6 +3369,7 @@ Standards.general.storage.server = {
 		uses Google Firebase
 		non-native functions = getType
 		*/
+		/*  // This is from when storage switched between collections and documents.
 		let reference = Standards.general.storage.server.database;
 		if (!location) {
 			location = Standards.general.storage.server.defaultLocation;
@@ -3397,6 +3398,30 @@ Standards.general.storage.server = {
 				}
 			});
 		}
+		return reference;
+		*/
+		let reference = Standards.general.storage.server.database;
+		if (!location) {
+			location = Standards.general.storage.server.defaultLocation;
+			reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
+		} else if (Standards.general.getType(location) == "String") {
+			if (location[0] == "~") {
+				if (location == "~") {
+					alert("An invalid storage location was given");
+					throw "An absolute storage location was indicated but not provided.";
+				} else {
+					location = location.slice(1);
+				}
+			} else {
+				reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
+			}
+		} else {
+			alert("The action couldn't be completed.");
+			throw "The provided location is an invalid type.";
+		}
+		location.split("/").forEach(function (place) {
+			reference = reference.collection("<collection>").doc(place);
+		});
 		return reference;
 	},
 	signUp: function (methods) {
@@ -3448,15 +3473,46 @@ Standards.general.storage.server = {
 	store: function (key, item, location, callback) {
 		if (Standards.general.storage.server.checkCompatibility()) {
 			location = Standards.general.storage.server.formatLocation(location);
-			if (location == "" || location.split("/").length % 2 == 0) {
+			if (key == null) {
+				if (Standards.general.getType(item) == "Object") {
+					Standards.general.storage.server.getReference(location).set(item, { merge: true }).then(function () {
+						if (callback) {
+							callback()/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*/;
+						}
+					}).catch(function (error) {
+						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+						console.error(error);
+					});
+				} else {
+					console.error("The item to store wasn't an object.");
+				}
+			} else {
 				Standards.general.storage.server.getReference(location).set({
 					[key]: item
 				}, { merge: true }).then(function () {
 					if (callback) {
 						callback()/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*/;
+					}
+				}).catch(function (error) {
+					console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+					console.error(error);
+				});
+			}
+			/*  // This was for handling collections.
+			if (Standards.general.getType(item) == "Object") {
+				key = key ? "/"+key : "";
+				Standards.general.storage.server.getReference(location+key).set(item).then(function () {
+					if (callback) {
+						callback()/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						})*/;
+						})*;
 					}
 				}).catch(function (error) {
 					alert("The information couldn't be stored.");
@@ -3464,25 +3520,10 @@ Standards.general.storage.server = {
 					console.error(error);
 				});
 			} else {
-				if (Standards.general.getType(item) == "Object") {
-					key = key ? "/"+key : "";
-					Standards.general.storage.server.getReference(location+key).set(item).then(function () {
-						if (callback) {
-							callback()/*.catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-							})*/;
-						}
-					}).catch(function (error) {
-						alert("The information couldn't be stored.");
-						console.error("There was an error storing the information.");
-						console.error(error);
-					});
-				} else {
-					alert("The information couldn't be stored.");
-					throw "The item to be stored wasn't an object.";
-				}
+				alert("The information couldn't be stored.");
+				throw "The item to be stored wasn't an object.";
 			}
+			*/
 		}
 	},
 	recall: function (key, location, callback) {
@@ -3490,101 +3531,127 @@ Standards.general.storage.server = {
 			return;
 		}
 		location = Standards.general.storage.server.formatLocation(location);
-		if (location == "" || location.split("/").length % 2 == 0) {
+		if (key == null) {
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				if (document.exists) {
-					callback(document.data()[key])/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
+					callback(document.data())/*.catch(function (error) {
+					console.error("There was a problem running the callback.");
+					console.error(error);
+				})*/;
 				} else {
-					alert("A document doesn't exist at the given location.");
 					console.warn("An attempt was made to access a non-existent document.");
 				}
 			}).catch(function (error) {
-				alert("The information couldn't be retrieved.");
+				console.log("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
 				console.error(error);
 			});
 		} else {
-			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
-				snapshot.forEach(function (document) {
-					if (document.id == key) {
-						callback(document.data())/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
-					}
-				});
+			Standards.general.storage.server.getReference(location).get().then(function (document) {
+				if (document.exists) {
+					callback(document.data()[key])/*.catch(function (error) {
+					console.error("There was a problem running the callback.");
+					console.error(error);
+				})*/;
+				} else {
+					console.warn("An attempt was made to access a non-existent document.");
+				}
 			}).catch(function (error) {
-				alert("The information couldn't be retrieved.");
-				console.error("An error occurred during recall.");
+				console.log("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
 				console.error(error);
 			});
 		}
+		/*  // This was for handling collections.
+		Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
+			snapshot.forEach(function (document) {
+				if (document.id == key) {
+					callback(document.data())/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*;
+				}
+			});
+		}).catch(function (error) {
+			alert("The information couldn't be retrieved.");
+			console.error("An error occurred during recall.");
+			console.error(error);
+		});
+		*/
 	},
 	forget: function (key, location, callback) {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
 		location = Standards.general.storage.server.formatLocation(location);
-		if (location == "" || location.split("/").length % 2 == 0) {
-			if (key === null) {
-				Standards.general.storage.server.getReference(location).delete().then(function () {
-					if (callback) {
-						callback()/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
-					}
-				}).catch(function (error) {
-					alert("The information couldn't be deleted.");
-					console.error(error);
-				});
-			} else {
-				Standards.general.storage.server.getReference(location).update({
-					[key]: firebase.firestore.FieldValue.delete()
-				}).then(function () {
-					if (callback) {
-						callback()/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
-					}
-				}).catch(function (error) {
-					alert("The information couldn't be deleted.");
-					console.error(error);
-				});
-			}
-		} else {
-			if (key === null) {
-				Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
-					Standards.general.forEach(snapshot, function (document) {
-						document.delete();
+		let reference = Standards.general.storage.server.getReference(location);
+		if (key === null) {
+			reference.collection("<collection>").get().then(function (collectionProbe) {
+				if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+					let listener = new Standards.general.listenable();
+					listener.value = 1;
+					listener.addEventListener("change", function (value) {
+						if (value == 0) {  // once all items have been deleted
+							if (callback) {
+								callback()/*.catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+								})*/;
+							}
+							listener.removeEventListener("change", arguments.callee);
+						}
 					});
-				}).then(function () {
-					if (callback) {
-						callback()/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
+					/// when a new document is encountered, listener.value is incremented
+					/// when a document is deleted, listener.value is decremented
+					function deleteCollection(collection) {
+						Standards.general.forEach(collection, function (document) {
+							listener.value++;
+							document.collection("<collection>").get().then(function (subcollection) {
+								if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+									deleteCollection(subcollection);
+								}
+								document.delete().then(function () {
+									listener.value--;
+								}).catch(function (error) {
+									console.error("The information couldn't be deleted.");
+									console.error(error);
+								});
+							});
+						});
 					}
-				}).catch(function (error) {
-					alert("The information couldn't be deleted.");
-					console.error(error);
-				});
-			} else {
-				Standards.general.storage.server.getReference(location).doc(key).delete().then(function () {
-					if (callback) {
-						callback()/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
-					}
-				}).catch(function (error) {
-					alert("The information couldn't be deleted.");
-					console.error(error);
-				});
-			}
+					deleteCollection(collectionProbe);
+					reference.delete().then(function () {
+						listener.value--;
+					}).catch(function (error) {
+						console.error("The information couldn't be deleted.");
+						console.error(error);
+					});
+				} else {
+					reference.delete().then(function () {
+						if (callback) {
+							callback()/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*/;
+						}
+					}).catch(function (error) {
+						console.error("The information couldn't be deleted.");
+						console.error(error);
+					});
+				}
+			});
+		} else {
+			reference.update({
+				[key]: firebase.firestore.FieldValue.delete()
+			}).then(function () {
+				if (callback) {
+					callback()/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*/;
+				}
+			}).catch(function (error) {
+				console.error("The information couldn't be deleted.");
+				console.error(error);
+			});
 		}
 	},
 	move: function (oldPlace, newPlace, location, callback) {
@@ -3595,7 +3662,102 @@ Standards.general.storage.server = {
 			return;
 		}
 		location = Standards.general.storage.server.formatLocation(location);
-		if (location == "" || location.split("/").length % 2 == 0) {  // if the location goes to a document
+		let reference = Standards.general.storage.server.getReference(location);
+		reference.collection("<collection>").get().then(function (collectionProbe) {
+			if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+				let keyList = [];
+				let listener = new Standards.general.listenable();
+				listener.value = 1;
+				listener.addEventListener("change", function (value) {
+					if (value == 0) {  // once all items have been listed
+						if (callback) {
+							callback(keyList)/*.catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							})*/;
+						}
+						listener.removeEventListener("change", arguments.callee);
+					}
+				});
+				/// when a new document is encountered, listener.value is incremented
+				/// when a document's keys have been iterated, listener.value is decremented
+				function exploreCollection(collection, path) {
+					Standards.general.forEach(collection, function (document) {
+						listener.value++;
+						document.collection("<collection>").get().then(function (subcollection) {
+							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+								exploreCollection(subcollection, document.id + "/");
+							}
+							Standards.general.forEach(document.data(), function (value, key) {
+								keyList.push(path + document.id + "/" + key);
+							});
+							listener.value--;
+						});
+					});
+				}
+				exploreCollection(collectionProbe, "");
+				reference.get().then(function (document) {
+					if (document.exists) {
+						Standards.general.forEach(document.data(), function (value, key) {
+							keyList.push(key);
+						});
+					}
+					listener.value--;
+				}).catch(function (error) {
+					alert("The list of information couldn't be retieved.");
+					console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+					console.error(error);
+				});
+			} else {  // if there's not sub-documents
+				reference.get().then(function (document) {
+					let keyList = [];
+					if (document.exists) {
+						Standards.general.forEach(document.data(), function (value, key) {
+							keyList.push(key);
+						});
+						callback(keyList)/*.catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						})*/;
+					} else {
+						console.warn("An attempt was made to access a non-existent document.");
+						callback(keyList)/*.catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						})*/;
+					}
+				}).catch(function (error) {
+					alert("The list of information couldn't be retieved.");
+					console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+					console.error(error);
+				});
+			}
+		});
+		/*
+		if (location.split("/")[location.split("/").length - 1] == "<collection>") {
+			location.splice(location.split("/").length - 1, 1);
+			Standards.general.storage.server.getReference(location).collection("<collection>").get().then(function (snapshot) {
+				let keyList = [];
+				if (snapshot.empty) {
+					console.warn("An attempt was made to access a non-existent collection.");
+					callback(keyList)/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*;
+				} else {
+					Standards.general.forEach(snapshot.docs, function (document) {
+						keyList.push(document.id);
+					});
+					callback(keyList)/*.catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*;
+				}
+			}).catch(function (error) {
+				alert("The list of information couldn't be retieved.");
+				console.error(error);
+			});
+		} else {
 			Standards.general.storage.server.getReference(location).get().then(function (document) {
 				let keyList = [];
 				if (document.exists) {
@@ -3603,33 +3765,23 @@ Standards.general.storage.server = {
 						keyList.push(key);
 					});
 					callback(keyList)/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
+					console.error("There was a problem running the callback.");
+					console.error(error);
+				})*;
 				} else {
 					console.warn("An attempt was made to access a non-existent document.");
 					callback(keyList)/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
+					console.error("There was a problem running the callback.");
+					console.error(error);
+				})*;
 				}
 			}).catch(function (error) {
 				alert("The list of information couldn't be retieved.");
 				console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
 				console.error(error);
 			});
-		} else {  // if the location goes to a collection
-			Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
-				//// if snapshot.empty might need to be used here
-				callback(snapshot.docs)/*.catch(function (error) {
-					console.error("There was a problem running the callback.");
-					console.error(error);
-				})*/;
-			}).catch(function (error) {
-				alert("The list of information couldn't be retieved.");
-				console.error(error);
-			});
 		}
+		*/
 	}
 };
 
