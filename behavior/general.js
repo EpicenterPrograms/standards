@@ -3532,9 +3532,9 @@ Standards.general.storage.server = {
 		}
 		location = Standards.general.storage.server.formatLocation(location);
 		if (key == null) {
-			Standards.general.storage.server.getReference(location).get().then(function (document) {
-				if (document.exists) {
-					callback(document.data())/*.catch(function (error) {
+			Standards.general.storage.server.getReference(location).get().then(function (doc) {
+				if (doc.exists) {
+					callback(doc.data())/*.catch(function (error) {
 					console.error("There was a problem running the callback.");
 					console.error(error);
 				})*/;
@@ -3546,9 +3546,9 @@ Standards.general.storage.server = {
 				console.error(error);
 			});
 		} else {
-			Standards.general.storage.server.getReference(location).get().then(function (document) {
-				if (document.exists) {
-					callback(document.data()[key])/*.catch(function (error) {
+			Standards.general.storage.server.getReference(location).get().then(function (doc) {
+				if (doc.exists) {
+					callback(doc.data()[key])/*.catch(function (error) {
 					console.error("There was a problem running the callback.");
 					console.error(error);
 				})*/;
@@ -3562,9 +3562,9 @@ Standards.general.storage.server = {
 		}
 		/*  // This was for handling collections.
 		Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
-			snapshot.forEach(function (document) {
-				if (document.id == key) {
-					callback(document.data())/*.catch(function (error) {
+			snapshot.forEach(function (doc) {
+				if (doc.id == key) {
+					callback(doc.data())/*.catch(function (error) {
 						console.error("There was a problem running the callback.");
 						console.error(error);
 					})*;
@@ -3602,13 +3602,13 @@ Standards.general.storage.server = {
 					/// when a new document is encountered, listener.value is incremented
 					/// when a document is deleted, listener.value is decremented
 					function deleteCollection(collection) {
-						Standards.general.forEach(collection, function (document) {
+						Standards.general.forEach(collection, function (doc) {
 							listener.value++;
-							document.ref().collection("<collection>").get().then(function (subcollection) {
+							doc.ref().collection("<collection>").get().then(function (subcollection) {
 								if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 									deleteCollection(subcollection);
 								}
-								document.ref().delete().then(function () {
+								doc.ref().delete().then(function () {
 									listener.value--;
 								}).catch(function (error) {
 									console.error("The information couldn't be deleted.");
@@ -3682,23 +3682,23 @@ Standards.general.storage.server = {
 				/// when a new document is encountered, listener.value is incremented
 				/// when a document's keys have been iterated, listener.value is decremented
 				function exploreCollection(collection, path) {
-					Standards.general.forEach(collection, function (document) {
+					Standards.general.forEach(collection, function (doc) {
 						listener.value++;
-						document.ref().collection("<collection>").get().then(function (subcollection) {
+						doc.ref().collection("<collection>").get().then(function (subcollection) {
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-								exploreCollection(subcollection, document.id + "/");
+								exploreCollection(subcollection, doc.id + "/");
 							}
-							Standards.general.forEach(document.data(), function (value, key) {
-								keyList.push(path + document.id + "/" + key);
+							Standards.general.forEach(doc.data(), function (value, key) {
+								keyList.push(path + doc.id + "/" + key);
 							});
 							listener.value--;
 						});
 					});
 				}
 				exploreCollection(collectionProbe, "");
-				reference.get().then(function (document) {
-					if (document.exists) {
-						Standards.general.forEach(document.data(), function (value, key) {
+				reference.get().then(function (doc) {
+					if (doc.exists) {
+						Standards.general.forEach(doc.data(), function (value, key) {
 							keyList.push(key);
 						});
 					}
@@ -3709,10 +3709,10 @@ Standards.general.storage.server = {
 					console.error(error);
 				});
 			} else {  // if there's not sub-documents
-				reference.get().then(function (document) {
+				reference.get().then(function (doc) {
 					let keyList = [];
-					if (document.exists) {
-						Standards.general.forEach(document.data(), function (value, key) {
+					if (doc.exists) {
+						Standards.general.forEach(doc.data(), function (value, key) {
 							keyList.push(key);
 						});
 						callback(keyList)/*.catch(function (error) {
@@ -3745,8 +3745,8 @@ Standards.general.storage.server = {
 						console.error(error);
 					})*;
 				} else {
-					Standards.general.forEach(snapshot.docs, function (document) {
-						keyList.push(document.id);
+					Standards.general.forEach(snapshot.docs, function (doc) {
+						keyList.push(doc.id);
 					});
 					callback(keyList)/*.catch(function (error) {
 						console.error("There was a problem running the callback.");
@@ -3758,10 +3758,10 @@ Standards.general.storage.server = {
 				console.error(error);
 			});
 		} else {
-			Standards.general.storage.server.getReference(location).get().then(function (document) {
+			Standards.general.storage.server.getReference(location).get().then(function (doc) {
 				let keyList = [];
-				if (document.exists) {
-					Standards.general.forEach(document.data(), function (value, key) {
+				if (doc.exists) {
+					Standards.general.forEach(doc.data(), function (value, key) {
 						keyList.push(key);
 					});
 					callback(keyList)/*.catch(function (error) {
