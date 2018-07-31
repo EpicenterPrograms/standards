@@ -3493,8 +3493,11 @@ Standards.general.storage.server = {
 				throw "The provided location is an invalid type.";
 			}
 			location.split("/").forEach(function (place) {
+				console.log(place);
 				reference = reference.collection("<collection>").doc(place);
-				reference.set({ "<document>": "exists" }, { merge: true });
+				reference.set({ "<document>": "exists" }, { merge: true }).then(function () {
+					console.log("added default field");
+				});
 			});
 			if (key == null) {
 				if (Standards.general.getType(item) == "Object") {
@@ -3712,7 +3715,9 @@ Standards.general.storage.server = {
 								exploreCollection(subcollection, doc.id + "/");
 							}
 							Standards.general.forEach(doc.data(), function (value, key) {
-								keyList.push(path + doc.id + "/" + key);
+								if (key != "<document>") {
+									keyList.push(path + doc.id + "/" + key);
+								}
 							});
 							listener.value--;
 						});
@@ -3720,9 +3725,11 @@ Standards.general.storage.server = {
 				}
 				exploreCollection(collectionProbe, "");
 				reference.get().then(function (doc) {
-					if (doc.exists) {
+					if (Object.keys(doc).length > 1) {  // if the document has any field values
 						Standards.general.forEach(doc.data(), function (value, key) {
-							keyList.push(key);
+							if (key != "<document>") {
+								keyList.push(key);
+							}
 						});
 					}
 					listener.value--;
@@ -3736,7 +3743,9 @@ Standards.general.storage.server = {
 					let keyList = [];
 					if (doc.exists) {
 						Standards.general.forEach(doc.data(), function (value, key) {
-							keyList.push(key);
+							if (key != "<document>") {
+								keyList.push(key);
+							}
 						});
 						callback(keyList)/*.catch(function (error) {
 							console.error("There was a problem running the callback.");
