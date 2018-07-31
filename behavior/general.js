@@ -3602,7 +3602,7 @@ Standards.general.storage.server = {
 					/// when a new document is encountered, listener.value is incremented
 					/// when a document is deleted, listener.value is decremented
 					function deleteCollection(collection) {
-						Standards.general.forEach(collection, function (doc) {
+						Standards.general.forEach(collection.docs, function (doc) {
 							listener.value++;
 							doc.ref.collection("<collection>").get().then(function (subcollection) {
 								if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
@@ -3682,7 +3682,7 @@ Standards.general.storage.server = {
 				/// when a new document is encountered, listener.value is incremented
 				/// when a document's keys have been iterated, listener.value is decremented
 				function exploreCollection(collection, path) {
-					Standards.general.forEach(collection, function (doc) {
+					Standards.general.forEach(collection.docs, function (doc) {
 						listener.value++;
 						doc.ref.collection("<collection>").get().then(function (subcollection) {
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
