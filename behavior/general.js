@@ -3472,9 +3472,7 @@ Standards.general.storage.server = {
 	},
 	store: function (key, item, location, callback) {
 		if (Standards.general.storage.server.checkCompatibility()) {
-			console.log(location);
 			location = Standards.general.storage.server.formatLocation(location);
-			console.log(location);
 			let reference = Standards.general.storage.server.database;
 			if (!location) {
 				location = Standards.general.storage.server.defaultLocation;
@@ -3494,13 +3492,9 @@ Standards.general.storage.server = {
 				alert("The action couldn't be completed.");
 				throw "The provided location is an invalid type.";
 			}
-			console.log(location);
 			location.split("/").forEach(function (place) {
-				console.log(place);
 				reference = reference.collection("<collection>").doc(place);
-				reference.set({ "<document>": "exists" }, { merge: true }).then(function () {
-					console.log("added default field");
-				});
+				reference.set({ "<document>": "exists" }, { merge: true });
 			});
 			if (key == null) {
 				if (Standards.general.getType(item) == "Object") {
@@ -3563,7 +3557,9 @@ Standards.general.storage.server = {
 		if (key == null) {
 			Standards.general.storage.server.getReference(location).get().then(function (doc) {
 				if (doc.exists) {
-					callback(doc.data())/*.catch(function (error) {
+					let data = doc.data();
+					delete data["<document>"];
+					callback(data)/*.catch(function (error) {
 						console.error("There was a problem running the callback.");
 						console.error(error);
 					})*/;
