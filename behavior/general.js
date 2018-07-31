@@ -3326,7 +3326,7 @@ Standards.general.storage.server = {
 		}
 		return true;
 	},
-	formatLocation: function (location) {
+	formatLocation: function (location, key) {
 		/**
 		formats the location
 		preceding a location with a slash ("/") will allow location setting from the top of the user's directory
@@ -3334,14 +3334,14 @@ Standards.general.storage.server = {
 		non-native functions = getType
 		*/
 		if (location === undefined) {
-			return Standards.general.storage.server.defaultLocation;
-		} else if (S.getType(location) == "String") {
+			location = Standards.general.storage.server.defaultLocation;
+		} else if (Standards.general.getType(location) == "String") {
 			if (location === "" || location[0] == "/") {
 				if (location == "/" || location === "") {
 					alert("An invalid storage location was given");
 					throw "An absolute storage location was indicated but not provided.";
 				} else {
-					return location.slice(1);
+					location = location.slice(1);
 				}
 			} else {
 				let prelocation = Standards.general.storage.server.defaultLocation.split("/");
@@ -3350,15 +3350,25 @@ Standards.general.storage.server = {
 					location = location.slice(3);
 				}
 				if (location === "") {
-					return prelocation.join("/");
+					location = prelocation.join("/");
 				} else {
-					return prelocation.join("/") + "/" + location;
+					location = prelocation.join("/") + "/" + location;
 				}
 			}
 		} else {
 			alert("An invalid storage location was given");
 			throw "The location given wasn't a string.";
 		}
+		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
+			if (key[0] === "/") {
+				throw "An invalid key was given.";
+			} else {
+				key = key.split("/");
+				key.pop();
+				location = location + "/" + key.join("/");
+			}
+		}
+		return location;
 	},
 	getReference: function (location) {  //// make all location setting done here
 		/**
@@ -3472,7 +3482,10 @@ Standards.general.storage.server = {
 	},
 	store: function (key, item, location, callback) {
 		if (Standards.general.storage.server.checkCompatibility()) {
-			location = Standards.general.storage.server.formatLocation(location);
+			location = Standards.general.storage.server.formatLocation(location, key);
+			if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
+				key = key.split("/")[key.split("/").length-1];
+			}
 			let reference = Standards.general.storage.server.database;
 			if (!location) {
 				location = Standards.general.storage.server.defaultLocation;
@@ -3553,7 +3566,10 @@ Standards.general.storage.server = {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
-		location = Standards.general.storage.server.formatLocation(location);
+		location = Standards.general.storage.server.formatLocation(location, key);
+		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
+			key = key.split("/")[key.split("/").length-1];
+		}
 		if (key == null) {
 			Standards.general.storage.server.getReference(location).get().then(function (doc) {
 				if (doc.exists) {
@@ -3606,7 +3622,10 @@ Standards.general.storage.server = {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
-		location = Standards.general.storage.server.formatLocation(location);
+		location = Standards.general.storage.server.formatLocation(location, key);
+		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
+			key = key.split("/")[key.split("/").length-1];
+		}
 		let reference = Standards.general.storage.server.getReference(location);
 		if (key === null) {
 			reference.collection("<collection>").get().then(function (collectionProbe) {
