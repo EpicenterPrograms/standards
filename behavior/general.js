@@ -2677,7 +2677,7 @@ Standards.general.storage.session = {
 			key = String(key);
 			if (location === undefined) {
 				location = Standards.general.storage.session.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -2749,7 +2749,7 @@ Standards.general.storage.session = {
 			key = String(key);
 			if (location === undefined) {
 				location = Standards.general.storage.session.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -2826,7 +2826,7 @@ Standards.general.storage.session = {
 			key = String(key);
 			if (location === undefined) {
 				location = Standards.general.storage.session.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -2874,7 +2874,7 @@ Standards.general.storage.session = {
 		} else if (oldPlace != newPlace) {
 			if (location === undefined) {
 				location = Standards.general.storage.session.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -2940,7 +2940,7 @@ Standards.general.storage.session = {
 		*/
 		if (location === undefined) {
 			location = Standards.general.storage.session.defaultLocation;
-		} else if (S.getType(location) == "String") {
+		} else if (Standards.general.getType(location) == "String") {
 			if (location[0] == "/") {
 				if (location == "/") {
 					alert("An invalid storage location was given");
@@ -2999,7 +2999,7 @@ Standards.general.storage.local = {
 			key = String(key);
 			if (location === undefined) {
 				location = Standards.general.storage.local.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -3071,7 +3071,7 @@ Standards.general.storage.local = {
 			key = String(key);
 			if (location === undefined) {
 				location = Standards.general.storage.local.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -3149,7 +3149,7 @@ Standards.general.storage.local = {
 			key = String(key);
 			if (location === undefined) {
 				location = Standards.general.storage.local.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -3197,7 +3197,7 @@ Standards.general.storage.local = {
 		} else if (oldPlace != newPlace) {
 			if (location === undefined) {
 				location = Standards.general.storage.local.defaultLocation;
-			} else if (S.getType(location) == "String") {
+			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						alert("An invalid storage location was given");
@@ -3263,7 +3263,7 @@ Standards.general.storage.local = {
 		*/
 		if (location === undefined) {
 			location = Standards.general.storage.local.defaultLocation;
-		} else if (S.getType(location) == "String") {
+		} else if (Standards.general.getType(location) == "String") {
 			if (location[0] == "/") {
 				if (location == "/") {
 					alert("An invalid storage location was given");
@@ -3359,8 +3359,6 @@ Standards.general.storage.server = {
 			alert("An invalid storage location was given");
 			throw "The location given wasn't a string.";
 		}
-		console.log("key");
-		console.log(key);
 		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
 			if (key[0] === "/") {
 				throw "An invalid key was given.";
@@ -3370,8 +3368,6 @@ Standards.general.storage.server = {
 				location = location + "/" + key.join("/");
 			}
 		}
-		console.log("location");
-		console.log(location);
 		return location;
 	},
 	getReference: function (location) {  //// make all location setting done here
