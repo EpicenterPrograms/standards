@@ -3664,7 +3664,7 @@ Standards.general.storage.server = {
 		location = Standards.general.storage.server.formatLocation(location);
 		let reference = Standards.general.storage.server.getReference(location);
 		reference.collection("<collection>").get().then(function (collectionProbe) {
-			console.log(JSON.stringify(collectionProbe));
+			console.log(collectionProbe);
 			if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 				let keyList = [];
 				let listener = new Standards.general.Listenable();
