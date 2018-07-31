@@ -3473,14 +3473,37 @@ Standards.general.storage.server = {
 	store: function (key, item, location, callback) {
 		if (Standards.general.storage.server.checkCompatibility()) {
 			location = Standards.general.storage.server.formatLocation(location);
+			let reference = Standards.general.storage.server.database;
+			if (!location) {
+				location = Standards.general.storage.server.defaultLocation;
+				reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
+			} else if (Standards.general.getType(location) == "String") {
+				if (location[0] == "~") {
+					if (location == "~") {
+						alert("An invalid storage location was given");
+						throw "An absolute storage location was indicated but not provided.";
+					} else {
+						location = location.slice(1);
+					}
+				} else {
+					reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
+				}
+			} else {
+				alert("The action couldn't be completed.");
+				throw "The provided location is an invalid type.";
+			}
+			location.split("/").forEach(function (place) {
+				reference = reference.collection("<collection>").doc(place);
+				reference.set({}, { merge: true });
+			});
 			if (key == null) {
 				if (Standards.general.getType(item) == "Object") {
-					Standards.general.storage.server.getReference(location).set(item, { merge: true }).then(function () {
+					reference.set(item, { merge: true }).then(function () {
 						if (callback) {
 							callback()/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							})*/;
 						}
 					}).catch(function (error) {
 						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
@@ -3490,14 +3513,14 @@ Standards.general.storage.server = {
 					console.error("The item to store wasn't an object.");
 				}
 			} else {
-				Standards.general.storage.server.getReference(location).set({
+				reference.set({
 					[key]: item
 				}, { merge: true }).then(function () {
 					if (callback) {
 						callback()/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						})*/;
 					}
 				}).catch(function (error) {
 					console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
@@ -3535,9 +3558,9 @@ Standards.general.storage.server = {
 			Standards.general.storage.server.getReference(location).get().then(function (doc) {
 				if (doc.exists) {
 					callback(doc.data())/*.catch(function (error) {
-					console.error("There was a problem running the callback.");
-					console.error(error);
-				})*/;
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*/;
 				} else {
 					console.warn("An attempt was made to access a non-existent document.");
 				}
@@ -3549,9 +3572,9 @@ Standards.general.storage.server = {
 			Standards.general.storage.server.getReference(location).get().then(function (doc) {
 				if (doc.exists) {
 					callback(doc.data()[key])/*.catch(function (error) {
-					console.error("There was a problem running the callback.");
-					console.error(error);
-				})*/;
+						console.error("There was a problem running the callback.");
+						console.error(error);
+					})*/;
 				} else {
 					console.warn("An attempt was made to access a non-existent document.");
 				}
@@ -3682,15 +3705,9 @@ Standards.general.storage.server = {
 				/// when a new document is encountered, listener.value is incremented
 				/// when a document's keys have been iterated, listener.value is decremented
 				function exploreCollection(collection, path) {
-					console.log("collection");
-					console.log(collection);
 					Standards.general.forEach(collection.docs, function (doc) {
-						console.log("document");
-						console.log(doc);
 						listener.value++;
 						doc.ref.collection("<collection>").get().then(function (subcollection) {
-							console.log("subcollection");
-							console.log(subcollection);
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 								exploreCollection(subcollection, doc.id + "/");
 							}
