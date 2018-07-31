@@ -3664,7 +3664,6 @@ Standards.general.storage.server = {
 		location = Standards.general.storage.server.formatLocation(location);
 		let reference = Standards.general.storage.server.getReference(location);
 		reference.collection("<collection>").get().then(function (collectionProbe) {
-			console.log(collectionProbe);
 			if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 				let keyList = [];
 				let listener = new Standards.general.Listenable();
@@ -3683,7 +3682,9 @@ Standards.general.storage.server = {
 				/// when a new document is encountered, listener.value is incremented
 				/// when a document's keys have been iterated, listener.value is decremented
 				function exploreCollection(collection, path) {
+					console.log(collection);
 					Standards.general.forEach(collection.docs, function (doc) {
+						console.log(doc);
 						listener.value++;
 						doc.ref.collection("<collection>").get().then(function (subcollection) {
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
