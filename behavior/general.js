@@ -3734,7 +3734,7 @@ Standards.general.storage.server = {
 						listener.value++;
 						doc.ref.collection("<collection>").get().then(function (subcollection) {
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-								exploreCollection(subcollection, doc.id + "/");
+								exploreCollection(subcollection, path + doc.id + "/");
 							}
 							Standards.general.forEach(doc.data(), function (value, key) {
 								if (key != "<document>") {
