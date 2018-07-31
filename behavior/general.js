@@ -3682,11 +3682,15 @@ Standards.general.storage.server = {
 				/// when a new document is encountered, listener.value is incremented
 				/// when a document's keys have been iterated, listener.value is decremented
 				function exploreCollection(collection, path) {
+					console.log("collection");
 					console.log(collection);
 					Standards.general.forEach(collection.docs, function (doc) {
+						console.log("document");
 						console.log(doc);
 						listener.value++;
 						doc.ref.collection("<collection>").get().then(function (subcollection) {
+							console.log("subcollection");
+							console.log(subcollection);
 							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 								exploreCollection(subcollection, doc.id + "/");
 							}
