@@ -3494,7 +3494,7 @@ Standards.general.storage.server = {
 			}
 			location.split("/").forEach(function (place) {
 				reference = reference.collection("<collection>").doc(place);
-				reference.set({}, { merge: true });
+				reference.set({ "<document>": "exists" }, { merge: true });
 			});
 			if (key == null) {
 				if (Standards.general.getType(item) == "Object") {
