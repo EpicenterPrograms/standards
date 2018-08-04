@@ -1359,20 +1359,31 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		/// (These time comparisons are based on usage outside of this function;
 		/// doing things by referencing a function makes things about 10 times longer.)
 	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function") {
-		let items = [],
-			index,
-			returnValue;
-		while (index < list.length) {
-			items.push(list[index]);
-			index++;
-		}
-		index = 0;
-		while (index < list.length) {
-			returnValue = doStuff(list[index], index, list);
-			if (returnValue == "break") {
-				break;
-			} else {
+		let index = 0;
+		let returnValue;
+		if (shouldCopy) {
+			let items = [];
+			while (index < list.length) {
+				items.push(list[index]);
 				index++;
+			}
+			index = 0;
+			while (index < items.length) {
+				returnValue = doStuff(items[index], index, items);
+				if (returnValue == "break") {
+					break;
+				} else {
+					index++;
+				}
+			}
+		} else {
+			while (index < list.length) {
+				returnValue = doStuff(list[index], index, list);
+				if (returnValue == "break") {
+					break;
+				} else {
+					index++;
+				}
 			}
 		}
 	} else if (Standards.general.getType(list) == "Number") {
@@ -2498,7 +2509,7 @@ Standards.general.makeDialog = function (message) {
 	return dialog;
 };
 
-Standards.general.getFile = function (URL, callback, convert) {  ////
+Standards.general.getFile = function (url, callback, convert) {  ////
 	/**
 	asynchronously retieves a file as a string using an XMLHttpRequest
 	only files from the same domain can be retrieved without CORS
@@ -2514,27 +2525,89 @@ Standards.general.getFile = function (URL, callback, convert) {  ////
 			URLs ending in ".txt": What are you trying to accomplish with this?
 			other URLs: ignored
 			default: false
-	non-native functions = getType and toHTML
+	non-native functions = getType, toHTML, and makeDialog
 	*/
-	if (!URL) {
+	if (!url) {
 		console.error("No resource was provided to get the file.");
-	} else if (Standards.general.getType(URL) != "String") {
+	} else if (Standards.general.getType(url) != "String") {
 		console.error("The provided URL wasn't a string.");
-	} else if (new URL(URL, window.location.href).href.slice(0, 7) == "file://") {
-		if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return URL.slice(URL.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
-
-		} else {
-
-		}
+	} else if (!callback) {
+		console.error("No callback was provided.");
+	} else if (new URL(url, window.location.href).href.slice(0, 7) == "file://") {
+		let input = document.createElement("input");
+		input.type = "file";
+		let changed = false;
+		input.addEventListener("change", function () {
+			if (this.files.length > 0) {
+				let reader = new FileReader();
+				if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return url.slice(url.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
+					reader.addEventListener("loadend", function () {
+						if (reader.error != null) {
+							console.error(reader.error);
+						}
+						callback(reader.result);
+					});
+					reader.readAsDataURL(this.files[0]);
+				} else {
+					reader.addEventListener("loadend", function () {
+						if (reader.error != null) {
+							console.error(reader.error);
+						}
+						if (convert) {
+							switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
+								case "html":
+									callback(Standards.general.toHTML(reader.result));
+									break;
+								case "json":
+									callback(JSON.parse(reader.result));
+									break;
+								case "txt":
+									console.info("What do you think I'm supposed to convert a .txt file into?");
+									callback(reader.result);
+									break;
+								default:
+									console.warn("The file doesn't have a convertible file extension.");
+									callback(reader.result);
+							}
+						} else {
+							callback(reader.result);
+						}
+					});
+					reader.readAsText(this.files[0]);
+					console.log("changed");
+				}
+			} else {
+				console.warn("No files were availible.");
+			}
+			changed = true;
+		});
+		Standards.general.makeDialog(url + " needs to be found on your computer.", ["Choose File", function () {
+			input.click();
+			function waitForDumbStuff() {  // This is necessary since selecting a file doesn't register sometimes.
+				setTimeout(function () {
+					if (!changed) {
+						Standards.general.makeDialog(
+							"It has been 20 seconds without recieving " + url + ". Do you want to reset the wait time, try loading the file again, or cancel?",
+							["Wait", waitForDumbStuff],
+							["Retry", function () {
+								Standards.general.getFile(url, callback, convert);
+							}],
+							"Cancel"
+						);
+					}
+				}, 20000);
+			}
+			waitForDumbStuff();
+		}]);
 	} else {
 		var file = new XMLHttpRequest();
-		file.open("GET", URL);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
+		file.open("GET", url);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
 		file.onreadystatechange = function () {
 			if (file.readyState === 4) {  // Is it done?
 				if (file.status === 200 || file.status === 0) {  // Was it successful?
 					// file.responseXML might have something
 					if (convert) {
-						switch (URL.slice(URL.lastIndexOf(".") + 1).toLowerCase()) {
+						switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
 							case "html":
 								callback(Standards.general.toHTML(file.responseText));
 								break;
