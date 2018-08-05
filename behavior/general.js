@@ -4292,7 +4292,7 @@ if (!(Standards.general.options.automation == "none")) {
 	
 	let needsIcon = true;
 	if (document.head.getElementsByTagName("link").length > 0) {
-		document.head.getElementsByTagName("link").forEach(function (link) {
+		Standards.general.forEach(document.head.getElementsByTagName("link"), function (link) {
 			if (link.rel == "icon") {
 				needsIcon = false;
 			}
@@ -4363,7 +4363,7 @@ window.addEventListener("load", function () {  // This waits for everything past
 		
 		// allows radio buttons to be unchecked
 		let radioButtonNames = [];
-		document.getElementsByTagName("input").forEach(function (input) {
+		Standards.general.forEach(document.getElementsByTagName("input"), function (input) {
 			if (input.type == "radio" && !radioButtonNames.includes(input.name)) {
 				radioButtonNames.push(input.name);
 			}
@@ -4433,7 +4433,7 @@ window.addEventListener("load", function () {  // This waits for everything past
 		var tables = document.getElementsByClassName("compact");
 		for (var counter=0; counter<tables.length; counter++) {
 			var table = tables[counter];
-			table.getElementsByTagName("th").forEach(function (thList) {
+			Standards.general.forEach(table.getElementsByTagName("th"), function (thList) {
 				var parent = thList.parentNode;
 				var newHeadings = thList.innerHTML.split("|");
 				parent.removeChild(thList);
@@ -4441,7 +4441,7 @@ window.addEventListener("load", function () {  // This waits for everything past
 					parent.innerHTML += "<th>" + heading.trim() + "</th>";
 				});
 			});
-			table.getElementsByTagName("td").forEach(function (tdList) {
+			Standards.general.forEach(table.getElementsByTagName("td"), function (tdList) {
 				var parent = tdList.parentNode;
 				var newData = tdList.innerHTML.split("|");
 				parent.removeChild(tdList);
@@ -4483,7 +4483,7 @@ window.addEventListener("load", function () {  // This waits for everything past
 			toTop.className = "to-top";
 			toTop.innerHTML = '<a href="#">To top</a>';
 			let listItems = document.createElement("ol");
-			sections.forEach(function (heading, index, sections) {
+			Standards.general.forEach(sections, function (heading, index, sections) {
 				let inside = encodeURIComponent(sections[index].textContent.trim());
 				let safety = 20;
 				while (document.getElementById(inside) && safety) {  // while the ID is already used
