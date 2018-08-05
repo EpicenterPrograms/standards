@@ -924,13 +924,14 @@ if (!Array.prototype.every) {
 	};
 }
 
+/*
 String.prototype.forEach = function (doStuff) {
 	/**
 	.forEach() for strings
 	iterates through each character
 	doStuff can return a value of "break" to break out of the loop
 	non-native functions = none
-	*/
+	*
 	var string = "";
 	for (var index=0; index<this.length; index++) {  // I'm not sure this is necessary (as opposed to string = this)
 		string += this[index];
@@ -942,6 +943,7 @@ String.prototype.forEach = function (doStuff) {
 		}
 	}
 };
+*/
 
 String.prototype.format = function () {
 	/**
@@ -1010,6 +1012,7 @@ Array.prototype.move = function (currentIndex, newIndex) {
 	this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
 };
 
+/*
 HTMLCollection.prototype.forEach = function (doStuff, copy) {
 	/**
 	HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
@@ -1022,7 +1025,7 @@ HTMLCollection.prototype.forEach = function (doStuff, copy) {
 	if "copy" is set to true, the items of the list will be cloned then looped through
 		default = false
 	non-native functions = none
-	*/
+	*
 	copy = copy===true ? true : false;  // This variable can't be set with || notation because false is falsy (what a thought).
 	var elements = [],
 		index = 0,
@@ -1049,6 +1052,7 @@ HTMLCollection.prototype.forEach = function (doStuff, copy) {
 		}
 	}
 };
+/*
 
 /*
 CSSRuleList.prototype.forEach = function (doStuff) {
