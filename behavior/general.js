@@ -4281,10 +4281,6 @@ Standards.general.colorCode = function (element, conversion) {
 };
 
 
-// makes my custom tag which formats things as notes (not necessary in most browsers)
-document.createElement("note-");  // The dash can't be at the beginning of the tag name or else an error will be thrown.
-// makes my custom tag which overlines things (not necessary in most browsers)
-document.createElement("over-");
 
 if (!(Standards.general.options.automation == "none")) {
 	
