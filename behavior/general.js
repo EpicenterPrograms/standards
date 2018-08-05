@@ -4353,7 +4353,7 @@ if (!(Standards.general.options.runAuthCode == false) && typeof firebase != "und
 	});
 }
 
-window.addEventListener("load", function () {  // This waits for everything past the script import to load before running.
+addEventListener("load", function () {  // This waits for everything past the script import to load before running.
 	
 	if (!Standards.general.options.hasOwnProperty("automation") || Standards.general.options.automation == "full") {
 		
