@@ -4433,7 +4433,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				var parent = thList.parentNode;
 				var newHeadings = thList.innerHTML.split("|");
 				parent.removeChild(thList);
-				newHeadings.forEach(function (heading) {
+				Standards.general.forEach(newHeadings, function (heading) {
 					parent.innerHTML += "<th>" + heading.trim() + "</th>";
 				});
 			});
@@ -4441,7 +4441,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				var parent = tdList.parentNode;
 				var newData = tdList.innerHTML.split("|");
 				parent.removeChild(tdList);
-				newData.forEach(function (data) {
+				Standards.general.forEach(newData, function (data) {
 					parent.innerHTML += "<td>" + data.trim() + "</td>";
 				});
 			});
