@@ -1407,6 +1407,46 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	//// add a function type option
 };
 
+Standards.general.compare = function (iterable1, iterable2) {
+	/**
+	determines how alike two iterable items are
+	returns the number of changes needed to make the items the same (the Levenshtein distance)
+	higher number = less alike
+	non-native functions = getType
+	*/
+	if (Standards.general.getType(iterable1[Symbol.iterator]) == "Function" && Standards.general.getType(iterable2[Symbol.iterator]) == "Function") {
+		// establishes a 2 dimensional matrix
+		let matrix = [[0]];
+		for (let index = 1; index <= iterable1.length; index++) {
+			matrix.push([index]);
+		}
+		for (let index = 1; index <= iterable2.length; index++) {
+			matrix[0][index] = index;
+		}
+		// goes through (and fills) every item in the matrix
+		let sc;  // substitution cost
+		for (let y = 1; y <= iterable2.length; y++) {
+			for (let x = 1; x <= iterable1.length; x++) {
+				if (iterable1[x-1] == iterable2[y-1]) {  // if the iterables are the same at the current indices
+					sc = 0;
+				} else {
+					sc = 1;
+				}
+				// fills the current item with the number of changes needed in the most efficient method of modification
+				matrix[x][y] = Math.min(
+					matrix[x-1][y] + 1,    // if a deletion is used
+					matrix[x][y-1] + 1,    // if an insertion is used
+					matrix[x-1][y-1] + sc  // if a substitution is used
+				);
+			}
+		}
+		// returns the lat item of the matrix
+		return matrix[iterable1.length][iterable2.length];
+	} else {
+		console.error("At least one of the items to be compared isn't iterable.");
+	}
+};
+
 Standards.general.listen = function (item, event, behavior, listenOnce) {
 	/**
 	adds an event listener to the item
