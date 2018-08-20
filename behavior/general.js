@@ -216,6 +216,7 @@ Standards.general.Sound = function (specs) {
 	frequency = frequency of the primary tone/wave
 	volume = the current volume
 		starts at 0
+		can never be greater than 1
 	maxVolume = the maximum volume
 		defaults to 1
 	waveform = waveform of primary wave
@@ -266,6 +267,7 @@ Standards.general.Sound = function (specs) {
 		this[spec] = specs[spec];
 	}
 	this.playing = false;
+
 	function setValues(time, shouldSetPlaying) {
 		time = time===undefined ? 0 : time;
 		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
@@ -308,6 +310,7 @@ Standards.general.Sound = function (specs) {
 		osc1.type = sound.waveform;
 		osc2.type = sound.changeWave;
 	}
+
 	setValues();
 	gain1.connect(Standards.general.audio.destination);
 	osc1.connect(gain1);
@@ -327,7 +330,14 @@ Standards.general.Sound = function (specs) {
 		time = time===undefined ? 0 : time;
 		gain1.gain.setValueAtTime(sound.volume + .0001, Standards.general.audio.currentTime);
 		sound.volume = volume || sound.maxVolume;
-		gain1.gain.exponentialRampToValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime + time/1000);
+		if (sound.volume <= 0) {
+			gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time / 1000);
+			setTimeout(function () {
+				gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
+			}, time);
+		} else {
+			gain1.gain.exponentialRampToValueAtTime(Math.pow(42, sound.volume) / 42, Standards.general.audio.currentTime + time / 1000);
+		}
 	};
 	this.stop = function (time, shouldSetPlaying) {
 		/**
