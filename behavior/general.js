@@ -4486,7 +4486,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				Standards.general.forEach(newHeadings, function (heading) {
 					parent.innerHTML += "<th>" + heading.trim() + "</th>";
 				});
-			});
+			}, true);
 			Standards.general.forEach(table.getElementsByTagName("td"), function (tdList) {
 				var parent = tdList.parentNode;
 				var newData = tdList.innerHTML.split("|");
@@ -4494,7 +4494,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				Standards.general.forEach(newData, function (data) {
 					parent.innerHTML += "<td>" + data.trim() + "</td>";
 				});
-			});
+			}, true);
 			table.style.visibility = "visible";
 		}
 		
