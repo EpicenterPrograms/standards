@@ -60,7 +60,8 @@ div {
 
 nav {
 	background: white;
-	padding: 1em;
+	background: linear-gradient(white, lightgray);
+	padding: 1rem;
 }
 
 iframe {
@@ -78,12 +79,12 @@ nav div {
 }
 
 body.navigation h2, nav h2 {
-	margin-top: 0em;
+	margin-top: 0rem;
 }
 
 body.navigation ul, body.navigation ol, nav ul, nav ol {
-	padding-left: 1em;
-	padding-right: 0em;
+	padding-left: 1rem;
+	padding-right: 0rem;
 }
 
 iframe.left-nav, nav.left-nav {
@@ -91,8 +92,8 @@ iframe.left-nav, nav.left-nav {
 	creates a fixed navigation section on the left side of the screen
 	*/
 	position: fixed;
-	left: 0em;
-	top: 0em;
+	left: 0rem;
+	top: 0rem;
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
@@ -162,6 +163,7 @@ nav.hidden-left-nav {
 	border-right: .05em solid #aaaaaa;
 	width: 45.5vh;
 	height: 100vh;
+	padding: 0rem;
 	transition: .8s;
 	transition: var(--nav-slide-time);
 }
