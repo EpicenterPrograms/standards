@@ -72,6 +72,7 @@ body.navigation {
 	margin: 0em;
 	padding: 1em;
 	background: white;
+	background: linear-gradient(white, lightgray);
 }
 
 nav div {
