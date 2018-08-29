@@ -1170,12 +1170,20 @@ Standards.general.onLoad = function (doStuff) {
 	return window.addEventListener("finished", doStuff);  // There's no () after doStuff because it would run right away (not when the page loads).
 };
 
-Standards.general.getId = function (ID) {
+Standards.general.getId = function (item, ID) {
 	/**
 	gets an element by ID
-	non-native functions = none
+	if the ID is preceeded by an HTMLElement,
+	the search can be done even if the element isn't in the document
+	non-native functions = getType
 	*/
-	return document.getElementById(ID);
+	if (Standards.general.getType(item) == "String") {  // for regular searching
+		return document.getElementById(item);
+	} else if (Standards.general.getType(item) == "HTMLElement") {  // for searching in an element that isn't in the document
+		return item.querySelector("#"+ID);
+	} else {
+		throw "An improper agument was given.";
+	}
 };
 
 Standards.general.getTag = function (tag) {
