@@ -1320,7 +1320,7 @@ Standards.general.removeSelf = function (item) {
 	non-native functions = getType
 	*/
 	switch (Standards.general.getType(item)) {
-		case "HTML":
+		case "HTMLElement":
 			item.parentNode.removeChild(item);
 			break;
 		default:
