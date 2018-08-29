@@ -1313,6 +1313,21 @@ Standards.general.insertAfter = function (insertion, place) {
 	}
 };
 
+Standards.general.removeSelf = function (item) {
+	/**
+	removes the given item
+	(most relavent for HTML elements)
+	non-native functions = getType
+	*/
+	switch (Standards.general.getType(item)) {
+		case "HTML":
+			item.parentNode.removeChild(item);
+			break;
+		default:
+			console.error("This type of removal isn't supported.");
+	}
+};
+
 Standards.general.toArray = function () {
 	/**
 	returns an array made from any number of elements with an index and length
