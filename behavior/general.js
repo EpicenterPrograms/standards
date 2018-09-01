@@ -3456,6 +3456,10 @@ Standards.general.storage.local = {
 	}
 };
 
+Standards.general.storage.location = Standards.general.storage.local;
+// allows one reference to be used for any storage location
+// especially useful for switching to session storage for testing
+
 Standards.general.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "",
