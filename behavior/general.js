@@ -2856,22 +2856,32 @@ Standards.general.storage.session = {
 				alert("An invalid storage location was given");
 				throw "The location given wasn't a string.";
 			}
-			if (typeof item == "undefined") {
-				item = "u~";
-			} else if (item.constructor == String) {  // if the item is a string (typeof for new String() would return "object")
-				item = "s~" + item;
-			} else if (!isNaN(item)) {  // if the item is a number
-				item = "n~" + item;
-			} else if (item instanceof Array) {  // if the item is an array
-				item = "a~" + JSON.stringify(item);
-			} else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if the item is an HTML object
-				let container = document.createElement("div");
-				container.appendChild(item.cloneNode(true));
-				item = "h~" + container.innerHTML;
-			} else if (item instanceof Object) {  // if the item is an object
-				item = "o~" + JSON.stringify(item);
+			if (Standards.general.getType(item) === undefined) {
+				item = "~~" + String(item);
 			} else {
-				item = "z~" + String(item);
+				switch (Standards.general.getType(item)) {
+					case "Array":
+						item = "~Array~" + JSON.stringify(item);
+						break;
+					case "Object":
+						item = "~Object~" + JSON.stringify(item);
+						break;
+					case "HTMLElement":
+						let container = document.createElement("div");
+						container.appendChild(item.cloneNode(true));
+						item = "~HTMLElement~" + container.innerHTML;
+						break;
+					case "Function":
+						item = "~Function~";
+						let stringified = String(item);
+						if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
+							item += stringified.slice(stringified.indexOf("{")+1, stringified.lastIndexOf("}"));
+						} else {
+							item += stringified;
+						}
+					default:
+						item = "~" + Standards.general.getType(item) + "~" + String(item);
+				}
 			}
 			if (location == null) {
 				sessionStorage.setItem(key, item);
@@ -2890,7 +2900,7 @@ Standards.general.storage.session = {
 			e.g. an array will be returned as an array, not a string representation
 			null is considered a number and will return NaN (the number)
 		if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
-			items without "u~", "s~", "n~", "a~", "h~", "o~", or "z~" at the beginning should return as a string
+			items without "~[type]~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
 		non-native functions = getType
 		*/
@@ -2944,25 +2954,34 @@ Standards.general.storage.session = {
 				console.error("An error occurred while retrieving the information.");
 				return information;
 			}
-			switch (information.slice(0, 2)) {
-				case "u~":
-					return undefined;
-				case "s~":
-				case "z~":
-					return information.slice(2);
-				case "n~":
-					return Number(information.slice(2));
-				case "a~":
-					return JSON.parse(information.slice(2));
-				case "h~":
-					let container = document.createElement("div");
-					container.innerHTML = information.slice(2);
-					return container.children[0];
-				case "o~":
-					return JSON.parse(information.slice(2));
-				default:
-					console.warn("The information accessed is missing a data type tag.");
-					return information;
+			if (information.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
+				information = information.slice(1);
+				switch (information.split("~")[0]) {
+					case "undefined":
+					case "":
+						return undefined;
+					case "null":
+						return null;
+					case "NaN":
+						return NaN;
+					case "Array":
+					case "Object":
+						return JSON.parse(information.slice(information.indexOf("~")+1));
+					case "HTMLElement":
+						let container = document.createElement("div");
+						container.innerHTML = information.slice(information.indexOf("~")+1);
+						return container.children[0];
+					default:
+						try {
+							return window[information.split("~")[0]](information.slice(information.indexOf("~")+1));
+						} catch {
+							console.error("There was a problem converting the data type.");
+							return information.slice(information.indexOf("~")+1);
+						}
+				}
+			} else {
+				console.warn("The information didn't have a data type associated with it.");
+				return information;
 			}
 		}
 	},
@@ -3178,22 +3197,32 @@ Standards.general.storage.local = {
 				alert("An invalid storage location was given");
 				throw "The location given wasn't a string.";
 			}
-			if (typeof item == "undefined") {
-				item = "u~";
-			} else if (item.constructor == String) {  // if the item is a string
-				item = "s~" + item;
-			} else if (!isNaN(item)) {  // if the item is a number
-				item = "n~" + item;
-			} else if (item instanceof Array) {  // if the item is an array
-				item = "a~" + JSON.stringify(item);
-			} else if (item.constructor.toString().search(/HTML.*Element/) > -1) {  // if the item is an HTML object
-				let container = document.createElement("div");
-				container.appendChild(item.cloneNode(true));
-				item = "h~" + container.innerHTML;
-			} else if (item instanceof Object) {  // if the item is an object
-				item = "o~" + JSON.stringify(item);
+			if (Standards.general.getType(item) === undefined) {
+				item = "~~" + String(item);
 			} else {
-				item = "z~" + String(item);
+				switch (Standards.general.getType(item)) {
+					case "Array":
+						item = "~Array~" + JSON.stringify(item);
+						break;
+					case "Object":
+						item = "~Object~" + JSON.stringify(item);
+						break;
+					case "HTMLElement":
+						let container = document.createElement("div");
+						container.appendChild(item.cloneNode(true));
+						item = "~HTMLElement~" + container.innerHTML;
+						break;
+					case "Function":
+						item = "~Function~";
+						let stringified = String(item);
+						if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
+							item += stringified.slice(stringified.indexOf("{")+1, stringified.lastIndexOf("}"));
+						} else {
+							item += stringified;
+						}
+					default:
+						item = "~" + Standards.general.getType(item) + "~" + String(item);
+				}
 			}
 			if (location == null) {
 				localStorage.setItem(key, item);
@@ -3212,7 +3241,7 @@ Standards.general.storage.local = {
 			e.g. an array will be returned as an array, not a string representation
 			null is considered a number and will return NaN (the number)
 		if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
-			items without "u~", "s~", "n~", "a~", "h~", "o~", or "z~" at the beginning should return as a string
+			items without "~[type]~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
 		non-native functions = getType
 		*/
@@ -3267,25 +3296,34 @@ Standards.general.storage.local = {
 				console.error("An error occurred while retrieving the information.");
 				return information;
 			}
-			switch (information.slice(0, 2)) {
-				case "u~":
-					return undefined;
-				case "s~":
-				case "z~":
-					return information.slice(2);
-				case "n~":
-					return Number(information.slice(2));
-				case "a~":
-					return JSON.parse(information.slice(2));
-				case "h~":
-					let container = document.createElement("div");
-					container.innerHTML = information.slice(2);
-					return container.children[0];
-				case "o~":
-					return JSON.parse(information.slice(2));
-				default:
-					console.warn("The information accessed is missing a data type tag.");
-					return information;
+			if (information.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
+				information = information.slice(1);
+				switch (information.split("~")[0]) {
+					case "undefined":
+					case "":
+						return undefined;
+					case "null":
+						return null;
+					case "NaN":
+						return NaN;
+					case "Array":
+					case "Object":
+						return JSON.parse(information.slice(information.indexOf("~") + 1));
+					case "HTMLElement":
+						let container = document.createElement("div");
+						container.innerHTML = information.slice(information.indexOf("~") + 1);
+						return container.children[0];
+					default:
+						try {
+							return window[information.split("~")[0]](information.slice(information.indexOf("~") + 1));
+						} catch {
+							console.error("There was a problem converting the data type.");
+							return information.slice(information.indexOf("~") + 1);
+						}
+				}
+			} else {
+				console.warn("The information didn't have a data type associated with it.");
+				return information;
 			}
 		}
 	},
