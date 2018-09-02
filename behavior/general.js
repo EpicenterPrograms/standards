@@ -1427,7 +1427,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		let index = 0,
 			returnValue;
 		while (index < list) {
-			returnValue = doStuff(index+1, index, list);
+			returnValue = doStuff(list-index, index, list);
 			if (returnValue == "break") {
 				break;
 			} else {
@@ -1484,12 +1484,13 @@ Standards.general.listen = function (item, event, behavior, listenOnce) {
 	/**
 	adds an event listener to the item
 	waiting for an element to load is unnecessary if the item is a string (of an ID)
-	item = what will be listening
-	event = the event being listened for
-	behavior = what to do when the event is triggered
-		if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
-	listenOnce = whether the event listener should only be triggered once
-		default = false
+	arguments:
+		item = what will be listening
+		event = the event being listened for
+		behavior = what to do when the event is triggered
+			if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
+		listenOnce = whether the event listener should only be triggered once
+			default = false
 	non-native functions = Standards.general.queue.add() and toArray()
 	*/
 	listenOnce = listenOnce===undefined ? false : listenOnce;
