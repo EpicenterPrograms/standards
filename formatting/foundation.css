@@ -487,6 +487,8 @@ aside h2 {
 }
 
 textarea {
+	width: 15rem;
+	height: 5rem;
 	font-family: inherit;
 	font-size: 1em;
 }

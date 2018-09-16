@@ -2819,7 +2819,7 @@ Standards.general.storage.session = {
 		any primitive data type can be stored
 		string type tags are used behind the scenes to keep track of data types
 		items stored with this function will always be recalled correctly with the recall() function
-		non-native functions = none
+		non-native functions = getType
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
@@ -3161,7 +3161,7 @@ Standards.general.storage.local = {
 		any primitive data type can be stored
 		string type tags are used behind the scenes to keep track of data types
 		items stored with this function will always be recalled correctly with the recall() function
-		non-native functions = none
+		non-native functions = getType
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
