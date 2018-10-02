@@ -1321,6 +1321,30 @@ Standards.general.insertAfter = function (insertion, place) {
 	}
 };
 
+Standards.general.getEnd = function (iterable, index) {
+	/**
+	gets the end of an iterable item
+	arguments:
+		iterable = required; the iterable item
+		index = optional; which item at the end you want
+			positive numbers start counting from the end at 0
+			negative numbers start counting from the end at -1
+			(0 == -1)
+			default: -1
+	non-native functions: getType
+	*/
+	if (Standards.general.getType(iterable[Symbol.iterator]) == "Function") {
+		index = index || -1;
+		if (index >= 0) {
+			return iterable[iterable.length-1-index];
+		} else {
+			return iterable[iterable.length+index];
+		}
+	} else {
+		throw "The provided item isn't iterable.";
+	}
+};
+
 Standards.general.removeSelf = function (item) {
 	/**
 	removes the given item
@@ -2652,7 +2676,6 @@ Standards.general.getFile = function (url, callback, convert) {  ////
 						}
 					});
 					reader.readAsText(this.files[0]);
-					console.log("changed");
 				}
 			} else {
 				console.warn("No files were availible.");
