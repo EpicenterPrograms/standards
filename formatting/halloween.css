@@ -22,10 +22,11 @@ option {
 
 button {
 	position: relative;
-	background: orange;
+	background: radial-gradient(circle, orange, orange 25%, #951 48%, #421 50%, #951 52%, orange 75%);
 	border: .05rem solid black;
-	border-radius: .6rem;
+	border-radius: .7rem;
 	font-family: cursive;
+	color: white;
 }
 button::before {
 	content: "";
@@ -34,7 +35,7 @@ button::before {
 	left: calc(50% - .25rem);
 	width: .5rem;
 	height: .5rem;
-	background: green;
+	background: linear-gradient(to right, #050, #090, #050);
 }
 
 iframe.top-nav, nav.top-nav, .site-editor {
