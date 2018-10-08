@@ -365,6 +365,13 @@ Standards.general.Sound = function (specs) {
 	this.play = function (noteString, newDefaults, callback) {
 		/**
 		plays a song based on notes you put in a string
+		modifiable defaults:
+			volume = sound.maxVolume
+			attack = 50
+			noteLength = 200
+			decay = 50
+			spacing = 0
+			key = "C"
 		*/
 		if (sound.playing) {
 			playQueue.push([noteString, newDefaults, callback]);
@@ -413,7 +420,7 @@ Standards.general.Sound = function (specs) {
 						// matches one letter A-G
 						// maybe followed by # or N or b
 						// maybe followed by any length of numbers
-						// maybe followed by the letter "s" which would have to be followed by a letter A-G
+						/// maybe followed by the letter "s" which would have to be followed by a letter A-G
 					if (note == null) {
 						//// make a way for people to just put frequencies
 						console.error("An attempt was made to play an invalid note.");
