@@ -1029,6 +1029,36 @@ Array.prototype.move = function (currentIndex, newIndex) {
 	this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
 };
 
+Array.prototype.remove = function (item, where) {
+	/**
+	removes an item from an array
+	arguments:
+		item = required; the item to remove
+		where = optional; where / how many items to remove
+			can be a string indication or a boolean of whether all should be deleted
+			possibilities:
+				"all" = delete all instances
+				"first" = delete the first instance
+				"last" = delete the last instance
+				true = delete all instances
+				false = delete the first instance
+			default: "all"
+	non-native functions: none
+	*/
+	where = where===undefined ? "all" : where;
+	if (where == "all" || where === true) {
+		while (this.includes(item)) {
+			this.splice(this.indexOf(item), 0);
+		}
+	} else if (where == "first" || where === false) {
+		this.splice(this.indexOf(item), 0);
+	} else if (where == "last") {
+		this.splice(this.lastIndexOf(item), 0);
+	} else {
+		console.error("The provided location of removal isn't valid.");
+	}
+};
+
 /*
 HTMLCollection.prototype.forEach = function (doStuff, copy) {
 	/**
