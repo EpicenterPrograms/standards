@@ -1048,12 +1048,12 @@ Array.prototype.remove = function (item, where) {
 	where = where===undefined ? "all" : where;
 	if (where == "all" || where === true) {
 		while (this.includes(item)) {
-			this.splice(this.indexOf(item), 0);
+			this.splice(this.indexOf(item), 1);
 		}
 	} else if (where == "first" || where === false) {
-		this.splice(this.indexOf(item), 0);
+		this.splice(this.indexOf(item), 1);
 	} else if (where == "last") {
-		this.splice(this.lastIndexOf(item), 0);
+		this.splice(this.lastIndexOf(item), 1);
 	} else {
 		console.error("The provided location of removal isn't valid.");
 	}
