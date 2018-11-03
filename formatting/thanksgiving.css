@@ -8,3 +8,53 @@ body {
 h1.main-title {
 	color: black;
 }
+
+button {
+	position: relative;
+	margin-top: .75rem;
+	background: radial-gradient(#c72, #951);
+	border: .05rem solid black;
+	border-radius: 1.2rem 1.5rem .7rem .6rem;
+	padding: .15rem .4rem;
+	font-family: san-serif;
+	color: white;
+}
+button::before {
+	content: "";
+	position: absolute;
+	bottom: calc(100% - .3rem);
+	left: 12%;
+	border: .05rem solid black;
+	border-bottom-left-radius: .5rem;
+	border-bottom-right-radius: .5rem;
+	width: .4rem;
+	height: .75rem;
+	background: linear-gradient(to right, #951, #c72, #951);
+	transform: rotate(-30deg);
+}
+button::after {
+	content: "";
+	position: absolute;
+	bottom: calc(100% + .15rem);
+	left: calc(12% - .35rem);
+	border: .05rem solid black;
+	border-radius: 50%;
+	width: .8rem;
+	height: .5rem;
+	background: white;
+	transform: rotate(-30deg);
+}
+
+iframe.top-nav, nav.top-nav, .site-editor {
+	background: #951;
+}
+nav.top-nav div.drop-down > div:first-child, nav.top-nav > button, div div.drop-down > div:first-child, .site-editor > button {
+	background: #951;
+	color: white;
+}
+nav.top-nav div.drop-down div, div div.drop-down div {
+	background: #fc6;
+}
+nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child, div div.drop-down:hover > div:first-child, div div.drop-down:focus > div:first-child, div div.drop-down:focus-within > div:first-child {
+	background: #c72;
+}

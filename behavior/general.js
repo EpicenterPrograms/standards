@@ -1381,6 +1381,7 @@ Standards.general.getEnd = function (iterable, index) {
 		throw "The provided item isn't iterable.";
 	}
 };
+Standards.general.getLast = Standards.general.getEnd;
 
 Standards.general.removeSelf = function (item) {
 	/**
@@ -2526,7 +2527,7 @@ Standards.general.toHTML = function (HTML) {
 Standards.general.makeDialog = function (message) {
 	/**
 	makes a dialog box pop up
-	message = the content of the dialog box (can be HTML)
+	message = the content of the dialog box (can be an HTML element)
 	At least one argument is needed after the message.
 	Arguments after the message are two-item arrays which form buttons.
 		first item = text of the button
