@@ -38,7 +38,7 @@ body {
 	background: -o-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Opera 11.1 to 12.0 */
 	background: -moz-repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* Firefox 3.6 to 15 */
 	background: repeating-linear-gradient(#0000ee, white 100vh, #0000ee 200vh);  /* standard syntax */
-	text-align: center;
+	text-align: justify;
 }
 
 main {
@@ -358,7 +358,6 @@ ol, ul {
 	display: table;
 	margin: .5rem auto;
 	padding-right: 1rem;
-	text-align: left;
 }
 
 ul {
@@ -416,7 +415,7 @@ table.conversation td {
 	*/
 	border: none;
 	background: none;
-	text-align: left;
+	text-align: justify;
 }
 
 table.conversation td:first-child {
@@ -520,44 +519,36 @@ section {
 	margin: 1em 0em;
 }
 
-dialog {
-	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
-	position: fixed;
-	left: 50%;
-	top: 50%;
-	z-index: 10;
-	border: 2vh solid #aadddd;  /* I use vh because I know the border won't be any smaller than what I see, even on mobile devices. */
-	border-radius: 4vh;
-	padding: 1em;
-	max-width: 30%;  /* This would max out at about 50% anyway because the positioning and translation limit the width. */
-	max-height: 50%;
-	background: white;
-	overflow: auto;
-	transform: translate(-50%, -50%) scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
+.dialog-container {
+	width: 35%;
+	height: 50%;
+	-ms-transform: scale(.001, .001);
+	-webkit-transform: scale(.001, .001);
+	transform: scale(.001, .001);
 	transition: .5s;
 }
-
-dialog .buttons {
-	display: block;
-	margin-top: .5em;
+.dialog-container .x {
+	position: absolute;
+	right: .5rem;
+	top: .5rem;
+	font-family: sans-serif;
+	color: red;
+	cursor: pointer;
 }
-
+.dialog-container .x:hover {
+	font-weight: bold;
+}
 .dialog {  /* <dialog> formatting is replicated (mostly) because it isn't widely supported yet */
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
 	z-index: 10;
 	border: 12px solid #aadddd;  /* This is in pixels in order to prevent random scroll bars appearing (probably because of otherwise getting a fraction of a pixel). */
 	border-radius: 4vh;
 	padding: 1em;
-	max-width: 35%;
-	max-height: 50%;
+	max-width: 100%;
+	max-height: 100%;
 	background: white;
 	overflow: auto;
-	-ms-transform: scale(.001, .001);
-	-webkit-transform: scale(.001, .001);
-	transform: scale(.001, .001);  /* "translate" has to be before "scale" for this to work properly */
-	transition: .5s;
 }
-
 .dialog .buttons {
 	display: block;
 	margin-top: .5em;
@@ -613,7 +604,7 @@ note- > div, .trigger > div, .pop-up {
 	transition: opacity .5s linear .5s;
 }
 .pop-up {
-	text-align: center;
+	text-align: justify;
 	transition: opacity .5s linear;
 }
 note- > div::before, .trigger > div::before, .pop-up::before {
@@ -665,7 +656,6 @@ over- {
 	*/
 	display: table;
 	margin: auto;
-	text-align: left;
 }
 
 .page-jump-list {

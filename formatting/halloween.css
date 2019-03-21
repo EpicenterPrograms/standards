@@ -37,6 +37,9 @@ button::before {
 	height: .5rem;
 	background: linear-gradient(to right, #050, #090, #050);
 }
+button:disabled, button[disabled] {
+	
+}
 
 iframe.top-nav, nav.top-nav, .site-editor {
 	background: black;

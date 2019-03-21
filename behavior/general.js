@@ -2528,7 +2528,6 @@ Standards.general.makeDialog = function (message) {
 	/**
 	makes a dialog box pop up
 	message = the content of the dialog box (can be an HTML element)
-	At least one argument is needed after the message.
 	Arguments after the message are two-item arrays which form buttons.
 		first item = text of the button
 		second item = the function to run if that button is pressed
@@ -2584,6 +2583,8 @@ Standards.general.makeDialog = function (message) {
 			throw "The item at position " + (index+1) + " needs to have exactly two items.";
 		}
 	});
+	let container = document.createElement("div");
+	container.className = "dialog-container";
 	let darkener = document.createElement("div"),
 		dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
 		contents,
@@ -2611,7 +2612,7 @@ Standards.general.makeDialog = function (message) {
 			button.innerHTML = pair[0];
 			button.addEventListener("click", function () {
 				pair[1](pair[0]);
-				dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+				container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
 				this.removeEventListener("click", arguments.callee);
 			});
 		} else {
@@ -2620,7 +2621,7 @@ Standards.general.makeDialog = function (message) {
 			buttons.appendChild(button);
 			button.addEventListener("click", function () {
 				pair[1](pair[0]);
-				dialog.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+				container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
 				this.removeEventListener("click", arguments.callee);
 			});
 		}
@@ -2629,9 +2630,18 @@ Standards.general.makeDialog = function (message) {
 	if (buttons.innerHTML) {
 		dialog.appendChild(buttons);
 	}
-	darkener.appendChild(dialog);
+	let x = document.createElement("div");
+	x.className = "x";
+	x.textContent = "X";
+	x.addEventListener("click", function () {
+		container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+		this.removeEventListener("click", arguments.callee);
+	});
+	container.appendChild(x);
+	container.appendChild(dialog);
+	darkener.appendChild(container);
 	document.body.appendChild(darkener);
-	dialog.addEventListener("dialog" + identifier + "Answered", function () {
+	container.addEventListener("dialog" + identifier + "Answered", function () {
 		darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
 		this.style.MsTransform = "scale(.001, .001)";
 		this.style.WebkitTransform = "scale(.001, .001)";
@@ -2642,9 +2652,9 @@ Standards.general.makeDialog = function (message) {
 	});
 	setTimeout(function () {  // This breaks out of the execution block and allows transitioning to the states.
 		darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
-		dialog.style.MsTransform = "scale(1, 1)";
-		dialog.style.WebkitTransform = "scale(1, 1)";
-		dialog.style.transform = "scale(1, 1)";
+		container.style.MsTransform = "scale(1, 1)";
+		container.style.WebkitTransform = "scale(1, 1)";
+		container.style.transform = "scale(1, 1)";
 	}, 0);
 	return dialog;
 };
@@ -2673,7 +2683,7 @@ Standards.general.getFile = function (url, callback, convert) {  ////
 		console.error("The provided URL wasn't a string.");
 	} else if (!callback) {
 		console.error("No callback was provided.");
-	} else if (new URL(url, window.location.href).href.slice(0, 7) == "file://") {
+	} else if (new URL(url, window.location.href).protocol == "file:") {
 		let input = document.createElement("input");
 		input.type = "file";
 		let changed = false;
@@ -4675,7 +4685,8 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				let listItem = document.createElement("li");
 				listItem.appendChild(link);
 				listItems.appendChild(listItem);
-				division.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);  // inserts after <h2>
+				division.getElementsByTagName("h2")[index].parentNode.insertBefore(toTop.cloneNode(true), division.getElementsByTagName("h2")[index].nextSibling);
+				// inserts after <h2>
 				// toTop needs to be cloned so it doesn't keep getting reasigned to the next place (it also needs to have true to clone all children of the node, although it doesn't apply here)
 			});
 			contents.appendChild(listItems);
