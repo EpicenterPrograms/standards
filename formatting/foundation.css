@@ -362,6 +362,7 @@ ol, ul {
 	display: table;
 	margin: .5rem auto;
 	padding-right: 1rem;
+	text-align: justify;
 }
 
 ul {
@@ -661,6 +662,7 @@ over- {
 	*/
 	display: table;
 	margin: auto;
+	text-align: justify;
 }
 
 .page-jump-list {
@@ -684,6 +686,9 @@ over- {
 	ordinary list padding is 2.5
 	*/
 	padding-left: 1.5em;
+}
+.to-top {
+	text-align: center;
 }
 
 .user-section {
