@@ -594,6 +594,9 @@ note- div, .trigger div, .pop-up div {
 	This needs to come before the styling for <div>s with child selectors
 	*/
 	max-height: 20em;
+	text-align: justify;
+	-moz-text-align-last: center;
+	text-align-last: center;
 	overflow: auto;
 }
 note- > div, .trigger > div, .pop-up {
@@ -614,9 +617,6 @@ note- > div, .trigger > div, .pop-up {
 	transition: opacity .5s linear .5s;
 }
 .pop-up {
-	text-align: justify;
-	-moz-text-align-last: center;
-	text-align-last: center;
 	transition: opacity .5s linear;
 }
 note- > div::before, .trigger > div::before, .pop-up::before {
