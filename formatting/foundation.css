@@ -55,9 +55,8 @@ main {
 
 p {
 	text-align: justify;
-}
-p::first-line {
-	text-align: center;
+	-moz-text-align-last: center;
+	text-align-last: center;
 }
 
 div {
@@ -526,9 +525,8 @@ section {
 	display: block;
 	margin: 1em 0em;
 	text-align: justify;
-}
-section::first-line {
-	text-align: center;
+	-moz-text-align-last: center;
+	text-align-last: center;
 }
 
 .dialog-container {
@@ -617,10 +615,9 @@ note- > div, .trigger > div, .pop-up {
 }
 .pop-up {
 	text-align: justify;
+	-moz-text-align-last: center;
+	text-align-last: center;
 	transition: opacity .5s linear;
-}
-.pop-up::first-line {
-	text-align: center;
 }
 note- > div::before, .trigger > div::before, .pop-up::before {
 	/**
