@@ -80,18 +80,25 @@ body.navigation {
 	background: white;
 	background: linear-gradient(white, lightgray);
 }
-
 nav div {
 	overflow: auto;
 }
-
 body.navigation h2, nav h2 {
 	margin-top: 0rem;
 }
-
 body.navigation ul, body.navigation ol, nav ul, nav ol {
 	padding-left: 1rem;
 	padding-right: 0rem;
+}
+body.navigation .nav-list-expander {
+	/**
+	makes sure that the whole navigation list doesn't move while the longest item is hovered over
+	(allows the creation of a secret second list which makes the actual list long enough to accomodate bolding)
+	*/
+	visibility: hidden;
+	margin: 0rem;
+	height: 0rem;
+	font-weight: bold;
 }
 
 iframe.left-nav, nav.left-nav {
