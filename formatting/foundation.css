@@ -677,6 +677,12 @@ over- {
 	margin: auto;
 	text-align: justify;
 }
+.list p {
+	text-align-last: left;
+}
+.list section {
+	text-align-last: left;
+}
 
 .page-jump-list {
 	/**
