@@ -4674,7 +4674,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 						let _index = inside.lastIndexOf("_");
 						inside = inside.slice(0,_index) + "_" + (Number(inside.slice(_index+1))+1);
 					} else {
-						inside = inside + "_1";
+						inside = inside + "_2";
 					}
 					safety--;
 				}
@@ -4682,6 +4682,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				let link = document.createElement("a");
 				link.href = "#" + inside;
 				link.textContent = decodeURIComponent(inside);
+				link.target = "_self";
 				let listItem = document.createElement("li");
 				listItem.appendChild(link);
 				listItems.appendChild(listItem);
