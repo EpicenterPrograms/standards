@@ -676,11 +676,15 @@ over- {
 	display: table;
 	margin: auto;
 	text-align: justify;
+	-moz-text-align-last: left;
+	text-align-last: left;
 }
 .list p {
+	-moz-text-align-last: left;
 	text-align-last: left;
 }
 .list section {
+	-moz-text-align-last: left;
 	text-align-last: left;
 }
 
