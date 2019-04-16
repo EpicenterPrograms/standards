@@ -2537,6 +2537,7 @@ Standards.general.makeDialog = function (message) {
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
 	HTML buttons in the message can be used as the dialog buttons if they have the class "replace".
+	Buttons can be left out by adding a falsy argument after the message.
 	examples:
 		Standards.general.makeDialog(
 			"Don't you think this dialog box is awesome?",
@@ -2573,6 +2574,8 @@ Standards.general.makeDialog = function (message) {
 	}
 	if (pairs.length < 1) {
 		pairs = [["Okay", function () {return;}]];
+	} else if (pairs.length == 1 && !pairs[0]) {  // if there's only one falsy extra argument (if a button isn't desired)
+		pairs = [];
 	}
 	pairs.forEach(function (pair, index) {
 		if (Standards.general.getType(pair) == "String") {
