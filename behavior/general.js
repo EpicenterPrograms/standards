@@ -2600,9 +2600,9 @@ Standards.general.makeDialog = function (message) {
 		);
 	non-native functions = getType, forEach, and toHTML
 	*/
+	let pairs = Array.prototype.slice.call(arguments, 1),
+		identifier = Standards.general.identifier++;
 	return new Promise(function (resolve, reject) {
-		let pairs = Array.prototype.slice.call(arguments, 1),
-			identifier = Standards.general.identifier++;
 		if (Standards.general.getType(pairs[0]) == "Object") {
 			let list = [];
 			Standards.general.forEach(pairs[0], function (value, key) {
@@ -2624,14 +2624,10 @@ Standards.general.makeDialog = function (message) {
 		} else if (pairs.length == 1 && !pairs[0]) {  // if there's only one falsy extra argument (if a button isn't desired)
 			pairs = [];
 		}
-		console.log(arguments);
 		pairs.forEach(function (pair, index) {
 			if (Standards.general.getType(pair) == "String") {
 				pairs.splice(index, 1, [pair, function () { return; }]);
 			} else if (Standards.general.getType(pair) != "Array") {
-				console.log(pair);
-				console.log(pair.toString());
-				console.log(Standards.general.getType(pair));
 				console.error("The item at position " + (index + 1) + " isn't a two-item array.");
 				reject();
 			} else if (pair.length != 2) {
@@ -2657,11 +2653,8 @@ Standards.general.makeDialog = function (message) {
 		darkener.style.pointerEvents = "auto";
 		dialog.className = "dialog";
 		buttons.className = "buttons";
-		console.log(pairs);
 		pairs.forEach(function (pair, index) {
 			if (Standards.general.getType(pair[0]) != "String") {
-				console.log(pair[0]);
-				console.log(Standards.general.getType(pair[0]));
 				console.error("The pair at position " + (index + 1) + " doesn't have a string as the first value.");
 				reject();
 			} else if (Standards.general.getType(pair[1]) != "Function") {
