@@ -42,44 +42,25 @@ Standards.game.getType = function (item) {
 		}
 	}
 	if (item === undefined) {  // if it's undefined
+		/// undeclared variables won't make it to this function
+		/// typeof item === "undefined" checks whether a variable exists
 		return "undefined";
 	} else if (item === null) {  // if it's null
 		return "null";
-	} else if (item.constructor === Boolean) {  // if it's a boolean
-		return "Boolean";
 	} else if (item.constructor === Number && isNaN(item)) {  // if it's not a number
 		return "NaN";
-	} else if (item.constructor === Number) {  // if it is a number
-		return "Number";
-	} else if (item.constructor === String) {  // if it's a string
-		return "String";
-	} else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
-		return "Array";
 	} else if (item instanceof Standards.game.Character) {  // if it's a Character
 		return "Character";
-	} else if (typeof item === "function") {  // if it's a function
-		return "Function";
-	} else if (item instanceof RegExp) {  // if it's a regular expression
-		return "RegExp";
 	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
 		return "HTMLElement";
-	} else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
-		return "HTMLCollection";
-	} else if (item instanceof CSSRuleList) {  // if it's a CSSRuleList
-		return "CSSRuleList";
-	} else if (item instanceof Date) {  // if it's a Date object
-		return "Date";
-	} else if (item instanceof DOMStringMap) {  // if it's a DOMStringMap
-		return "DOMStringMap";
-	} else if (item instanceof DOMRect) {  // if it's a DOM rectangle
-		return "DOMRect";
-	} else if (item instanceof NodeList) {  // if it's a NodeList
-		return "NodeList";
-	} else if (item instanceof Object) {  // if it's a regular object
-		return "Object";
-	} else {  // if it's an enigma
-		console.error(item + " has an unknown type");
-		return undefined;
+	} else {
+		let match = item.constructor.toString().match(/^function (\w+)\(\)/);
+		if (match === null) {
+			console.error(TypeError("The item has an unknown type."));
+			return undefined;
+		} else {
+			return match[1];
+		}
 	}
 };
 

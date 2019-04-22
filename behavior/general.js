@@ -1,23 +1,23 @@
-if (Standards) {
-	if (!(Standards instanceof Object)) {
+if (typeof Standards !== "undefined") {
+	if (Standards.constructor !== Object) {
 		var Standards = {};
-		console.warn("Standards is not an object");
+		console.warn("Standards is not an Object");
 	}
 } else {
 	var Standards = {};
 }
-if (Standards.general) {
-	if (!(Standards.general instanceof Object)) {
+if (typeof Standards.general !== "undefined") {
+	if (Standards.general.constructor !== Object) {
 		Standards.general = {};
-		console.warn("Standards.general is not an object");
+		console.warn("Standards.general is not an Object");
 	}
 } else {
 	Standards.general = {};
 }
-if (Standards.general.options) {
-	if (!(Standards.general.options instanceof Object)) {
+if (typeof Standards.general.options !== "undefined") {
+	if (Standards.general.options.constructor !== Object) {
 		Standards.general.options = {};
-		console.warn("Standards.general.options is not an object");
+		console.warn("Standards.general.options is not an Object");
 	}
 } else {
 	Standards.general.options = {};
@@ -98,48 +98,55 @@ Standards.general.makeToneGenerator = function (makeDialog, affirmativeCallback,
 		negativeCallback = optional; a function to be run if permission to make tones is denied
 	non-native functions: makeDialog
 	*/  // Standards.general.audio.close() can get rid of the instance.
-	if (makeDialog) {
-		Standards.general.makeDialog("Do you want to enable tone generation?", ["Yes", function () {
+	return new Promise(function (resolve, reject) {
+		if (makeDialog) {
+			Standards.general.makeDialog("Do you want to enable tone generation?", ["Yes", function () {
+				if (window.AudioContext) {
+					Standards.general.audio = new window.AudioContext();
+				} else if (window.webkitAudioContext) {
+					Standards.general.audio = new window.webkitAudioContext();
+				} else {
+					console.error("Your browser doesn't support audio contexts.");
+					reject(Error("Your browser doesn't support audio contexts."));
+				}
+				if (affirmativeCallback) {
+					affirmativeCallback();
+				}
+				resolve();
+			}], ["No", function () {
+				if (negativeCallback) {
+					negativeCallback();
+				}
+				reject();
+			}]);
+		} else {
 			if (window.AudioContext) {
 				Standards.general.audio = new window.AudioContext();
 			} else if (window.webkitAudioContext) {
 				Standards.general.audio = new window.webkitAudioContext();
 			} else {
 				console.error("Your browser doesn't support audio contexts.");
+				reject(Error("Your browser doesn't support audio contexts."));
 			}
 			if (affirmativeCallback) {
 				affirmativeCallback();
 			}
-		}], ["No", function () {
-			if (negativeCallback) {
-				negativeCallback();
-			}
-		}]);
-	} else {
-		if (window.AudioContext) {
-			Standards.general.audio = new window.AudioContext();
-		} else if (window.webkitAudioContext) {
-			Standards.general.audio = new window.webkitAudioContext();
-		} else {
-			console.error("Your browser doesn't support audio contexts.");
+			resolve();
 		}
-		if (affirmativeCallback) {
-			affirmativeCallback();
-		}
-	}
+	});
 };
 
-if (Standards.general.queue) {
-	if (Standards.general.queue instanceof Array) {
+if (typeof Standards.general.queue !== "undefined") {
+	if (Standards.general.queue.constructor === Array) {
 		Standards.general.queue.forEach(function (item, index) {
-			if (typeof item != "object") {
+			if (item.constructor === Object) {
 				Standards.general.queue.splice(index, 1);
-				console.warn("The item at the index of " + index + " in Standards.general.queue is not an object.");
+				console.warn("The item at the index of " + index + " in Standards.general.queue is not an Object.");
 			}
 		});
 	} else {
 		Standards.general.queue = [];
-		console.warn("Standards.general.queue is not an instance of an array");
+		console.warn("Standards.general.queue is not an Array");
 	}
 } else {
 	Standards.general.queue = [];
@@ -323,44 +330,59 @@ Standards.general.Sound = function (specs) {
 		/**
 		starts/unmutes the tone
 		*/
-		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
-		if (shouldSetPlaying) {
-			sound.playing = true;
-		}
-		time = time===undefined ? 0 : time;
-		gain1.gain.setValueAtTime(sound.volume + .0001, Standards.general.audio.currentTime);
-		sound.volume = volume || sound.maxVolume;
-		if (sound.volume <= 0) {
-			gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time / 1000);
-			setTimeout(function () {
-				gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
-			}, time);
-		} else {
-			gain1.gain.exponentialRampToValueAtTime(Math.pow(42, sound.volume) / 42, Standards.general.audio.currentTime + time / 1000);
-		}
+		return new Promise(function (resolve) {
+			shouldSetPlaying = shouldSetPlaying === undefined ? true : shouldSetPlaying;
+			if (shouldSetPlaying) {
+				sound.playing = true;
+			}
+			time = time === undefined ? 0 : time;
+			gain1.gain.setValueAtTime(sound.volume + .0001, Standards.general.audio.currentTime);
+			sound.volume = volume || sound.maxVolume;
+			if (sound.volume <= 0) {
+				gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time / 1000);
+				setTimeout(function () {
+					gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
+					resolve();
+				}, time);
+			} else {
+				gain1.gain.exponentialRampToValueAtTime(Math.pow(42, sound.volume) / 42, Standards.general.audio.currentTime + time / 1000);
+				setTimeout(function () {
+					resolve();
+				}, time);
+			}
+		});
 	};
 	this.stop = function (time, shouldSetPlaying) {
 		/**
 		stops/mutes the tone
 		*/
-		time = time===undefined ? 0 : time;
-		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
-		gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time/1000);
-		setTimeout(function () {
-			gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
-			sound.volume = 0;
-			if (shouldSetPlaying) {
-				sound.playing = false;
-				window.dispatchEvent(new Event(sound.identifier+"StoppedPlaying"));
-			}
-		}, time);
+		return new Promise(function (resolve) {
+			time = time === undefined ? 0 : time;
+			shouldSetPlaying = shouldSetPlaying === undefined ? true : shouldSetPlaying;
+			gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time / 1000);
+			setTimeout(function () {
+				gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
+				sound.volume = 0;
+				if (shouldSetPlaying) {
+					sound.playing = false;
+					window.dispatchEvent(new Event(sound.identifier + "StoppedPlaying"));
+				}
+				resolve();
+			}, time);
+		});
 	};
 	this.change = function (property, value, time, shouldSetPlaying) {
 		/**
 		changes a property of the tone
 		*/
-		sound[property] = value;
-		setValues(time, shouldSetPlaying);
+		return new Promise(function (resolve) {
+			time = time === undefined ? 0 : time;
+			sound[property] = value;
+			setValues(time, shouldSetPlaying);
+			setTimeout(function () {
+				resolve();
+			}, time);
+		});
 	};
 	this.play = function (noteString, newDefaults, callback) {
 		/**
@@ -382,312 +404,315 @@ Standards.general.Sound = function (specs) {
 				});
 			}
 		} else if (arguments.length > 0) {
-			if (playQueue.length > 0) {
-				playQueue.splice(0, 1);
-			}
-			if (playQueue.length > 0) {
-				window.addEventListener(sound.identifier+"StoppedPlaying", function () {
-					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
-					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
-				});
-			}
-			noteString = noteString.trim().replace(/([A-G]{1}(?:#|N|b)?)|[a-g]/g, function (foundNote, properNote) {
-				// makes sure the string is formatted correctly even when people want to be lazy
-				if (foundNote == properNote) {
-					return properNote;
-				} else {
-					return foundNote.toUpperCase();
+			return new Promise(function (resolve) {
+				if (playQueue.length > 0) {
+					playQueue.splice(0, 1);
 				}
-			});
-			var defaults = {
-				volume: sound.maxVolume,
-				attack: 50,
-				noteLength: 200,
-				decay: 50,
-				spacing: 0,
-				key: "C"
-			};
-			if (newDefaults != null) {
-				for (var item in newDefaults) {
-					if (defaults.hasOwnProperty(item)) {
-						defaults[item] = newDefaults[item];
+				if (playQueue.length > 0) {
+					window.addEventListener(sound.identifier + "StoppedPlaying", function () {
+						sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
+						window.removeEventListener(sound.identifier + "StoppedPlaying", arguments.callee);
+					});
+				}
+				noteString = noteString.trim().replace(/([A-G]{1}(?:#|N|b)?)|[a-g]/g, function (foundNote, properNote) {
+					// makes sure the string is formatted correctly even when people want to be lazy
+					if (foundNote == properNote) {
+						return properNote;
+					} else {
+						return foundNote.toUpperCase();
+					}
+				});
+				var defaults = {
+					volume: sound.maxVolume,
+					attack: 50,
+					noteLength: 200,
+					decay: 50,
+					spacing: 0,
+					key: "C"
+				};
+				if (newDefaults != null) {
+					for (var item in newDefaults) {
+						if (defaults.hasOwnProperty(item)) {
+							defaults[item] = newDefaults[item];
+						}
 					}
 				}
-			}
-			function format(index) {
-				if (index < noteString.length) {
-					let note = noteString.slice(index).match(/[A-G]{1}(?:#|N|b)?\d*/);
+				function format(index) {
+					if (index < noteString.length) {
+						let note = noteString.slice(index).match(/[A-G]{1}(?:#|N|b)?\d*/);
 						// matches one letter A-G
 						// maybe followed by # or N or b
 						// maybe followed by any length of numbers
 						/// maybe followed by the letter "s" which would have to be followed by a letter A-G
-					if (note == null) {
-						//// make a way for people to just put frequencies
-						console.error("An attempt was made to play an invalid note.");
-						return null;
-					} else {
-						note = note[0];
-						let original = note;
-						if (note.search(/#|N|b/) == -1) {  // if there's not a sharp, natural, or flat indication
-							switch(defaults.key) {
-								case "Ab":
-									if (note[0] == "D") {
-										note = note[0] + "b" + note.slice(1);
-									}
-								case "Eb":
-									if (note[0] == "A") {
-										note = note[0] + "b" + note.slice(1);
-									}
-								case "Bb":
-									if (note[0] == "E") {
-										note = note[0] + "b" + note.slice(1);
-									}
-								case "F":
-									if (note[0] == "B") {
-										note = note[0] + "b" + note.slice(1);
-									}
-								case "C":
-									if (note.search(/#|N|b/) == -1) {
-										note = note[0] + "N" + note.slice(1);
-									}
-									break;
-								case "E":
-									if (note[0] == "D") {
-										note = note[0] + "#" + note.slice(1);
-									}
-								case "A":
-									if (note[0] == "G") {
-										note = note[0] + "#" + note.slice(1);
-									}
-								case "D":
-									if (note[0] == "C") {
-										note = note[0] + "#" + note.slice(1);
-									}
-								case "G":
-									if (note[0] == "F") {
-										note = note[0] + "#" + note.slice(1);
-									} else if (note.search(/#|N|b/) == -1) {
-										note = note[0] + "N" + note.slice(1);
-									}
-									break;
-								default:
-									console.warn(defaults.key + " is not a valid musical key");
-									note = note[0] + "N" + note.slice(1);
-							}
-						}
-						if (note.search(/\d/) == -1) {
-							note = note.slice(0,2) + "4" + note.slice(2);
-						}
-						return {formatted: note, original: original};
-					}
-				} else {
-					console.error("The provided index exceeded the length of the string.");
-					return undefined;
-				}
-			}
-			function noteToFrequency(note) {
-				switch(note) {
-					case "CN3":
-					case "B#2":
-						return 130.81;
-					case "C#3":
-					case "Db3":
-						return 138.59;
-					case "DN3":
-						return 146.83;
-					case "Eb3":
-					case "D#3":
-						return 155.56;
-					case "EN3":
-					case "Fb3":
-						return 164.81;
-					case "FN3":
-					case "E#3":
-						return 174.61;
-					case "F#3":
-					case "Gb3":
-						return 185.00;
-					case "GN3":
-						return 196.00;
-					case "Ab3":
-					case "G#3":
-						return 207.65;
-					case "AN3":
-						return 220.00;
-					case "Bb3":
-					case "A#3":
-						return 233.08;
-					case "BN3":
-					case "Cb4":
-						return 246.94;
-					case "CN4":
-					case "B#3":
-						return 261.63;  // This is just about as low as you can expect people to hear.
-					case "C#4":
-					case "Db4":
-						return 277.18;
-					case "DN4":
-						return 293.66;
-					case "Eb4":
-					case "D#4":
-						return 311.13;
-					case "EN4":
-					case "Fb4":
-						return 329.63;
-					case "FN4":
-					case "E#4":
-						return 349.23;
-					case "F#4":
-					case "Gb4":
-						return 369.99;
-					case "GN4":
-						return 392.00;
-					case "Ab4":
-					case "G#4":
-						return 415.30;
-					case "AN4":
-						return 440.00;
-					case "Bb4":
-					case "A#4":
-						return 466.16;
-					case "BN4":
-					case "Cb5":
-						return 493.88;
-					case "CN5":
-					case "B#4":
-						return 523.25;
-					case "C#5":
-					case "Db5":
-						return 554.37;
-					case "DN5":
-						return 587.33;
-					case "Eb5":
-					case "D#5":
-						return 622.25;
-					case "EN5":
-					case "Fb5":
-						return 659.25;
-					case "FN5":
-					case "E#5":
-						return 698.46;
-					case "F#5":
-					case "Gb5":
-						return 739.99;
-					case "GN5":
-						return 783.99;
-					case "Ab5":
-					case "G#5":
-						return 830.61;
-					case "AN5":
-						return 880.00;
-					case "Bb5":
-					case "A#5":
-						return 932.33;
-					case "BN5":
-					case "Cb6":
-						return 987.77;
-					case "CN6":
-					case "B#5":
-						return 1046.50;
-					case "C#6":
-					case "Db6":
-						return 1108.73;
-					case "DN6":
-						return 1174.66;
-					case "Eb6":
-					case "D#6":
-						return 1244.51;
-					case "EN6":
-					case "Fb6":
-						return 1318.51;
-					case "FN6":
-					case "E#6":
-						return 1396.91;
-					case "F#6":
-					case "Gb6":
-						return 1479.98;
-					case "GN6":
-						return 1567.98;
-					case "Ab6":
-					case "G#6":
-						return 1661.22;
-					case "AN6":
-						return 1760.00;
-					case "Bb6":
-					case "A#6":
-						return 1864.66;
-					case "BN6":
-					case "Cb7":
-						return 1975.53;
-					case "CN7":
-					case "B#6":
-						return 2093.00;
-					default:
-						console.warn("The note " + note + " wasn't recognized and couldn't be assigned a frequency.");
-				}
-			}
-			function interpret(index) {
-				index = index===undefined ? 0 : index;
-				if (index < noteString.length) {
-					note = format(index);
-					if (note == undefined) {
-						// This should never happen.
-					} else if (note == null) {
-						interpret(index+1);
-					} else {
-						sound.change("frequency", noteToFrequency(note.formatted), 0, false);
-						sound.start(defaults.attack, defaults.volume, false);
-						if (noteString[index + note.original.length]) {  // if there's anything after this note
-							let originalLength = note.original.length,
-								afterNote = "",
-								duration = defaults.noteLength,
-                                slur = 0,
-								rest = defaults.spacing;
-							if (noteString[index + originalLength] == "-" || noteString[index + originalLength] == " " || noteString[index + originalLength] == "s") {
-								afterNote = noteString.slice(index + originalLength).match(/-*(?:s*| *)?/)[0];
-								if (afterNote.search(/-/) > -1) {  // if there's any hyphens following the note
-									duration *= afterNote.match(/-/g).length + 1;
-								}
-                                if (afterNote.search(/s/) > -1) {  // if there's any "s"s following the note
-                                    slur = afterNote.match(/s/g).length * (defaults.attack + defaults.noteLength + defaults.decay);
-                                }
-								if (afterNote.search(/ /) > -1) {  // if there's any spaces following the note
-									rest += defaults.attack + defaults.noteLength + defaults.decay;
-									rest *= afterNote.match(/ /g).length;
-								}
-							}
-							setTimeout(function () {
-                                if (slur == 0) {
-    								sound.stop(defaults.decay, false);
-	    							setTimeout(function () {
-		    							interpret(index + originalLength + afterNote.length);
-			    					}, defaults.decay + rest);
-                                } else {
-                                    sound.change("frequency", noteToFrequency(format(index+originalLength+afterNote.length).formatted), defaults.decay+slur, false);
-                                    setTimeout(function () {
-		    							interpret(index + originalLength + afterNote.length);
-			    					}, defaults.decay + slur);
-                                }
-				  			}, defaults.attack + duration);
+						if (note == null) {
+							//// make a way for people to just put frequencies
+							console.error("An attempt was made to play an invalid note.");
+							return null;
 						} else {
-							setTimeout(function () {
-								sound.stop(defaults.decay, false);
-								setTimeout(function () {  // makes sure the finishing block of code is called
-									interpret(index + note.original.length);
-								}, defaults.decay);
-							}, defaults.attack + defaults.noteLength);
+							note = note[0];
+							let original = note;
+							if (note.search(/#|N|b/) == -1) {  // if there's not a sharp, natural, or flat indication
+								switch (defaults.key) {
+									case "Ab":
+										if (note[0] == "D") {
+											note = note[0] + "b" + note.slice(1);
+										}
+									case "Eb":
+										if (note[0] == "A") {
+											note = note[0] + "b" + note.slice(1);
+										}
+									case "Bb":
+										if (note[0] == "E") {
+											note = note[0] + "b" + note.slice(1);
+										}
+									case "F":
+										if (note[0] == "B") {
+											note = note[0] + "b" + note.slice(1);
+										}
+									case "C":
+										if (note.search(/#|N|b/) == -1) {
+											note = note[0] + "N" + note.slice(1);
+										}
+										break;
+									case "E":
+										if (note[0] == "D") {
+											note = note[0] + "#" + note.slice(1);
+										}
+									case "A":
+										if (note[0] == "G") {
+											note = note[0] + "#" + note.slice(1);
+										}
+									case "D":
+										if (note[0] == "C") {
+											note = note[0] + "#" + note.slice(1);
+										}
+									case "G":
+										if (note[0] == "F") {
+											note = note[0] + "#" + note.slice(1);
+										} else if (note.search(/#|N|b/) == -1) {
+											note = note[0] + "N" + note.slice(1);
+										}
+										break;
+									default:
+										console.warn(defaults.key + " is not a valid musical key");
+										note = note[0] + "N" + note.slice(1);
+								}
+							}
+							if (note.search(/\d/) == -1) {
+								note = note.slice(0, 2) + "4" + note.slice(2);
+							}
+							return { formatted: note, original: original };
 						}
-					}
-				} else {  // called when the song is finished
-					sound.playing = false;
-					window.dispatchEvent(new Event(sound.identifier+"StoppedPlaying"));
-					if (callback) {
-						callback();
+					} else {
+						console.error("The provided index exceeded the length of the string.");
+						return undefined;
 					}
 				}
-			}
-			sound.playing = true;
-			interpret();
+				function noteToFrequency(note) {
+					switch (note) {
+						case "CN3":
+						case "B#2":
+							return 130.81;
+						case "C#3":
+						case "Db3":
+							return 138.59;
+						case "DN3":
+							return 146.83;
+						case "Eb3":
+						case "D#3":
+							return 155.56;
+						case "EN3":
+						case "Fb3":
+							return 164.81;
+						case "FN3":
+						case "E#3":
+							return 174.61;
+						case "F#3":
+						case "Gb3":
+							return 185.00;
+						case "GN3":
+							return 196.00;
+						case "Ab3":
+						case "G#3":
+							return 207.65;
+						case "AN3":
+							return 220.00;
+						case "Bb3":
+						case "A#3":
+							return 233.08;
+						case "BN3":
+						case "Cb4":
+							return 246.94;
+						case "CN4":
+						case "B#3":
+							return 261.63;  // This is just about as low as you can expect people to hear.
+						case "C#4":
+						case "Db4":
+							return 277.18;
+						case "DN4":
+							return 293.66;
+						case "Eb4":
+						case "D#4":
+							return 311.13;
+						case "EN4":
+						case "Fb4":
+							return 329.63;
+						case "FN4":
+						case "E#4":
+							return 349.23;
+						case "F#4":
+						case "Gb4":
+							return 369.99;
+						case "GN4":
+							return 392.00;
+						case "Ab4":
+						case "G#4":
+							return 415.30;
+						case "AN4":
+							return 440.00;
+						case "Bb4":
+						case "A#4":
+							return 466.16;
+						case "BN4":
+						case "Cb5":
+							return 493.88;
+						case "CN5":
+						case "B#4":
+							return 523.25;
+						case "C#5":
+						case "Db5":
+							return 554.37;
+						case "DN5":
+							return 587.33;
+						case "Eb5":
+						case "D#5":
+							return 622.25;
+						case "EN5":
+						case "Fb5":
+							return 659.25;
+						case "FN5":
+						case "E#5":
+							return 698.46;
+						case "F#5":
+						case "Gb5":
+							return 739.99;
+						case "GN5":
+							return 783.99;
+						case "Ab5":
+						case "G#5":
+							return 830.61;
+						case "AN5":
+							return 880.00;
+						case "Bb5":
+						case "A#5":
+							return 932.33;
+						case "BN5":
+						case "Cb6":
+							return 987.77;
+						case "CN6":
+						case "B#5":
+							return 1046.50;
+						case "C#6":
+						case "Db6":
+							return 1108.73;
+						case "DN6":
+							return 1174.66;
+						case "Eb6":
+						case "D#6":
+							return 1244.51;
+						case "EN6":
+						case "Fb6":
+							return 1318.51;
+						case "FN6":
+						case "E#6":
+							return 1396.91;
+						case "F#6":
+						case "Gb6":
+							return 1479.98;
+						case "GN6":
+							return 1567.98;
+						case "Ab6":
+						case "G#6":
+							return 1661.22;
+						case "AN6":
+							return 1760.00;
+						case "Bb6":
+						case "A#6":
+							return 1864.66;
+						case "BN6":
+						case "Cb7":
+							return 1975.53;
+						case "CN7":
+						case "B#6":
+							return 2093.00;
+						default:
+							console.warn("The note " + note + " wasn't recognized and couldn't be assigned a frequency.");
+					}
+				}
+				function interpret(index) {
+					index = index === undefined ? 0 : index;
+					if (index < noteString.length) {
+						note = format(index);
+						if (note == undefined) {
+							// This should never happen.
+						} else if (note == null) {
+							interpret(index + 1);
+						} else {
+							sound.change("frequency", noteToFrequency(note.formatted), 0, false);
+							sound.start(defaults.attack, defaults.volume, false);
+							if (noteString[index + note.original.length]) {  // if there's anything after this note
+								let originalLength = note.original.length,
+									afterNote = "",
+									duration = defaults.noteLength,
+									slur = 0,
+									rest = defaults.spacing;
+								if (noteString[index + originalLength] == "-" || noteString[index + originalLength] == " " || noteString[index + originalLength] == "s") {
+									afterNote = noteString.slice(index + originalLength).match(/-*(?:s*| *)?/)[0];
+									if (afterNote.search(/-/) > -1) {  // if there's any hyphens following the note
+										duration *= afterNote.match(/-/g).length + 1;
+									}
+									if (afterNote.search(/s/) > -1) {  // if there's any "s"s following the note
+										slur = afterNote.match(/s/g).length * (defaults.attack + defaults.noteLength + defaults.decay);
+									}
+									if (afterNote.search(/ /) > -1) {  // if there's any spaces following the note
+										rest += defaults.attack + defaults.noteLength + defaults.decay;
+										rest *= afterNote.match(/ /g).length;
+									}
+								}
+								setTimeout(function () {
+									if (slur == 0) {
+										sound.stop(defaults.decay, false);
+										setTimeout(function () {
+											interpret(index + originalLength + afterNote.length);
+										}, defaults.decay + rest);
+									} else {
+										sound.change("frequency", noteToFrequency(format(index + originalLength + afterNote.length).formatted), defaults.decay + slur, false);
+										setTimeout(function () {
+											interpret(index + originalLength + afterNote.length);
+										}, defaults.decay + slur);
+									}
+								}, defaults.attack + duration);
+							} else {
+								setTimeout(function () {
+									sound.stop(defaults.decay, false);
+									setTimeout(function () {  // makes sure the finishing block of code is called
+										interpret(index + note.original.length);
+									}, defaults.decay);
+								}, defaults.attack + defaults.noteLength);
+							}
+						}
+					} else {  // called when the song is finished
+						sound.playing = false;
+						window.dispatchEvent(new Event(sound.identifier + "StoppedPlaying"));
+						if (callback) {
+							callback();
+						}
+						resolve();
+					}
+				}
+				sound.playing = true;
+				interpret();
+			});
 		} else {  // when you inevitably use Sound.play() instead of Sound.start() like you should have
 			sound.start();
 			console.warn("Sound.play() was called without any parameters.\nSound.start() was used instead.");
@@ -725,7 +750,7 @@ Standards.general.Speaker = function (specs) {
 		speaker.voices = window.speechSynthesis.getVoices();
 	});
 
-	Object.defineProperty(speaker, "voiceNumber", {
+	Object.defineProperty(speaker, "voiceNumber", {  ////
 		get: function () {
 			return speaker.internalValues.voiceNumber;
 		},
@@ -735,11 +760,17 @@ Standards.general.Speaker = function (specs) {
 	});
 
 	this.speak = function (content) {
-		let speech = new SpeechSynthesisUtterance(content);
-		if (speaker.voices) {
-			speech.voice = speaker.voices[speaker.voiceNumber];
-		}
-		talker.speak(speech);
+		return new Promise(function (resolve) {
+			let speech = new SpeechSynthesisUtterance(content);
+			if (speaker.voices) {
+				speech.voice = speaker.voices[speaker.voiceNumber];
+			}
+			speech.addEventListener("end", function () {
+				speech.removeEventListener("end", arguments.callee);
+				resolve();
+			});
+			talker.speak(speech);
+		});
 	};
 };
 
@@ -787,7 +818,19 @@ Standards.general.Listenable = function () {
 		},
 		addEventListener: function (type, doStuff, listenOnce) {
 			callbacks.push([type, doStuff, listenOnce]);
-			//// add the ability to listen for adding listeners
+			setTimeout(function () {
+				let index = 0;
+				while (index < callbacks.length) {
+					if (callbacks[index][0] == "listen") {
+						callbacks[index][1]();
+					}
+					if (callbacks[index] !== undefined && callbacks[index][2]) {  // The first test is needed in case a callback removes a listener.
+						callbacks.splice(index, 1);
+					} else {
+						index++;
+					}
+				}
+			}, 0);
 		},
 		removeEventListener: function (type, doStuff) {
 			let index = 0;
@@ -798,7 +841,19 @@ Standards.general.Listenable = function () {
 					index++;
 				}
 			}
-			//// add the ability to listen for removing listeners
+			setTimeout(function () {
+				let index = 0;
+				while (index < callbacks.length) {
+					if (callbacks[index][0] == "ignore") {
+						callbacks[index][1]();
+					}
+					if (callbacks[index] !== undefined && callbacks[index][2]) {  // The first test is needed in case a callback removes a listener.
+						callbacks.splice(index, 1);
+					} else {
+						index++;
+					}
+				}
+			}, 0);
 		}
 	};
 };
@@ -1293,40 +1348,23 @@ Standards.general.getType = function (item) {
 		}
 	}
 	if (item === undefined) {  // if it's undefined
+		/// undeclared variables won't make it to this function
+		/// typeof item === "undefined" checks whether a variable exists
 		return "undefined";
 	} else if (item === null) {  // if it's null
 		return "null";
-	} else if (item.constructor === Boolean) {  // if it's a boolean
-		return "Boolean";
 	} else if (item.constructor === Number && isNaN(item)) {  // if it's not a number
 		return "NaN";
-	} else if (item.constructor === Number) {  // if it is a number
-		return "Number";
-	} else if (item.constructor === String) {  // if it's a string
-		return "String";
-	} else if (Array.isArray(item) || item instanceof Array) {  // if it's an array
-		return "Array";
-	} else if (typeof item === "function") {  // if it's a function
-		return "Function";
-	} else if (item instanceof RegExp) {  // if it's a regular expression
-		return "RegExp";
 	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
 		return "HTMLElement";
-	} else if (item instanceof HTMLCollection) {  // if it's an HTMLCollection
-		return "HTMLCollection";
-	} else if (item instanceof CSSRuleList) {  // if it's a CSSRuleList
-		return "CSSRuleList";
-	} else if (item instanceof Date) {  // if it's a Date object
-		return "Date";
-	} else if (item instanceof DOMStringMap) {  // if it's a DOMStringMap
-		return "DOMStringMap";
-	} else if (item instanceof NodeList) {  // if it's a NodeList
-		return "NodeList";
-	} else if (item instanceof Object) {  // if it's a regular object
-		return "Object";
-	} else {  // if it's an enigma
-		console.error(item + " has an unknown type");
-		return undefined;
+	} else {
+		let match = item.constructor.toString().match(/^function (\w+)\(\)/);
+		if (match === null) {
+			console.error(TypeError("The item has an unknown type."));
+			return undefined;
+		} else {
+			return match[1];
+		}
 	}
 };
 
@@ -2484,7 +2522,8 @@ Standards.general.safeWhile = function (condition, doStuff, loops) {
 	recursionDepth = how many times the loop is allowed to run (defaults to 1000)
 	non-native functions = none
 	*/
-	loops = loops>=0 ? loops : 1000;  // if I used loops = loops || 1000 it would reset to 1000 when loops = 0
+	loops = loops >= 0 ? loops : 1000;  // if I used loops = loops || 1000 it would reset to 1000 when loops = 0
+	/*
 	if (eval.call(doStuff, condition) && loops > 0) {
 		doStuff();
 		loops--;
@@ -2492,6 +2531,13 @@ Standards.general.safeWhile = function (condition, doStuff, loops) {
 	} else if (loops <= 0) {
 		throw "Recursion depth exceeded."
 	}
+	*/
+	return new Promise(function (resolve, reject) {
+		while (eval.call(doStuff, condition) && loops-- > 0) {
+			doStuff();
+		}
+		reject(Error("Recursion depth exceeded"));
+	});
 };
 
 Standards.general.toHTML = function (HTML) {
@@ -2531,9 +2577,9 @@ Standards.general.makeDialog = function (message) {
 	Arguments after the message are two-item arrays which form buttons.
 		first item = text of the button
 		second item = the function to run if that button is pressed
-		the two-item arrays can be replaced with a single object
-			key = text of the button
-			value = the function called when the button is pressed
+	The two-item arrays can be replaced with a single dictionary object.
+		key = text of the button
+		value = the function called when the button is pressed
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
 	HTML buttons in the message can be used as the dialog buttons if they have the class "replace".
@@ -2554,112 +2600,114 @@ Standards.general.makeDialog = function (message) {
 		);
 	non-native functions = getType, forEach, and toHTML
 	*/
-	let pairs = Array.prototype.slice.call(arguments, 1),
-		identifier = Standards.general.identifier++;
-	if (Standards.general.getType(pairs[0]) == "Object") {
-		let list = [];
-		Standards.general.forEach(pairs[0], function (value, key) {
-			if (Standards.general.getType(value) == "Function") {
-				list.push([key, value]);
-			} else if (!value) {
-				list.push([key, function () {return;}]);
-			} else {
-				console.error('Behavior for the button "' + key + '" couldn\'t be recognized.');
+	return new Promise(function (resolve) {
+		let pairs = Array.prototype.slice.call(arguments, 1),
+			identifier = Standards.general.identifier++;
+		if (Standards.general.getType(pairs[0]) == "Object") {
+			let list = [];
+			Standards.general.forEach(pairs[0], function (value, key) {
+				if (Standards.general.getType(value) == "Function") {
+					list.push([key, value]);
+				} else if (!value) {
+					list.push([key, function () { return; }]);
+				} else {
+					console.error('Behavior for the button "' + key + '" couldn\'t be recognized.');
+				}
+			});
+			pairs = list;
+			if (Standards.general.getType(pairs[0]) == "Object") {  // if the object was empty
+				pairs = [];
 			}
-		});
-		pairs = list;
-		if (Standards.general.getType(pairs[0]) == "Object") {  // if the object was empty
+		}
+		if (pairs.length < 1) {
+			pairs = [["Okay", function () { return; }]];
+		} else if (pairs.length == 1 && !pairs[0]) {  // if there's only one falsy extra argument (if a button isn't desired)
 			pairs = [];
 		}
-	}
-	if (pairs.length < 1) {
-		pairs = [["Okay", function () {return;}]];
-	} else if (pairs.length == 1 && !pairs[0]) {  // if there's only one falsy extra argument (if a button isn't desired)
-		pairs = [];
-	}
-	pairs.forEach(function (pair, index) {
-		if (Standards.general.getType(pair) == "String") {
-			pairs.splice(index, 1, [pair, function () {return;}]);
-		} else if (Standards.general.getType(pair) != "Array") {
-			throw "The item at position " + (index+1) + " isn't a two-item array.";
-		} else if (pair.length != 2) {
-			throw "The item at position " + (index+1) + " needs to have exactly two items.";
-		}
-	});
-	let container = document.createElement("div");
-	container.className = "dialog-container";
-	let darkener = document.createElement("div"),
-		dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
-		contents,
-		buttons = document.createElement("div");
-	if (Standards.general.getType(message) == "String") {
-		contents = Standards.general.toHTML(message);
-	} else if (Standards.general.getType(message) == "HTMLElement") {
-		contents = message;
-	} else {
-		throw "The message is of an incorrect type.";
-	}
-	let placedButtonsNumber = contents.getElementsByClassName("replace").length - 1;
-	darkener.className = "darkener";
-	darkener.style.pointerEvents = "auto";
-	dialog.className = "dialog";
-	buttons.className = "buttons";
-	pairs.forEach(function (pair, index) {
-		if (Standards.general.getType(pair[0]) != "String") {
-			throw "The pair at position " + (index+1) + " doesn't have a string as the first value.";
-		} else if (Standards.general.getType(pair[1]) != "Function") {
-			throw "The pair at position " + (index+1) + " doesn't have a function as the second value.";
-		}
-		if (placedButtonsNumber >= index) {
-			let button = contents.getElementsByClassName("replace")[index];
-			button.innerHTML = pair[0];
-			button.addEventListener("click", function () {
-				pair[1](pair[0]);
-				container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
-				this.removeEventListener("click", arguments.callee);
-			});
+		pairs.forEach(function (pair, index) {
+			if (Standards.general.getType(pair) == "String") {
+				pairs.splice(index, 1, [pair, function () { return; }]);
+			} else if (Standards.general.getType(pair) != "Array") {
+				throw "The item at position " + (index + 1) + " isn't a two-item array.";
+			} else if (pair.length != 2) {
+				throw "The item at position " + (index + 1) + " needs to have exactly two items.";
+			}
+		});
+		let container = document.createElement("div");
+		container.className = "dialog-container";
+		let darkener = document.createElement("div"),
+			dialog = document.createElement("div"),  // This could be changed to make a <dialog> element (without a class) if there were more support for it.
+			contents,
+			buttons = document.createElement("div");
+		if (Standards.general.getType(message) == "String") {
+			contents = Standards.general.toHTML(message);
+		} else if (Standards.general.getType(message) == "HTMLElement") {
+			contents = message;
 		} else {
-			let button = document.createElement("button");
-			button.innerHTML = pair[0];
-			buttons.appendChild(button);
-			button.addEventListener("click", function () {
-				pair[1](pair[0]);
-				container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
-				this.removeEventListener("click", arguments.callee);
-			});
+			throw "The message is of an incorrect type.";
 		}
+		let placedButtonsNumber = contents.getElementsByClassName("replace").length - 1;
+		darkener.className = "darkener";
+		darkener.style.pointerEvents = "auto";
+		dialog.className = "dialog";
+		buttons.className = "buttons";
+		pairs.forEach(function (pair, index) {
+			if (Standards.general.getType(pair[0]) != "String") {
+				throw "The pair at position " + (index + 1) + " doesn't have a string as the first value.";
+			} else if (Standards.general.getType(pair[1]) != "Function") {
+				throw "The pair at position " + (index + 1) + " doesn't have a function as the second value.";
+			}
+			if (placedButtonsNumber >= index) {
+				let button = contents.getElementsByClassName("replace")[index];
+				button.innerHTML = pair[0];
+				button.addEventListener("click", function () {
+					pair[1](pair[0]);
+					container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+					this.removeEventListener("click", arguments.callee);
+				});
+			} else {
+				let button = document.createElement("button");
+				button.innerHTML = pair[0];
+				buttons.appendChild(button);
+				button.addEventListener("click", function () {
+					pair[1](pair[0]);
+					container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+					this.removeEventListener("click", arguments.callee);
+				});
+			}
+		});
+		dialog.appendChild(contents);
+		if (buttons.innerHTML) {
+			dialog.appendChild(buttons);
+		}
+		let x = document.createElement("div");
+		x.className = "x";
+		x.textContent = "X";
+		x.addEventListener("click", function () {
+			container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+			this.removeEventListener("click", arguments.callee);
+		});
+		container.appendChild(x);
+		container.appendChild(dialog);
+		darkener.appendChild(container);
+		document.body.appendChild(darkener);
+		container.addEventListener("dialog" + identifier + "Answered", function () {
+			darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
+			this.style.MsTransform = "scale(.001, .001)";
+			this.style.WebkitTransform = "scale(.001, .001)";
+			this.style.transform = "scale(.001, .001)";
+			setTimeout(function () {  // waits until the dialog box is finished transitioning before removing it
+				document.body.removeChild(darkener);
+				resolve();
+			}, 500);
+		});
+		setTimeout(function () {  // This breaks out of the execution block and allows transitioning to the states.
+			darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
+			container.style.MsTransform = "scale(1, 1)";
+			container.style.WebkitTransform = "scale(1, 1)";
+			container.style.transform = "scale(1, 1)";
+		}, 0);
 	});
-	dialog.appendChild(contents);
-	if (buttons.innerHTML) {
-		dialog.appendChild(buttons);
-	}
-	let x = document.createElement("div");
-	x.className = "x";
-	x.textContent = "X";
-	x.addEventListener("click", function () {
-		container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
-		this.removeEventListener("click", arguments.callee);
-	});
-	container.appendChild(x);
-	container.appendChild(dialog);
-	darkener.appendChild(container);
-	document.body.appendChild(darkener);
-	container.addEventListener("dialog" + identifier + "Answered", function () {
-		darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
-		this.style.MsTransform = "scale(.001, .001)";
-		this.style.WebkitTransform = "scale(.001, .001)";
-		this.style.transform = "scale(.001, .001)";
-		setTimeout(function () {  // waits until the dialog box is finished transitioning before removing it
-			document.body.removeChild(darkener);
-		}, 500);
-	});
-	setTimeout(function () {  // This breaks out of the execution block and allows transitioning to the states.
-		darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
-		container.style.MsTransform = "scale(1, 1)";
-		container.style.WebkitTransform = "scale(1, 1)";
-		container.style.transform = "scale(1, 1)";
-	}, 0);
-	return dialog;
 };
 
 Standards.general.getFile = function (url, callback, convert) {  ////
@@ -2677,113 +2725,121 @@ Standards.general.getFile = function (url, callback, convert) {  ////
 			URLs ending in ".json": converted into a JSON object
 			URLs ending in ".txt": What are you trying to accomplish with this?
 			other URLs: ignored
-			default: false
+			default: true
 	non-native functions = getType, toHTML, and makeDialog
 	*/
-	if (!url) {
-		console.error("No resource was provided to get the file.");
-	} else if (Standards.general.getType(url) != "String") {
-		console.error("The provided URL wasn't a string.");
-	} else if (!callback) {
-		console.error("No callback was provided.");
-	} else if (new URL(url, window.location.href).protocol == "file:") {
-		let input = document.createElement("input");
-		input.type = "file";
-		let changed = false;
-		input.addEventListener("change", function () {
-			if (this.files.length > 0) {
-				let reader = new FileReader();
-				if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return url.slice(url.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
-					reader.addEventListener("loadend", function () {
-						if (reader.error != null) {
-							console.error(reader.error);
-						}
-						callback(reader.result);
-					});
-					reader.readAsDataURL(this.files[0]);
+	return new Promise(function (resolve) {
+		if (convert === undefined) {
+			convert = true;
+		}
+		if (!url) {
+			console.error("No resource was provided to get the file.");
+		} else if (Standards.general.getType(url) != "String") {
+			console.error("The provided URL wasn't a string.");
+		} else if (!callback) {
+			console.error("No callback was provided.");
+		} else if (new URL(url, window.location.href).protocol == "file:") {
+			let input = document.createElement("input");
+			input.type = "file";
+			let changed = false;
+			input.addEventListener("change", function () {
+				if (this.files.length > 0) {
+					let reader = new FileReader();
+					if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return url.slice(url.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
+						reader.addEventListener("loadend", function () {
+							if (reader.error != null) {
+								console.error(reader.error);
+							}
+							callback(reader.result);
+							resolve();
+						});
+						reader.readAsDataURL(this.files[0]);
+					} else {
+						reader.addEventListener("loadend", function () {
+							if (reader.error != null) {
+								console.error(reader.error);
+							}
+							if (convert) {
+								switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
+									case "html":
+										callback(Standards.general.toHTML(reader.result));
+										break;
+									case "json":
+										callback(JSON.parse(reader.result));
+										break;
+									case "txt":
+										console.info("What do you think I'm supposed to convert a .txt file into?");
+										callback(reader.result);
+										break;
+									default:
+										console.warn("The file doesn't have a convertible file extension.");
+										callback(reader.result);
+								}
+							} else {
+								callback(reader.result);
+							}
+							resolve();
+						});
+						reader.readAsText(this.files[0]);
+					}
 				} else {
-					reader.addEventListener("loadend", function () {
-						if (reader.error != null) {
-							console.error(reader.error);
+					console.warn("No files were availible.");
+				}
+				changed = true;
+			});
+			Standards.general.makeDialog(url + " needs to be found on your computer.", ["Choose File", function () {
+				input.click();
+				function waitForDumbStuff() {  // This is necessary since selecting a file doesn't register sometimes.
+					setTimeout(function () {
+						if (!changed) {
+							Standards.general.makeDialog(
+								"It has been 20 seconds without recieving " + url + ". Do you want to reset the wait time, try loading the file again, or cancel?",
+								["Wait", waitForDumbStuff],
+								["Retry", function () {
+									Standards.general.getFile(url, callback, convert);
+								}],
+								"Cancel"
+							);
 						}
+					}, 20000);
+				}
+				waitForDumbStuff();
+			}]);
+		} else {
+			var file = new XMLHttpRequest();
+			file.open("GET", url);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
+			file.onreadystatechange = function () {
+				if (file.readyState === 4) {  // Is it done?
+					if (file.status === 200 || file.status === 0) {  // Was it successful?
+						// file.responseXML might have something
 						if (convert) {
 							switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
 								case "html":
-									callback(Standards.general.toHTML(reader.result));
+									callback(Standards.general.toHTML(file.responseText));
 									break;
 								case "json":
-									callback(JSON.parse(reader.result));
+									callback(JSON.parse(file.responseText));
 									break;
 								case "txt":
 									console.info("What do you think I'm supposed to convert a .txt file into?");
-									callback(reader.result);
+									callback(file.responseText);
 									break;
 								default:
 									console.warn("The file doesn't have a convertible file extension.");
-									callback(reader.result);
+									callback(file.responseText);
 							}
 						} else {
-							callback(reader.result);
+							callback(file.responseText);
 						}
-					});
-					reader.readAsText(this.files[0]);
-				}
-			} else {
-				console.warn("No files were availible.");
-			}
-			changed = true;
-		});
-		Standards.general.makeDialog(url + " needs to be found on your computer.", ["Choose File", function () {
-			input.click();
-			function waitForDumbStuff() {  // This is necessary since selecting a file doesn't register sometimes.
-				setTimeout(function () {
-					if (!changed) {
-						Standards.general.makeDialog(
-							"It has been 20 seconds without recieving " + url + ". Do you want to reset the wait time, try loading the file again, or cancel?",
-							["Wait", waitForDumbStuff],
-							["Retry", function () {
-								Standards.general.getFile(url, callback, convert);
-							}],
-							"Cancel"
-						);
-					}
-				}, 20000);
-			}
-			waitForDumbStuff();
-		}]);
-	} else {
-		var file = new XMLHttpRequest();
-		file.open("GET", url);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
-		file.onreadystatechange = function () {
-			if (file.readyState === 4) {  // Is it done?
-				if (file.status === 200 || file.status === 0) {  // Was it successful?
-					// file.responseXML might have something
-					if (convert) {
-						switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
-							case "html":
-								callback(Standards.general.toHTML(file.responseText));
-								break;
-							case "json":
-								callback(JSON.parse(file.responseText));
-								break;
-							case "txt":
-								console.info("What do you think I'm supposed to convert a .txt file into?");
-								callback(file.responseText);
-								break;
-							default:
-								console.warn("The file doesn't have a convertible file extension.");
-								callback(file.responseText);
-						}
+						resolve();
 					} else {
-						callback(file.responseText);
+						console.error("The file couldn't be retieved.");
 					}
-				} else {
-					console.error("The file couldn't be retieved.");
 				}
 			}
+			file.send();
 		}
-		file.send();
-	}
+	});
 };
 
 Standards.general.http_build_query = function (options) {
@@ -2886,88 +2942,106 @@ Standards.general.parse_str = function (encodedString) {
 Standards.general.storage = {};
 
 Standards.general.storage.session = {
-	defaultLocation: null,
-	store: function (key, item, location) {
+	defaultLocation: "/",
+	store: function (location, information) {
 		/**
 		stores information in session storage
 		any primitive data type can be stored
 		string type tags are used behind the scenes to keep track of data types
 		items stored with this function will always be recalled correctly with the recall() function
-		non-native functions = getType
+		non-native functions = getType, forEach
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
-			/// Alerting rather than just thowing an error notifies average users when things aren't working.
+			throw "Client storage isn't supported.";
 		} else {
-			key = String(key);
-			if (location === undefined) {
+			if (location === undefined && Standards.general.storage.session.defaultLocation != "") {
 				location = Standards.general.storage.session.defaultLocation;
 			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
+					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (location === "") {
-					location = null;
+				} else if (Standards.general.storage.session.defaultLocation == "") {
+					throw "No default location is present.";
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.session.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.session.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.session.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.session.defaultLocation == "/") {
+					// do nothing
 				} else {
 					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
-						location = location.slice(3);
+						location = location.slice(3);  // takes slashes into account
 					}
-					if (location === "") {
-						location = prelocation.join("/");
+					location = prelocation.join("/") + "/" + location;
+				}
+			} else {
+				throw TypeError("The location given wasn't a String.");
+			}
+			function convert(item) {
+				if (Standards.general.getType(item) === undefined) {
+					item = "~~" + String(item);
+				} else {
+					switch (Standards.general.getType(item)) {
+						case "Array":
+							item = "~Array~" + JSON.stringify(item);
+							break;
+						case "Object":
+							item = "~Object~" + JSON.stringify(item);
+							break;
+						case "HTMLElement":
+							let container = document.createElement("div");
+							container.appendChild(item.cloneNode(true));
+							item = "~HTMLElement~" + container.innerHTML;
+							break;
+						case "Function":
+							item = "~Function~";
+							let stringified = String(item);
+							if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
+								item += stringified.slice(stringified.indexOf("{") + 1, stringified.lastIndexOf("}"));
+							} else {
+								item += stringified;
+							}
+						default:
+							item = "~" + Standards.general.getType(item) + "~" + String(item);
+					}
+				}
+				return item;
+			}
+			if (location.slice(-1) == "/") {
+				if (Standards.general.getType(information) == "Object") {
+					if (location == "/") {
+						Standards.general.forEach(information, function (value, key) {
+							sessionStorage.setItem(key, convert(value));
+						});
 					} else {
-						location = prelocation.join("/") + "/" + location;
+						Standards.general.forEach(information, function (value, key) {
+							sessionStorage.setItem(location + key, convert(value));
+						});
+					}
+				} else {
+					console.warn("The folder was converted into a key since the information wasn't an Object.");
+					if (location != "/") {
+						sessionStorage.setItem(location.slice(0, -1), convert(information));
+					} else {
+						throw "No storage key was provided.";
 					}
 				}
-			} else if (location === null) {
-				// do nothing
+			} else if (location != "/") {
+				sessionStorage.setItem(location, convert(information));
 			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
-			}
-			if (Standards.general.getType(item) === undefined) {
-				item = "~~" + String(item);
-			} else {
-				switch (Standards.general.getType(item)) {
-					case "Array":
-						item = "~Array~" + JSON.stringify(item);
-						break;
-					case "Object":
-						item = "~Object~" + JSON.stringify(item);
-						break;
-					case "HTMLElement":
-						let container = document.createElement("div");
-						container.appendChild(item.cloneNode(true));
-						item = "~HTMLElement~" + container.innerHTML;
-						break;
-					case "Function":
-						item = "~Function~";
-						let stringified = String(item);
-						if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
-							item += stringified.slice(stringified.indexOf("{")+1, stringified.lastIndexOf("}"));
-						} else {
-							item += stringified;
-						}
-					default:
-						item = "~" + Standards.general.getType(item) + "~" + String(item);
-				}
-			}
-			if (location == null) {
-				sessionStorage.setItem(key, item);
-			} else if (location.constructor == String) {
-				sessionStorage.setItem(location + "/" + key, item);
-			} else {
-				console.error("Invalid storage location type");  // This tells programmers where things went wrong.
-				alert("An invalid storage location has been set.");  // This tells average users that their information isn't being saved.
+				throw "No storage key was provided.";
 			}
 		}
 	},
-	recall: function (key, location) {
+	recall: function (location) {
 		/**
 		recalls information from session storage
 		information is returned in its original form
@@ -2976,596 +3050,612 @@ Standards.general.storage.session = {
 		if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
 			items without "~[type]~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
-		non-native functions = getType
+		non-native functions = getType, forEach
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
 		} else {
-			key = String(key);
-			if (location === undefined) {
+			if (location === undefined && Standards.general.storage.session.defaultLocation != "") {
 				location = Standards.general.storage.session.defaultLocation;
 			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
+						throw ReferenceError("Root-level data retrieval isn't possible.");
 					} else {
 						location = location.slice(1);
 					}
-				} else if (location === "") {
-					location = null;
+				} else if (Standards.general.storage.session.defaultLocation == "") {
+					throw ReferenceError("No default location is present.");
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.session.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.session.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.session.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.session.defaultLocation == "/") {
+					// do nothing
 				} else {
 					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
-						location = location.slice(3);
+						location = location.slice(3);  // takes slashes into account
 					}
-					if (location === "") {
-						location = prelocation.join("/");
-					} else {
-						location = prelocation.join("/") + "/" + location;
-					}
-				}
-			} else if (location === null) {
-				// do nothing
-			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
-			}
-			var information = ""
-			if (location == null) {
-				information = sessionStorage.getItem(key);
-			} else if (location.constructor == String) {
-				information = sessionStorage.getItem(location + "/" + key);
-			} else {
-				console.error("Invalid storage location type");
-				alert("The information requested can't be retrieved.");
-			}
-			if (information === null) {
-				console.error("The information couldn't be found.");
-				return null;
-			} else if (Standards.general.getType(information) != "String") {
-				console.error("An error occurred while retrieving the information.");
-				return information;
-			}
-			if (information.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
-				information = information.slice(1);
-				switch (information.split("~")[0]) {
-					case "undefined":
-					case "":
-						return undefined;
-					case "null":
-						return null;
-					case "NaN":
-						return NaN;
-					case "Array":
-					case "Object":
-						return JSON.parse(information.slice(information.indexOf("~")+1));
-					case "HTMLElement":
-						let container = document.createElement("div");
-						container.innerHTML = information.slice(information.indexOf("~")+1);
-						return container.children[0];
-					default:
-						try {
-							return window[information.split("~")[0]](information.slice(information.indexOf("~")+1));
-						} catch {
-							console.error("There was a problem converting the data type.");
-							return information.slice(information.indexOf("~")+1);
-						}
+					location = prelocation.join("/") + "/" + location;
 				}
 			} else {
-				console.warn("The information didn't have a data type associated with it.");
-				return information;
-			}
-		}
-	},
-	forget: function (key, location) {
-		/**
-		deletes information in session storage
-		non-native functions = none
-		*/
-		if (typeof Storage == "undefined") {
-			alert("Your browser doesn't support the Storage object.");
-		} else {
-			key = String(key);
-			if (location === undefined) {
-				location = Standards.general.storage.session.defaultLocation;
-			} else if (Standards.general.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
-						location = location.slice(1);
-					}
-				} else if (location === "") {
-					location = null;
-				} else {
-					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);
-					}
-					if (location === "") {
-						location = prelocation.join("/");
-					} else {
-						location = prelocation.join("/") + "/" + location;
-					}
-				}
-			} else if (location === null) {
-				// do nothing
-			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
-			}
-			if (location == null) {
-				sessionStorage.removeItem(key);
-			} else if (location.constructor == String) {
-				sessionStorage.removeItem(location + "/" + key);
-			} else {
-				console.error("Invalid storage location type");
-				alert("The information couldn't be deleted.");
-			}
-		}
-	},
-	move: function (oldPlace, newPlace, location) {
-		/**
-		moves information in one place to another place
-		non-native functions = getType
-		*/
-		if (typeof Storage == "undefined") {
-			alert("Your browser doesn't support the Storage object.");
-		} else if (oldPlace != newPlace) {
-			if (location === undefined) {
-				location = Standards.general.storage.session.defaultLocation;
-			} else if (Standards.general.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
-						location = location.slice(1);
-					}
-				} else if (location === "") {
-					location = null;
-				} else {
-					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);
-					}
-					if (location === "") {
-						location = prelocation.join("/");
-					} else {
-						location = prelocation.join("/") + "/" + location;
-					}
-				}
-			} else if (location === null) {
-				// do nothing
-			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
+				throw TypeError("The location given wasn't a String.");
 			}
 			let information = "";
-			// retrieves the information
-			if (location == null) {
-				information = sessionStorage.getItem(oldPlace);
+			if (location.slice(-1) == "/") {
+				information = {};
+				Object.keys(sessionStorage).forEach(function (key) {
+					if (key.indexOf(location) == 0 && key.length > location.length && !key.slice(location.length).includes("/")) {
+						information[key.slice(location.length)] = sessionStorage.getItem(key);
+					}
+				});
+			} else {
+				information = sessionStorage.getItem(location);
+			}
+			function convert(info) {
+				if (info.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
+					info = info.slice(1);
+					switch (info.split("~")[0]) {
+						case "undefined":
+						case "":
+							return undefined;
+						case "null":
+							return null;
+						case "NaN":
+							return NaN;
+						case "Array":
+						case "Object":
+							return JSON.parse(info.slice(info.indexOf("~") + 1));
+						case "HTMLElement":
+							let container = document.createElement("div");
+							container.innerHTML = info.slice(info.indexOf("~") + 1);
+							return container.children[0];
+						default:
+							try {
+								return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
+							} catch {
+								console.error("There was a problem converting the data type.");
+								return info.slice(info.indexOf("~") + 1);
+							}
+					}
+				} else {
+					console.warn("The information didn't have a data type associated with it.");
+					return info;
+				}
+			}
+			if (information === null) {
+				console.warn("The information couldn't be found.");
+				return Error("The information couldn't be found.");
+			} else if (Standards.general.getType(information) == "String") {
+				return convert(information);
+			} else if (Standards.general.getType(information) == "Object") {
+				Standards.general.forEach(information, function (value, key) {
+					information[key] = convert(value);
+				});
+				return information;
+			} else {
+				console.error("An error occurred while retrieving the information.");
+				return convert(information);
+			}
+		}
+	},
+	forget: function (location) {
+		/**
+		deletes information in session storage
+		non-native functions = getType
+		*/
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
+		} else {
+			if (location === undefined && Standards.general.storage.session.defaultLocation != "") {
+				location = Standards.general.storage.session.defaultLocation;
 			} else if (Standards.general.getType(location) == "String") {
-				information = sessionStorage.getItem(location + "/" + oldPlace);
+				if (location[0] == "/") {
+					if (location != "/") {
+						location = location.slice(1);
+					}
+				} else if (Standards.general.storage.session.defaultLocation == "") {
+					throw "No default location is present.";
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.session.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.session.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.session.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.session.defaultLocation == "/") {
+					// do nothing
+				} else {
+					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);  // takes slashes into account
+					}
+					location = prelocation.join("/") + "/" + location;
+				}
 			} else {
-				console.error("Invalid storage location type");
-				alert("The operation couldn't be completed.");
-				return;
+				throw TypeError("The location given wasn't a String.");
 			}
-			// checks if the information exists
-			if (information == null) {
-				console.error("There's no information at the indicated location");
-				alert("There was no information to move.");
-				return;
-			}
-			// stores the information in the new place
-			if (location == null) {
-				sessionStorage.setItem(newPlace, information);
+			if (location == "/") {
+				sessionStorage.clear();
+			} else if (location.slice(-1) == "/") {
+				Object.keys(sessionStorage).forEach(function (key) {
+					if (key.indexOf(location) == 0) {
+						sessionStorage.removeItem(key);
+					}
+				});
+				/// only deletes sub-documents, not the parent folder (or information with a key the same as the parent folder)
 			} else {
-				sessionStorage.setItem(location + "/" + newPlace, information);
-			}
-			// deletes the information at the old place
-			if (location == null) {
-				sessionStorage.removeItem(oldPlace);
-			} else {
-				sessionStorage.removeItem(location + "/" + oldPlace);
+				sessionStorage.removeItem(location);
 			}
 		}
 	},
 	list: function (location) {
 		/**
 		lists the keys of everything in session storage
-		non-native functions = none
+		non-native functions = getType
 		*/
-		if (location === undefined) {
-			location = Standards.general.storage.session.defaultLocation;
-		} else if (Standards.general.getType(location) == "String") {
-			if (location[0] == "/") {
-				if (location == "/") {
-					alert("An invalid storage location was given");
-					throw "An absolute storage location was indicated but not provided.";
-				} else {
-					location = location.slice(1);
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
+		} else {
+			if (location === undefined && Standards.general.storage.session.defaultLocation != "") {
+				location = Standards.general.storage.session.defaultLocation;
+				if (location.slice(-1) != "/") {
+					location += "/";
 				}
-			} else if (location === "") {
-				location = null;
-			} else {
-				let prelocation = Standards.general.storage.session.defaultLocation.split("/");
-				while (location.slice(0, 2) == "..") {
-					prelocation.pop();
-					location = location.slice(3);
-				}
-				if (location === "") {
-					location = prelocation.join("/");
+				/// makes sure the list doesn't include the parent folder
+				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
+			} else if (Standards.general.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location != "/") {
+						location = location.slice(1);
+					}
+				} else if (Standards.general.storage.session.defaultLocation == "") {
+					throw "No default location is present.";
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.session.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.session.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.session.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.session.defaultLocation == "/") {
+					// do nothing
 				} else {
+					let prelocation = Standards.general.storage.session.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);  // takes slashes into account
+					}
 					location = prelocation.join("/") + "/" + location;
 				}
+			} else {
+				throw TypeError("The location given wasn't a String.");
 			}
-		} else if (location === null) {
-			// do nothing
-		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.";
-		}
-		var keyList = [];
-		for (let key in sessionStorage) {
-			if (sessionStorage.propertyIsEnumerable(key)) {
-				if (location == null) {
+			var keyList = [];
+			Object.keys(sessionStorage).forEach(function (key) {
+				if (location == "/") {
 					keyList.push(key);
-				} else if (key.indexOf(location) == 0 && key.length > location.length+1) {
-					keyList.push(key.slice(location.length+1));
+				} else {
+					if (location.slice(-1) == "/") {
+						if (key.indexOf(location) == 0 && key.length > location.length) {
+							keyList.push(key.slice(location.length));
+						}
+					} else {
+						if (key.indexOf(location) == 0) {
+							let locationArray = location.split("/");
+							if (locationArray.length > 1) {
+								keyList.push(key.slice(locationArray.slice(0, -1).join("/").length + 1));
+							} else {
+								keyList.push(key.slice(locationArray.slice(0, -1).join("/").length));
+							}
+						}
+					}
 				}
-				/// the length+1 is for the slash
+			});
+			return keyList;
+		}
+	},
+	move: function (oldPlace, newPlace) {
+		/**
+		moves information in one place to another place
+		non-native functions = getType, forEach
+		*/
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
+		} else if (oldPlace != newPlace && Standards.general.storage.session.recall(oldPlace) !== null) {
+			if (newPlace.slice(-1) != "/") {
+				newPlace += "/";
+			}
+			if (oldPlace.slice(-1) == "/") {
+				Standards.general.forEach(Standards.general.storage.session.list(oldPlace), function (key) {
+					Standards.general.storage.session.store(newPlace + key, Standards.general.storage.session.recall(oldPlace + key));
+				});
+				Standards.general.storage.session.forget(oldPlace);
+			} else {
+				Standards.general.forEach(Standards.general.storage.session.list(oldPlace), function (key) {
+					key = key.split("/").slice(1).join("/");
+					if (key == "") {
+						Standards.general.storage.session.store(newPlace.slice(0, -1), Standards.general.storage.session.recall(oldPlace));
+						Standards.general.storage.session.forget(oldPlace);
+					} else {
+						Standards.general.storage.session.store(newPlace + key, Standards.general.storage.session.recall(oldPlace + "/" + key));
+						Standards.general.storage.session.forget(oldPlace + "/" + key);
+					}
+				});
 			}
 		}
-		return keyList;
 	}
 };
 
 Standards.general.storage.local = {
-	defaultLocation: null,
-	store: function (key, item, location) {
+	defaultLocation: "/",
+	store: function (location, information) {
 		/**
 		stores information in local storage
 		any primitive data type can be stored
 		string type tags are used behind the scenes to keep track of data types
 		items stored with this function will always be recalled correctly with the recall() function
-		non-native functions = getType
+		non-native functions = getType, forEach
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
 		} else {
-			key = String(key);
-			if (location === undefined) {
+			if (location === undefined && Standards.general.storage.local.defaultLocation != "") {
 				location = Standards.general.storage.local.defaultLocation;
 			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
+					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (location === "") {
-					location = null;
+				} else if (Standards.general.storage.local.defaultLocation == "") {
+					throw "No default location is present.";
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.local.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.local.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.local.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.local.defaultLocation == "/") {
+					// do nothing
 				} else {
 					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
-						location = location.slice(3);
+						location = location.slice(3);  // takes slashes into account
 					}
-					if (location === "") {
-						location = prelocation.join("/");
+					location = prelocation.join("/") + "/" + location;
+				}
+			} else {
+				throw TypeError("The location given wasn't a String.");
+			}
+			function convert(item) {
+				if (Standards.general.getType(item) === undefined) {
+					item = "~~" + String(item);
+				} else {
+					switch (Standards.general.getType(item)) {
+						case "Array":
+							item = "~Array~" + JSON.stringify(item);
+							break;
+						case "Object":
+							item = "~Object~" + JSON.stringify(item);
+							break;
+						case "HTMLElement":
+							let container = document.createElement("div");
+							container.appendChild(item.cloneNode(true));
+							item = "~HTMLElement~" + container.innerHTML;
+							break;
+						case "Function":
+							item = "~Function~";
+							let stringified = String(item);
+							if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
+								item += stringified.slice(stringified.indexOf("{") + 1, stringified.lastIndexOf("}"));
+							} else {
+								item += stringified;
+							}
+						default:
+							item = "~" + Standards.general.getType(item) + "~" + String(item);
+					}
+				}
+				return item;
+			}
+			if (location.slice(-1) == "/") {
+				if (Standards.general.getType(information) == "Object") {
+					if (location == "/") {
+						Standards.general.forEach(information, function (value, key) {
+							localStorage.setItem(key, convert(value));
+						});
 					} else {
-						location = prelocation.join("/") + "/" + location;
+						Standards.general.forEach(information, function (value, key) {
+							localStorage.setItem(location + key, convert(value));
+						});
+					}
+				} else {
+					console.warn("The folder was converted into a key since the information wasn't an Object.");
+					if (location != "/") {
+						localStorage.setItem(location.slice(0, -1), convert(information));
+					} else {
+						throw "No storage key was provided.";
 					}
 				}
-			} else if (location === null) {
-				// do nothing
+			} else if (location != "/") {
+				localStorage.setItem(location, convert(information));
 			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
-			}
-			if (Standards.general.getType(item) === undefined) {
-				item = "~~" + String(item);
-			} else {
-				switch (Standards.general.getType(item)) {
-					case "Array":
-						item = "~Array~" + JSON.stringify(item);
-						break;
-					case "Object":
-						item = "~Object~" + JSON.stringify(item);
-						break;
-					case "HTMLElement":
-						let container = document.createElement("div");
-						container.appendChild(item.cloneNode(true));
-						item = "~HTMLElement~" + container.innerHTML;
-						break;
-					case "Function":
-						item = "~Function~";
-						let stringified = String(item);
-						if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
-							item += stringified.slice(stringified.indexOf("{")+1, stringified.lastIndexOf("}"));
-						} else {
-							item += stringified;
-						}
-					default:
-						item = "~" + Standards.general.getType(item) + "~" + String(item);
-				}
-			}
-			if (location == null) {
-				localStorage.setItem(key, item);
-			} else if (location.constructor == String) {
-				localStorage.setItem(location + "/" + key, item);
-			} else {
-				console.error("Invalid storage location type");
-				alert("An invalid storage location has been set.");
+				throw "No storage key was provided.";
 			}
 		}
 	},
-	recall: function (key, location) {
+	recall: function (location) {
 		/**
 		recalls information from local storage
 		information is returned in its original form
 			e.g. an array will be returned as an array, not a string representation
 			null is considered a number and will return NaN (the number)
-		if retrieving something that was stored directly into sessionStorage (without the store() function), there could be unexpected results
+		if retrieving something that was stored directly into localStorage (without the store() function), there could be unexpected results
 			items without "~[type]~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
-		non-native functions = getType
+		non-native functions = getType, forEach
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
 		} else {
-			key = String(key);
-			if (location === undefined) {
+			if (location === undefined && Standards.general.storage.local.defaultLocation != "") {
 				location = Standards.general.storage.local.defaultLocation;
 			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
+						throw ReferenceError("Root-level data retrieval isn't possible.");
 					} else {
 						location = location.slice(1);
 					}
-				} else if (location === "") {
-					location = null;
+				} else if (Standards.general.storage.local.defaultLocation == "") {
+					throw ReferenceError("No default location is present.");
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.local.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.local.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.local.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.local.defaultLocation == "/") {
+					// do nothing
 				} else {
 					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
-						location = location.slice(3);
+						location = location.slice(3);  // takes slashes into account
 					}
-					if (location === "") {
-						location = prelocation.join("/");
-					} else {
-						location = prelocation.join("/") + "/" + location;
-					}
+					location = prelocation.join("/") + "/" + location;
 				}
-			} else if (location === null) {
-				// do nothing
 			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
+				throw TypeError("The location given wasn't a String.");
 			}
 			let information = "";
-			if (location == null) {
-				information = localStorage.getItem(key);
-			} else if (location.constructor == String) {
-				information = localStorage.getItem(location + "/" + key);
+			if (location.slice(-1) == "/") {
+				information = {};
+				Object.keys(localStorage).forEach(function (key) {
+					if (key.indexOf(location) == 0 && key.length > location.length && !key.slice(location.length).includes("/")) {
+						information[key.slice(location.length)] = localStorage.getItem(key);
+					}
+				});
 			} else {
-				console.error("Invalid storage location type");
-				alert("The information requested can't be retrieved.");
-				return;
+				information = localStorage.getItem(location);
+			}
+			function convert(info) {
+				if (info.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
+					info = info.slice(1);
+					switch (info.split("~")[0]) {
+						case "undefined":
+						case "":
+							return undefined;
+						case "null":
+							return null;
+						case "NaN":
+							return NaN;
+						case "Array":
+						case "Object":
+							return JSON.parse(info.slice(info.indexOf("~") + 1));
+						case "HTMLElement":
+							let container = document.createElement("div");
+							container.innerHTML = info.slice(info.indexOf("~") + 1);
+							return container.children[0];
+						default:
+							try {
+								return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
+							} catch {
+								console.error("There was a problem converting the data type.");
+								return info.slice(info.indexOf("~") + 1);
+							}
+					}
+				} else {
+					console.warn("The information didn't have a data type associated with it.");
+					return info;
+				}
 			}
 			if (information === null) {
-				console.error("The information couldn't be found.");
-				return null;
-			} else if (Standards.general.getType(information) != "String") {
-				console.error("An error occurred while retrieving the information.");
+				console.warn("The information couldn't be found.");
+				return Error("The information couldn't be found.");
+			} else if (Standards.general.getType(information) == "String") {
+				return convert(information);
+			} else if (Standards.general.getType(information) == "Object") {
+				Standards.general.forEach(information, function (value, key) {
+					information[key] = convert(value);
+				});
 				return information;
-			}
-			if (information.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
-				information = information.slice(1);
-				switch (information.split("~")[0]) {
-					case "undefined":
-					case "":
-						return undefined;
-					case "null":
-						return null;
-					case "NaN":
-						return NaN;
-					case "Array":
-					case "Object":
-						return JSON.parse(information.slice(information.indexOf("~") + 1));
-					case "HTMLElement":
-						let container = document.createElement("div");
-						container.innerHTML = information.slice(information.indexOf("~") + 1);
-						return container.children[0];
-					default:
-						try {
-							return window[information.split("~")[0]](information.slice(information.indexOf("~") + 1));
-						} catch {
-							console.error("There was a problem converting the data type.");
-							return information.slice(information.indexOf("~") + 1);
-						}
-				}
 			} else {
-				console.warn("The information didn't have a data type associated with it.");
-				return information;
+				console.error("An error occurred while retrieving the information.");
+				return convert(information);
 			}
 		}
 	},
-	forget: function (key, location) {
+	forget: function (location) {
 		/**
 		deletes information in local storage
-		non-native functions = none
-		*/
-		if (typeof Storage == "undefined") {
-			alert("Your browser doesn't support the Storage object.");
-		} else {
-			key = String(key);
-			if (location === undefined) {
-				location = Standards.general.storage.local.defaultLocation;
-			} else if (Standards.general.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
-						location = location.slice(1);
-					}
-				} else if (location === "") {
-					location = null;
-				} else {
-					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);
-					}
-					if (location === "") {
-						location = prelocation.join("/");
-					} else {
-						location = prelocation.join("/") + "/" + location;
-					}
-				}
-			} else if (location === null) {
-				// do nothing
-			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
-			}
-			if (location == null) {
-				localStorage.removeItem(key);
-			} else if (location.constructor == String) {
-				localStorage.removeItem(location + "/" + key);
-			} else {
-				console.error("Invalid storage location type");
-				alert("The information couldn't be deleted.");
-			}
-		}
-	},
-	move: function (oldPlace, newPlace, location) {
-		/**
-		moves information in one place to another place
 		non-native functions = getType
 		*/
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
-		} else if (oldPlace != newPlace) {
-			if (location === undefined) {
+			throw "Client storage isn't supported.";
+		} else {
+			if (location === undefined && Standards.general.storage.local.defaultLocation != "") {
 				location = Standards.general.storage.local.defaultLocation;
 			} else if (Standards.general.getType(location) == "String") {
 				if (location[0] == "/") {
-					if (location == "/") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
+					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (location === "") {
-					location = null;
+				} else if (Standards.general.storage.local.defaultLocation == "") {
+					throw "No default location is present.";
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.local.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.local.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.local.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.local.defaultLocation == "/") {
+					// do nothing
 				} else {
 					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
-						location = location.slice(3);
+						location = location.slice(3);  // takes slashes into account
 					}
-					if (location === "") {
-						location = prelocation.join("/");
-					} else {
-						location = prelocation.join("/") + "/" + location;
-					}
+					location = prelocation.join("/") + "/" + location;
 				}
-			} else if (location === null) {
-				// do nothing
 			} else {
-				alert("An invalid storage location was given");
-				throw "The location given wasn't a string.";
+				throw TypeError("The location given wasn't a String.");
 			}
-			let information = "";
-			// retrieves the information
-			if (location == null) {
-				information = localStorage.getItem(oldPlace);
-			} else if (Standards.general.getType(location) == "String") {
-				information = localStorage.getItem(location + "/" + oldPlace);
+			if (location == "/") {
+				localStorage.clear();
+			} else if (location.slice(-1) == "/") {
+				Object.keys(localStorage).forEach(function (key) {
+					if (key.indexOf(location) == 0) {
+						localStorage.removeItem(key);
+					}
+				});
+				/// only deletes sub-documents, not the parent folder (or information with a key the same as the parent folder)
 			} else {
-				console.error("Invalid storage location type");
-				alert("The operation couldn't be completed.");
-				return;
-			}
-			// checks if the information exists
-			if (information == null) {
-				console.error("There's no information at the indicated location");
-				alert("There was no information to move.");
-				return;
-			}
-			// stores the information in the new place
-			if (location == null) {
-				localStorage.setItem(newPlace, information);
-			} else {
-				localStorage.setItem(location + "/" + newPlace, information);
-			}
-			// deletes the information at the old place
-			if (location == null) {
-				localStorage.removeItem(oldPlace);
-			} else {
-				localStorage.removeItem(location + "/" + oldPlace);
+				localStorage.removeItem(location);
 			}
 		}
 	},
 	list: function (location) {
 		/**
 		lists the keys of everything in local storage
-		non-native functions = none
+		non-native functions = getType
 		*/
-		if (location === undefined) {
-			location = Standards.general.storage.local.defaultLocation;
-		} else if (Standards.general.getType(location) == "String") {
-			if (location[0] == "/") {
-				if (location == "/") {
-					alert("An invalid storage location was given");
-					throw "An absolute storage location was indicated but not provided.";
-				} else {
-					location = location.slice(1);
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
+		} else {
+			if (location === undefined && Standards.general.storage.local.defaultLocation != "") {
+				location = Standards.general.storage.local.defaultLocation;
+				if (location.slice(-1) != "/") {
+					location += "/";
 				}
-			} else if (location === "") {
-				location = null;
-			} else {
-				let prelocation = Standards.general.storage.local.defaultLocation.split("/");
-				while (location.slice(0, 2) == "..") {
-					prelocation.pop();
-					location = location.slice(3);
-				}
-				if (location === "") {
-					location = prelocation.join("/");
+				/// makes sure the list doesn't include the parent folder
+				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
+			} else if (Standards.general.getType(location) == "String") {
+				if (location[0] == "/") {
+					if (location != "/") {
+						location = location.slice(1);
+					}
+				} else if (Standards.general.storage.local.defaultLocation == "") {
+					throw "No default location is present.";
+				} else if (location === "" || location === ".") {
+					location = Standards.general.storage.local.defaultLocation;
+				} else if (location.slice(0, 2) == "./") {
+					if (Standards.general.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.general.storage.local.defaultLocation + location.slice(2);
+					} else {
+						location = Standards.general.storage.local.defaultLocation + location.slice(1);
+					}
+				} else if (Standards.general.storage.local.defaultLocation == "/") {
+					// do nothing
 				} else {
+					let prelocation = Standards.general.storage.local.defaultLocation.split("/");
+					while (location.slice(0, 2) == "..") {
+						prelocation.pop();
+						location = location.slice(3);  // takes slashes into account
+					}
 					location = prelocation.join("/") + "/" + location;
 				}
+			} else {
+				throw TypeError("The location given wasn't a String.");
 			}
-		} else if (location === null) {
-			// do nothing
-		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.";
-		}
-		var keyList = [];
-		for (let key in localStorage) {
-			if (localStorage.propertyIsEnumerable(key)) {
-				if (location == null) {
+			var keyList = [];
+			Object.keys(localStorage).forEach(function (key) {
+				if (location == "/") {
 					keyList.push(key);
-				} else if (key.indexOf(location) == 0 && key.length > location.length+1) {
-					keyList.push(key.slice(location.length+1));
+				} else {
+					if (location.slice(-1) == "/") {
+						if (key.indexOf(location) == 0 && key.length > location.length) {
+							keyList.push(key.slice(location.length));
+						}
+					} else {
+						if (key.indexOf(location) == 0) {
+							let locationArray = location.split("/");
+							if (locationArray.length > 1) {
+								keyList.push(key.slice(locationArray.slice(0, -1).join("/").length + 1));
+							} else {
+								keyList.push(key.slice(locationArray.slice(0, -1).join("/").length));
+							}
+						}
+					}
 				}
-				/// the length+1 is for the slash
+			});
+			return keyList;
+		}
+	},
+	move: function (oldPlace, newPlace) {
+		/**
+		moves information in one place to another place
+		non-native functions = getType, forEach
+		*/
+		if (typeof Storage == "undefined") {
+			alert("Your browser doesn't support the Storage object.");
+			throw "Client storage isn't supported.";
+		} else if (oldPlace != newPlace && Standards.general.storage.local.recall(oldPlace) !== null) {
+			if (newPlace.slice(-1) != "/") {
+				newPlace += "/";
+			}
+			if (oldPlace.slice(-1) == "/") {
+				Standards.general.forEach(Standards.general.storage.local.list(oldPlace), function (key) {
+					Standards.general.storage.local.store(newPlace + key, Standards.general.storage.local.recall(oldPlace + key));
+				});
+				Standards.general.storage.local.forget(oldPlace);
+			} else {
+				Standards.general.forEach(Standards.general.storage.local.list(oldPlace), function (key) {
+					key = key.split("/").slice(1).join("/");
+					if (key == "") {
+						Standards.general.storage.local.store(newPlace.slice(0, -1), Standards.general.storage.local.recall(oldPlace));
+						Standards.general.storage.local.forget(oldPlace);
+					} else {
+						Standards.general.storage.local.store(newPlace + key, Standards.general.storage.local.recall(oldPlace + "/" + key));
+						Standards.general.storage.local.forget(oldPlace + "/" + key);
+					}
+				});
 			}
 		}
-		return keyList;
 	}
 };
 
@@ -3582,7 +3672,7 @@ Standards.general.storage.server = {
 			alert("There's no server to handle this action.");
 			throw "Firebase or Firestore doesn't exist.";
 		}
-		if (window.location.href.slice(0,4) != "http") {
+		if (window.location.href.protocol != "http:" && window.location.href.protocol != "https:") {
 			alert("Access to the server isn't allowed from this URL.");
 			throw 'The URL doesn\'t use the protocol "http" or "https".';
 		}
