@@ -2628,6 +2628,8 @@ Standards.general.makeDialog = function (message) {
 			if (Standards.general.getType(pair) == "String") {
 				pairs.splice(index, 1, [pair, function () { return; }]);
 			} else if (Standards.general.getType(pair) != "Array") {
+				console.log(pair);
+				console.log(Standards.general.getType(pair));
 				console.error("The item at position " + (index + 1) + " isn't a two-item array.");
 				reject();
 			} else if (pair.length != 2) {
@@ -2655,9 +2657,11 @@ Standards.general.makeDialog = function (message) {
 		buttons.className = "buttons";
 		pairs.forEach(function (pair, index) {
 			if (Standards.general.getType(pair[0]) != "String") {
-				throw "The pair at position " + (index + 1) + " doesn't have a string as the first value.";
+				console.error("The pair at position " + (index + 1) + " doesn't have a string as the first value.");
+				reject();
 			} else if (Standards.general.getType(pair[1]) != "Function") {
-				throw "The pair at position " + (index + 1) + " doesn't have a function as the second value.";
+				console.error("The pair at position " + (index + 1) + " doesn't have a function as the second value.");
+				reject();
 			}
 			if (placedButtonsNumber >= index) {
 				let button = contents.getElementsByClassName("replace")[index];
