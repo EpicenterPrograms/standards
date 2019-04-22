@@ -2600,7 +2600,7 @@ Standards.general.makeDialog = function (message) {
 		);
 	non-native functions = getType, forEach, and toHTML
 	*/
-	return new Promise(function (resolve) {
+	return new Promise(function (resolve, reject) {
 		let pairs = Array.prototype.slice.call(arguments, 1),
 			identifier = Standards.general.identifier++;
 		if (Standards.general.getType(pairs[0]) == "Object") {
@@ -2628,9 +2628,11 @@ Standards.general.makeDialog = function (message) {
 			if (Standards.general.getType(pair) == "String") {
 				pairs.splice(index, 1, [pair, function () { return; }]);
 			} else if (Standards.general.getType(pair) != "Array") {
-				throw "The item at position " + (index + 1) + " isn't a two-item array.";
+				console.error("The item at position " + (index + 1) + " isn't a two-item array.");
+				reject();
 			} else if (pair.length != 2) {
-				throw "The item at position " + (index + 1) + " needs to have exactly two items.";
+				console.error("The item at position " + (index + 1) + " needs to have exactly two items.");
+				reject();
 			}
 		});
 		let container = document.createElement("div");
@@ -3666,7 +3668,7 @@ Standards.general.storage.location = Standards.general.storage.local;
 Standards.general.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "",
-	user: undefined,  //// firebase.auth().currentUser,
+	user: undefined,  //// firebase.auth().currentUser
 	checkCompatibility: function (shouldNotCheckUser) {
 		if (Standards.general.storage.server.database === undefined) {
 			alert("There's no server to handle this action.");
