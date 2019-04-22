@@ -3676,9 +3676,8 @@ Standards.general.storage.server = {
 			alert("There's no server to handle this action.");
 			throw "Firebase or Firestore doesn't exist.";
 		}
-		console.log(window.location.href.protocol);
 		if (window.location.href.protocol != "http:" && window.location.href.protocol != "https:") {
-			alert("Access to the server isn't allowed from this URL.");
+			alert("Access to the server isn't allowed from this URL. (" + window.location.href.protocol + ")");
 			throw 'The URL doesn\'t use the protocol "http" or "https".';
 		}
 		if (!shouldNotCheckUser && !Standards.general.storage.server.user) {
