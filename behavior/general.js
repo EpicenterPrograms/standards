@@ -109,6 +109,7 @@ Standards.general.makeToneGenerator = function (makeDialog, affirmativeCallback,
 					console.error("Your browser doesn't support audio contexts.");
 					reject(Error("Your browser doesn't support audio contexts."));
 				}
+				window.dispatchEvent(new Event("AudioContext created"));
 				if (affirmativeCallback) {
 					affirmativeCallback();
 				}
@@ -128,6 +129,7 @@ Standards.general.makeToneGenerator = function (makeDialog, affirmativeCallback,
 				console.error("Your browser doesn't support audio contexts.");
 				reject(Error("Your browser doesn't support audio contexts."));
 			}
+			window.dispatchEvent(new Event("AudioContext created"));
 			if (affirmativeCallback) {
 				affirmativeCallback();
 			}
@@ -237,43 +239,12 @@ Standards.general.Sound = function (specs) {
 	playing (shouldn't be changed) = whether a sound is being played
 	times for all subfunctions are in milliseconds
 	*/
-	if (Standards.general.audio === undefined) {
-		console.error("No audio context exists.");
-		return {
-			identifier: 0,
-			frequency: 0,
-			volume: 0,
-			maxVolume: 0,
-			waveform: "",
-			modulation: 0,
-			hertzChange: 0,
-			changeWave: "",
-			playing: false,
-			start: function () { },
-			stop: function () { },
-			change: function () { },
-			play: function () { },
-			destroy: function () { },
-		};
-	}
-	var sound = this,
-		osc1 = Standards.general.audio.createOscillator(),
-		osc2 = Standards.general.audio.createOscillator(),
-		gain1 = Standards.general.audio.createGain(),
-		gain2 = Standards.general.audio.createGain(),
-		playQueue = [];
-	this.identifier = Standards.general.identifier++;
-	this.frequency = 440;
-	this.volume = 0;
-	this.maxVolume = 1;
-	this.waveform = "sine";
-	this.modulation = 0;
-	this.hertzChange = 0;
-	this.changeWave = "sine";
-	for (var spec in specs) {
-		this[spec] = specs[spec];
-	}
-	this.playing = false;
+	var sound = this;
+	var osc1;
+	var osc2;
+	var gain1;
+	var gain2;
+	var playQueue = [];
 
 	function setValues(time, shouldSetPlaying) {
 		time = time===undefined ? 0 : time;
@@ -318,19 +289,49 @@ Standards.general.Sound = function (specs) {
 		osc2.type = sound.changeWave;
 	}
 
-	setValues();
-	gain1.connect(Standards.general.audio.destination);
-	osc1.connect(gain1);
-	gain2.connect(osc1.frequency);
-	osc2.connect(gain2);
-	osc1.start();
-	osc2.start();
+	this.identifier = Standards.general.identifier++;
+	this.frequency = 440;
+	this.volume = 0;
+	this.maxVolume = 1;
+	this.waveform = "sine";
+	this.modulation = 0;
+	this.hertzChange = 0;
+	this.changeWave = "sine";
+	for (var spec in specs) {
+		this[spec] = specs[spec];
+	}
+	this.playing = false;
+	function initialize() {
+		if (Standards.general.audio === undefined) {
+			window.addEventListener("AudioContext created", function () {
+				initialize();
+				window.removeEventListener("AudioContext created", arguments.callee);
+			});
+		} else {
+			osc1 = Standards.general.audio.createOscillator();
+			osc2 = Standards.general.audio.createOscillator();
+			gain1 = Standards.general.audio.createGain();
+			gain2 = Standards.general.audio.createGain();
+			setValues();
+			gain1.connect(Standards.general.audio.destination);
+			osc1.connect(gain1);
+			gain2.connect(osc1.frequency);
+			osc2.connect(gain2);
+			osc1.start();
+			osc2.start();
+		}
+	}
+	initialize();
 	
 	this.start = function (time, volume, shouldSetPlaying) {
 		/**
 		starts/unmutes the tone
 		*/
-		return new Promise(function (resolve) {
+		return new Promise(function (resolve, reject) {
+			if (Standards.general.audio === undefined) {
+				console.error("No AudioContext exists.");
+				reject(Error("No AudioContext exists."));
+			}
 			shouldSetPlaying = shouldSetPlaying === undefined ? true : shouldSetPlaying;
 			if (shouldSetPlaying) {
 				sound.playing = true;
@@ -356,7 +357,11 @@ Standards.general.Sound = function (specs) {
 		/**
 		stops/mutes the tone
 		*/
-		return new Promise(function (resolve) {
+		return new Promise(function (resolve, reject) {
+			if (Standards.general.audio === undefined) {
+				console.error("No AudioContext exists.");
+				reject(Error("No AudioContext exists."));
+			}
 			time = time === undefined ? 0 : time;
 			shouldSetPlaying = shouldSetPlaying === undefined ? true : shouldSetPlaying;
 			gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time / 1000);
@@ -375,7 +380,11 @@ Standards.general.Sound = function (specs) {
 		/**
 		changes a property of the tone
 		*/
-		return new Promise(function (resolve) {
+		return new Promise(function (resolve, reject) {
+			if (Standards.general.audio === undefined) {
+				console.error("No AudioContext exists.");
+				reject(Error("No AudioContext exists."));
+			}
 			time = time === undefined ? 0 : time;
 			sound[property] = value;
 			setValues(time, shouldSetPlaying);
@@ -395,7 +404,12 @@ Standards.general.Sound = function (specs) {
 			spacing = 0
 			key = "C"
 		*/
-		if (sound.playing) {
+		if (Standards.general.audio === undefined) {
+			return new Promise(function (resolve, reject) {
+				console.error("No AudioContext exists.");
+				reject(Error("No AudioContext exists."));
+			});
+		} else if (sound.playing) {
 			playQueue.push([noteString, newDefaults, callback]);
 			if (playQueue.length == 1) {
 				window.addEventListener(sound.identifier+"StoppedPlaying", function () {
@@ -719,17 +733,24 @@ Standards.general.Sound = function (specs) {
 		}
 	};
 	this.destroy = function (time) {  // gets rid of the tone (can't be used again)
-		time = time===undefined ? 0 : time;
-		gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time/1000);
-		setTimeout(function () {
-			sound.playing = false;
-			osc1.stop();
-			osc2.stop();
-			osc2.disconnect(gain2);
-			gain2.disconnect(osc1.frequency);
-			osc1.disconnect(gain1);
-			gain1.disconnect(Standards.general.audio.destination);
-		}, time);
+		return new Promise(function (resolve, reject) {
+			if (Standards.general.audio === undefined) {
+				console.error("No AudioContext exists.");
+				reject(Error("No AudioContext exists."));
+			}
+			time = time === undefined ? 0 : time;
+			gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time / 1000);
+			setTimeout(function () {
+				sound.playing = false;
+				osc1.stop();
+				osc2.stop();
+				osc2.disconnect(gain2);
+				gain2.disconnect(osc1.frequency);
+				osc1.disconnect(gain1);
+				gain1.disconnect(Standards.general.audio.destination);
+				resolve();
+			}, time);
+		});
 	};
 };
 
