@@ -799,30 +799,80 @@ Standards.general.Speaker = function (specs) {
 	*/
 	var speaker = this;
 	var talker = window.speechSynthesis;
+	var voiceNumber = 0;
+	var speech = new SpeechSynthesisUtterance();
+
 	this.voices;
 	this.speaking = false;
+	/// These properties are initially -1 for some reason even though that's not a valid value, and it sounds like 1.
+	speech.volume = 1;
+	speech.pitch = 1;
+	speech.rate = 1;
+	if (specs.constructor === Object) {
+		for (let key in specs) {
+			switch (key) {
+				case "volume":
+					speech.volume = specs.volume;
+					break;
+				case "pitch":
+					speech.pitch = specs.pitch;
+					break;
+				case "rate":
+					speech.rate = specs.rate;
+					break;
+				case "voiceNumber":
+					voiceNumber = specs.voiceNumber;
+					break;
+			}
+		}
+	}
 
-	this.internalValues = {
-		voiceNumber: 0
-	};
-
-	window.speechSynthesis.addEventListener("voiceschanged", function () {
-		speaker.voices = window.speechSynthesis.getVoices();
+	talker.addEventListener("voiceschanged", function () {
+		speaker.voices = talker.getVoices();
+	});
+	speech.addEventListener("error", function (error) {
+		console.error("The speaker has become dumb.");
+		console.error(error);
 	});
 
 	Object.defineProperty(speaker, "voiceNumber", {  ////
 		get: function () {
-			return speaker.internalValues.voiceNumber;
+			return voiceNumber;
 		},
 		set: function (value) {
-			speaker.internalValues.voiceNumber = value;
+			//// speech.voice = speaker.voices[value];
+			voiceNumber = value;
+		}
+	});
+	Object.defineProperty(speaker, "pitch", {
+		get: function () {
+			return speech.pitch;
+		},
+		set: function (value) {  // can be 0-2    defaut = 1
+			speech.pitch = value;
+		}
+	});
+	Object.defineProperty(speaker, "rate", {
+		get: function () {
+			return speech.rate;
+		},
+		set: function (value) {  // can be 0.1-10    default = 1
+			speech.rate = value;
+		}
+	});
+	Object.defineProperty(speaker, "volume", {
+		get: function () {
+			return speech.volume;
+		},
+		set: function (value) {  // can be 0-1    default = 1
+			speech.volume = value;
 		}
 	});
 
 	this.speak = function (content) {
 		return new Promise(function (resolve) {
 			speaker.speaking = true;
-			let speech = new SpeechSynthesisUtterance(content);
+			speech.text = content;
 			if (speaker.voices) {
 				speech.voice = speaker.voices[speaker.voiceNumber];
 			}
@@ -832,6 +882,21 @@ Standards.general.Speaker = function (specs) {
 				resolve();
 			});
 			talker.speak(speech);
+		});
+	};
+
+	this.shush = function (time) {
+		time = time == undefined ? 0 : time;
+		return new Promise(function (resolve) {
+			if (time == 0) {
+				talker.cancel();
+				resolve();
+			} else {
+				setTimeout(function () {
+					talker.cancel();
+					resolve();
+				}, time);
+			}
 		});
 	};
 };
