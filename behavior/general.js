@@ -808,7 +808,7 @@ Standards.general.Speaker = function (specs) {
 	speech.volume = 1;
 	speech.pitch = 1;
 	speech.rate = 1;
-	if (specs.constructor === Object) {
+	if (specs && specs.constructor === Object) {
 		for (let key in specs) {
 			switch (key) {
 				case "volume":
