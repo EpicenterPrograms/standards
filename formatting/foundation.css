@@ -913,6 +913,16 @@ table.compact {
 	button {
 		font-size: 1.6rem;
 	}
+	input {
+		-ms-transform: scale(2);
+		-webkit-transform: scale(2);
+		transform: scale(2);
+	}
+	textarea {
+		width: 30rem;
+		height: 10rem;
+		font-size: 2rem;
+	}
 	.user-section {
 		display: block;
 		position: static;
@@ -920,11 +930,6 @@ table.compact {
 	.dialog {
 		max-width: 90%;
 		max-height: 90%;
-	}
-	textarea {
-		width: 30rem;
-		height: 10rem;
-		font-size: 2rem;
 	}
 	nav.hidden-left-nav {
 		left: -60.5vw;
