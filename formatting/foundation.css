@@ -1,9 +1,11 @@
 /* dev.opera.com has a bunch of cross-browser stuff. */
 /*
 element.style,
-stylesheet.addRule(),
-stylesheet.insertRule(),
-stylesheet.deleteRule(),
+styleSheet.addRule()?,
+styleSheet.insertRule(),
+styleSheet.deleteRule(),
+<style>.sheet,
+document.styleSheets[index].cssRules[index].cssText
 element.querySelector(),
 element.querySelectorAll(),
 window.getComputedValue().getPropertyValue(),
@@ -86,6 +88,13 @@ nav div {
 body.navigation h2, nav h2 {
 	margin-top: 0rem;
 }
+body.navigation a {
+	color: black;
+}
+body.navigation a:hover {
+	font-weight: bold;
+	text-decoration: none;
+}
 body.navigation ul, body.navigation ol, nav ul, nav ol {
 	padding-left: 1rem;
 	padding-right: 0rem;
@@ -99,6 +108,18 @@ body.navigation .nav-list-expander {
 	margin: 0rem;
 	height: 0rem;
 	font-weight: bold;
+}
+body.navigation li.expandable ul, body.navigation li.expandable ol {
+	display: block;
+	height: 0rem;
+	overflow: hidden;
+	transition: height .4s;
+}
+body.navigation li.expandable:hover ul, body.navigation li.expandable:hover ol {
+	height: auto;
+}
+body.navigation.bigger {
+	font-size: 1.25rem;
 }
 
 iframe.left-nav, nav.left-nav {
@@ -171,11 +192,11 @@ nav.hidden-left-nav {
 	creates a fixed navigation section hidden behind the left side of the screen
 	*/
 	position: fixed;
-	left: -45.5vh;  /* I use vh because I want to know that things won't be any smaller than what I see, even on mobile devices. */
+	left: -30.5vw;
 	top: 0vh;
 	z-index: 5;
 	border-right: .05em solid #aaaaaa;
-	width: 45.5vh;
+	width: 30.5vw;
 	height: 100vh;
 	padding: 0rem;
 	transition: .8s;
@@ -186,10 +207,10 @@ nav.hidden-left-nav:hover {
 	/**
 	unhides the navigation section
 	*/
-	-ms-transform: translateX(45vh);  /* Internet Explorer 9 */
-	-webkit-transform: translateX(45vh);  /* Safari */
-	transform: translateX(45vh);  /* standard syntax */
-	/* These aren't 45.5vh because, otherwise, the far left end of the screen would stop the hovering. */
+	-ms-transform: translateX(30vw);  /* Internet Explorer 9 */
+	-webkit-transform: translateX(30vw);  /* Safari */
+	transform: translateX(30vw);  /* standard syntax */
+	/* These aren't 30.5% because, otherwise, the far left end of the screen would stop the hovering. */
 }
 
 nav.hidden-left-nav::before {
@@ -228,7 +249,7 @@ nav.hidden-left-nav::after {
 	top: 46%;
 	top: calc(50% - attr(height %, 8%) / 2);  /* This will only work when attr() supports non-string values (and fallbacks) */
 	width: 8%;
-	height: 8%;
+	height: 8vh;
 	display: -moz-flex;
 	display: -webkit-flex;
 	display: flex;
@@ -503,7 +524,7 @@ textarea {
 	width: 15rem;
 	height: 5rem;
 	font-family: inherit;
-	font-size: 1em;
+	font-size: 1rem;
 }
 
 sup, sub {
@@ -748,7 +769,7 @@ over- {
 	padding: .25rem;
 	background-color: #eeeeee;
 	text-align: center;
-	font-size: 1.5rem;
+	font-size: 1.5em;
 	font-weight: bold;
 	overflow: visible;
 }
@@ -875,31 +896,50 @@ table.compact {
 	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
 
-@media screen and (max-width: 1000px) {
-	/*
+@media not (hover: hover) {
+	/**
 	styles things for mobile devices
+	(technically, whether a device can't hover)
 	*/
 	body:not(.navigation) {
-		font-size: 1.5rem;
+		font-size: 2rem;
 	}
 	main {
-		font-size: 1.5rem;
+		font-size: 2rem;
 	}
 	div {
-		font-size: 1.5rem;
-	}
-	h1 {
-		font-size: 3rem;
+		font-size: 2rem;
 	}
 	button {
-		font-size: 1.25rem;
+		font-size: 1.6rem;
 	}
 	.user-section {
 		display: block;
 		position: static;
 	}
 	.dialog {
-		max-width: 80%;
-		max-height: 80%;
+		max-width: 90%;
+		max-height: 90%;
+	}
+	textarea {
+		width: 30rem;
+		height: 10rem;
+		font-size: 2rem;
+	}
+	nav.hidden-left-nav {
+		left: -60.5vw;
+		width: 60.5vw;
+	}
+	nav.hidden-left-nav:hover {
+		-ms-transform: translateX(60vw);
+		-webkit-transform: translateX(60vw);
+		transform: translateX(60vw);
+	}
+	nav.hidden-left-nav::after {
+		height: 16vh;
+		border-radius: 0vh 3vh 3vh 0vh;
+	}
+	body.navigation.bigger {
+		font-size: 2.5rem;
 	}
 }
