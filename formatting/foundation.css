@@ -896,7 +896,7 @@ table.compact {
 	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
 
-@media not (hover: hover) {
+@media not (pointer: fine) {
 	/**
 	styles things for mobile devices
 	(technically, whether a device can't hover)
