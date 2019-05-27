@@ -96,8 +96,11 @@ body.navigation a:hover {
 	text-decoration: none;
 }
 body.navigation ul, body.navigation ol, nav ul, nav ol {
-	padding-left: 1rem;
-	padding-right: 0rem;
+	padding-left: 1em;
+	padding-right: 0em;
+}
+body.navigation ul ul, body.navigation ol ul, nav ul ul, nav ol ul, body.navigation ul ol, body.navigation ol ol, nav ul ol, nav ol ol {
+	padding-left: 2em;
 }
 body.navigation .nav-list-expander {
 	/**
@@ -390,22 +393,22 @@ a:hover {
 
 ol, ul {
 	display: table;
-	margin: .5rem auto;
-	padding-right: 1rem;
+	margin: .5em auto;
+	padding-right: 1em;
 	text-align: justify;
 }
 
 ul {
-	padding-left: 2rem;
+	padding-left: 2em;
 }
 
 li {
-	margin-top: .5rem;
-	margin-bottom: .5rem;
+	margin-top: .5em;
+	margin-bottom: .5em;
 }
 
 li ol, li ul {
-	margin: 0rem;
+	margin: 0em;
 }
 
 table {
@@ -555,6 +558,10 @@ section {
 	text-align: justify;
 	-moz-text-align-last: center;
 	text-align-last: center;
+}
+
+footer {
+	margin: 1.5em 3em;
 }
 
 .dialog-container {
@@ -896,7 +903,7 @@ table.compact {
 	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
 
-@media not (pointer: fine) {
+@media (max-width: 1000px) {
 	/**
 	styles things for mobile devices
 	(technically, whether a device can't hover)
@@ -931,6 +938,7 @@ table.compact {
 		max-width: 90%;
 		max-height: 90%;
 	}
+	/*
 	nav.hidden-left-nav {
 		left: -60.5vw;
 		width: 60.5vw;
@@ -947,4 +955,5 @@ table.compact {
 	body.navigation.bigger {
 		font-size: 2.5rem;
 	}
+	*/
 }
