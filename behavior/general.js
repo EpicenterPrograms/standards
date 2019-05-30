@@ -1209,6 +1209,7 @@ Array.prototype.move = function (currentIndex, newIndex) {
 	*/
 	newIndex = newIndex===undefined ? this.length : newIndex;
 	this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
+	return this;
 };
 
 Array.prototype.remove = function (item, where) {
@@ -4763,6 +4764,12 @@ if (!(Standards.general.options.runAuthCode == false) && typeof firebase != "und
 		Standards.general.storage.server.user = person;
 	});
 }
+
+addEventListener("message", function (information) {
+	if (Standards.general.getType(information) == "Object") {
+
+	}
+});
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
 	

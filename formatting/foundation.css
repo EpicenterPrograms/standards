@@ -812,6 +812,10 @@ over- {
 	display: inline;
 }
 
+.current-selection {
+	font-weight: bold;
+}
+
 .circle {
 	/**
 	circles things (like text)
@@ -906,7 +910,6 @@ table.compact {
 @media (max-width: 1000px) {
 	/**
 	styles things for mobile devices
-	(technically, whether a device can't hover)
 	*/
 	body:not(.navigation) {
 		font-size: 2rem;
