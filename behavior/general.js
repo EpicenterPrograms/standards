@@ -2860,116 +2860,122 @@ Standards.general.getFile = function (url, callback, convert) {  ////
 			default: true
 	non-native functions = getType, toHTML, and makeDialog
 	*/
-	return new Promise(function (resolve) {
-		if (convert === undefined) {
-			convert = true;
-		}
-		if (!url) {
-			console.error("No resource was provided to get the file.");
-		} else if (Standards.general.getType(url) != "String") {
-			console.error("The provided URL wasn't a string.");
-		} else if (!callback) {
-			console.error("No callback was provided.");
-		} else if (new URL(url, window.location.href).protocol == "file:") {
-			let input = document.createElement("input");
-			input.type = "file";
-			let changed = false;
-			input.addEventListener("change", function () {
-				if (this.files.length > 0) {
-					let reader = new FileReader();
-					if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return url.slice(url.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
-						reader.addEventListener("loadend", function () {
-							if (reader.error != null) {
-								console.error(reader.error);
-							}
-							callback(reader.result);
-							resolve();
-						});
-						reader.readAsDataURL(this.files[0]);
-					} else {
-						reader.addEventListener("loadend", function () {
-							if (reader.error != null) {
-								console.error(reader.error);
-							}
-							if (convert) {
-								switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
-									case "html":
-										callback(Standards.general.toHTML(reader.result));
-										break;
-									case "json":
-										callback(JSON.parse(reader.result));
-										break;
-									case "txt":
-										console.info("What do you think I'm supposed to convert a .txt file into?");
-										callback(reader.result);
-										break;
-									default:
-										console.warn("The file doesn't have a convertible file extension.");
-										callback(reader.result);
-								}
+	Standards.general.queue.add({
+		runOrder: "first",
+		arguments: [url, callback, convert],
+		function: function (url, callback, convert) {
+			return new Promise(function (resolve) {
+				if (convert === undefined) {
+					convert = true;
+				}
+				if (!url) {
+					console.error("No resource was provided to get the file.");
+				} else if (Standards.general.getType(url) != "String") {
+					console.error("The provided URL wasn't a string.");
+				} else if (!callback) {
+					console.error("No callback was provided.");
+				} else if (new URL(url, window.location.href).protocol == "file:") {
+					let input = document.createElement("input");
+					input.type = "file";
+					let changed = false;
+					input.addEventListener("change", function () {
+						if (this.files.length > 0) {
+							let reader = new FileReader();
+							if (["png", "jpg", "jpeg", "gif", "css"].some(function (extension) { return url.slice(url.lastIndexOf(".") + 1).toLowerCase() == extension; })) {
+								reader.addEventListener("loadend", function () {
+									if (reader.error != null) {
+										console.error(reader.error);
+									}
+									callback(reader.result);
+									resolve();
+								});
+								reader.readAsDataURL(this.files[0]);
 							} else {
-								callback(reader.result);
-							}
-							resolve();
-						});
-						reader.readAsText(this.files[0]);
-					}
-				} else {
-					console.warn("No files were availible.");
-				}
-				changed = true;
-			});
-			Standards.general.makeDialog(url + " needs to be found on your computer.", ["Choose File", function () {
-				input.click();
-				function waitForDumbStuff() {  // This is necessary since selecting a file doesn't register sometimes.
-					setTimeout(function () {
-						if (!changed) {
-							Standards.general.makeDialog(
-								"It has been 20 seconds without recieving " + url + ". Do you want to reset the wait time, try loading the file again, or cancel?",
-								["Wait", waitForDumbStuff],
-								["Retry", function () {
-									Standards.general.getFile(url, callback, convert);
-								}],
-								"Cancel"
-							);
-						}
-					}, 20000);
-				}
-				waitForDumbStuff();
-			}]);
-		} else {
-			var file = new XMLHttpRequest();
-			file.open("GET", url);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
-			file.onreadystatechange = function () {
-				if (file.readyState === 4) {  // Is it done?
-					if (file.status === 200 || file.status === 0) {  // Was it successful?
-						// file.responseXML might have something
-						if (convert) {
-							switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
-								case "html":
-									callback(Standards.general.toHTML(file.responseText));
-									break;
-								case "json":
-									callback(JSON.parse(file.responseText));
-									break;
-								case "txt":
-									console.info("What do you think I'm supposed to convert a .txt file into?");
-									callback(file.responseText);
-									break;
-								default:
-									console.warn("The file doesn't have a convertible file extension.");
-									callback(file.responseText);
+								reader.addEventListener("loadend", function () {
+									if (reader.error != null) {
+										console.error(reader.error);
+									}
+									if (convert) {
+										switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
+											case "html":
+												callback(Standards.general.toHTML(reader.result));
+												break;
+											case "json":
+												callback(JSON.parse(reader.result));
+												break;
+											case "txt":
+												console.info("What do you think I'm supposed to convert a .txt file into?");
+												callback(reader.result);
+												break;
+											default:
+												console.warn("The file doesn't have a convertible file extension.");
+												callback(reader.result);
+										}
+									} else {
+										callback(reader.result);
+									}
+									resolve();
+								});
+								reader.readAsText(this.files[0]);
 							}
 						} else {
-							callback(file.responseText);
+							console.warn("No files were availible.");
 						}
-						resolve();
-					} else {
-						console.error("The file couldn't be retieved.");
+						changed = true;
+					});
+					Standards.general.makeDialog(url + " needs to be found on your computer.", ["Choose File", function () {
+						input.click();
+						function waitForDumbStuff() {  // This is necessary since selecting a file doesn't register sometimes.
+							setTimeout(function () {
+								if (!changed) {
+									Standards.general.makeDialog(
+										"It has been 20 seconds without recieving " + url + ". Do you want to reset the wait time, try loading the file again, or cancel?",
+										["Wait", waitForDumbStuff],
+										["Retry", function () {
+											Standards.general.getFile(url, callback, convert);
+										}],
+										"Cancel"
+									);
+								}
+							}, 20000);
+						}
+						waitForDumbStuff();
+					}]);
+				} else {
+					var file = new XMLHttpRequest();
+					file.open("GET", url);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
+					file.onreadystatechange = function () {
+						if (file.readyState === 4) {  // Is it done?
+							if (file.status === 200 || file.status === 0) {  // Was it successful?
+								// file.responseXML might have something
+								if (convert) {
+									switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
+										case "html":
+											callback(Standards.general.toHTML(file.responseText));
+											break;
+										case "json":
+											callback(JSON.parse(file.responseText));
+											break;
+										case "txt":
+											console.info("What do you think I'm supposed to convert a .txt file into?");
+											callback(file.responseText);
+											break;
+										default:
+											console.warn("The file doesn't have a convertible file extension.");
+											callback(file.responseText);
+									}
+								} else {
+									callback(file.responseText);
+								}
+								resolve();
+							} else {
+								console.error("The file couldn't be retieved.");
+							}
+						}
 					}
+					file.send();
 				}
-			}
-			file.send();
+			});
 		}
 	});
 };
