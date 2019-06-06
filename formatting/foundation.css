@@ -813,7 +813,9 @@ over- {
 }
 
 .current-selection {
+	color: darkgray;
 	font-weight: bold;
+	cursor: default;
 }
 
 .circle {
@@ -900,11 +902,6 @@ table.compact {
 @font-face {
 	font-family: "Bad Duck";
 	src: url(https://epicenterprograms.github.io/standards/fonts/Bad Duck.ttf) format("truetype");
-}
-
-@font-face {
-	font-family: "Braille";
-	src: url(https://epicenterprograms.github.io/standards/fonts/Braille.ttf) format("truetype");
 }
 
 @media (max-width: 1000px) {
