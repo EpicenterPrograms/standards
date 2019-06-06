@@ -24,7 +24,9 @@ if (Standards.navigation.options) {
 }
 
 document.addEventListener("load", function () {
-	var navigationContents = [];
+	if (typeof navigationContents === "undefined") {
+		var navigationContents = [];
+	}
 	var temporaryContainer = [];
 	navigationContents.forEach(function (pair) {
 		let listItem = document.createElement("li");
