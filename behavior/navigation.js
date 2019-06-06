@@ -23,7 +23,7 @@ if (Standards.navigation.options) {
 	Standards.navigation.options = {};
 }
 
-document.addEventListener("load", function () {
+window.addEventListener("load", function () {
 	if (typeof navigationContents === "undefined") {
 		var navigationContents = [];
 	}
