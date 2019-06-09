@@ -24,11 +24,11 @@ if (Standards.navigation.options) {
 }
 
 window.addEventListener("load", function () {
-	if (typeof navigationContents === "undefined") {
-		var navigationContents = [];
+	if (!Standards.navigation.contents) {
+		Standards.navigation.contents = [];
 	}
 	var temporaryContainer = [];
-	navigationContents.forEach(function (pair) {
+	Standards.navigation.contents.forEach(function (pair) {
 		let listItem = document.createElement("li");
 		let hiddenListItem = document.createElement("li");  // allows bolding without shifting the list
 		hiddenListItem.className = "nav-list-expander";
