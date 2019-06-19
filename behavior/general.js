@@ -1524,6 +1524,21 @@ Standards.general.insertAfter = function (insertion, place) {
 	}
 };
 
+Standards.general.removeSelf = function (item) {
+	/**
+	removes the given item
+	(most relavent for HTML elements)
+	non-native functions = getType
+	*/
+	switch (Standards.general.getType(item)) {
+		case "HTMLElement":
+			item.parentNode.removeChild(item);
+			break;
+		default:
+			console.error("This type of removal isn't supported.");
+	}
+};
+
 Standards.general.getEnd = function (iterable, index) {
 	/**
 	gets the end of an iterable item
@@ -1549,18 +1564,30 @@ Standards.general.getEnd = function (iterable, index) {
 };
 Standards.general.getLast = Standards.general.getEnd;
 
-Standards.general.removeSelf = function (item) {
+Standards.general.itemAt = function (iterable, index) {
 	/**
-	removes the given item
-	(most relavent for HTML elements)
-	non-native functions = getType
+	gets the item at a given index (or key)
+	supports negative indices
+	arguments:
+		iterable = required; the iterable item
+		index = required; which item at the end you want
+			positive numbers start counting from the beginning at 0
+			negative numbers start counting from the end at -1
+	non-native functions: getType
 	*/
-	switch (Standards.general.getType(item)) {
-		case "HTMLElement":
-			item.parentNode.removeChild(item);
-			break;
-		default:
-			console.error("This type of removal isn't supported.");
+	if (!iterable) {
+		throw new Error("No item was provided.");
+	} else if (Standards.general.getType(iterable) == "Object" && Standards.general.getType(index) == "String") {
+		return iterable[index];
+	} else if (Standards.general.getType(iterable[Symbol.iterator]) == "Function") {
+		index = index || -1;
+		if (index >= 0) {
+			return iterable[index];
+		} else {
+			return iterable[iterable.length + index];
+		}
+	} else {
+		throw new TypeError("The provided item isn't iterable.");
 	}
 };
 
