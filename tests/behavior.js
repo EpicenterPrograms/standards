@@ -4107,10 +4107,12 @@ Standards.general.storage.server = {
 					if (doc.exists) {
 						let data = doc.data();
 						delete data["<document>"];
-						callback(data)/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
+						if (callback) {
+							callback(data)/*.catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							})*/;
+						}
 						resolve(data);
 					} else {
 						//// There might be something to do here depending on the locationType.
@@ -4122,23 +4124,27 @@ Standards.general.storage.server = {
 						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
-					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+					console.error("There was an error retrieving the information."); // Putting an extra error here allows origin tracing when the error happens in Firebase
 					console.error(error);
 				});
 			} else {  // if retrieving a single item
 				Standards.general.storage.server.getReference(location).get().then(function (doc) {
 					if (doc.exists) {
-						callback(doc.data()[location.slice(location.lastIndexOf("/") + 1)])/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
+						if (callback) {
+							callback(doc.data()[location.slice(location.lastIndexOf("/") + 1)])/*.catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							})*/;
+						}
 						resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
 					} else {
 						console.warn("An attempt was made to access a non-existent document.");
-						callback(Error("The information couldn't be found."))/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
+						if (callback) {
+							callback(Error("The information couldn't be found."))/*.catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							})*/;
+						}
 						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
