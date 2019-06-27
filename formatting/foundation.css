@@ -344,7 +344,7 @@ nav.top-nav > button, .site-editor > button {
 	font-family: serif;
 }
 
-nav.top-nav div.drop-down div, div div.drop-down div {
+nav.top-nav div.drop-down > div, div div.drop-down > div {
 	/**
 	makes the part of the drop-down that appears
 	*/

@@ -1,0 +1,77 @@
+body {
+	background: repeating-linear-gradient(red, red 7.69vh, white 7.69vh, white 15.38vh);
+}
+body::before {
+	content: "";
+	position: absolute;
+	left: 0%;
+	top: 0%;
+	z-index: -10;
+	width: 40%;
+	height: 100%;
+	background: repeating-linear-gradient(blue, blue 53.83vh, transparent 53.83vh, transparent 100vh);
+}
+
+h1.main-title {
+	color: black;
+}
+
+nav.top-nav {
+	background: linear-gradient(to right, red, white 49vw, white 51vw, blue);
+}
+nav.top-nav div.drop-down div {
+	background: #55f;
+}
+nav.top-nav div.drop-down>div:first-child {
+	background: transparent;
+	color: black;
+}
+nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
+	background: #ff8;
+}
+nav.top-nav>button {
+	border-radius: 0em;
+	background: transparent;
+	color: black;
+}
+nav.top-nav>button::before {
+	display: none;
+}
+nav.top-nav>button::after {
+	display: none;
+}
+
+button {
+	position: relative;
+	margin-right: 1.1em;
+	border: .05em solid black;
+	padding: .4em;
+	background: linear-gradient(red, #f66, #faa, #f66, red);
+	color: white;
+}
+button::before {
+	content: "";
+	position: absolute;
+	top: calc(50% - .3em);
+	left: calc(100% - .02em);
+	border: .05em solid;
+	border-color: transparent black black black;
+	border-radius: 0em .3em .3em .3em;
+	width: .6em;
+	height: .6em;
+}
+button::after {
+	content: "";
+	position: absolute;
+	top: calc(50% - .775em);
+	left: calc(100% + .5em - .015em);
+	border: .05em solid;
+	border-color: transparent transparent transparent black;
+	border-radius: .3em;
+	width: .6em;
+	height: .6em;
+}
+button:disabled, button[disabled] {
+	background: linear-gradient(#555, #aaa, #555);
+	border-color: #444;
+}
