@@ -169,11 +169,17 @@ aside {
 	position: fixed;
 	left: 100%;
 	top: 0%;
+	padding: 1em;
 	border-left: .05em solid #aaaaaa;
+	background-color: white;
 	width: 40%;
 	height: 100%;
+	overflow: auto;
 	transition: .8s;
 	transition: var(--nav-slide-time);
+}
+aside h2 {
+	margin-top: 0em;
 }
 
 .right-section {
@@ -222,7 +228,6 @@ nav.hidden-left-nav {
 	transition: .8s;
 	transition: var(--nav-slide-time);
 }
-
 nav.hidden-left-nav:hover {
 	/**
 	unhides the navigation section
@@ -232,7 +237,6 @@ nav.hidden-left-nav:hover {
 	transform: translateX(30vw);  /* standard syntax */
 	/* These aren't 30.5% because, otherwise, the far left end of the screen would stop the hovering. */
 }
-
 nav.hidden-left-nav::before {
 	/**
 	creates darkness to cover the rest of the screen
@@ -250,14 +254,12 @@ nav.hidden-left-nav::before {
 	transition: .8s;  /* I don't understand why this (or the next line) is necessary. */
 	transition: var(--nav-slide-time);
 }
-
 nav.hidden-left-nav:hover::before {
 	/**
 	causes the darkness to fade in
 	*/
 	opacity: .8;
 }
-
 nav.hidden-left-nav::after {
 	/**
 	creates a tab sticking out of the side to access the hidden left navigation
@@ -290,14 +292,12 @@ nav.hidden-left-nav::after {
 	user-select: none;  /* non-prefixed version of preventing text selection */
 	cursor: default;
 }
-
 nav.hidden-left-nav:hover::after {
 	/**
 	changes the arrow direction
 	*/
 	content: "<";
 }
-
 nav.hidden-left-nav > iframe {
 	width: 100%;
 	height: 100%;
@@ -315,13 +315,11 @@ iframe.top-nav, nav.top-nav, .site-editor {
 	width: 100%;
 	background: darkblue;
 }
-
 nav.top-nav div.drop-down, div div.drop-down {
 	display: inline-table;
 	position: relative;
 	overflow: visible;
 }
-
 nav.top-nav div.drop-down > div:first-child, nav.top-nav > button, div div.drop-down > div:first-child, .site-editor > button {
 	/**
 	makes the part of the drop-down that you see
@@ -336,14 +334,12 @@ nav.top-nav div.drop-down > div:first-child, nav.top-nav > button, div div.drop-
 	color: steelblue;
 	cursor: pointer;
 }
-
 nav.top-nav > button, .site-editor > button {
 	display: inline-block;
 	margin: 0em;
 	border: none;
 	font-family: serif;
 }
-
 nav.top-nav div.drop-down > div, div div.drop-down > div {
 	/**
 	makes the part of the drop-down that appears
@@ -355,14 +351,12 @@ nav.top-nav div.drop-down > div, div div.drop-down > div {
 	white-space: nowrap;
 	cursor: default;
 }
-
 nav.top-nav label, div div.drop-down label {
 	/**
 	makes sure labels don't wrap strangely
 	*/
 	white-space: nowrap;
 }
-
 nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, nav.top-nav div.drop-down:focus-within > div, div div.drop-down:focus > div, div div.drop-down > div:hover, div div.drop-down:focus-within > div {
 	/**
 	unhides the drop-down menu when focus is received
@@ -370,7 +364,6 @@ nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, na
 	*/
 	display: block;
 }
-
 nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child, div div.drop-down:hover > div:first-child, div div.drop-down:focus > div:first-child, div div.drop-down:focus-within > div:first-child {
 	/**
 	lightens the initially visible part of the drop-down
@@ -378,23 +371,19 @@ nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, n
 	*/
 	background: lightsteelblue;
 }
-
 .site-editor {
 	z-index: 9;
 	border-bottom: .15em solid #888;
 	background: #ddd;
 }
-
 .site-editor div.drop-down > div:first-child, .site-editor > button {
 	z-index: 9;
 	background: #ddd;
 	color: black;
 }
-
 .site-editor div.drop-down:hover > div:first-child, .site-editor div.drop-down:focus > div:first-child, .site-editor div.drop-down:focus-within > div:first-child, .site-editor > button:hover {
 	background: lightblue;
 }
-
 .site-editor div.drop-down div {
 	z-index: 10;
 	background: white;
@@ -403,7 +392,6 @@ nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, n
 a {
 	text-decoration: none;
 }
-
 a:hover {
 	text-decoration: underline;
 }
@@ -414,16 +402,13 @@ ol, ul {
 	padding-right: 1em;
 	text-align: justify;
 }
-
 ul {
 	padding-left: 2em;
 }
-
 li {
 	margin-top: .5em;
 	margin-bottom: .5em;
 }
-
 li ol, li ul {
 	margin: 0em;
 }
@@ -435,17 +420,14 @@ table {
 	background: none;
 	text-align: center;
 }
-
 th, td {
 	border: .05em solid black;
 	border-collapse: collapse;
 	padding: .5em;
 }
-
 th {
 	background: #dddddd;
 }
-
 td {
 	background: white;
 }
@@ -453,6 +435,29 @@ td {
 table.organizational th, table.organizational td {
 	border: none;
 	background: none;
+}
+
+table.labeled-list th {
+	/**
+	styles the label
+	*/
+	border: none;
+	background: none;
+	text-align: right;
+}
+table.labeled-list td {
+	/**
+	styles the "list" item
+	*/
+	border: none;
+	background: none;
+	text-align: justify;
+}
+table.labeled-list td:first-child {
+	/**
+	allows centering unlabeled items
+	*/
+	text-align: center;
 }
 
 table.conversation th {
@@ -463,7 +468,6 @@ table.conversation th {
 	background: none;
 	text-align: right;
 }
-
 table.conversation td {
 	/**
 	styles what the speaker said
@@ -472,7 +476,6 @@ table.conversation td {
 	background: none;
 	text-align: justify;
 }
-
 table.conversation td:first-child {
 	/**
 	allows unspoken events to be centered
@@ -528,16 +531,6 @@ option {
 }
 option:disabled {
 	cursor: default;
-}
-
-aside {
-	background-color: white;
-	padding: 1rem;
-	overflow: auto;
-}
-
-aside h2 {
-	margin-top: 0em;
 }
 
 textarea {
