@@ -22,14 +22,14 @@ if (typeof Standards.general.options !== "undefined") {
 } else {
 	Standards.general.options = {};
 }
-	/**
-	allows specifications to be added if the variable is already present
-	(otherwise uses default values and settings)
-	valid options =
-		"automation": "none", "basic", "full"
-			runs a corresponding amount of code after defining everything
-			default = "full"
-	*/
+/**
+allows specifications to be added if the variable is already present
+(otherwise uses default values and settings)
+valid options =
+	"automation": "none", "basic", "full"
+		runs a corresponding amount of code after defining everything
+		default = "full"
+*/
 
 Standards.general.help = function (item, part) {
 	/**
@@ -52,7 +52,7 @@ Standards.general.help = function (item, part) {
 				break;
 			case "function":
 				if (content.indexOf("/**") > -1) {
-					content = content.slice(0, content.indexOf("/**")) + content.slice(content.indexOf("*/")+2);
+					content = content.slice(0, content.indexOf("/**")) + content.slice(content.indexOf("*/") + 2);
 				}
 				break;
 			case "non-natives":
@@ -139,48 +139,56 @@ Standards.general.makeToneGenerator = function (makeDialog, affirmativeCallback,
 };
 
 if (typeof Standards.general.queue !== "undefined") {
-	if (Standards.general.queue.constructor === Array) {
-		Standards.general.queue.forEach(function (item, index) {
+	if (Standards.general.queue.constructor !== Object) {
+		Standards.general.queue = {};
+		console.warn("Standards.general.queue is not an Object");
+	}
+} else {
+	Standards.general.queue = {};
+};
+if (typeof Standards.general.queue.list !== "undefined") {
+	if (Standards.general.queue.list.constructor === Array) {
+		Standards.general.queue.list.forEach(function (item, index) {
 			if (item.constructor === Object) {
-				Standards.general.queue.splice(index, 1);
-				console.warn("The item at the index of " + index + " in Standards.general.queue is not an Object.");
+				Standards.general.queue.list.splice(index, 1);
+				console.warn("The item at the index of " + index + " in Standards.general.queue.list is not an Object.");
 			}
 		});
 	} else {
-		Standards.general.queue = [];
-		console.warn("Standards.general.queue is not an Array");
+		Standards.general.queue.list = [];
+		console.warn("Standards.general.queue.list is not an Array");
 	}
 } else {
-	Standards.general.queue = [];
+	Standards.general.queue.list = [];
 };
-	/**
-	establishes a list of functions to be run once the page and this script has loaded
-	each item should be an object with a "runOrder" property and a "function" property
-	an "arguments" property can also be added and should consist of an array of the arguments to be run in the function
-	runOrder options:
-		"first" = will run first (or after preceeding functions with the "first" option)
-		"later" = will run some time in the middle
-		"last" = will run last (or before following functions with the "last" option)
-	functions can be run in a more specific order by searching for a certain function
-	all functions in this script that make use of Standards.general.queue have a "first" runOrder
-	example usage:
-		var Standards = {};
-		Standards.general.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
-	*/
+/**
+establishes a list of functions to be run once the page and this script has loaded
+each item should be an object with a "runOrder" property and a "function" property
+an "arguments" property can also be added and should consist of an array of the arguments to be run in the function
+runOrder options:
+	"first" = will run first (or after preceeding functions with the "first" option)
+	"later" = will run some time in the middle
+	"last" = will run last (or before following functions with the "last" option)
+functions can be run in a more specific order by searching for a certain function
+all functions in this script that make use of Standards.general.queue have a "first" runOrder
+example usage:
+	var Standards = {};
+	Standards.general.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
+*/
 Standards.general.queue.run = function () {
 	/**
 	runs the functions in the queue
 	non-native functions = none
 	*/
 	if (Standards.general.finished) {
-		if (typeof Standards.general.queue[0].function == "string") {
+		if (typeof Standards.general.queue.list[0].function == "string") {
 			throw 'The value of "function" must not be a string.';
 		}
-		let returnValue = Standards.general.queue[0].function.apply(window, Standards.general.queue[0].arguments);
-		Standards.general.queue.pop();
+		let returnValue = Standards.general.queue.list[0].function.apply(window, Standards.general.queue.list[0].arguments);
+		Standards.general.queue.list.pop();
 		return returnValue;
 	} else {
-		Standards.general.queue.forEach(function (fn) {
+		Standards.general.queue.list.forEach(function (fn) {
 			if (typeof fn.function == "string") {
 				throw 'The value of "function" must not be a string.';
 			}
@@ -188,23 +196,29 @@ Standards.general.queue.run = function () {
 				fn.function.apply(window, fn.arguments);
 			}
 		});
-		Standards.general.queue.forEach(function (fn) {
+		Standards.general.queue.list.forEach(function (fn) {
 			if (fn.runOrder == "later") {
-				fn.function.apply(window, fn.arguments);
+				setTimeout(function () {  // These timeouts allow the page to update between timings. (Especially useful with HTML modifications and listeners.)
+					fn.function.apply(window, fn.arguments);
+				}, 0);
 			}
 		});
-		Standards.general.queue.forEach(function (fn, index) {
+		Standards.general.queue.list.forEach(function (fn, index) {
 			if (fn.runOrder == "last") {
-				fn.function.apply(window, fn.arguments);
+				setTimeout(function () {
+					fn.function.apply(window, fn.arguments);
+				}, 0);
 			} else if (!(fn.runOrder == "first" || fn.runOrder == "later")) {
-				console.warn("The item at the index of " + index + " in Standards.general.queue wasn't run because it doesn't have a valid runOrder.");
+				console.warn("The item at the index of " + index + " in Standards.general.queue.list wasn't run because it doesn't have a valid runOrder.");
 			}
 		});
-		while (Standards.general.queue.length > 0) {  // gets rid of all of the items in Standards.general.queue (Standards.general.queue = []; would get rid of the functions as well)
-			Standards.general.queue.pop();
-		}
-		/// The items in Standards.general.queue can't be deleted as they're run because Array.forEach() doesn't copy things like my .forEach() function does.
-		/// (Only every other item would be run because an item would be skipped every time the preceding item was deleted.)
+		setTimeout(function () {
+			Standards.general.queue.list = [];
+			/// The items in Standards.general.queue.list can't be deleted as they're run because Array.forEach() doesn't copy things like my .forEach() function does.
+			/// (Only every other item would be run because an item would be skipped every time the preceding item was deleted.)
+			Standards.general.finished = true;
+			window.dispatchEvent(new Event("finished"));  // This can't be CustomEvent or else it won't work on any version of Internet Explorer.
+		}, 0);
 	}
 };
 Standards.general.queue.add = function (object) {
@@ -213,7 +227,7 @@ Standards.general.queue.add = function (object) {
 	non-native functions = Standards.general.queue.run()
 	(Standards.general.finished also isn't native)
 	*/
-	Standards.general.queue.push(object);
+	Standards.general.queue.list.push(object);
 	if (Standards.general.finished) {
 		return Standards.general.queue.run();
 	}
@@ -247,12 +261,12 @@ Standards.general.Sound = function (specs) {
 	var playQueue = [];
 
 	function setValues(time, shouldSetPlaying) {
-		time = time===undefined ? 0 : time;
-		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
+		time = time === undefined ? 0 : time;
+		shouldSetPlaying = shouldSetPlaying === undefined ? true : shouldSetPlaying;
 		if (time > 0) {
 			if (shouldSetPlaying) {
 				setTimeout(function () {
-					sound.playing = sound.volume==0 ? false : true;
+					sound.playing = sound.volume == 0 ? false : true;
 				}, time);
 			}
 			time /= 1000;  // ramps use time in seconds
@@ -260,9 +274,9 @@ Standards.general.Sound = function (specs) {
 				gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time);  // exponential ramping doesn't work with 0s
 				setTimeout(function () {
 					gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
-				}, time*1000);
+				}, time * 1000);
 			} else {
-				gain1.gain.exponentialRampToValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime + time);
+				gain1.gain.exponentialRampToValueAtTime(Math.pow(10, sound.volume) / 10, Standards.general.audio.currentTime + time);
 			}
 			osc1.frequency.linearRampToValueAtTime(sound.frequency, Standards.general.audio.currentTime + time);
 			gain2.gain.linearRampToValueAtTime(sound.hertzChange, Standards.general.audio.currentTime + time);
@@ -272,13 +286,13 @@ Standards.general.Sound = function (specs) {
 			if (sound.volume == 0) {
 				gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
 			} else {
-				gain1.gain.setValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime);
+				gain1.gain.setValueAtTime(Math.pow(10, sound.volume) / 10, Standards.general.audio.currentTime);
 			}
 			osc1.frequency.setValueAtTime(sound.frequency, Standards.general.audio.currentTime);
 			gain2.gain.setValueAtTime(sound.hertzChange, Standards.general.audio.currentTime);
 			osc2.frequency.setValueAtTime(sound.modulation, Standards.general.audio.currentTime);
 			if (shouldSetPlaying) {
-				sound.playing = sound.volume==0 ? false : true;
+				sound.playing = sound.volume == 0 ? false : true;
 			}
 		} else if (time < 0) {
 			console.error("It's impossible to travel back in time and change values.");
@@ -336,7 +350,7 @@ Standards.general.Sound = function (specs) {
 		fn.apply(window, args);
 		return true;
 	}
-	
+
 	this.start = function (time, volume, shouldSetPlaying) {
 		/**
 		starts/unmutes the tone
@@ -445,9 +459,9 @@ Standards.general.Sound = function (specs) {
 		} else if (sound.playing) {
 			playQueue.push([noteString, newDefaults, callback]);
 			if (playQueue.length == 1) {
-				window.addEventListener(sound.identifier+"StoppedPlaying", function () {
+				window.addEventListener(sound.identifier + "StoppedPlaying", function () {
 					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
-					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
+					window.removeEventListener(sound.identifier + "StoppedPlaying", arguments.callee);
 				});
 			}
 		} else if (arguments.length > 0) {
@@ -1063,38 +1077,38 @@ if (!Array.prototype.every) {
 		*/
 
 		var T, k;
-		
+
 		if (this == null) {
 			throw new TypeError('this is null or not defined');
 		}
-		
+
 		//  1. Let O be the result of calling ToObject passing the this 
 		//     value as the argument.
 		var O = Object(this);
-		
+
 		//  2. Let lenValue be the result of calling the Get internal method
 		//     of O with the argument "length".
 		//  3. Let len be ToUint32(lenValue).
 		var len = O.length >>> 0;
-		
+
 		//  4. If IsCallable(callbackfn) is false, throw a TypeError exception.
 		if (typeof callbackfn !== 'function') {
 			throw new TypeError();
 		}
-		
+
 		//  5. If thisArg was supplied, let T be thisArg; else let T be undefined.
 		if (arguments.length > 1) {
 			T = thisArg;
 		}
-		
+
 		//  6. Let k be 0.
 		k = 0;
-		
+
 		//  7. Repeat, while k < len
 		while (k < len) {
-			
+
 			var kValue;
-			
+
 			//  a. Let Pk be ToString(k).
 			//    This is implicit for LHS operands of the in operator
 			//  b. Let kPresent be the result of calling the HasProperty internal 
@@ -1102,16 +1116,16 @@ if (!Array.prototype.every) {
 			//     This step can be combined with c
 			//  c. If kPresent is true, then
 			if (k in O) {
-				
+
 				//  i. Let kValue be the result of calling the Get internal method
 				//     of O with argument Pk.
 				kValue = O[k];
-				
+
 				//  ii. Let testResult be the result of calling the Call internal method
 				//      of callbackfn with T as the this value and argument list 
 				//      containing kValue, k, and O.
 				var testResult = callbackfn.call(T, kValue, k, O);
-				
+
 				//  iii. If ToBoolean(testResult) is false, return false.
 				if (!testResult) {
 					return false;
@@ -1155,7 +1169,7 @@ String.prototype.format = function () {
 	*/
 	var args = arguments;  // If "arguments" was used in place of "args", if would return the values of the inner function arguments.
 	return this.replace(/{(\d+)}/g, function (match, number) {  // These function variables represent the match found and the number inside.
-		return (typeof args[number]!="undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
+		return (typeof args[number] != "undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
 	});
 };
 
@@ -1166,8 +1180,8 @@ String.prototype.splice = function (start, length, replacement) {
 	because JavaScript is dumb and won't let me do that
 	non-native functions = none
 	*/
-	replacement = replacement===undefined ? "" : replacement;
-	return this.slice(0,start) + replacement + this.slice(start+length);
+	replacement = replacement === undefined ? "" : replacement;
+	return this.slice(0, start) + replacement + this.slice(start + length);
 };
 
 String.prototype.keepOnly = function (searchValue, replacement) {
@@ -1187,17 +1201,17 @@ String.prototype.keepOnly = function (searchValue, replacement) {
 		searchValue = searchValue.toString();
 		let flagIndex = searchValue.search(/\/[gimuy]+(?!\/)/);
 		if (flagIndex > -1) {
-			searchValue = new RegExp("(" + searchValue.slice(1,flagIndex) + ")|.", searchValue.slice(flagIndex+1));
+			searchValue = new RegExp("(" + searchValue.slice(1, flagIndex) + ")|.", searchValue.slice(flagIndex + 1));
 		} else {
-			searchValue = new RegExp("(" + searchValue.slice(1,-1) + ")|.");
+			searchValue = new RegExp("(" + searchValue.slice(1, -1) + ")|.");
 		}
 	} else {
 		console.error("Invalid searchValue type");
 		return undefined;
 	}
-	replacement = replacement===undefined ? "" : replacement;
+	replacement = replacement === undefined ? "" : replacement;
 	return this.replace(searchValue, function (match, validMatch) {
-		return validMatch===undefined ? replacement : validMatch;
+		return validMatch === undefined ? replacement : validMatch;
 	});
 };
 
@@ -1207,7 +1221,7 @@ Array.prototype.move = function (currentIndex, newIndex) {
 	if no new index is specified, the item is placed at the end of the array
 	non-native functions = none
 	*/
-	newIndex = newIndex===undefined ? this.length : newIndex;
+	newIndex = newIndex === undefined ? this.length : newIndex;
 	this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
 	return this;
 };
@@ -1228,7 +1242,7 @@ Array.prototype.remove = function (item, where) {
 			default: "all"
 	non-native functions: none
 	*/
-	where = where===undefined ? "all" : where;
+	where = where === undefined ? "all" : where;
 	if (where == "all" || where === true) {
 		while (this.includes(item)) {
 			this.splice(this.indexOf(item), 1);
@@ -1400,7 +1414,7 @@ Standards.general.getId = function (item, ID) {
 	if (Standards.general.getType(item) == "String") {  // for regular searching
 		return document.getElementById(item);
 	} else if (Standards.general.getType(item) == "HTMLElement") {  // for searching in an element that isn't in the document
-		return item.querySelector("#"+ID);
+		return item.querySelector("#" + ID);
 	} else {
 		throw "An improper agument was given.";
 	}
@@ -1436,7 +1450,7 @@ Standards.general.getName = function (name, specific) {
 	if (specific) {
 		if (elements[0].nodeName == "INPUT") {
 			if (elements[0].type == "radio") {
-				for (let index=0; index<elements.length; index++) {
+				for (let index = 0; index < elements.length; index++) {
 					if (elements[index].checked) {
 						return elements[index];
 					}
@@ -1444,7 +1458,7 @@ Standards.general.getName = function (name, specific) {
 				return null;
 			} else if (elements[0].type == "checkbox") {
 				let list = [];
-				for (let index=0; index<elements.length; index++) {
+				for (let index = 0; index < elements.length; index++) {
 					if (elements[index].checked) {
 						list.push(elements[index]);
 					}
@@ -1554,9 +1568,9 @@ Standards.general.getEnd = function (iterable, index) {
 	if (Standards.general.getType(iterable[Symbol.iterator]) == "Function") {
 		index = index || -1;
 		if (index >= 0) {
-			return iterable[iterable.length-1-index];
+			return iterable[iterable.length - 1 - index];
 		} else {
-			return iterable[iterable.length+index];
+			return iterable[iterable.length + index];
 		}
 	} else {
 		throw "The provided item isn't iterable.";
@@ -1599,9 +1613,9 @@ Standards.general.toArray = function () {
 	var index1 = 0,
 		index2,
 		returnList = [];
-	for (index1; index1<arguments.length; index1++) {
+	for (index1; index1 < arguments.length; index1++) {
 		if (arguments[index1][0] && arguments[index1].length) {  //// Standards.general.getType(list[Symbol.iterator]) == "Function"
-			for (index2=0; index2<arguments[index1].length; index2++) {
+			for (index2 = 0; index2 < arguments[index1].length; index2++) {
 				returnList.push(arguments[index1][index2]);
 			}
 		} else if (arguments[index1].length == undefined || arguments[index1].length > 0) {  // filters out empty lists
@@ -1615,7 +1629,7 @@ Standards.general.toObject = function () {
 	/**
 
 	*/
-	
+
 };
 
 Standards.general.forEach = function (list, doStuff, shouldCopy) {
@@ -1631,7 +1645,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 			keys = Object.keys(list),
 			index = 0,
 			returnValue;
-		shouldCopy = shouldCopy===undefined ? false : shouldCopy;
+		shouldCopy = shouldCopy === undefined ? false : shouldCopy;
 		if (shouldCopy) {
 			associativeList = JSON.parse(JSON.stringify(list));
 		} else {
@@ -1682,7 +1696,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		let index = 0,
 			returnValue;
 		while (index < list) {
-			returnValue = doStuff(list-index, index, list);
+			returnValue = doStuff(list - index, index, list);
 			if (returnValue == "break") {
 				break;
 			} else {
@@ -1715,16 +1729,16 @@ Standards.general.compare = function (iterable1, iterable2) {
 		let sc;  // substitution cost
 		for (let y = 1; y <= iterable2.length; y++) {
 			for (let x = 1; x <= iterable1.length; x++) {
-				if (iterable1[x-1] == iterable2[y-1]) {  // if the iterables are the same at the current indices
+				if (iterable1[x - 1] == iterable2[y - 1]) {  // if the iterables are the same at the current indices
 					sc = 0;
 				} else {
 					sc = 1;
 				}
 				// fills the current item with the number of changes needed in the most efficient method of modification
 				matrix[x][y] = Math.min(
-					matrix[x-1][y] + 1,    // if a deletion is used
-					matrix[x][y-1] + 1,    // if an insertion is used
-					matrix[x-1][y-1] + sc  // if a substitution is used
+					matrix[x - 1][y] + 1,    // if a deletion is used
+					matrix[x][y - 1] + 1,    // if an insertion is used
+					matrix[x - 1][y - 1] + sc  // if a substitution is used
 				);
 			}
 		}
@@ -1735,50 +1749,553 @@ Standards.general.compare = function (iterable1, iterable2) {
 	}
 };
 
-Standards.general.listen = function (item, event, behavior, listenOnce) {
+Standards.general.listen = function (item, event, behavior, options) {
 	/**
 	adds an event listener to the item
 	waiting for an element to load is unnecessary if the item is a string (of an ID)
 	arguments:
-		item = what will be listening
-		event = the event being listened for
-		behavior = what to do when the event is triggered
+		item = required*; what will be listening
+			* not required if listening to a key press
+		    when a key:
+				the key or array of keys of interest
+				keys are designated by the "key" property of a KeyboardEvent object
+				special values:
+					"letter" = all capital and lowercase letters
+					"number" = a key that produces a number
+					"character" = any key that produces a character (includes whitespace characters)
+					"any" = when any key is pressed
+		event = required; the event being listened for
+		behavior = required; what to do when the event is triggered
 			if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
-		listenOnce = whether the event listener should only be triggered once
-			default = false
-	non-native functions = Standards.general.queue.add() and toArray()
+		options = optional; various specifications for the listener
+			can instead be whether the event listener should only be triggered once
+			possibilities:
+				runOrder = when the listener is run in the queue
+					default: "later"
+				listenOnce = whether the listener should be removed after being called
+					default: false
+				allowDefault = whether the default action of the key press should be allowed
+					default: false
+				recheckTime = the number of milliseconds before status is checked again
+					specifying recheckTime but not triggerTime causes triggerTime to be equal to recheckTime
+					default: 15
+				triggerTime = the number of milliseconds before the behavior is called once
+					if the trigger time is less than or equal to the recheckTime, the behavior will be executed at every recheckTime
+					default: 300
+			default = { listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 }
+	non-native functions = getType(), Standards.general.queue.add()
 	*/
-	listenOnce = listenOnce===undefined ? false : listenOnce;
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (item, event, behavior) {
-			if (typeof item == "string") {
-				item = document.getElementById(item);
-			} else if (typeof item == "function") {
-				item = item();
+	switch (Standards.general.getType(options)) {
+		case "Boolean":
+			options = { listenOnce: options, allowDefault: false, recheckTime: 15 };
+			break;
+		case "Object":
+			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.listenOnce) != "String") {
+				options.listenOnce = "later";
 			}
-			if (event == "hover") {
-				if (behavior instanceof Array) {
-					if (typeof behavior[0] == "string" || typeof behavior[1] == "string") {
-						console.error('The value of "function" must not be a string.');
-					}
-					item.addEventListener("mouseenter", behavior[0]);
-					item.addEventListener("mouseleave", behavior[1]);
+			if (!options.hasOwnProperty("listenOnce") || Standards.general.getType(options.listenOnce) != "Boolean") {
+				options.listenOnce = false;
+			}
+			if (!options.hasOwnProperty("allowDefault") || Standards.general.getType(options.allowDefault) != "Boolean") {
+				options.allowDefault = false;
+			}
+			if (options.hasOwnProperty("recheckTime") && !options.hasOwnProperty("triggerTime")) {
+				if (Standards.general.getType(options.recheckTime) == "Number" && options.recheckTime != Infinity) {
+					options.triggerTime = options.recheckTime;
 				} else {
-					console.error('Trying to listen for the event "hover" without a second function isn\'t supported yet.');
+					console.warn("An improper recheckTime was given.");
 				}
+			}
+			if (!options.hasOwnProperty("recheckTime") || Standards.general.getType(options.recheckTime) != "Number" || options.recheckTime == Infinity) {
+				options.recheckTime = 15;
+			}
+			if (!options.hasOwnProperty("triggerTime") || Standards.general.getType(options.triggerTime) != "Number" || options.triggerTime == Infinity) {
+				options.triggerTime = 300;
+			}
+			if (options.triggerTime < options.recheckTime) {
+				options.triggerTime = options.recheckTime;
+			}
+			break;
+		default:
+			options = { listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 };
+	}
+	Standards.general.queue.add({
+		runOrder: options.runOrder,
+		function: function (item, event, behavior, options) {
+			if (Standards.general.getType(event) == "String") {
+				event = event.toLowerCase();
 			} else {
-				if (listenOnce) {
-					item.addEventListener(event, function () {
-						behavior.call(this);
-						item.removeEventListener(event, arguments.callee);
-					});
-				} else {
-					item.addEventListener(event, behavior);
-				}
+				console.error(new TypeError("An improper event was provided."));
+			}
+			switch (Standards.general.getType(item)) {
+				case "String":
+					item = document.getElementById(item);
+					break;
+				case "Function":
+					item = item();
+					break;
+				case "HTMLElement":
+					// do nothing
+					break;
+				default:
+					if (!event.includes("key")) {
+						console.error(new TypeError("The item to listen to is of an improper type."));
+					}
+			}
+			switch (event) {
+				case "hover":
+					if (Standards.general.getType(behavior) == "Array") {
+						if (Standards.general.getType(behavior[0]) == "String" || Standards.general.getType(behavior[1]) == "String") {
+							console.error('The value of "function" must not be a string.');
+						}
+						item.addEventListener("mouseenter", behavior[0]);
+						item.addEventListener("mouseleave", behavior[1]);
+					} else {
+						console.error('Trying to listen for the event "hover" without a second function isn\'t supported yet.');
+					}
+					break;
+				case "keydown":
+				case "keyhold":
+				case "keyup":
+					if (item == "letter") {
+						item = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
+					} else if (item == "number") {
+						item = "0123456789".split();
+					} else if (item == "character") {
+						item = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
+						item.push("Enter");
+						item.push("Tab");
+					}
+					if (event == "keydown") {
+						if (Standards.general.getType(item) == "Array") {
+							if (options.allowDefault) {
+								document.addEventListener("keydown", function (event) {
+									if (item.includes(event.key)) {
+										behavior(event);
+									}
+								});
+							} else {
+								document.addEventListener("keydown", function (action) {
+									if (item.includes(action.key)) {
+										action.preventDefault();
+										behavior(action);
+									}
+								});
+							}
+						} else if (Standards.general.getType(item) == "String") {
+							if (item == "any") {
+								if (options.allowDefault) {
+									document.addEventListener("keydown", behavior);
+								} else {
+									document.addEventListener("keydown", function (action) {
+										action.preventDefault();
+										behavior(action);
+									});
+								}
+							} else {
+								if (options.allowDefault) {
+									document.addEventListener("keydown", function (action) {
+										if (action.key == item) {
+											behavior(action);
+										}
+									});
+								} else {
+									document.addEventListener("keydown", function (action) {
+										if (action.key == item) {
+											action.preventDefault();
+											behavior(action);
+										}
+									});
+								}
+							}
+						} else {
+							console.error("An invalid key type was given.");
+						}
+					} else if (event == "keyhold") {
+						let recurrenceLoop;
+						if (item == "any") {
+							let activeKeys = [];
+							if (allowDefault) {
+								if (options.recheckTime == options.triggerTime) {
+									document.addEventListener("keydown", function (action) {
+										if (!activeKeys.includes(action.key)) {
+											activeKeys.push(action.key);
+											if (activeKeys.length == 1) {
+												recurrenceLoop = setInterval(function () {
+													behavior(activeKeys);
+												}, recheckTime);
+											}
+										}
+									});
+									document.addEventListener("keyup", function (action) {
+										activeKeys.splice(activeKeys.indexOf(action.key), 1);
+										if (activeKeys.length == 0) {
+											clearInterval(recurrenceLoop);
+										}
+									});
+								} else {
+									console.error("This functionality isn't supported yet.");  ////
+								}
+							} else {
+								if (options.recheckTime == options.triggerTime) {
+									document.addEventListener("keydown", function (action) {
+										action.preventDefault();
+										if (!activeKeys.includes(action.key)) {
+											activeKeys.push(action.key);
+											if (activeKeys.length == 1) {
+												recurrenceLoop = setInterval(function () {
+													behavior(activeKeys);
+												}, recheckTime);
+											}
+										}
+									});
+									document.addEventListener("keyup", function (action) {
+										action.preventDefault();
+										activeKeys.splice(activeKeys.indexOf(action.key), 1);
+										if (activeKeys.length == 0) {
+											clearInterval(recurrenceLoop);
+										}
+									});
+								} else {
+									console.error("This functionality isn't supported yet.");  ////
+								}
+							}
+						} else if (Standards.general.getType(item) == "Array") {
+							let activeKeys = [];
+							if (allowDefault) {
+								if (options.recheckTime == options.triggerTime) {
+									document.addEventListener("keydown", function (action) {
+										if (item.includes(action.key) && !activeKeys.includes(action.key)) {
+											activeKeys.push(action.key);
+											if (activeKeys.length == 1) {
+												recurrenceLoop = setInterval(function () {
+													behavior(activeKeys);
+												}, recheckTime);
+											}
+										}
+									});
+									document.addEventListener("keyup", function (action) {
+										if (item.includes(action.key)) {
+											activeKeys.splice(activeKeys.indexOf(action.key), 1);
+											if (activeKeys.length == 0) {
+												clearInterval(recurrenceLoop);
+											}
+										}
+									});
+								} else {
+									console.error("This functionality isn't supported yet.");  ////
+								}
+							} else {
+								if (options.recheckTime == options.triggerTime) {
+									document.addEventListener("keydown", function (action) {
+										if (item.includes(action.key)) {
+											action.preventDefault();
+											if (!activeKeys.includes(action.key)) {
+												activeKeys.push(action.key);
+												if (activeKeys.length == 1) {
+													recurrenceLoop = setInterval(function () {
+														behavior(activeKeys);
+													}, recheckTime);
+												}
+											}
+										}
+									});
+									document.addEventListener("keyup", function (action) {
+										if (item.includes(action.key)) {
+											action.preventDefault();
+											activeKeys.splice(activeKeys.indexOf(action.key), 1);
+											if (activeKeys.length == 0) {
+												clearInterval(recurrenceLoop);
+											}
+										}
+									});
+								} else {
+									console.error("This functionality isn't supported yet.");  ////
+								}
+							}
+						} else if (Standards.general.getType(item) == "String") {
+							let keyActive = false;
+							if (allowDefault) {
+								if (options.recheckTime == options.triggerTime) {
+									document.addEventListener("keydown", function (action) {
+										if (action.key == item && !keyActive) {
+											keyActive = true;
+											recurrenceLoop = setInterval(behavior, recheckTime);
+										}
+									});
+									document.addEventListener("keyup", function (action) {
+										if (action.key == item) {
+											keyActive = false;
+											clearInterval(recurrenceLoop);
+										}
+									});
+								} else {
+									console.error("This functionality isn't supported yet.");  ////
+								}
+							} else {
+								if (options.recheckTime == options.triggerTime) {
+									document.addEventListener("keydown", function (action) {
+										if (action.key == item) {
+											action.preventDefault();
+											if (!keyActive) {
+												keyActive = true;
+												recurrenceLoop = setInterval(behavior, recheckTime);
+											}
+										}
+									});
+									document.addEventListener("keyup", function (action) {
+										if (action.key == item) {
+											action.preventDefault();
+											keyActive = false;
+											clearInterval(recurrenceLoop);
+										}
+									});
+								} else {
+									console.error("This functionality isn't supported yet.");  ////
+								}
+							}
+						} else {
+							console.error("An invalid key type was given.");
+						}
+					} else {  // keyup
+						if (Standards.general.getType(item) == "Array") {
+							if (allowDefault) {
+								document.addEventListener("keyup", function (action) {
+									if (item.includes(action.key)) {
+										behavior(action);
+									}
+								});
+							} else {
+								document.addEventListener("keyup", function (action) {
+									if (item.includes(action.key)) {
+										action.preventDefault();
+										behavior(action);
+									}
+								});
+							}
+						} else if (Standards.general.getType(item) == "String") {
+							if (item == "any") {
+								if (allowDefault) {
+									document.addEventListener("keyup", behavior);
+								} else {
+									document.addEventListener("keyup", function (action) {
+										action.preventDefault();
+										behavior(action);
+									});
+								}
+							} else {
+								if (allowDefault) {
+									document.addEventListener("keyup", function (action) {
+										if (action.key == item) {
+											behavior(action);
+										}
+									});
+								} else {
+									document.addEventListener("keyup", function (action) {
+										if (action.key == item) {
+											action.preventDefault();
+											behavior(action);
+										}
+									});
+								}
+							}
+						} else {
+							console.error("An invalid key type was given.");
+						}
+					}
+					break;
+				case "mousehold":
+					if (options.allowDefault) {
+						let recurrenceLoop,
+							mouseDown = false;
+						if (options.triggerTime == options.recheckTime) {
+							item.addEventListener("mousedown", function () {
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(behavior, options.recheckTime);
+								}
+							});
+							item.addEventListener("mouseup", function () {
+								clearInterval(recurrenceLoop);
+							});
+						} else {
+							let runTimes = 0;
+							item.addEventListener("mousedown", function () {
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(function () {
+										if (++runTimes == Math.round(options.triggerTime / options.recheckTime)) {
+											behavior();
+										}
+									}, options.recheckTime);
+								}
+							});
+							item.addEventListener("mouseup", function () {
+								clearInterval(recurrenceLoop);
+								runTimes = 0;
+							});
+						}
+					} else {
+						let recurrenceLoop,
+							mouseDown = false;
+						if (options.triggerTime == options.recheckTime) {
+							item.addEventListener("mousedown", function (action) {
+								action.preventDefault();
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(behavior, options.recheckTime);
+								}
+							});
+							item.addEventListener("mouseup", function (action) {
+								action.preventDefault();
+								clearInterval(recurrenceLoop);
+							});
+						} else {
+							let runTimes = 0;
+							item.addEventListener("mousedown", function (action) {
+								action.preventDefault();
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(function () {
+										if (++runTimes == Math.round(options.triggerTime / options.recheckTime)) {
+											behavior();
+										}
+									}, options.recheckTime);
+								}
+							});
+							item.addEventListener("mouseup", function (action) {
+								action.preventDefault();
+								clearInterval(recurrenceLoop);
+								runTimes = 0;
+							});
+						}
+					}
+					break;
+				case "touchhold":
+					if (options.allowDefault) {
+						let recurrenceLoop,
+							mouseDown = false,
+							movement = false;
+						if (options.triggerTime == options.recheckTime) {
+							item.addEventListener("touchstart", function () {
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(behavior, options.recheckTime);
+								}
+							});
+							item.addEventListener("touchmove", function () {
+								clearInterval(recurrenceLoop);
+								movement = true;
+							});
+							item.addEventListener("touchend", function () {
+								if (!movement) {
+									clearInterval(recurrenceLoop);
+								} else {
+									movement = false;
+								}
+							});
+						} else {
+							let runTimes = 0;
+							item.addEventListener("touchstart", function () {
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(function () {
+										if (++runTimes == Math.round(options.triggerTime / options.recheckTime)) {
+											behavior();
+										}
+									}, options.recheckTime);
+								}
+							});
+							item.addEventListener("touchmove", function () {
+								clearInterval(recurrenceLoop);
+								runTimes = 0;
+								movement = true;
+							});
+							item.addEventListener("touchend", function () {
+								if (!movement) {
+									clearInterval(recurrenceLoop);
+									runTimes = 0;
+								} else {
+									movement = false;
+								}
+							});
+						}
+					} else {
+						let recurrenceLoop,
+							mouseDown = false,
+							movement = false;
+						if (options.triggerTime == options.recheckTime) {
+							item.addEventListener("touchstart", function (action) {
+								action.preventDefault();
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(behavior, options.recheckTime);
+								}
+							});
+							item.addEventListener("touchmove", function (action) {
+								action.preventDefault();
+								clearInterval(recurrenceLoop);
+								movement = true;
+							});
+							item.addEventListener("touchend", function (action) {
+								action.preventDefault();  // This prevents things like pressing buttons.
+								if (!movement) {
+									clearInterval(recurrenceLoop);
+								} else {
+									movement = false;
+								}
+							});
+						} else {
+							let runTimes = 0;
+							item.addEventListener("touchstart", function (action) {
+								action.preventDefault();
+								if (!mouseDown) {
+									recurrenceLoop = setInterval(function () {
+										if (++runTimes == Math.round(options.triggerTime / options.recheckTime)) {
+											behavior();
+										}
+									}, options.recheckTime);
+								}
+							});
+							item.addEventListener("touchmove", function (action) {
+								action.preventDefault();
+								clearInterval(recurrenceLoop);
+								runTimes = 0;
+								movement = true;
+							});
+							item.addEventListener("touchend", function (action) {
+								action.preventDefault();  // This prevents things like pressing buttons.
+								if (!movement) {
+									clearInterval(recurrenceLoop);
+									runTimes = 0;
+								} else {
+									movement = false;
+								}
+							});
+						}
+					}
+					// There are more touch events.
+					break;
+				default:
+					if (options.listenOnce) {
+						if (options.allowDefault) {
+							item.addEventListener(event, function (action) {
+								behavior.call(this, action);
+								item.removeEventListener(event, arguments.callee);
+							});
+						} else {
+							item.addEventListener(event, function (action) {
+								action.preventDefault();
+								behavior.call(this, action);
+								item.removeEventListener(event, arguments.callee);
+							});
+						}
+					} else {
+						if (options.allowDefault) {
+							item.addEventListener(event, behavior);
+						} else {
+							item.addEventListener(event, function (action) {
+								action.preventDefault();
+								behavior.call(this, action);
+							});
+						}
+					}
 			}
 		},
-		arguments: [item, event, behavior]
+		arguments: [item, event, behavior, options]
 	});
 };
 
@@ -3075,7 +3592,7 @@ Standards.general.parse_str = function (encodedString) {
 				}
 				path = path[subkey];
 			});
-			path[decodeURIComponent(key[key.length-1])] = decodeURIComponent(value);
+			path[decodeURIComponent(key[key.length - 1])] = decodeURIComponent(value);
 			/// "decodedObject" doesn't need to be used because "path" is "decodedObject".
 		} else {
 			decodedObject[decodeURIComponent(key)] = decodeURIComponent(value);
@@ -4382,9 +4899,6 @@ Standards.general.storage.server = {
 		if (!Standards.general.storage.server.checkCompatibility()) {
 			return;
 		}
-		if (location == "~") {
-			throw "Listing at this level currently isn't supported.";
-		}
 		return new Promise(function (resolve, reject) {
 			if (location === undefined) {
 				location = "./";
@@ -4397,20 +4911,29 @@ Standards.general.storage.server = {
 				Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 					let preKey = "";
 					if (location[0] == "~") {
-						Standards.general.forEach(collection.docs, function (doc) {
-							if (doc.id.slice(0, location.length) == location) {
-								if (doc.id.length > location.length) {
-									preKey = doc.id.slice(location.length + 1) + "/";
-								} else {
-									preKey = "";
+						if (location == "~") {
+							Standards.general.forEach(collection.docs, function (doc) {
+								let key = doc.id.split("/")[0];
+								if (!keyList.includes(key)) {
+									keyList.push(key);
 								}
-								Standards.general.forEach(doc.data(), function (value, key) {
-									if (key != "<document>") {
-										keyList.push(preKey + key);
+							});
+						} else {
+							Standards.general.forEach(collection.docs, function (doc) {
+								if (doc.id.slice(0, location.length) == location) {
+									if (doc.id.length > location.length) {
+										preKey = doc.id.slice(location.length + 1) + "/";
+									} else {
+										preKey = "";
 									}
-								});
-							}
-						});
+									Standards.general.forEach(doc.data(), function (value, key) {
+										if (key != "<document>") {
+											keyList.push(preKey + key);
+										}
+									});
+								}
+							});
+						}
 					} else {
 						Standards.general.forEach(collection.docs, function (doc) {
 							if (doc.id.search(new RegExp("^users/[^/]+/" + location)) > -1) {
@@ -4428,13 +4951,17 @@ Standards.general.storage.server = {
 							}
 						});
 					}
-					new Promise(function () {
-						callback(keyList);
-					}).catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					});
-					resolve();
+					if (callback) {
+						new Promise(function () {
+							callback(keyList);
+							resolve(keyList);
+						}).catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+						});
+					} else {
+						resolve(keyList);
+					}
 				}).catch(function (error) {
 					console.error("There was an error finding the information.");
 					console.error(error);
@@ -4457,7 +4984,7 @@ Standards.general.storage.server = {
 												console.error(error);
 											});
 											listener.removeEventListener("change", arguments.callee);
-											resolve();
+											resolve(keyList);
 										}
 									});
 									/// when a new document is encountered, listener.value is incremented
@@ -4495,7 +5022,7 @@ Standards.general.storage.server = {
 										console.error("There was a problem running the callback.");
 										console.error(error);
 									});
-									resolve();
+									resolve(keyList);
 								}
 							} else {
 								////
@@ -4570,7 +5097,7 @@ Standards.general.storage.server = {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 										});
-										resolve();
+										resolve(keyList);
 									}).catch(function (error) {
 										console.error("There was an error finding the information.");
 										console.error(error);
@@ -4597,9 +5124,27 @@ Standards.general.storage.server = {
 				});
 			} else if (Standards.general.storage.server.locationType == "deep") {
 				let reference = Standards.general.storage.server.getReference(location);
+				if (location[0] == "~") {
+					location = location.slice(1);
+				}
 				reference.collection("<collection>").get().then(function (collectionProbe) {
 					if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-						if (location.slice(-1) == "/") {
+						if (location == "") {
+							Standards.general.forEach(collectionProbe.docs, function (doc) {
+								keyList.push(doc.id);
+							});
+							if (callback) {
+								new Promise(function () {
+									callback(keyList);
+									resolve(keyList);
+								}).catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+								});
+							} else {
+								resolve(keyList);
+							}
+						} else if (location.slice(-1) == "/") {
 							let listener = new Standards.general.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
@@ -4607,13 +5152,15 @@ Standards.general.storage.server = {
 									if (callback) {
 										new Promise(function () {
 											callback(keyList);
+											resolve(keyList);
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 										});
+									} else {
+										resolve(keyList);
 									}
 									listener.removeEventListener("change", arguments.callee);
-									resolve();
 								}
 							});
 							/// when a new document is encountered, listener.value is incremented
@@ -4664,22 +5211,30 @@ Standards.general.storage.server = {
 								} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {
 									keyList.push(location);
 								}
-								new Promise(function () {
-									callback(keyList);
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-								});
+								if (callback) {
+									new Promise(function () {
+										callback(keyList);
+										resolve(keyList);
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+									});
+								} else {
+									resolve(keyList);
+								}
 							} else {
 								console.warn("An attempt was made to access a non-existent document.");
-								new Promise(function () {
-									callback(keyList);
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-								});
+								if (callback) {
+									new Promise(function () {
+										callback(keyList);
+										resolve(keyList);
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+									});
+								} else {
+									resolve(keyList);
+								}
 							}
 						}).catch(function (error) {
 							console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
@@ -5196,8 +5751,6 @@ addEventListener("load", function () {  // This waits for everything past the sc
 	}
 	
 	Standards.general.queue.run();
-	Standards.general.finished = true;
-	window.dispatchEvent(new Event("finished"));  // This can't be CustomEvent or else it won't work on any version of Internet Explorer.
 });
 
 // remember new Function(), function*, and ``
