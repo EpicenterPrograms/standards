@@ -1790,7 +1790,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 			options = { listenOnce: options, allowDefault: false, recheckTime: 15 };
 			break;
 		case "Object":
-			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.listenOnce) != "String") {
+			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.runOrder) != "String") {
 				options.runOrder = "later";
 			}
 			if (!options.hasOwnProperty("listenOnce") || Standards.general.getType(options.listenOnce) != "Boolean") {
@@ -1817,7 +1817,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 			}
 			break;
 		default:
-			options = { listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 };
+			options = { runOrder: "later", listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 };
 	}
 	Standards.general.queue.add({
 		runOrder: options.runOrder,
@@ -1827,20 +1827,22 @@ Standards.general.listen = function (item, event, behavior, options) {
 			} else {
 				console.error(new TypeError("An improper event was provided."));
 			}
-			switch (Standards.general.getType(item)) {
-				case "String":
-					item = document.getElementById(item);
-					break;
-				case "Function":
-					item = item();
-					break;
-				case "HTMLElement":
-					// do nothing
-					break;
-				default:
-					if (!event.includes("key")) {
-						console.error(new TypeError("The item to listen to is of an improper type."));
-					}
+			if (!event.includes("key")) {
+				switch (Standards.general.getType(item)) {
+					case "String":
+						item = document.getElementById(item);
+						break;
+					case "Function":
+						item = item();
+						break;
+					case "HTMLElement":
+						// do nothing
+						break;
+					default:
+						if (!event.includes("key")) {
+							console.error(new TypeError("The item to listen to is of an improper type."));
+						}
+				}
 			}
 			switch (event) {
 				case "hover":
