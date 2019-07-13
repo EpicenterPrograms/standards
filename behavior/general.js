@@ -1791,7 +1791,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 			break;
 		case "Object":
 			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.listenOnce) != "String") {
-				options.listenOnce = "later";
+				options.runOrder = "later";
 			}
 			if (!options.hasOwnProperty("listenOnce") || Standards.general.getType(options.listenOnce) != "Boolean") {
 				options.listenOnce = false;
