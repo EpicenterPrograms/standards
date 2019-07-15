@@ -129,8 +129,8 @@ body.navigation .nav-list-expander * {
 	padding-bottom: 0rem;
 	height: 0rem;
 }
-body.navigation li.expandable .expander-arrow::after {
-	content: "\01f53b";
+body.navigation li.expandable > a::after {
+	content: " \0023f7";
 }
 body.navigation li.expandable ul, body.navigation li.expandable ol {
 	display: block;
@@ -138,8 +138,8 @@ body.navigation li.expandable ul, body.navigation li.expandable ol {
 	overflow: hidden;
 	transition: height .4s;
 }
-body.navigation li.expandable:hover .expander-arrow::after {
-	content: "\01f53a";
+body.navigation li.expandable:hover > a::after {
+	content: " \0023f6";
 }
 body.navigation li.expandable:hover ul, body.navigation li.expandable:hover ol {
 	height: auto;
