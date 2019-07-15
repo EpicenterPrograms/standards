@@ -43,7 +43,7 @@ window.addEventListener("load", function () {
 							itemHTML += "' class='current-selction";
 						}
 					} catch { }
-					itemHTML += "'>" + subpair[1] + "</a><ul>";
+					itemHTML += "'>" + subpair[1] + "</a><span class='expander-arrow'> </span><ul>";
 				} else {
 					itemHTML += "<li";
 					try {
