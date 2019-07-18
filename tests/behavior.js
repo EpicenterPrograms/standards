@@ -4562,10 +4562,12 @@ Standards.general.storage.server = {
 					if (Standards.general.getType(item) == "Object") {
 						reference.set(item, { merge: true }).then(function () {
 							if (callback) {
-								callback()/*.catch(function (error) {
+								new Promise(function () {
+									callback();
+								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
-								})*/;
+								});
 							}
 							resolve();
 						}).catch(function (error) {
@@ -4580,10 +4582,12 @@ Standards.general.storage.server = {
 								[location.slice(location.lastIndexOf("/") + 1)]: item
 							}, { merge: true }).then(function () {
 								if (callback) {
-									callback()/*.catch(function (error) {
+									new Promise(function () {
+										callback();
+									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
-									})*/;
+									});
 								}
 								resolve();
 							}).catch(function (error) {
@@ -4599,14 +4603,16 @@ Standards.general.storage.server = {
 						[location.slice(location.lastIndexOf("/") + 1)]: item
 					}, { merge: true }).then(function () {
 						if (callback) {
-							callback()/*.catch(function (error) {
+							new Promise(function () {
+								callback();
+							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
-							})*/;
+							});
 						}
 						resolve();
 					}).catch(function (error) {
-						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 						console.error(error);
 					});
 				}
@@ -4625,47 +4631,57 @@ Standards.general.storage.server = {
 						let data = doc.data();
 						delete data["<document>"];
 						if (callback) {
-							callback(data)/*.catch(function (error) {
+							new Promise(function () {
+								callback(data);
+							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
-							})*/;
+							});
 						}
 						resolve(data);
 					} else {
 						//// There might be something to do here depending on the locationType.
 						console.warn("An attempt was made to access a non-existent document.");
-						callback(Error("The information couldn't be found."))/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
+						if (callback) {
+							new Promise(function () {
+								callback(Error("The information couldn't be found."));
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+							});
+						}
 						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
-					console.error("There was an error retrieving the information."); // Putting an extra error here allows origin tracing when the error happens in Firebase
+					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 					console.error(error);
 				});
 			} else {  // if retrieving a single item
 				Standards.general.storage.server.getReference(location).get().then(function (doc) {
 					if (doc.exists) {
 						if (callback) {
-							callback(doc.data()[location.slice(location.lastIndexOf("/") + 1)])/*.catch(function (error) {
+							new Promise(function () {
+								callback(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
+							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
-							})*/;
+							});
 						}
 						resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
 					} else {
 						console.warn("An attempt was made to access a non-existent document.");
 						if (callback) {
-							callback(Error("The information couldn't be found."))/*.catch(function (error) {
+							new Promise(function () {
+								callback(Error("The information couldn't be found."));
+							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
-							})*/;
+							});
 						}
 						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
-					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 					console.error(error);
 				});
 			}
@@ -4692,10 +4708,12 @@ Standards.general.storage.server = {
 								listener.addEventListener("change", function (value) {
 									if (value == 0) {  // once all items have been deleted
 										if (callback) {
-											callback()/*.catch(function (error) {
+											new Promise(function () {
+												callback();
+											}).catch(function (error) {
 												console.error("There was a problem running the callback.");
 												console.error(error);
-											})*/;
+											});
 										}
 										listener.removeEventListener("change", arguments.callee);
 										resolve();
@@ -4726,10 +4744,12 @@ Standards.general.storage.server = {
 							} else {
 								console.warn("The indicated document doesn't exist.");
 								if (callback) {
-									callback()/*.catch(function (error) {
+									new Promise(function () {
+										callback();
+									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
-									})*/;
+									});
 								}
 								resolve();
 							}
@@ -4742,10 +4762,12 @@ Standards.general.storage.server = {
 							[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
 						}).then(function () {
 							if (callback) {
-								callback()/*.catch(function (error) {
+								new Promise(function () {
+									callback();
+								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
-								})*/;
+								});
 							}
 							resolve();
 						}).catch(function (error) {
@@ -4760,10 +4782,12 @@ Standards.general.storage.server = {
 						} else {
 							console.warn("The indicated document doesn't exist.");
 							if (callback) {
-								callback()/*.catch(function (error) {
+								new Promise(function () {
+									callback();
+								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
-								})*/;
+								});
 							}
 							resolve();
 							return;
@@ -4788,10 +4812,12 @@ Standards.general.storage.server = {
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been deleted
 									if (callback) {
-										callback()/*.catch(function (error) {
+										new Promise(function () {
+											callback();
+										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
-										})*/;
+										});
 									}
 									listener.removeEventListener("change", arguments.callee);
 									resolve();
@@ -4813,10 +4839,12 @@ Standards.general.storage.server = {
 						} else {
 							console.warn("The indicated document doesn't exist.");
 							if (callback) {
-								callback()/*.catch(function (error) {
+								new Promise(function () {
+									callback();
+								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
-								})*/;
+								});
 							}
 							resolve();
 							return;
@@ -4852,10 +4880,12 @@ Standards.general.storage.server = {
 									listener.addEventListener("change", function (value) {
 										if (value == 0) {  // once all items have been deleted
 											if (callback) {
-												callback()/*.catch(function (error) {
+												new Promise(function () {
+													callback();
+												}).catch(function (error) {
 													console.error("There was a problem running the callback.");
 													console.error(error);
-												})*/;
+												});
 											}
 											listener.removeEventListener("change", arguments.callee);
 											resolve();
@@ -4907,22 +4937,23 @@ Standards.general.storage.server = {
 			}
 			location = Standards.general.storage.server.formatLocation(location, true);
 			let keyList = [];
-			if (Standards.general.storage.server.locationType == "shallow") {
+			if (Standards.general.storage.server.locationType == "shallow") {  // if all documents are held in one collection
 				Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
-					let preKey = "";
-					if (location[0] == "~") {
-						if (location == "~") {
+					let preKey = "";  // holds the found file locations (document IDs)
+					if (location[0] == "~") {  // if it's an absolute file loction (outside of a user's directory)
+						if (location == "~") {  // if trying to get all keys
 							Standards.general.forEach(collection.docs, function (doc) {
 								let key = doc.id.split("/")[0];
 								if (!keyList.includes(key)) {
 									keyList.push(key);
 								}
 							});
-						} else {
+							/// returns only the first folder level of everything at the top of the directory
+						} else if (location.slice(-1) == "/") {  // if getting the key names within a folder
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id.slice(0, location.length) == location) {
+								if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > location.length) {
-										preKey = doc.id.slice(location.length + 1) + "/";
+										preKey = doc.id.slice(location.length) + "/";
 									} else {
 										preKey = "";
 									}
@@ -4933,11 +4964,33 @@ Standards.general.storage.server = {
 									});
 								}
 							});
+						} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
+							Standards.general.forEach(collection.docs, function (doc) {
+								if (doc.id == location.split("/").slice(0, -1).join("/")) {  // if the document is one folder-level up
+									if (doc.data().hasOwnProperty(location.split("/").slice(-1)[0])) {  // if the document has the key at the end of the location
+										keyList.push(location.split("/").slice(-1)[0]);
+									}
+								} else {
+									if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
+										if (doc.id.length > location.length) {
+											preKey = doc.id.slice(location.length + 1) + "/";
+										} else {
+											preKey = "";
+										}
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(preKey + key);
+											}
+										});
+									}
+								}
+							});
 						}
-					} else {
+					} else {  // if the location is within the user's directory
+						location = "users/" + Standards.general.storage.server.user.uid + "/" + location;
 						Standards.general.forEach(collection.docs, function (doc) {
-							if (doc.id.search(new RegExp("^users/[^/]+/" + location)) > -1) {
-								let locationLength = doc.id.match(new RegExp("^users/[^/]+/" + location))[0].length;
+							let locationLength = ("users/" + Standards.general.storage.server.user.uid + "/" + location).length;  // get length of the document's location
+							if (doc.id.slice(0, locationLength) == "users/" + Standards.general.storage.server.user.uid + "/" + location) {  // if the key contains location
 								if (doc.id.length > locationLength) {
 									preKey = doc.id.slice(locationLength + 1) + "/";
 								} else {
@@ -4966,7 +5019,7 @@ Standards.general.storage.server = {
 					console.error("There was an error finding the information.");
 					console.error(error);
 				});
-			} else if (Standards.general.storage.server.locationType == "hybrid") {
+			} else if (Standards.general.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
 				let reference = Standards.general.storage.server.getReference(location);
 				reference.get().then(function (doc) {
 					if (doc.exists) {  // if the location leads to an actual document
@@ -5122,7 +5175,7 @@ Standards.general.storage.server = {
 					console.error("There was an error finding the information.");
 					console.error(error);
 				});
-			} else if (Standards.general.storage.server.locationType == "deep") {
+			} else if (Standards.general.storage.server.locationType == "deep") {  // if every folder level is another nested document
 				let reference = Standards.general.storage.server.getReference(location);
 				if (location[0] == "~") {
 					location = location.slice(1);
@@ -5192,7 +5245,7 @@ Standards.general.storage.server = {
 								}
 								listener.value--;
 							}).catch(function (error) {
-								console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+								console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 								console.error(error);
 							});
 						} else {
@@ -5237,7 +5290,7 @@ Standards.general.storage.server = {
 								}
 							}
 						}).catch(function (error) {
-							console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+							console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 							console.error(error);
 						});
 					}
