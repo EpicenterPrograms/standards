@@ -1835,6 +1835,8 @@ Standards.general.listen = function (item, event, behavior, options) {
 					case "Function":
 						item = item();
 						break;
+					case "Window":
+					case "HTMLDocument":
 					case "HTMLElement":
 						// do nothing
 						break;
