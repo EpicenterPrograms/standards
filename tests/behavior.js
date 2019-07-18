@@ -4988,21 +4988,43 @@ Standards.general.storage.server = {
 						}
 					} else {  // if the location is within the user's directory
 						location = "users/" + Standards.general.storage.server.user.uid + "/" + location;
-						Standards.general.forEach(collection.docs, function (doc) {
-							let locationLength = ("users/" + Standards.general.storage.server.user.uid + "/" + location).length;  // get length of the document's location
-							if (doc.id.slice(0, locationLength) == "users/" + Standards.general.storage.server.user.uid + "/" + location) {  // if the key contains location
-								if (doc.id.length > locationLength) {
-									preKey = doc.id.slice(locationLength + 1) + "/";
-								} else {
-									preKey = "";
-								}
-								Standards.general.forEach(doc.data(), function (value, key) {
-									if (key != "<document>") {
-										keyList.push(preKey + key);
-									}
-								});
-							}
-						});
+						if (location.slice(-1) == "/") {  // if getting the key names within a folder
+						    Standards.general.forEach(collection.docs, function (doc) {
+						        if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
+						            if (doc.id.length > location.length) {
+						                preKey = doc.id.slice(location.length) + "/";
+						            } else {
+						                preKey = "";
+						            }
+						            Standards.general.forEach(doc.data(), function (value, key) {
+						                if (key != "<document>") {
+						                    keyList.push(preKey + key);
+						                }
+						            });
+						        }
+						    });
+						} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
+						    Standards.general.forEach(collection.docs, function (doc) {
+						        if (doc.id == location.split("/").slice(0, -1).join("/")) {  // if the document is one folder-level up
+						            if (doc.data().hasOwnProperty(location.split("/").slice(-1)[0])) {  // if the document has the key at the end of the location
+						                keyList.push(location.split("/").slice(-1)[0]);
+						            }
+						        } else {
+						            if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
+						                if (doc.id.length > location.length) {
+						                    preKey = doc.id.slice(location.length + 1) + "/";
+						                } else {
+						                    preKey = "";
+						                }
+						                Standards.general.forEach(doc.data(), function (value, key) {
+						                    if (key != "<document>") {
+						                        keyList.push(preKey + key);
+						                    }
+						                });
+						            }
+						        }
+						    });
+						}
 					}
 					if (callback) {
 						new Promise(function () {
