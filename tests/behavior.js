@@ -4498,7 +4498,14 @@ Standards.general.storage.server = {
 					return reference;
 				}
 			}
-			location.split("/").forEach(function (place) {
+			if (!location.includes("/")) {
+			    reference = reference.collection("<collection>").doc(location);
+			    if (shouldCreate) {
+			        reference.set({ "<document>": "exists" }, { merge: true });
+			    }
+			    return reference;
+			}
+			location.split("/").slice(0, -1).forEach(function (place) {
 				reference = reference.collection("<collection>").doc(place);
 				if (shouldCreate) {
 					reference.set({ "<document>": "exists" }, { merge: true });
@@ -5199,9 +5206,6 @@ Standards.general.storage.server = {
 				});
 			} else if (Standards.general.storage.server.locationType == "deep") {  // if every folder level is another nested document
 				let reference = Standards.general.storage.server.getReference(location);
-				if (location[0] == "~") {
-					location = location.slice(1);
-				}
 				reference.collection("<collection>").get().then(function (collectionProbe) {
 					if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 						if (location == "") {
