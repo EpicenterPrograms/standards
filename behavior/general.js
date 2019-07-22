@@ -1775,7 +1775,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 				listenOnce = whether the listener should be removed after being called
 					default: false
 				allowDefault = whether the default action of the key press should be allowed
-					default: false
+					default: true
 				recheckTime = the number of milliseconds before status is checked again
 					specifying recheckTime but not triggerTime causes triggerTime to be equal to recheckTime
 					default: 15
@@ -1797,7 +1797,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 				options.listenOnce = false;
 			}
 			if (!options.hasOwnProperty("allowDefault") || Standards.general.getType(options.allowDefault) != "Boolean") {
-				options.allowDefault = false;
+				options.allowDefault = true;
 			}
 			if (options.hasOwnProperty("recheckTime") && !options.hasOwnProperty("triggerTime")) {
 				if (Standards.general.getType(options.recheckTime) == "Number" && options.recheckTime != Infinity) {
