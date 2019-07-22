@@ -4539,39 +4539,23 @@ Standards.general.storage.server = {
 							if (callback) {
 								new Promise(function () {
 									callback();
+									resolve();
 								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
+									reject(error);
 								});
+							} else {
+								resolve();
 							}
-							resolve();
 						}).catch(function (error) {
 							console.error("There was an error storing the information.");
 							console.error(error);
+							reject(error);
 						});
 					} else {
-						console.warn("The folder was converted into a key since the information wasn't an Object.");
-						if (location != "/") {
-							location = location.slice(0, -1);
-							reference.set({
-								[location.slice(location.lastIndexOf("/") + 1)]: item
-							}, { merge: true }).then(function () {
-								if (callback) {
-									new Promise(function () {
-										callback();
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-									});
-								}
-								resolve();
-							}).catch(function (error) {
-								console.error("There was an error storing the information.");
-								console.error(error);
-							});
-						} else {
-							throw "No storage key was provided.";
-						}
+						console.error("Storing a folder requires an Object as the item to store.");
+						reject(new TypeError("Storing a folder requires an Object as the item to store."));
 					}
 				} else {  // if storing a single key-value pair
 					reference.set({
@@ -4580,15 +4564,19 @@ Standards.general.storage.server = {
 						if (callback) {
 							new Promise(function () {
 								callback();
+								resolve();
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
+						} else {
+							resolve();
 						}
-						resolve();
 					}).catch(function (error) {
 						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 						console.error(error);
+						reject(error);
 					});
 				}
 			});
@@ -4608,28 +4596,35 @@ Standards.general.storage.server = {
 						if (callback) {
 							new Promise(function () {
 								callback(data);
+								resolve(data);
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
+						} else {
+							resolve(data);
 						}
-						resolve(data);
 					} else {
 						//// There might be something to do here depending on the locationType.
 						console.warn("An attempt was made to access a non-existent document.");
 						if (callback) {
 							new Promise(function () {
 								callback(Error("The information couldn't be found."));
+								resolve(Error("The information couldn't be found."));
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
+						} else {
+							resolve(Error("The information couldn't be found."));
 						}
-						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
 					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 					console.error(error);
+					reject(error);
 				});
 			} else {  // if retrieving a single item
 				Standards.general.storage.server.getReference(location).get().then(function (doc) {
@@ -4637,27 +4632,34 @@ Standards.general.storage.server = {
 						if (callback) {
 							new Promise(function () {
 								callback(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
+								resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
+						} else {
+							resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
 						}
-						resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
 					} else {
 						console.warn("An attempt was made to access a non-existent document.");
 						if (callback) {
 							new Promise(function () {
 								callback(Error("The information couldn't be found."));
+								resolve(Error("The information couldn't be found."));
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
+						} else {
+							resolve(Error("The information couldn't be found."));
 						}
-						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
 					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 					console.error(error);
+					reject(error);
 				});
 			}
 		});
@@ -4682,16 +4684,19 @@ Standards.general.storage.server = {
 								listener.value = 0;
 								listener.addEventListener("change", function (value) {
 									if (value == 0) {  // once all items have been deleted
+										listener.removeEventListener("change", arguments.callee);
 										if (callback) {
 											new Promise(function () {
 												callback();
+												resolve();
 											}).catch(function (error) {
 												console.error("There was a problem running the callback.");
 												console.error(error);
+												reject(error);
 											});
+										} else {
+											resolve();
 										}
-										listener.removeEventListener("change", arguments.callee);
-										resolve();
 									}
 								});
 								/// when a new document is encountered, listener.value is incremented
@@ -4708,10 +4713,12 @@ Standards.general.storage.server = {
 											}).catch(function (error) {
 												console.error("The information couldn't be deleted.");
 												console.error(error);
+												reject(error);
 											});
 										}).catch(function (error) {
 											console.error("There was an error retrieving the information.");
 											console.error(error);
+											reject(error);
 										});
 									});
 								}
@@ -4721,16 +4728,20 @@ Standards.general.storage.server = {
 								if (callback) {
 									new Promise(function () {
 										callback();
+										resolve();
 									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
+										reject(error);
 									});
+								} else {
+									resolve();
 								}
-								resolve();
 							}
 						}).catch(function (error) {
 							console.error("There was an error retrieving the information.");
 							console.error(error);
+							reject(error);
 						});
 					} else {  // if deleting a single key-value pair
 						reference.update({
@@ -4739,15 +4750,19 @@ Standards.general.storage.server = {
 							if (callback) {
 								new Promise(function () {
 									callback();
+									resolve();
 								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
+									reject(error);
 								});
+							} else {
+								resolve();
 							}
-							resolve();
 						}).catch(function (error) {
 							console.error("The information couldn't be deleted.");
 							console.error(error);
+							reject(error);
 						});
 					}
 				} else {  // if the location leads to a pseudo-folder
@@ -4759,43 +4774,40 @@ Standards.general.storage.server = {
 							if (callback) {
 								new Promise(function () {
 									callback();
+									resolve();
 								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
+									reject(error);
 								});
+							} else {
+								resolve();
 							}
-							resolve();
-							return;
 						}
 						Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 							let keyList = [];
-							if (location[0] == "~") {
-								Standards.general.forEach(collection.docs, function (subdoc) {
-									if (subdoc.id.slice(0, location.length) == location) {
-										keyList.push(subdoc.id);
-									}
-								});
-							} else {
-								Standards.general.forEach(collection.docs, function (subdoc) {
-									if (subdoc.id.search(new RegExp("^users/[^/]+/" + location)) > -1) {
-										keyList.push(subdoc.id);
-									}
-								});
-							}
+							Standards.general.forEach(collection.docs, function (subdoc) {
+								if (subdoc.id.slice(0, location.length) == location) {
+									keyList.push(subdoc.id);
+								}
+							});
 							let listener = new Standards.general.Listenable();
 							listener.value = 0;
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been deleted
+									listener.removeEventListener("change", arguments.callee);
 									if (callback) {
 										new Promise(function () {
 											callback();
+											resolve();
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
+											reject(error);
 										});
+									} else {
+										resolve();
 									}
-									listener.removeEventListener("change", arguments.callee);
-									resolve();
 								}
 							});
 							Standards.general.forEach(keyList, function (id) {
@@ -4805,98 +4817,77 @@ Standards.general.storage.server = {
 								}).catch(function (error) {
 									console.error("The information couldn't be deleted.");
 									console.error(error);
+									reject(error);
 								});
 							});
 						});
 					} else if (Standards.general.storage.server.locationType == "hybrid") {
-						if (location.slice(-1) == "/") {
-							location = location.slice(0, -1);
-						} else {
+						if (location.slice(-1) != "/") {
 							console.warn("The indicated document doesn't exist.");
 							if (callback) {
 								new Promise(function () {
 									callback();
+									resolve();
 								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
+									reject(error);
 								});
+							} else {
+								resolve();
 							}
-							resolve();
-							return;
 						}
-						let existenceIndex = 0;  // the index of the last existing document
-						let mythHunter = new Standards.general.Listenable();  // keeps track of which documents exist
-						mythHunter.value = 0;
-						mythHunter.addEventListener("change", function (value) {
-							if (value == 0) {  // once all folders have been investigated
-								mythHunter.removeEventListener("change", arguments.callee);
-								if (existenceIndex == 0) {
-									if (location[0] == "~") {
-										reference = Standards.general.storage.server.getReference("~");
-									} else {
-										reference = Standards.general.storage.server.getReference("/");
-									}
-								} else {
-									reference = Standards.general.storage.server.getReference(location.split("/").slice(0, existenceIndex).join("/") + "/");
+						let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
+						let docLocation = location.split("/").slice(0, defaultLength).join("/") + "/";
+						let remainingLocation = location.split("/").slice(defaultLength, -1).join("/");
+						reference = Standards.general.storage.server.getReference(docLocation);
+						reference.collection("<collection>").get().then(function (collection) {
+							let keyList = [];
+							Standards.general.forEach(collection.docs, function (subdoc) {
+								if (subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
+									keyList.push(subdoc.id);
 								}
-								reference.collection("<collection>").get().then(function (collection) {
-									let keyList = [];
-									if (location[0] == "~") {
-										location = location.slice(1);
-									}
-									location = location.split("/").slice(existenceIndex).join("/");
-									Standards.general.forEach(collection.docs, function (subdoc) {
-										if (subdoc.id.slice(0, location.length) == location) {
-											keyList.push(subdoc.id);
-										}
-									});
-									let listener = new Standards.general.Listenable();
-									listener.value = 0;
-									listener.addEventListener("change", function (value) {
-										if (value == 0) {  // once all items have been deleted
-											if (callback) {
-												new Promise(function () {
-													callback();
-												}).catch(function (error) {
-													console.error("There was a problem running the callback.");
-													console.error(error);
-												});
-											}
-											listener.removeEventListener("change", arguments.callee);
-											resolve();
-										}
-									});
-									Standards.general.forEach(keyList, function (id) {
-										listener.value++;
-										reference.collection("<collection>").doc(id).delete().then(function () {
-											listener.value--;
-										}).catch(function (error) {
-											console.error("The information couldn't be deleted.");
-											console.error(error);
-										});
-									});
-								});
-							}
-						});
-						Standards.general.forEach(location.split("/"), function (folder, index) {
-							mythHunter.value++;
-							Standards.general.storage.server.getReference(location.split("/").slice(0, index + 1).join("/") + "/").get().then(function (subdoc) {
-								if (subdoc.exists) {
-									existenceIndex++;
-								}
-								mythHunter--;
-							}).catch(function (error) {
-								console.error("There was an error finding the information.");
-								console.error(error);
 							});
+							let listener = new Standards.general.Listenable();
+							listener.value = 0;
+							listener.addEventListener("set", function (value) {
+								if (value == 0) {  // once all items have been deleted
+									listener.removeEventListener("set", arguments.callee);
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
+									}
+								}
+							});
+							Standards.general.forEach(keyList, function (id) {
+								listener.value++;
+								reference.collection("<collection>").doc(id).delete().then(function () {
+									listener.value--;
+								}).catch(function (error) {
+									console.error("The information couldn't be deleted.");
+									console.error(error);
+									reject(error);
+								});
+							});
+							listener.value = listener.value;  // runs the listener if there aren't any items to delete
 						});
 					} else {
 						console.error("The document retrieved didn't exist.");
+						reject(new Error("The document retrieved didn't exist."));
 					}
 				}
 			}).catch(function (error) {
 				console.error("There was an error finding the information.");
 				console.error(error);
+				reject(error);
 			});
 		});
 	},
@@ -4968,6 +4959,7 @@ Standards.general.storage.server = {
 						}).catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
+							reject(error);
 						});
 					} else {
 						resolve(keyList);
@@ -4975,11 +4967,13 @@ Standards.general.storage.server = {
 				}).catch(function (error) {
 					console.error("There was an error finding the information.");
 					console.error(error);
+					reject(error);
 				});
 
 			} else if (Standards.general.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
 				let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
 				let docLocation;
+				let remainingLocation;
 				if (location != "~") {
 					docLocation = location.split("/").slice(0, defaultLength).join("/");
 					if (docLocation.includes("/")) {
@@ -4987,6 +4981,7 @@ Standards.general.storage.server = {
 					} else {
 						docLocation += "/";
 					}
+					remainingLocation = location.split("/").slice(defaultLength).join("/");
 				}
 				if (location == "~") {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
@@ -5000,21 +4995,24 @@ Standards.general.storage.server = {
 						if (callback) {
 							new Promise(function () {
 								callback(keyList);
+								resolve(keyList);
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
+						} else {
+							resolve(keyList);
 						}
-						resolve(keyList);
 					});
 				} else if (location.split("/").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
-						if (location.slice(-1) == "/") {  // if getting the key names within a folder
+						if (remainingLocation.slice(-1) == "/") {  // if getting the key names within a folder
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
-									if (doc.id.length > location.length) {
-										preKey = doc.id.slice(location.length) + "/";
+								if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
+									if (doc.id.length > remainingLocation.length) {
+										preKey = doc.id.slice(remainingLocation.length) + "/";
 									} else {
 										preKey = "";
 									}
@@ -5027,14 +5025,14 @@ Standards.general.storage.server = {
 							});
 						} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id == location.split("/").slice(0, -1).join("/")) {  // if the document is one folder-level up
-									if (doc.data().hasOwnProperty(location.split("/").slice(-1)[0])) {  // if the document has the key at the end of the location
-										keyList.push(location.split("/").slice(-1)[0]);
+								if (doc.id == remainingLocation.split("/").slice(0, -1).join("/")) {  // if the document is one folder-level up
+									if (doc.data().hasOwnProperty(remainingLocation.split("/").slice(-1)[0])) {  // if the document has the key at the end of the location
+										keyList.push(remainingLocation.split("/").slice(-1)[0]);
 									}
 								} else {
-									if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
-										if (doc.id.length > location.length) {
-											preKey = doc.id.slice(location.length + 1) + "/";
+									if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
+										if (doc.id.length > remainingLocation.length) {
+											preKey = doc.id.slice(remainingLocation.length + 1) + "/";
 										} else {
 											preKey = "";
 										}
@@ -5054,6 +5052,7 @@ Standards.general.storage.server = {
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
+								reject(error);
 							});
 						} else {
 							resolve(keyList);
@@ -5061,6 +5060,7 @@ Standards.general.storage.server = {
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
 						console.error(error);
+						reject(error);
 					});
 				} else {  // if the provided location is shallower than the default location
 					let reference = Standards.general.storage.server.getReference(docLocation);
@@ -5070,16 +5070,19 @@ Standards.general.storage.server = {
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been listed
+									listener.removeEventListener("change", arguments.callee);
 									if (callback) {
 										new Promise(function () {
 											callback(keyList);
+											resolve(keyList);
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
+											reject(error);
 										});
+									} else {
+										resolve(keyList);
 									}
-									listener.removeEventListener("change", arguments.callee);
-									resolve(keyList);
 								}
 							});
 							/// when a new document is encountered, listener.value is incremented
@@ -5100,7 +5103,7 @@ Standards.general.storage.server = {
 									}).catch(function (error) {
 										console.error("List retrieval failed.");
 										console.error(error);
-										listener.value--;
+										reject(error);
 									});
 								});
 							}
@@ -5118,7 +5121,34 @@ Standards.general.storage.server = {
 								}).catch(function (error) {
 									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 									console.error(error);
+									reject(error);
+								});
+							} else if (location.split("/").length - 1 == defaultLength) {
+								let locationKey = location.slice(location.lastIndexOf("/") + 1);
+								Standards.general.forEach(collectionProbe, function (doc) {
+									if (doc.id.slice(0, locationKey.length) == locationKey) {
+										if (doc.id.length > locationKey.length) {
+											Standards.general.forEach(doc.data(), function (value, key) {
+												keyList.push(doc.id.slice(locationKey.length + 1) + "/" + key);
+											});
+										} else {
+											Standards.general.forEach(doc.data(), function (value, key) {
+												keyList.push(locationKey + "/" + key);
+											});
+										}
+									}
+								});
+								reference.get().then(function (doc) {
+									if (Object.keys(doc).length > 1) {  // if the document has any field values
+										if (Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
+											keyList.push(locationKey);
+										}
+									}
 									listener.value--;
+								}).catch(function (error) {
+									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+									console.error(error);
+									reject(error);
 								});
 							} else {
 								Standards.general.forEach(collectionProbe, function (doc) {
@@ -5136,12 +5166,11 @@ Standards.general.storage.server = {
 								}).catch(function (error) {
 									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 									console.error(error);
-									listener.value--;
+									reject(error);
 								});
 							}
 						} else {  // if there's not sub-documents
 							reference.get().then(function (doc) {
-								let keyList = [];
 								if (doc.exists) {
 									if (location.slice(-1) == "/") {  // if getting the contents of a folder
 										Standards.general.forEach(doc.data(), function (value, key) {
@@ -5159,6 +5188,7 @@ Standards.general.storage.server = {
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
+											reject(error);
 										});
 									} else {
 										resolve(keyList);
@@ -5172,6 +5202,7 @@ Standards.general.storage.server = {
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
+											reject(error);
 										});
 									} else {
 										resolve(keyList);
@@ -5180,11 +5211,13 @@ Standards.general.storage.server = {
 							}).catch(function (error) {
 								console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 								console.error(error);
+								reject(error);
 							});
 						}
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
 						console.error(error);
+						reject(error);
 					});
 				}
 				
@@ -5203,6 +5236,7 @@ Standards.general.storage.server = {
 								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
+									reject(error);
 								});
 							} else {
 								resolve(keyList);
@@ -5218,6 +5252,7 @@ Standards.general.storage.server = {
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
+											reject(error);
 										});
 									}
 									listener.removeEventListener("change", arguments.callee);
@@ -5242,7 +5277,7 @@ Standards.general.storage.server = {
 									}).catch(function (error) {
 										console.error("List retrieval failed.");
 										console.error(error);
-										listener.value--;
+										reject(error);
 									});
 								});
 							}
@@ -5260,7 +5295,7 @@ Standards.general.storage.server = {
 								}).catch(function (error) {
 									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 									console.error(error);
-									listener.value--;
+									reject(error);
 								});
 							} else {
 								Standards.general.forEach(collectionProbe, function (doc) {
@@ -5278,13 +5313,12 @@ Standards.general.storage.server = {
 								}).catch(function (error) {
 									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 									console.error(error);
-									listener.value--;
+									reject(error);
 								});
 							}
 						}
 					} else {  // if there's not sub-documents
 						reference.get().then(function (doc) {
-							let keyList = [];
 							if (doc.exists) {
 								if (location.slice(-1) == "/") {  // if getting the contents of a folder
 									Standards.general.forEach(doc.data(), function (value, key) {
@@ -5302,6 +5336,7 @@ Standards.general.storage.server = {
 									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
+										reject(error);
 									});
 								} else {
 									resolve(keyList);
@@ -5315,6 +5350,7 @@ Standards.general.storage.server = {
 									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
+										reject(error);
 									});
 								} else {
 									resolve(keyList);
@@ -5323,15 +5359,18 @@ Standards.general.storage.server = {
 						}).catch(function (error) {
 							console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 							console.error(error);
+							reject(error);
 						});
 					}
 				}).catch(function (error) {
 					console.error("There was an error finding the information.");
 					console.error(error);
+					reject(error);
 				});
 			} else {
 				alert("The action couldn't be completed.");
-				throw "An improper location type was given.";
+				console.error("An improper location type was given.");
+				reject(new TypeError("An improper location type was given."));
 			}
 		});
 	},
@@ -5347,16 +5386,19 @@ Standards.general.storage.server = {
 						remaining.value = 0;
 						remaining.addEventListener("set", function (value) {
 							if (value == 0) {  // if there are no more items waiting to be moved
+								remaining.removeEventListener("set", arguments.callee);
 								if (callback) {
 									new Promise(function () {
 										callback();
+										resolve();
 									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
+										reject(error);
 									});
+								} else {
+									resolve();
 								}
-								remaining.removeEventListener("set", arguments.callee);
-								resolve();
 							}
 						});
 						Standards.general.storage.server.list(oldPlace).then(function (oldList) {
@@ -5398,7 +5440,7 @@ Standards.general.storage.server = {
 						remaining.value = remaining.value;  // runs the listener if there aren't any items
 					} else {
 						console.error("No information was found in the oldPlace.");
-						reject();
+						reject(new Error("No information was found in the oldPlace."));
 					}
 				});
 			});
