@@ -4979,6 +4979,15 @@ Standards.general.storage.server = {
 
 			} else if (Standards.general.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
 				let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
+				let docLocation;
+				if (location != "~") {
+					docLocation = location.split("/").slice(0, defaultLength).join("/");
+					if (docLocation.includes("/")) {
+						docLocation = docLocation.slice(0, docLocation.lastIndexOf("/") + 1);
+					} else {
+						docLocation += "/";
+					}
+				}
 				if (location == "~") {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						Standards.general.forEach(collection.docs, function (doc) {
@@ -4998,8 +5007,8 @@ Standards.general.storage.server = {
 						}
 						resolve(keyList);
 					});
-				} else if (location.split("/").length > defaultLength) {  // if the provided location goes deeper than the default location
-					Standards.general.storage.server.getReference(location.split("/").slice(0, defaultLength).join("/") + "/").collection("<collection>").get().then(function (collection) {
+				} else if (location.split("/").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
+					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (location.slice(-1) == "/") {  // if getting the key names within a folder
 							Standards.general.forEach(collection.docs, function (doc) {
@@ -5054,7 +5063,7 @@ Standards.general.storage.server = {
 						console.error(error);
 					});
 				} else {  // if the provided location is shallower than the default location
-					let reference = Standards.general.storage.server.getReference(location.split("/").slice(0, defaultLength).join("/") + "/");
+					let reference = Standards.general.storage.server.getReference(docLocation);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 							let listener = new Standards.general.Listenable();
@@ -5178,7 +5187,7 @@ Standards.general.storage.server = {
 						console.error(error);
 					});
 				}
-
+				
 			} else if (Standards.general.storage.server.locationType == "deep") {  // if every folder level is another nested document
 				let reference = Standards.general.storage.server.getReference(location);
 				reference.collection("<collection>").get().then(function (collectionProbe) {
