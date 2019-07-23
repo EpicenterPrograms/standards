@@ -1775,7 +1775,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 				listenOnce = whether the listener should be removed after being called
 					default: false
 				allowDefault = whether the default action of the key press should be allowed
-					default: false
+					default: true
 				recheckTime = the number of milliseconds before status is checked again
 					specifying recheckTime but not triggerTime causes triggerTime to be equal to recheckTime
 					default: 15
@@ -1790,20 +1790,20 @@ Standards.general.listen = function (item, event, behavior, options) {
 			options = { listenOnce: options, allowDefault: false, recheckTime: 15 };
 			break;
 		case "Object":
-			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.listenOnce) != "String") {
-				options.listenOnce = "later";
+			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.runOrder) != "String") {
+				options.runOrder = "later";
 			}
 			if (!options.hasOwnProperty("listenOnce") || Standards.general.getType(options.listenOnce) != "Boolean") {
 				options.listenOnce = false;
 			}
 			if (!options.hasOwnProperty("allowDefault") || Standards.general.getType(options.allowDefault) != "Boolean") {
-				options.allowDefault = false;
+				options.allowDefault = true;
 			}
 			if (options.hasOwnProperty("recheckTime") && !options.hasOwnProperty("triggerTime")) {
 				if (Standards.general.getType(options.recheckTime) == "Number" && options.recheckTime != Infinity) {
 					options.triggerTime = options.recheckTime;
 				} else {
-					console.warn("An improper recheckTime was given.");
+					console.warn(options.recheckTime + " isn't a proper recheckTime.");
 				}
 			}
 			if (!options.hasOwnProperty("recheckTime") || Standards.general.getType(options.recheckTime) != "Number" || options.recheckTime == Infinity) {
@@ -1817,7 +1817,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 			}
 			break;
 		default:
-			options = { listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 };
+			options = { runOrder: "later", listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 };
 	}
 	Standards.general.queue.add({
 		runOrder: options.runOrder,
@@ -1825,22 +1825,26 @@ Standards.general.listen = function (item, event, behavior, options) {
 			if (Standards.general.getType(event) == "String") {
 				event = event.toLowerCase();
 			} else {
-				console.error(new TypeError("An improper event was provided."));
+				console.error(new TypeError(event + " is not a proper event."));
 			}
-			switch (Standards.general.getType(item)) {
-				case "String":
-					item = document.getElementById(item);
-					break;
-				case "Function":
-					item = item();
-					break;
-				case "HTMLElement":
-					// do nothing
-					break;
-				default:
-					if (!event.includes("key")) {
-						console.error(new TypeError("The item to listen to is of an improper type."));
-					}
+			if (!event.includes("key")) {
+				switch (Standards.general.getType(item)) {
+					case "String":
+						item = document.getElementById(item);
+						break;
+					case "Function":
+						item = item();
+						break;
+					case "Window":
+					case "HTMLDocument":
+					case "HTMLElement":
+						// do nothing
+						break;
+					default:
+						if (!event.includes("key")) {
+							console.error(new TypeError("The item to listen to (" + item + ") is of an improper type (" + Standards.general.getType(item) + ")."));
+						}
+				}
 			}
 			switch (event) {
 				case "hover":
@@ -1909,7 +1913,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 								}
 							}
 						} else {
-							console.error("An invalid key type was given.");
+							console.error("The key type " + Standards.general.getType(item) + " isn't valid.");
 						}
 					} else if (event == "keyhold") {
 						let recurrenceLoop;
@@ -1934,7 +1938,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 										}
 									});
 								} else {
-									console.error("This functionality isn't supported yet.");  ////
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							} else {
 								if (options.recheckTime == options.triggerTime) {
@@ -1957,7 +1961,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 										}
 									});
 								} else {
-									console.error("This functionality isn't supported yet.");  ////
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							}
 						} else if (Standards.general.getType(item) == "Array") {
@@ -1983,7 +1987,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 										}
 									});
 								} else {
-									console.error("This functionality isn't supported yet.");  ////
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							} else {
 								if (options.recheckTime == options.triggerTime) {
@@ -2010,7 +2014,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 										}
 									});
 								} else {
-									console.error("This functionality isn't supported yet.");  ////
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							}
 						} else if (Standards.general.getType(item) == "String") {
@@ -2030,7 +2034,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 										}
 									});
 								} else {
-									console.error("This functionality isn't supported yet.");  ////
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							} else {
 								if (options.recheckTime == options.triggerTime) {
@@ -2051,11 +2055,11 @@ Standards.general.listen = function (item, event, behavior, options) {
 										}
 									});
 								} else {
-									console.error("This functionality isn't supported yet.");  ////
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							}
 						} else {
-							console.error("An invalid key type was given.");
+							console.error("The key type " + Standards.general.getType(item) + " isn't valid.");
 						}
 					} else {  // keyup
 						if (Standards.general.getType(item) == "Array") {
@@ -2100,7 +2104,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 								}
 							}
 						} else {
-							console.error("An invalid key type was given.");
+							console.error("The key type " + Standards.general.getType(item) + " isn't valid.");
 						}
 					}
 					break;
