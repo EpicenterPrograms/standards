@@ -5007,6 +5007,10 @@ Standards.general.storage.server = {
 						} else {
 							resolve(keyList);
 						}
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
 					});
 				} else if (location.split("/").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
