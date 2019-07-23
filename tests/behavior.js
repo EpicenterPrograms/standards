@@ -4384,10 +4384,9 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		if (Standards.general.storage.server.defaultLocation[0] == "." ||
-			Standards.general.storage.server.defaultLocation[0] == "~" && Standards.general.storage.server.defaultLocation.search(/^~[^/]+\/[^/]+/) == -1) {
-			alert("An invalid default storage location was provided");
-			throw "An invalid default storage location was provided";
+		if (Standards.general.storage.server.defaultLocation[0] == ".") {
+			alert("An invalid default server storage location was provided");
+			throw "An invalid default server storage location was provided";
 		}
 		if (Standards.general.storage.server.defaultLocation[0] == "~") {
 			Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.slice(1);
@@ -4398,8 +4397,8 @@ Standards.general.storage.server = {
 			Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.slice(0, -1);
 		}
 		if (Standards.general.storage.server.defaultLocation.search(/^(?:[^/]+\/)*[^/]+$/) == -1) {
-			alert("The default storage location has an improper path pattern.");
-			throw "The default storage location has an improper path pattern.";
+			alert("The default server storage location has an improper path pattern.");
+			throw "The default server storage location has an improper path pattern.";
 		}
 
 		// converts the location into an absolute file location
