@@ -4435,6 +4435,8 @@ Standards.general.storage.server = {
 		} else if (location === "") {
 			location = "~";
 		}
+		console.log(Standards.general.storage.server.defaultLocation);
+		console.log(location);
 		return location;  // returns the location without the key
 	},
 	getReference: function (location, shouldCreate) {
@@ -5075,7 +5077,6 @@ Standards.general.storage.server = {
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 			}
 			location = Standards.general.storage.server.formatLocation(location, true);
-			console.log(location);
 			let keyList = [];
 
 			if (Standards.general.storage.server.locationType == "shallow") {  // if all documents are held in one collection
