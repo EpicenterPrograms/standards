@@ -4678,8 +4678,208 @@ Standards.general.storage.server = {
 		}
 		return new Promise(function (resolve, reject) {
 			let reference = Standards.general.storage.server.getReference(location);
-			reference.get().then(function (doc) {
-				if (doc.exists) {  // if the location leads to an actual document
+			let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
+			let docLocation;
+			let remainingLocation;
+			docLocation = location.split("/").slice(0, defaultLength).join("/");
+			if (docLocation.includes("/")) {
+				docLocation = docLocation.slice(0, docLocation.lastIndexOf("/") + 1);
+			} else {
+				docLocation += "/";
+			}
+			remainingLocation = location.split("/").slice(defaultLength).join("/");
+			if (Standards.general.storage.server.locationType == "shallow") {
+				if (location.slice(-1) == "/") {  // if deleting a whole folder
+					location = location.slice(0, -1);
+					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
+						let keyList = [];
+						Standards.general.forEach(collection.docs, function (subdoc) {
+							if (subdoc.id.slice(0, location.length) == location) {
+								keyList.push(subdoc.id);
+							}
+						});
+						let remaining = new Standards.general.Listenable();
+						remaining.value = 0;
+						remaining.addEventListener("change", function (value) {
+							if (value == 0) {  // once all items have been deleted
+								remaining.removeEventListener("change", arguments.callee);
+								if (callback) {
+									new Promise(function () {
+										callback();
+										resolve();
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
+								}
+							}
+						});
+						Standards.general.forEach(keyList, function (id) {
+							remaining.value++;
+							Standards.general.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
+								remaining.value--;
+							}).catch(function (error) {
+								console.error("The information couldn't be deleted.");
+								console.error(error);
+								reject(error);
+							});
+						});
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if deleting a single key-value pair
+					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
+						let found = false;
+						Standards.general.forEach(collection.docs, function (doc) {
+							if (doc.id == location.slice(0, location.lastIndexOf("/"))) {
+								found = true;
+								doc.ref.update({
+									[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+								}).catch(function (error) {
+									console.error("The information couldn't be deleted.");
+									console.error(error);
+									reject(error);
+								}).then(function () {
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
+									}
+								});
+							}
+						});
+						if (!found) {
+							console.warn("No information was found to delete.");
+							if (callback) {
+								new Promise(function () {
+									callback();
+									resolve();
+								}).catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								resolve();
+							}
+						}
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
+					});
+				}
+			} else if (Standards.general.storage.server.locationType == "hybrid") {
+				let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
+				if (location.split("/").length - 1 > defaultLength) {  // if the location extends into shallow folders
+					let docLocation = location.split("/").slice(0, defaultLength).join("/") + "/";
+					let remainingLocation = location.split("/").slice(defaultLength, -1).join("/");
+					if (remainingLocation.slice(-1) == "/") {  // if deleting a whole folder
+						remainingLocation = remainingLocation.slice(0, -1);
+						Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+							let keyList = [];
+							Standards.general.forEach(collection.docs, function (subdoc) {
+								if (subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
+									keyList.push(subdoc.id);
+								}
+							});
+							let remaining = new Standards.general.Listenable();
+							remaining.value = 0;
+							remaining.addEventListener("change", function (value) {
+								if (value == 0) {  // once all items have been deleted
+									remaining.removeEventListener("change", arguments.callee);
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
+									}
+								}
+							});
+							Standards.general.forEach(keyList, function (id) {
+								remaining.value++;
+								Standards.general.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
+									remaining.value--;
+								}).catch(function (error) {
+									console.error("The information couldn't be deleted.");
+									console.error(error);
+									reject(error);
+								});
+							});
+						}).catch(function (error) {
+							console.error("There was an error finding the information.");
+							console.error(error);
+							reject(error);
+						});
+					} else {  // if deleting a single key-value pair
+						Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+							let found = false;
+							Standards.general.forEach(collection.docs, function (doc) {
+								if (doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("/"))) {
+									found = true;
+									doc.ref.update({
+										[remainingLocation.slice(remainingLocation.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+									}).catch(function (error) {
+										console.error("The information couldn't be deleted.");
+										console.error(error);
+										reject(error);
+									}).then(function () {
+										if (callback) {
+											new Promise(function () {
+												callback();
+												resolve();
+											}).catch(function (error) {
+												console.error("There was a problem running the callback.");
+												console.error(error);
+												reject(error);
+											});
+										} else {
+											resolve();
+										}
+									});
+								}
+							});
+							if (!found) {
+								console.warn("No information was found to delete.");
+								if (callback) {
+									new Promise(function () {
+										callback();
+										resolve();
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
+								}
+							}
+						}).catch(function (error) {
+							console.error("There was an error finding the information.");
+							console.error(error);
+							reject(error);
+						});
+					}
+				} else {  // if the location stays in "deep" folders
+					reference = Standards.general.storage.server.getReference(location);
 					if (location.slice(-1) == "/") {  // if deleting a whole folder
 						reference.collection("<collection>").get().then(function (collectionProbe) {
 							if (collectionProbe.docs.length > 0) {  // if there's sub-documents
@@ -4727,7 +4927,7 @@ Standards.general.storage.server = {
 								}
 								deleteCollection(collectionProbe);
 							} else {
-								console.warn("The indicated document doesn't exist.");
+								console.warn("There's nothing to delete.");
 								if (callback) {
 									new Promise(function () {
 										callback();
@@ -4749,6 +4949,10 @@ Standards.general.storage.server = {
 					} else {  // if deleting a single key-value pair
 						reference.update({
 							[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+						}).catch(function (error) {
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
 						}).then(function () {
 							if (callback) {
 								new Promise(function () {
@@ -4762,38 +4966,13 @@ Standards.general.storage.server = {
 							} else {
 								resolve();
 							}
-						}).catch(function (error) {
-							console.error("The information couldn't be deleted.");
-							console.error(error);
-							reject(error);
 						});
 					}
-				} else {  // if the location leads to a pseudo-folder
-					if (Standards.general.storage.server.locationType == "shallow") {
-						if (location.slice(-1) == "/") {
-							location = location.slice(0, -1);
-						} else {
-							console.warn("The indicated document doesn't exist.");
-							if (callback) {
-								new Promise(function () {
-									callback();
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
-								});
-							} else {
-								resolve();
-							}
-						}
-						Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
-							let keyList = [];
-							Standards.general.forEach(collection.docs, function (subdoc) {
-								if (subdoc.id.slice(0, location.length) == location) {
-									keyList.push(subdoc.id);
-								}
-							});
+				}
+			} else if (Standards.general.storage.server.locationType == "deep") {
+				if (location.slice(-1) == "/") {  // if deleting a whole folder
+					reference.collection("<collection>").get().then(function (collectionProbe) {
+						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 							let listener = new Standards.general.Listenable();
 							listener.value = 0;
 							listener.addEventListener("change", function (value) {
@@ -4813,20 +4992,32 @@ Standards.general.storage.server = {
 									}
 								}
 							});
-							Standards.general.forEach(keyList, function (id) {
-								listener.value++;
-								Standards.general.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
-									listener.value--;
-								}).catch(function (error) {
-									console.error("The information couldn't be deleted.");
-									console.error(error);
-									reject(error);
+							/// when a new document is encountered, listener.value is incremented
+							/// when a document is deleted, listener.value is decremented
+							function deleteCollection(collection) {
+								Standards.general.forEach(collection.docs, function (subdoc) {
+									listener.value++;
+									subdoc.ref.collection("<collection>").get().then(function (subcollection) {
+										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+											deleteCollection(subcollection);
+										}
+										subdoc.ref.delete().then(function () {
+											listener.value--;
+										}).catch(function (error) {
+											console.error("The information couldn't be deleted.");
+											console.error(error);
+											reject(error);
+										});
+									}).catch(function (error) {
+										console.error("There was an error retrieving the information.");
+										console.error(error);
+										reject(error);
+									});
 								});
-							});
-						});
-					} else if (Standards.general.storage.server.locationType == "hybrid") {
-						if (location.slice(-1) != "/") {
-							console.warn("The indicated document doesn't exist.");
+							}
+							deleteCollection(collectionProbe);
+						} else {
+							console.warn("There's nothing to delete.");
 							if (callback) {
 								new Promise(function () {
 									callback();
@@ -4840,58 +5031,37 @@ Standards.general.storage.server = {
 								resolve();
 							}
 						}
-						let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
-						let docLocation = location.split("/").slice(0, defaultLength).join("/") + "/";
-						let remainingLocation = location.split("/").slice(defaultLength, -1).join("/");
-						reference = Standards.general.storage.server.getReference(docLocation);
-						reference.collection("<collection>").get().then(function (collection) {
-							let keyList = [];
-							Standards.general.forEach(collection.docs, function (subdoc) {
-								if (subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
-									keyList.push(subdoc.id);
-								}
+					}).catch(function (error) {
+						console.error("There was an error retrieving the information.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if deleting a single key-value pair
+					reference.update({
+						[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+					}).catch(function (error) {
+						console.error("The information couldn't be deleted.");
+						console.error(error);
+						reject(error);
+					}).then(function () {
+						if (callback) {
+							new Promise(function () {
+								callback();
+								resolve();
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
 							});
-							let listener = new Standards.general.Listenable();
-							listener.value = 0;
-							listener.addEventListener("set", function (value) {
-								if (value == 0) {  // once all items have been deleted
-									listener.removeEventListener("set", arguments.callee);
-									if (callback) {
-										new Promise(function () {
-											callback();
-											resolve();
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
-										resolve();
-									}
-								}
-							});
-							Standards.general.forEach(keyList, function (id) {
-								listener.value++;
-								reference.collection("<collection>").doc(id).delete().then(function () {
-									listener.value--;
-								}).catch(function (error) {
-									console.error("The information couldn't be deleted.");
-									console.error(error);
-									reject(error);
-								});
-							});
-							listener.value = listener.value;  // runs the listener if there aren't any items to delete
-						});
-					} else {
-						console.error("The document retrieved didn't exist.");
-						reject(new Error("The document retrieved didn't exist."));
-					}
+						} else {
+							resolve();
+						}
+					});
 				}
-			}).catch(function (error) {
-				console.error("There was an error finding the information.");
-				console.error(error);
-				reject(error);
-			});
+			} else {
+				console.error("An improper locationType was provided.");
+				reject(new Error("An improper locationType was provided."));
+			}
 		});
 	},
 	list: function (location, callback) {
@@ -5070,7 +5240,7 @@ Standards.general.storage.server = {
 						reject(error);
 					});
 				} else {  // if the provided location is shallower than the default location
-					let reference = Standards.general.storage.server.getReference(docLocation);
+					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 							let listener = new Standards.general.Listenable();
