@@ -4384,6 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
+		console.log("Test number 1");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4402,14 +4403,14 @@ Standards.general.storage.server = {
 		}
 
 		// converts the location into an absolute file location
-		if (location === undefined || location === "" || location === "/") {
-			location = Standards.general.storage.server.defaultLocation + "/";
+		if (location === undefined || location === "") {
+			location = "~" + Standards.general.storage.server.defaultLocation + "/";
 		} else if (location == ".") {
-			location = Standards.general.storage.server.defaultLocation;
+			location = "~" + Standards.general.storage.server.defaultLocation;
 		}
 		if (Standards.general.getType(location) == "String") {
 			if (location.slice(0, 2) == "./") {
-				location = Standards.general.storage.server.defaultLocation + location.slice(1);
+				location = "~" + Standards.general.storage.server.defaultLocation + location.slice(1);
 			}
 			if (location[0] == "~") {
 				location = location.slice(1);
