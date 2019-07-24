@@ -4743,10 +4743,6 @@ Standards.general.storage.server = {
 								found = true;
 								doc.ref.update({
 									[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
-								}).catch(function (error) {
-									console.error("The information couldn't be deleted.");
-									console.error(error);
-									reject(error);
 								}).then(function () {
 									if (callback) {
 										new Promise(function () {
@@ -4760,6 +4756,10 @@ Standards.general.storage.server = {
 									} else {
 										resolve();
 									}
+								}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+									console.error("The information couldn't be deleted.");
+									console.error(error);
+									reject(error);
 								});
 							}
 						});
@@ -4840,10 +4840,6 @@ Standards.general.storage.server = {
 									found = true;
 									doc.ref.update({
 										[remainingLocation.slice(remainingLocation.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
-									}).catch(function (error) {
-										console.error("The information couldn't be deleted.");
-										console.error(error);
-										reject(error);
 									}).then(function () {
 										if (callback) {
 											new Promise(function () {
@@ -4857,6 +4853,10 @@ Standards.general.storage.server = {
 										} else {
 											resolve();
 										}
+									}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+										console.error("The information couldn't be deleted.");
+										console.error(error);
+										reject(error);
 									});
 								}
 							});
@@ -4952,10 +4952,6 @@ Standards.general.storage.server = {
 					} else {  // if deleting a single key-value pair
 						reference.update({
 							[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
-						}).catch(function (error) {
-							console.error("The information couldn't be deleted.");
-							console.error(error);
-							reject(error);
 						}).then(function () {
 							if (callback) {
 								new Promise(function () {
@@ -4969,6 +4965,10 @@ Standards.general.storage.server = {
 							} else {
 								resolve();
 							}
+						}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
 						});
 					}
 				}
@@ -5042,10 +5042,6 @@ Standards.general.storage.server = {
 				} else {  // if deleting a single key-value pair
 					reference.update({
 						[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
-					}).catch(function (error) {
-						console.error("The information couldn't be deleted.");
-						console.error(error);
-						reject(error);
 					}).then(function () {
 						if (callback) {
 							new Promise(function () {
@@ -5059,6 +5055,10 @@ Standards.general.storage.server = {
 						} else {
 							resolve();
 						}
+					}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+						console.error("The information couldn't be deleted.");
+						console.error(error);
+						reject(error);
 					});
 				}
 			} else {
