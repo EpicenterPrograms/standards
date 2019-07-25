@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 8");
+		console.log("Test number 9");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4883,26 +4883,26 @@ Standards.general.storage.server = {
 					reference = Standards.general.storage.server.getReference(location);
 					if (location.slice(-1) == "/") {  // if deleting a whole folder
 						reference.collection("<collection>").get().then(function (collectionProbe) {
-							if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-								let listener = new Standards.general.Listenable();
-								listener.value = 0;
-								listener.addEventListener("change", function (value) {
-									if (value == 0) {  // once all items have been deleted
-										listener.removeEventListener("change", arguments.callee);
-										if (callback) {
-											new Promise(function () {
-												callback();
-												resolve();
-											}).catch(function (error) {
-												console.error("There was a problem running the callback.");
-												console.error(error);
-												reject(error);
-											});
-										} else {
+							let listener = new Standards.general.Listenable();
+							listener.value = 0;
+							listener.addEventListener("set", function (value) {
+								if (value == 0) {  // once all items have been deleted
+									listener.removeEventListener("set", arguments.callee);
+									if (callback) {
+										new Promise(function () {
+											callback();
 											resolve();
-										}
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
 									}
-								});
+								}
+							});
+							if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 								/// when a new document is encountered, listener.value is incremented
 								/// when a document is deleted, listener.value is decremented
 								function deleteCollection(collection) {
@@ -4927,21 +4927,15 @@ Standards.general.storage.server = {
 									});
 								}
 								deleteCollection(collectionProbe);
-							} else {
-								console.warn("There's nothing to delete.");
-								if (callback) {
-									new Promise(function () {
-										callback();
-										resolve();
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
-									});
-								} else {
-									resolve();
-								}
 							}
+							listener++;
+							reference.delete().then(function () {
+								listener.value--;
+							}).catch(function (error) {
+								console.error("The information couldn't be deleted.");
+								console.error(error);
+								reject(error);
+							});
 						}).catch(function (error) {
 							console.error("There was an error retrieving the information.");
 							console.error(error);
@@ -4973,26 +4967,26 @@ Standards.general.storage.server = {
 			} else if (Standards.general.storage.server.locationType == "deep") {
 				if (location.slice(-1) == "/") {  // if deleting a whole folder
 					reference.collection("<collection>").get().then(function (collectionProbe) {
-						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-							let listener = new Standards.general.Listenable();
-							listener.value = 0;
-							listener.addEventListener("change", function (value) {
-								if (value == 0) {  // once all items have been deleted
-									listener.removeEventListener("change", arguments.callee);
-									if (callback) {
-										new Promise(function () {
-											callback();
-											resolve();
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
+						let listener = new Standards.general.Listenable();
+						listener.value = 0;
+						listener.addEventListener("change", function (value) {
+							if (value == 0) {  // once all items have been deleted
+								listener.removeEventListener("change", arguments.callee);
+								if (callback) {
+									new Promise(function () {
+										callback();
 										resolve();
-									}
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
 								}
-							});
+							}
+						});
+						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 							/// when a new document is encountered, listener.value is incremented
 							/// when a document is deleted, listener.value is decremented
 							function deleteCollection(collection) {
@@ -5017,21 +5011,15 @@ Standards.general.storage.server = {
 								});
 							}
 							deleteCollection(collectionProbe);
-						} else {
-							console.warn("There's nothing to delete.");
-							if (callback) {
-								new Promise(function () {
-									callback();
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
-								});
-							} else {
-								resolve();
-							}
 						}
+						listener++;
+						reference.delete().then(function () {
+							listener.value--;
+						}).catch(function (error) {
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
+						});
 					}).catch(function (error) {
 						console.error("There was an error retrieving the information.");
 						console.error(error);
