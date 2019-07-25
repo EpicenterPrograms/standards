@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 2");
+		console.log("Test number 3");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5190,6 +5190,7 @@ Standards.general.storage.server = {
 						if (remainingLocation.slice(-1) == "/") {  // if getting the key names within a folder
 							remainingLocation.slice(0, -1);
 							Standards.general.forEach(collection.docs, function (doc) {
+								console.log(doc.id);
 								if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > remainingLocation.length) {
 										preKey = doc.id.slice(remainingLocation.length) + "/";
