@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 6");
+		console.log("Test number 7");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5090,6 +5090,7 @@ Standards.general.storage.server = {
 						});
 						/// returns only the first folder level of everything at the top of the directory
 					} else if (location.slice(-1) == "/") {  // if getting the key names within a folder
+						location = location.slice(0, -1);
 						Standards.general.forEach(collection.docs, function (doc) {
 							if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
 								if (doc.id.length > location.length) {
@@ -5187,11 +5188,8 @@ Standards.general.storage.server = {
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-1) == "/") {  // if getting the key names within a folder
-							console.log(remainingLocation);
 							remainingLocation = remainingLocation.slice(0, -1);
-							console.log(remainingLocation);
 							Standards.general.forEach(collection.docs, function (doc) {
-								console.log(doc.id);
 								if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > remainingLocation.length) {
 										preKey = doc.id.slice(remainingLocation.length) + "/";
@@ -5244,7 +5242,7 @@ Standards.general.storage.server = {
 						console.error(error);
 						reject(error);
 					});
-				} else {  // if the provided location is shallower than the default location
+				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
@@ -5307,7 +5305,7 @@ Standards.general.storage.server = {
 								});
 							} else if (location.split("/").length - 1 == defaultLength) {
 								let locationKey = location.slice(location.lastIndexOf("/") + 1);
-								Standards.general.forEach(collectionProbe, function (doc) {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id.slice(0, locationKey.length) == locationKey) {
 										if (doc.id.length > locationKey.length) {
 											Standards.general.forEach(doc.data(), function (value, key) {
@@ -5333,7 +5331,7 @@ Standards.general.storage.server = {
 									reject(error);
 								});
 							} else {
-								Standards.general.forEach(collectionProbe, function (doc) {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id == location.slice(location.lastIndexOf("/") + 1)) {  // if a doc ID matches the location key (only true <= 1 time)
 										exploreCollection([doc], location.slice(location.lastIndexOf("/") + 1) + "/");
 									}
@@ -5480,7 +5478,7 @@ Standards.general.storage.server = {
 									reject(error);
 								});
 							} else {
-								Standards.general.forEach(collectionProbe, function (doc) {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id == location.slice(location.lastIndexOf("/") + 1)) {  // if a doc ID matches the location key (only true <= 1 time)
 										exploreCollection([doc], location.slice(location.lastIndexOf("/") + 1) + "/");
 									}
