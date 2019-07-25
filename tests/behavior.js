@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 7");
+		console.log("Test number 8");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5309,11 +5309,15 @@ Standards.general.storage.server = {
 									if (doc.id.slice(0, locationKey.length) == locationKey) {
 										if (doc.id.length > locationKey.length) {
 											Standards.general.forEach(doc.data(), function (value, key) {
-												keyList.push(doc.id.slice(locationKey.length + 1) + "/" + key);
+												if (key != "<document>") {
+													keyList.push(doc.id.slice(locationKey.length + 1) + "/" + key);
+												}
 											});
 										} else {
 											Standards.general.forEach(doc.data(), function (value, key) {
-												keyList.push(locationKey + "/" + key);
+												if (key != "<document>") {
+													keyList.push(locationKey + "/" + key);
+												}
 											});
 										}
 									}
