@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 1");
+		console.log("Test number 2");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4436,7 +4436,6 @@ Standards.general.storage.server = {
 		} else if (location === "") {
 			location = "~";
 		}
-		console.log(Standards.general.storage.server.defaultLocation);
 		console.log(location);
 		return location;  // returns the location without the key
 	},
@@ -5189,6 +5188,7 @@ Standards.general.storage.server = {
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-1) == "/") {  // if getting the key names within a folder
+							remainingLocation.slice(0, -1);
 							Standards.general.forEach(collection.docs, function (doc) {
 								if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > remainingLocation.length) {
