@@ -4791,10 +4791,7 @@ Standards.general.storage.server = {
 					});
 				}
 			} else if (Standards.general.storage.server.locationType == "hybrid") {
-				let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
 				if (location.split("/").length - 1 > defaultLength) {  // if the location extends into shallow folders
-					let docLocation = location.split("/").slice(0, defaultLength).join("/") + "/";
-					let remainingLocation = location.split("/").slice(defaultLength, -1).join("/");
 					reference = Standards.general.storage.server.getReference(docLocation);
 					if (remainingLocation.slice(-1) == "/") {  // if deleting a whole folder
 						remainingLocation = remainingLocation.slice(0, -1);
