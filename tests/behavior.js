@@ -4728,6 +4728,14 @@ Standards.general.storage.server = {
 								reject(error);
 							});
 						});
+						remaining.value++;
+						Standards.general.storage.server.database.delete().then(function () {  // deletes the document (which deletes all of the keys within)
+							remaining.value--;
+						}).catch(function (error) {
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
+						});
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
 						console.error(error);
@@ -4787,9 +4795,10 @@ Standards.general.storage.server = {
 				if (location.split("/").length - 1 > defaultLength) {  // if the location extends into shallow folders
 					let docLocation = location.split("/").slice(0, defaultLength).join("/") + "/";
 					let remainingLocation = location.split("/").slice(defaultLength, -1).join("/");
+					reference = Standards.general.storage.server.getReference(docLocation);
 					if (remainingLocation.slice(-1) == "/") {  // if deleting a whole folder
 						remainingLocation = remainingLocation.slice(0, -1);
-						Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+						reference.collection("<collection>").get().then(function (collection) {
 							let keyList = [];
 							Standards.general.forEach(collection.docs, function (subdoc) {
 								if (subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
@@ -4815,9 +4824,9 @@ Standards.general.storage.server = {
 									}
 								}
 							});
-							Standards.general.forEach(keyList, function (id) {
+							Standards.general.forEach(keyList, function (id) {  // deletes all subdocuments
 								remaining.value++;
-								Standards.general.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
+								reference.collection("<collection>").doc(id).delete().then(function () {
 									remaining.value--;
 								}).catch(function (error) {
 									console.error("The information couldn't be deleted.");
@@ -4825,13 +4834,21 @@ Standards.general.storage.server = {
 									reject(error);
 								});
 							});
+							remaining.value++;
+							reference.delete().then(function () {  // deletes the document (which deletes all of the keys within)
+								remaining.value--;
+							}).catch(function (error) {
+								console.error("The information couldn't be deleted.");
+								console.error(error);
+								reject(error);
+							});
 						}).catch(function (error) {
 							console.error("There was an error finding the information.");
 							console.error(error);
 							reject(error);
 						});
 					} else {  // if deleting a single key-value pair
-						Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+						reference.collection("<collection>").get().then(function (collection) {
 							let found = false;
 							Standards.general.forEach(collection.docs, function (doc) {
 								if (doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("/"))) {
@@ -5547,74 +5564,90 @@ Standards.general.storage.server = {
 		});
 	},
 	move: function (oldPlace, newPlace, callback) {
-		if (Standards.general.storage.server.checkCompatibility() && oldPlace != newPlace) {
+		if (Standards.general.storage.server.checkCompatibility()) {
 			return new Promise(function (resolve, reject) {
-				Standards.general.storage.server.recall(oldPlace).then(function (information) {
-					if (!(information instanceof Error)) {
-						if (newPlace.slice(-1) != "/") {
-							newPlace += "/";
-						}
-						let remaining = new Standards.general.Listenable();
-						remaining.value = 0;
-						remaining.addEventListener("set", function (value) {
-							if (value == 0) {  // if there are no more items waiting to be moved
-								remaining.removeEventListener("set", arguments.callee);
-								if (callback) {
-									new Promise(function () {
-										callback();
-										resolve();
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
-									});
-								} else {
-									resolve();
-								}
-							}
+				if (oldPlace == newPlace) {
+					console.warn("The items are already in the desired location.");
+					if (callback) {
+						new Promise(function () {
+							callback();
+							resolve();
+						}).catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+							reject(error);
 						});
-						Standards.general.storage.server.list(oldPlace).then(function (oldList) {
-							if (oldPlace.slice(-1) == "/") {
-								Standards.general.forEach(oldList, function (key) {
-									remaining.value++;
-									Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
-										Standards.general.storage.server.store(newPlace + key, info).then(function () {
-											Standards.general.storage.server.forget(oldPlace).then(function () {
-												remaining.value--;
-											});
+					} else {
+						resolve();
+					}
+				} else {
+					Standards.general.storage.server.recall(oldPlace).then(function (information) {
+						if (!(information instanceof Error)) {
+							if (newPlace.slice(-1) != "/") {
+								newPlace += "/";
+							}
+							let remaining = new Standards.general.Listenable();
+							remaining.value = 0;
+							remaining.addEventListener("set", function (value) {
+								if (value == 0) {  // if there are no more items waiting to be moved
+									remaining.removeEventListener("set", arguments.callee);
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
 										});
-									});
-								});
-							} else {
-								Standards.general.forEach(oldList, function (key) {
-									remaining.value++;
-									key = key.split("/").slice(1).join("/");
-									if (key == "") {
-										Standards.general.storage.server.recall(oldPlace).then(function (info) {
-											Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
+									} else {
+										resolve();
+									}
+								}
+							});
+							Standards.general.storage.server.list(oldPlace).then(function (oldList) {
+								if (oldPlace.slice(-1) == "/") {
+									Standards.general.forEach(oldList, function (key) {
+										remaining.value++;
+										Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
+											Standards.general.storage.server.store(newPlace + key, info).then(function () {
 												Standards.general.storage.server.forget(oldPlace).then(function () {
 													remaining.value--;
 												});
 											});
 										});
-									} else {
-										Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
-											Standards.general.storage.server.store(newPlace + key, info).then(function () {
-												Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
-													remaining.value--;
+									});
+								} else {
+									Standards.general.forEach(oldList, function (key) {
+										remaining.value++;
+										key = key.split("/").slice(1).join("/");
+										if (key == "") {
+											Standards.general.storage.server.recall(oldPlace).then(function (info) {
+												Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
+													Standards.general.storage.server.forget(oldPlace).then(function () {
+														remaining.value--;
+													});
 												});
 											});
-										});
-									}
-								});
-							}
-						});
-						remaining.value = remaining.value;  // runs the listener if there aren't any items
-					} else {
-						console.error("No information was found in the oldPlace.");
-						reject(new Error("No information was found in the oldPlace."));
-					}
-				});
+										} else {
+											Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
+												Standards.general.storage.server.store(newPlace + key, info).then(function () {
+													Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
+														remaining.value--;
+													});
+												});
+											});
+										}
+									});
+								}
+							});
+							remaining.value = remaining.value;  // runs the listener if there aren't any items
+						} else {
+							console.error("No information was found in the oldPlace.");
+							reject(new Error("No information was found in the oldPlace."));
+						}
+					});
+				}
 			});
 		}
 	}
