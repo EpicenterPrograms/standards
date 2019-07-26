@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 10");
+		console.log("Test number 11");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5292,7 +5292,7 @@ Standards.general.storage.server = {
 							if (location.slice(-1) == "/") {
 								exploreCollection(collectionProbe, "");
 								reference.get().then(function (doc) {
-									if (Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(key);
@@ -5325,7 +5325,7 @@ Standards.general.storage.server = {
 									}
 								});
 								reference.get().then(function (doc) {
-									if (Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
 										if (Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
 											keyList.push(locationKey);
 										}
@@ -5343,7 +5343,7 @@ Standards.general.storage.server = {
 									}
 								});
 								reference.get().then(function (doc) {
-									if (Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
 										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {  // if the document has the location's key
 											keyList.push(location.slice(location.lastIndexOf("/") + 1));
 										}
@@ -5470,7 +5470,7 @@ Standards.general.storage.server = {
 							if (location.slice(-1) == "/") {
 								exploreCollection(collectionProbe, "");
 								reference.get().then(function (doc) {
-									if (Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(key);
@@ -5490,7 +5490,7 @@ Standards.general.storage.server = {
 									}
 								});
 								reference.get().then(function (doc) {
-									if (Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
 										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {  // if the document has the location's key
 											keyList.push(location.slice(location.lastIndexOf("/") + 1));
 										}
