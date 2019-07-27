@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 11");
+		console.log("Test number 12");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4401,6 +4401,7 @@ Standards.general.storage.server = {
 			alert("The default server storage location has an improper path pattern.");
 			throw "The default server storage location has an improper path pattern.";
 		}
+		Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.replace(/\//g, "<slash>");
 
 		// converts the location into an absolute file location
 		if (location === undefined || location === "") {
@@ -4436,6 +4437,7 @@ Standards.general.storage.server = {
 		} else if (location === "") {
 			location = "~";
 		}
+		location = location.replace(/\//g, "<slash>");
 		return location;  // returns the location without the key
 	},
 	getReference: function (location, shouldCreate) {
@@ -4444,7 +4446,7 @@ Standards.general.storage.server = {
 		formatted locations are used here
 		shouldCreate = optional boolean; whether documents should be created as the path is navigated
 			default: false
-		different paths are separated by slashes ("/")
+		different paths are separated by "<slash>"
 		uses Google Firebase
 		non-native functions = getType
 		*/
@@ -4452,18 +4454,18 @@ Standards.general.storage.server = {
 		if (location === "~") {
 			return reference;
 		}
-		location = location.slice(0, location.lastIndexOf("/"));
+		location = location.slice(0, location.lastIndexOf("<slash>"));
 		if (Standards.general.storage.server.locationType == "shallow") {
 			reference = reference.collection("<collection>").doc(location);
 			if (shouldCreate) {
 				reference.set({ "<document>": "exists" }, { merge: true });
 			}
 		} else if (Standards.general.storage.server.locationType == "hybrid") {
-			let defaultFolders = Standards.general.storage.server.defaultLocation.split("/").length;
-			let locationFolders = location.split("/").length;
+			let defaultFolders = Standards.general.storage.server.defaultLocation.split("<slash>").length;
+			let locationFolders = location.split("<slash>").length;
 			let index = 0;
 			while (locationFolders > index && index < defaultFolders) {
-				reference = reference.collection("<collection>").doc(location.split("/")[index]);
+				reference = reference.collection("<collection>").doc(location.split("<slash>")[index]);
 				if (shouldCreate) {
 					reference.set({ "<document>": "exists" }, { merge: true });
 				}
@@ -4477,7 +4479,7 @@ Standards.general.storage.server = {
 				}
 			}
 		} else if (Standards.general.storage.server.locationType == "deep") {
-			location.split("/").forEach(function (place) {
+			location.split("<slash>").forEach(function (place) {
 				reference = reference.collection("<collection>").doc(place);
 				if (shouldCreate) {
 					reference.set({ "<document>": "exists" }, { merge: true });
@@ -4537,7 +4539,7 @@ Standards.general.storage.server = {
 			return new Promise(function (resolve, reject) {
 				location = Standards.general.storage.server.formatLocation(location);
 				let reference = Standards.general.storage.server.getReference(location, true);
-				if (location.slice(-1) == "/") {  // if storing a whole folder of items
+				if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
 					if (Standards.general.getType(item) == "Object") {
 						reference.set(item, { merge: true }).then(function () {
 							if (callback) {
@@ -4563,7 +4565,7 @@ Standards.general.storage.server = {
 					}
 				} else {  // if storing a single key-value pair
 					reference.set({
-						[location.slice(location.lastIndexOf("/") + 1)]: item
+						[location.slice(location.lastIndexOf("<slash>") + 7)]: item
 					}, { merge: true }).then(function () {
 						if (callback) {
 							new Promise(function () {
@@ -4592,7 +4594,7 @@ Standards.general.storage.server = {
 		}
 		return new Promise(function (resolve, reject) {
 			location = Standards.general.storage.server.formatLocation(location);
-			if (location.slice(-1) == "/") {  // if retrieving a folder
+			if (location.slice(-7) == "<slash>") {  // if retrieving a folder
 				Standards.general.storage.server.getReference(location).get().then(function (doc) {
 					if (doc.exists) {
 						let data = doc.data();
@@ -4635,15 +4637,15 @@ Standards.general.storage.server = {
 					if (doc.exists) {
 						if (callback) {
 							new Promise(function () {
-								callback(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
-								resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
+								callback(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
+								resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
 								reject(error);
 							});
 						} else {
-							resolve(doc.data()[location.slice(location.lastIndexOf("/") + 1)]);
+							resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
 						}
 					} else {
 						console.warn("An attempt was made to access a non-existent document.");
@@ -4679,19 +4681,19 @@ Standards.general.storage.server = {
 		}
 		return new Promise(function (resolve, reject) {
 			let reference = Standards.general.storage.server.getReference(location);
-			let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
+			let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
 			let docLocation;
 			let remainingLocation;
-			docLocation = location.split("/").slice(0, defaultLength).join("/");
-			if (docLocation.includes("/")) {
-				docLocation = docLocation.slice(0, docLocation.lastIndexOf("/") + 1);
+			docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>");
+			if (docLocation.includes("<slash>")) {
+				docLocation = docLocation.slice(0, docLocation.lastIndexOf("<slash>") + 7);
 			} else {
-				docLocation += "/";
+				docLocation += "<slash>";
 			}
-			remainingLocation = location.split("/").slice(defaultLength).join("/");
+			remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
 			if (Standards.general.storage.server.locationType == "shallow") {
-				if (location.slice(-1) == "/") {  // if deleting a whole folder
-					location = location.slice(0, -1);
+				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
+					location = location.slice(0, -7);
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						let keyList = [];
 						Standards.general.forEach(collection.docs, function (subdoc) {
@@ -4745,10 +4747,10 @@ Standards.general.storage.server = {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						let found = false;
 						Standards.general.forEach(collection.docs, function (doc) {
-							if (doc.id == location.slice(0, location.lastIndexOf("/"))) {
+							if (doc.id == location.slice(0, location.lastIndexOf("<slash>"))) {
 								found = true;
 								doc.ref.update({
-									[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+									[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 								}).then(function () {
 									if (callback) {
 										new Promise(function () {
@@ -4791,10 +4793,10 @@ Standards.general.storage.server = {
 					});
 				}
 			} else if (Standards.general.storage.server.locationType == "hybrid") {
-				if (location.split("/").length - 1 > defaultLength) {  // if the location extends into shallow folders
+				if (location.split("<slash>").length - 1 > defaultLength) {  // if the location extends into shallow folders
 					reference = Standards.general.storage.server.getReference(docLocation);
-					if (remainingLocation.slice(-1) == "/") {  // if deleting a whole folder
-						remainingLocation = remainingLocation.slice(0, -1);
+					if (remainingLocation.slice(-7) == "<slash>") {  // if deleting a whole folder
+						remainingLocation = remainingLocation.slice(0, -7);
 						reference.collection("<collection>").get().then(function (collection) {
 							let keyList = [];
 							Standards.general.forEach(collection.docs, function (subdoc) {
@@ -4848,10 +4850,10 @@ Standards.general.storage.server = {
 						reference.collection("<collection>").get().then(function (collection) {
 							let found = false;
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("/"))) {
+								if (doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("<slash>"))) {
 									found = true;
 									doc.ref.update({
-										[remainingLocation.slice(remainingLocation.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+										[remainingLocation.slice(remainingLocation.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 									}).then(function () {
 										if (callback) {
 											new Promise(function () {
@@ -4895,7 +4897,7 @@ Standards.general.storage.server = {
 					}
 				} else {  // if the location stays in "deep" folders
 					reference = Standards.general.storage.server.getReference(location);
-					if (location.slice(-1) == "/") {  // if deleting a whole folder
+					if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 						reference.collection("<collection>").get().then(function (collectionProbe) {
 							let listener = new Standards.general.Listenable();
 							listener.value = 0;
@@ -4957,7 +4959,7 @@ Standards.general.storage.server = {
 						});
 					} else {  // if deleting a single key-value pair
 						reference.update({
-							[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+							[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 						}).then(function () {
 							if (callback) {
 								new Promise(function () {
@@ -4979,7 +4981,7 @@ Standards.general.storage.server = {
 					}
 				}
 			} else if (Standards.general.storage.server.locationType == "deep") {
-				if (location.slice(-1) == "/") {  // if deleting a whole folder
+				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						let listener = new Standards.general.Listenable();
 						listener.value = 0;
@@ -5041,7 +5043,7 @@ Standards.general.storage.server = {
 					});
 				} else {  // if deleting a single key-value pair
 					reference.update({
-						[location.slice(location.lastIndexOf("/") + 1)]: firebase.firestore.FieldValue.delete()
+						[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 					}).then(function () {
 						if (callback) {
 							new Promise(function () {
@@ -5085,18 +5087,18 @@ Standards.general.storage.server = {
 					let preKey = "";  // holds the found file locations (document IDs)
 					if (location == "~") {  // if trying to get all keys
 						Standards.general.forEach(collection.docs, function (doc) {
-							let key = doc.id.split("/")[0];
+							let key = doc.id.split("<slash>")[0];
 							if (!keyList.includes(key)) {
 								keyList.push(key);
 							}
 						});
 						/// returns only the first folder level of everything at the top of the directory
-					} else if (location.slice(-1) == "/") {  // if getting the key names within a folder
-						location = location.slice(0, -1);
+					} else if (location.slice(-7) == "<slash>") {  // if getting the key names within a folder
+						location = location.slice(0, -7);
 						Standards.general.forEach(collection.docs, function (doc) {
 							if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
 								if (doc.id.length > location.length) {
-									preKey = doc.id.slice(location.length) + "/";
+									preKey = doc.id.slice(location.length) + "<slash>";
 								} else {
 									preKey = "";
 								}
@@ -5109,14 +5111,14 @@ Standards.general.storage.server = {
 						});
 					} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
 						Standards.general.forEach(collection.docs, function (doc) {
-							if (doc.id == location.split("/").slice(0, -1).join("/")) {  // if the document is one folder-level up
-								if (doc.data().hasOwnProperty(location.split("/").slice(-1)[0])) {  // if the document has the key at the end of the location
-									keyList.push(location.split("/").slice(-1)[0]);
+							if (doc.id == location.split("<slash>").slice(0, -1).join("<slash>")) {  // if the document is one folder-level up
+								if (doc.data().hasOwnProperty(location.split("<slash>").slice(-1)[0])) {  // if the document has the key at the end of the location
+									keyList.push(location.split("<slash>").slice(-1)[0]);
 								}
 							} else {
 								if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > location.length) {
-										preKey = doc.id.slice(location.length + 1) + "/";
+										preKey = doc.id.slice(location.length + 7) + "<slash>";
 									} else {
 										preKey = "";
 									}
@@ -5148,22 +5150,22 @@ Standards.general.storage.server = {
 				});
 
 			} else if (Standards.general.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
-				let defaultLength = Standards.general.storage.server.defaultLocation.split("/").length;
+				let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
 				let docLocation;
 				let remainingLocation;
 				if (location != "~") {
-					docLocation = location.split("/").slice(0, defaultLength).join("/");
-					if (docLocation.includes("/")) {
-						docLocation = docLocation.slice(0, docLocation.lastIndexOf("/") + 1);
+					docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>");
+					if (docLocation.includes("<slash>")) {
+						docLocation = docLocation.slice(0, docLocation.lastIndexOf("<slash>") + 7);
 					} else {
-						docLocation += "/";
+						docLocation += "<slash>";
 					}
-					remainingLocation = location.split("/").slice(defaultLength).join("/");
+					remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
 				}
 				if (location == "~") {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						Standards.general.forEach(collection.docs, function (doc) {
-							let key = doc.id.split("/")[0];
+							let key = doc.id.split("<slash>")[0];
 							if (!keyList.includes(key)) {
 								keyList.push(key);
 							}
@@ -5186,15 +5188,15 @@ Standards.general.storage.server = {
 						console.error(error);
 						reject(error);
 					});
-				} else if (location.split("/").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
+				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
-						if (remainingLocation.slice(-1) == "/") {  // if getting the key names within a folder
-							remainingLocation = remainingLocation.slice(0, -1);
+						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
+							remainingLocation = remainingLocation.slice(0, -7);
 							Standards.general.forEach(collection.docs, function (doc) {
 								if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > remainingLocation.length) {
-										preKey = doc.id.slice(remainingLocation.length) + "/";
+										preKey = doc.id.slice(remainingLocation.length) + "<slash>";
 									} else {
 										preKey = "";
 									}
@@ -5207,14 +5209,14 @@ Standards.general.storage.server = {
 							});
 						} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id == remainingLocation.split("/").slice(0, -1).join("/")) {  // if the document is one folder-level up
-									if (doc.data().hasOwnProperty(remainingLocation.split("/").slice(-1)[0])) {  // if the document has the key at the end of the location
-										keyList.push(remainingLocation.split("/").slice(-1)[0]);
+								if (doc.id == remainingLocation.split("<slash>").slice(0, -1).join("<slash>")) {  // if the document is one folder-level up
+									if (doc.data().hasOwnProperty(remainingLocation.split("<slash>").slice(-1)[0])) {  // if document has the key at the end of the location
+										keyList.push(remainingLocation.split("<slash>").slice(-1)[0]);
 									}
 								} else {
 									if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
 										if (doc.id.length > remainingLocation.length) {
-											preKey = doc.id.slice(remainingLocation.length + 1) + "/";
+											preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
 										} else {
 											preKey = "";
 										}
@@ -5274,11 +5276,11 @@ Standards.general.storage.server = {
 									listener.value++;
 									doc.ref.collection("<collection>").get().then(function (subcollection) {
 										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											exploreCollection(subcollection, path + doc.id + "/");
+											exploreCollection(subcollection, path + doc.id + "<slash>");
 										}
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
-												keyList.push(path + doc.id + "/" + key);
+												keyList.push(path + doc.id + "<slash>" + key);
 											}
 										});
 										listener.value--;
@@ -5289,7 +5291,7 @@ Standards.general.storage.server = {
 									});
 								});
 							}
-							if (location.slice(-1) == "/") {
+							if (location.slice(-7) == "<slash>") {
 								exploreCollection(collectionProbe, "");
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
@@ -5305,20 +5307,20 @@ Standards.general.storage.server = {
 									console.error(error);
 									reject(error);
 								});
-							} else if (location.split("/").length - 1 == defaultLength) {
-								let locationKey = location.slice(location.lastIndexOf("/") + 1);
+							} else if (location.split("<slash>").length - 1 == defaultLength) {
+								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id.slice(0, locationKey.length) == locationKey) {
 										if (doc.id.length > locationKey.length) {
 											Standards.general.forEach(doc.data(), function (value, key) {
 												if (key != "<document>") {
-													keyList.push(doc.id.slice(locationKey.length + 1) + "/" + key);
+													keyList.push(doc.id.slice(locationKey.length + 7) + "<slash>" + key);
 												}
 											});
 										} else {
 											Standards.general.forEach(doc.data(), function (value, key) {
 												if (key != "<document>") {
-													keyList.push(locationKey + "/" + key);
+													keyList.push(locationKey + "<slash>" + key);
 												}
 											});
 										}
@@ -5338,14 +5340,14 @@ Standards.general.storage.server = {
 								});
 							} else {
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
-									if (doc.id == location.slice(location.lastIndexOf("/") + 1)) {  // if a doc ID matches the location key (only true <= 1 time)
-										exploreCollection([doc], location.slice(location.lastIndexOf("/") + 1) + "/");
+									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
+										exploreCollection([doc], location.slice(location.lastIndexOf("<slash>") + 7) + "<slash>");
 									}
 								});
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
-										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {  // if the document has the location's key
-											keyList.push(location.slice(location.lastIndexOf("/") + 1));
+										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
+											keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 										}
 									}
 									listener.value--;
@@ -5358,14 +5360,14 @@ Standards.general.storage.server = {
 						} else {  // if there's not sub-documents
 							reference.get().then(function (doc) {
 								if (doc.exists) {
-									if (location.slice(-1) == "/") {  // if getting the contents of a folder
+									if (location.slice(-7) == "<slash>") {  // if getting the contents of a folder
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(key);
 											}
 										});
-									} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {  // if the document has the location's key
-										keyList.push(location.slice(location.lastIndexOf("/") + 1));
+									} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has location's key
+										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 									}
 									if (callback) {
 										new Promise(function () {
@@ -5452,11 +5454,11 @@ Standards.general.storage.server = {
 									listener.value++;
 									doc.ref.collection("<collection>").get().then(function (subcollection) {
 										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											exploreCollection(subcollection, path + doc.id + "/");
+											exploreCollection(subcollection, path + doc.id + "<slash>");
 										}
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
-												keyList.push(path + doc.id + "/" + key);
+												keyList.push(path + doc.id + "<slash>" + key);
 											}
 										});
 										listener.value--;
@@ -5467,7 +5469,7 @@ Standards.general.storage.server = {
 									});
 								});
 							}
-							if (location.slice(-1) == "/") {
+							if (location.slice(-7) == "<slash>") {
 								exploreCollection(collectionProbe, "");
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
@@ -5485,14 +5487,14 @@ Standards.general.storage.server = {
 								});
 							} else {
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
-									if (doc.id == location.slice(location.lastIndexOf("/") + 1)) {  // if a doc ID matches the location key (only true <= 1 time)
-										exploreCollection([doc], location.slice(location.lastIndexOf("/") + 1) + "/");
+									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
+										exploreCollection([doc], location.slice(location.lastIndexOf("<slash>") + 7) + "<slash>");
 									}
 								});
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
-										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {  // if the document has the location's key
-											keyList.push(location.slice(location.lastIndexOf("/") + 1));
+										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
+											keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 										}
 									}
 									listener.value--;
@@ -5506,14 +5508,14 @@ Standards.general.storage.server = {
 					} else {  // if there's not sub-documents
 						reference.get().then(function (doc) {
 							if (doc.exists) {
-								if (location.slice(-1) == "/") {  // if getting the contents of a folder
+								if (location.slice(-7) == "<slash>") {  // if getting the contents of a folder
 									Standards.general.forEach(doc.data(), function (value, key) {
 										if (key != "<document>") {
 											keyList.push(key);
 										}
 									});
-								} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("/") + 1))) {  // if the document has the location's key
-									keyList.push(location.slice(location.lastIndexOf("/") + 1));
+								} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
+									keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 								}
 								if (callback) {
 									new Promise(function () {
