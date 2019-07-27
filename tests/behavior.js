@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 12");
+		console.log("Test number 13");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4397,11 +4397,11 @@ Standards.general.storage.server = {
 		if (Standards.general.storage.server.defaultLocation.slice(-1) == "/") {
 			Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.slice(0, -1);
 		}
-		if (Standards.general.storage.server.defaultLocation.search(/^(?:[^/]+\/)*[^/]+$/) == -1) {
+		Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.replace(/\//g, "<slash>");
+		if (Standards.general.storage.server.defaultLocation.search(/^(?:(?:(?!<slash>).)+<slash>)*.+$/) == -1) {
 			alert("The default server storage location has an improper path pattern.");
 			throw "The default server storage location has an improper path pattern.";
 		}
-		Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.replace(/\//g, "<slash>");
 
 		// converts the location into an absolute file location
 		if (location === undefined || location === "") {
@@ -4473,7 +4473,7 @@ Standards.general.storage.server = {
 			}
 			if (locationFolders > defaultFolders) {
 				// puts everything after the number of default folders into one document
-				reference = reference.collection("<collection>").doc(location.match(new RegExp("(?:[^/]+/){"+defaultFolders+"}(.+)"))[1]);
+				reference = reference.collection("<collection>").doc(location.match(new RegExp("(?:(?:(?!<slash>).)+<slash>){"+defaultFolders+"}(.+)"))[1]);
 				if (shouldCreate) {
 					reference.set({ "<document>": "exists" }, { merge: true });
 				}
