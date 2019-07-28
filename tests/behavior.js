@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 14");
+		console.log("Test number 15");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5132,7 +5132,7 @@ Standards.general.storage.server = {
 						});
 					}
 					Standards.general.forEach(keyList, function (key, index) {
-						keylist[index] = key.replace("<slash>", "/");
+						keyList[index] = key.replace("<slash>", "/");
 					});
 					if (callback) {
 						new Promise(function () {
@@ -5238,7 +5238,7 @@ Standards.general.storage.server = {
 							});
 						}
 						Standards.general.forEach(keyList, function (key, index) {
-							keylist[index] = key.replace("<slash>", "/");
+							keyList[index] = key.replace("<slash>", "/");
 						});
 						if (callback) {
 							new Promise(function () {
@@ -5271,7 +5271,7 @@ Standards.general.storage.server = {
 								if (value == 0) {  // once all items have been listed
 									listener.removeEventListener("change", arguments.callee);
 									Standards.general.forEach(keyList, function (key, index) {
-										keylist[index] = key.replace("<slash>", "/");
+										keyList[index] = key.replace("<slash>", "/");
 									});
 									if (callback) {
 										new Promise(function () {
@@ -5388,7 +5388,7 @@ Standards.general.storage.server = {
 										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 									}
 									Standards.general.forEach(keyList, function (key, index) {
-										keylist[index] = key.replace("<slash>", "/");
+										keyList[index] = key.replace("<slash>", "/");
 									});
 									if (callback) {
 										new Promise(function () {
@@ -5459,7 +5459,7 @@ Standards.general.storage.server = {
 								if (value == 0) {  // once all items have been listed
 									listener.removeEventListener("change", arguments.callee);
 									Standards.general.forEach(keyList, function (key, index) {
-										keylist[index] = key.replace("<slash>", "/");
+										keyList[index] = key.replace("<slash>", "/");
 									});
 									if (callback) {
 										new Promise(function () {
@@ -5546,7 +5546,7 @@ Standards.general.storage.server = {
 									keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 								}
 								Standards.general.forEach(keyList, function (key, index) {
-									keylist[index] = key.replace("<slash>", "/");
+									keyList[index] = key.replace("<slash>", "/");
 								});
 								if (callback) {
 									new Promise(function () {
