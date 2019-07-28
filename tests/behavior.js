@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 16");
+		console.log("Test number 17");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5096,9 +5096,9 @@ Standards.general.storage.server = {
 					} else if (location.slice(-7) == "<slash>") {  // if getting the key names within a folder
 						location = location.slice(0, -7);
 						Standards.general.forEach(collection.docs, function (doc) {
-							if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
+							if (doc.id.search(new RegExp("^" + location + "(?:<slash>|$)")) > -1) {  // if the beginning of the document ID contains the file location
 								if (doc.id.length > location.length) {
-									preKey = doc.id.slice(location.length) + "<slash>";
+									preKey = doc.id.slice(location.length + 7) + "<slash>";
 								} else {
 									preKey = "";
 								}
@@ -5116,7 +5116,7 @@ Standards.general.storage.server = {
 									keyList.push(location.split("<slash>").slice(-1)[0]);
 								}
 							} else {
-								if (doc.id.slice(0, location.length) == location) {  // if the beginning of the document ID contains the file location
+								if (doc.id.search(new RegExp("^" + location + "(?:<slash>|$)")) > -1) {  // if the beginning of the document ID contains the file location
 									if (doc.id.length > location.length) {
 										preKey = doc.id.slice(location.length + 7) + "<slash>";
 									} else {
@@ -5202,9 +5202,9 @@ Standards.general.storage.server = {
 						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
 							remainingLocation = remainingLocation.slice(0, -7);
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
+								if (doc.id.search(new RegExp("^" + remainingLocation + "(?:<slash>|$)")) > -1) {  // if beginning of document ID contains the file location
 									if (doc.id.length > remainingLocation.length) {
-										preKey = doc.id.slice(remainingLocation.length) + "<slash>";
+										preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
 									} else {
 										preKey = "";
 									}
@@ -5222,7 +5222,7 @@ Standards.general.storage.server = {
 										keyList.push(remainingLocation.split("<slash>").slice(-1)[0]);
 									}
 								} else {
-									if (doc.id.slice(0, remainingLocation.length) == remainingLocation) {  // if the beginning of the document ID contains the file location
+									if (doc.id.search(new RegExp("^" + remainingLocation + "(?:<slash>|$)")) > -1) {  // if beginning of document ID contains file location
 										if (doc.id.length > remainingLocation.length) {
 											preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
 										} else {
@@ -5327,8 +5327,9 @@ Standards.general.storage.server = {
 								});
 							} else if (location.split("<slash>").length - 1 == defaultLength) {
 								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
+								console.log(locationKey);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
-									if (doc.id.slice(0, locationKey.length) == locationKey) {
+									if (doc.id.search(new RegExp("^" + locationKey + "(?:<slash>|$)")) > -1) {
 										if (doc.id.length > locationKey.length) {
 											Standards.general.forEach(doc.data(), function (value, key) {
 												if (key != "<document>") {
@@ -5346,6 +5347,7 @@ Standards.general.storage.server = {
 								});
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
+										console.log(doc.data());
 										if (Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
 											keyList.push(locationKey);
 										}
