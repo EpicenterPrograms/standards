@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 13");
+		console.log("Test number 14");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5131,6 +5131,9 @@ Standards.general.storage.server = {
 							}
 						});
 					}
+					Standards.general.forEach(keyList, function (key, index) {
+						keylist[index] = key.replace("<slash>", "/");
+					});
 					if (callback) {
 						new Promise(function () {
 							callback(keyList);
@@ -5171,6 +5174,7 @@ Standards.general.storage.server = {
 							}
 						});
 						/// returns only the first folder level of everything at the top of the directory
+						// none of the keys should have "<slash>"
 						if (callback) {
 							new Promise(function () {
 								callback(keyList);
@@ -5190,6 +5194,10 @@ Standards.general.storage.server = {
 					});
 				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+						console.log("----------/");
+						Standards.general.forEach(collection.docs, function (doc) {
+							console.log(doc.id);
+						});
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
 							remainingLocation = remainingLocation.slice(0, -7);
@@ -5229,6 +5237,9 @@ Standards.general.storage.server = {
 								}
 							});
 						}
+						Standards.general.forEach(keyList, function (key, index) {
+							keylist[index] = key.replace("<slash>", "/");
+						});
 						if (callback) {
 							new Promise(function () {
 								callback(keyList);
@@ -5249,12 +5260,19 @@ Standards.general.storage.server = {
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
+						console.log("----------");
+						Standards.general.forEach(collection.docs, function (doc) {
+							console.log(doc.id);
+						});
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 							let listener = new Standards.general.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been listed
 									listener.removeEventListener("change", arguments.callee);
+									Standards.general.forEach(keyList, function (key, index) {
+										keylist[index] = key.replace("<slash>", "/");
+									});
 									if (callback) {
 										new Promise(function () {
 											callback(keyList);
@@ -5369,6 +5387,9 @@ Standards.general.storage.server = {
 									} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has location's key
 										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 									}
+									Standards.general.forEach(keyList, function (key, index) {
+										keylist[index] = key.replace("<slash>", "/");
+									});
 									if (callback) {
 										new Promise(function () {
 											callback(keyList);
@@ -5383,6 +5404,7 @@ Standards.general.storage.server = {
 									}
 								} else {
 									console.warn("An attempt was made to access a non-existent document.");
+									// keyList is empty and doesn't need to have "<slash>"s replaced
 									if (callback) {
 										new Promise(function () {
 											callback(keyList);
@@ -5417,6 +5439,7 @@ Standards.general.storage.server = {
 							Standards.general.forEach(collectionProbe.docs, function (doc) {
 								keyList.push(doc.id);
 							});
+							// none of the keys should have "<slash>"
 							if (callback) {
 								new Promise(function () {
 									callback(keyList);
@@ -5434,17 +5457,22 @@ Standards.general.storage.server = {
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been listed
+									listener.removeEventListener("change", arguments.callee);
+									Standards.general.forEach(keyList, function (key, index) {
+										keylist[index] = key.replace("<slash>", "/");
+									});
 									if (callback) {
 										new Promise(function () {
 											callback(keyList);
+											resolve(keyList);
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 											reject(error);
 										});
+									} else {
+										resolve(keyList);
 									}
-									listener.removeEventListener("change", arguments.callee);
-									resolve(keyList);
 								}
 							});
 							/// when a new document is encountered, listener.value is incremented
@@ -5517,6 +5545,9 @@ Standards.general.storage.server = {
 								} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
 									keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 								}
+								Standards.general.forEach(keyList, function (key, index) {
+									keylist[index] = key.replace("<slash>", "/");
+								});
 								if (callback) {
 									new Promise(function () {
 										callback(keyList);
@@ -5531,6 +5562,7 @@ Standards.general.storage.server = {
 								}
 							} else {
 								console.warn("An attempt was made to access a non-existent document.");
+								// keyList should be empty
 								if (callback) {
 									new Promise(function () {
 										callback(keyList);
