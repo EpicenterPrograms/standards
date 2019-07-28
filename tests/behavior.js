@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 17");
+		console.log("Test number 18");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5312,7 +5312,7 @@ Standards.general.storage.server = {
 							if (location.slice(-7) == "<slash>") {
 								exploreCollection(collectionProbe, "");
 								reference.get().then(function (doc) {
-									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(key);
@@ -5327,7 +5327,6 @@ Standards.general.storage.server = {
 								});
 							} else if (location.split("<slash>").length - 1 == defaultLength) {
 								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
-								console.log(locationKey);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id.search(new RegExp("^" + locationKey + "(?:<slash>|$)")) > -1) {
 										if (doc.id.length > locationKey.length) {
@@ -5346,11 +5345,9 @@ Standards.general.storage.server = {
 									}
 								});
 								reference.get().then(function (doc) {
-									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
-										console.log(doc.data());
-										if (Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
-											keyList.push(locationKey);
-										}
+									if (doc.exists && Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
+										console.log(Object.keys(doc.data()));
+										keyList.push(locationKey);
 									}
 									listener.value--;
 								}).catch(function (error) {
@@ -5365,10 +5362,8 @@ Standards.general.storage.server = {
 									}
 								});
 								reference.get().then(function (doc) {
-									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
-										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
-											keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
-										}
+									if (doc.exists && Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if doc has location's key
+										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 									}
 									listener.value--;
 								}).catch(function (error) {
@@ -5502,7 +5497,7 @@ Standards.general.storage.server = {
 							if (location.slice(-7) == "<slash>") {
 								exploreCollection(collectionProbe, "");
 								reference.get().then(function (doc) {
-									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
+									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(key);
@@ -5522,10 +5517,8 @@ Standards.general.storage.server = {
 									}
 								});
 								reference.get().then(function (doc) {
-									if (doc.exists && Object.keys(doc).length > 1) {  // if the document has any field values
-										if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
-											keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
-										}
+									if (doc.exists && Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if doc has location's key
+										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 									}
 									listener.value--;
 								}).catch(function (error) {
