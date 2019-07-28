@@ -5194,7 +5194,7 @@ Standards.general.storage.server = {
 					});
 				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
-						console.log("----------/");
+						console.log("---------->");
 						Standards.general.forEach(collection.docs, function (doc) {
 							console.log(doc.id);
 						});
@@ -5260,8 +5260,8 @@ Standards.general.storage.server = {
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
-						console.log("----------");
-						Standards.general.forEach(collection.docs, function (doc) {
+						console.log("<----------");
+						Standards.general.forEach(collectionProbe.docs, function (doc) {
 							console.log(doc.id);
 						});
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
