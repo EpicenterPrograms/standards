@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 19");
+		console.log("Test number 20");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5116,19 +5116,13 @@ Standards.general.storage.server = {
 									if (doc.data().hasOwnProperty(location.split("<slash>").slice(-1)[0])) {  // if the document has the key at the end of the location
 										keyList.push(location.split("<slash>").slice(-1)[0]);
 									}
-								} else {
-									if (doc.id.search(new RegExp("^" + location + "(?:<slash>|$)")) > -1) {  // if beginning of the document ID contains the file location
-										if (doc.id.length > location.length) {
-											preKey = doc.id.slice(location.length + 7) + "<slash>";
-										} else {
-											preKey = "";
+								} else if (doc.id.search(new RegExp("^" + location + "<slash>")) > -1) {  // if beginning of the document ID contains the file location
+									preKey = doc.id.slice(location.length + 7) + "<slash>";
+									Standards.general.forEach(doc.data(), function (value, key) {
+										if (key != "<document>") {
+											keyList.push(preKey + key);
 										}
-										Standards.general.forEach(doc.data(), function (value, key) {
-											if (key != "<document>") {
-												keyList.push(preKey + key);
-											}
-										});
-									}
+									});
 								}
 							}
 						});
@@ -5224,19 +5218,13 @@ Standards.general.storage.server = {
 										if (doc.data().hasOwnProperty(remainingLocation.split("<slash>").slice(-1)[0])) {  // if document has key at the end of the location
 											keyList.push(remainingLocation.split("<slash>").slice(-1)[0]);
 										}
-									} else {
-										if (doc.id.search(new RegExp("^" + remainingLocation + "(?:<slash>|$)")) > -1) {  // if beginning of doc ID contains file location
-											if (doc.id.length > remainingLocation.length) {
-												preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
-											} else {
-												preKey = "";
+									} else if (doc.id.search(new RegExp("^" + remainingLocation + "<slash>")) > -1) {  // if beginning of doc ID contains file location
+										preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(preKey + key);
 											}
-											Standards.general.forEach(doc.data(), function (value, key) {
-												if (key != "<document>") {
-													keyList.push(preKey + key);
-												}
-											});
-										}
+										});
 									}
 								}
 							});
@@ -5332,7 +5320,7 @@ Standards.general.storage.server = {
 							} else if (location.split("<slash>").length - 1 == defaultLength) {
 								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
-									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "(?:<slash>|$)")) > -1) {
+									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "<slash>")) > -1) {
 										console.log(Object.keys(doc.data()));
 										if (doc.id.length > locationKey.length) {
 											Standards.general.forEach(doc.data(), function (value, key) {
