@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 21");
+		console.log("Test number 22");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4451,7 +4451,7 @@ Standards.general.storage.server = {
 		non-native functions = getType
 		*/
 		let reference = Standards.general.storage.server.database;
-		if (location === "~") {
+		if (location === "~" || !location.includes("<slash>")) {
 			return reference;
 		}
 		location = location.slice(0, location.lastIndexOf("<slash>"));
@@ -5344,7 +5344,7 @@ Standards.general.storage.server = {
 									console.error(error);
 									reject(error);
 								});
-							} else {
+							} else if (location.includes("<slash>")) {
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
 										exploreCollection([doc], location.slice(location.lastIndexOf("<slash>") + 7) + "<slash>");
@@ -5360,6 +5360,29 @@ Standards.general.storage.server = {
 									console.error(error);
 									reject(error);
 								});
+							} else {
+								let found = false;
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
+									if (doc.id == location) {  // if a doc ID matches the location key (only true <= 1 time)
+										found = true;
+										exploreCollection([doc], location + "<slash>");
+									}
+								});
+								if (!found) {
+									console.warn("No information was found.");
+									if (callback) {
+										new Promise(function () {
+											callback(keyList);
+											resolve(keyList);
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve(keyList);
+									}
+								}
 							}
 						} else {  // if there's not sub-documents
 							reference.get().then(function (doc) {
