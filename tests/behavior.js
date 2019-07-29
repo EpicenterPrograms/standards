@@ -5222,7 +5222,7 @@ Standards.general.storage.server = {
 										if (doc.data().hasOwnProperty(remainingLocation.split("<slash>").slice(-1)[0])) {  // if document has key at the end of the location
 											keyList.push(remainingLocation.split("<slash>").slice(-1)[0]);
 										}
-									} else if (doc.id.search(new RegExp("^" + remainingLocation + "<slash>")) > -1) {  // if beginning of doc ID contains file location
+									} else if (doc.id.search(new RegExp("^" + remainingLocation + "(?:<slash>|$)")) > -1) { // if beginning of doc ID contains file location
 										/// remainingLocation always contains "<slash>" at this point
 										preKey = doc.id.slice(remainingLocation.lastIndexOf("<slash>") + 7) + "<slash>";
 										Standards.general.forEach(doc.data(), function (value, key) {
@@ -5324,8 +5324,8 @@ Standards.general.storage.server = {
 								});
 							} else if (location.split("<slash>").length - 1 == defaultLength) {
 								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
-								Standards.general.forEach(collectionProbe.docs, function (doc) {  //// needs to include the parent folder and stuff
-									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "<slash>")) > -1) {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
+									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "(?:<slash>|$)")) > -1) {
 										console.log(Object.keys(doc.data()));
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
