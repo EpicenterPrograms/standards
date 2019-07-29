@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 20");
+		console.log("Test number 21");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5117,7 +5117,11 @@ Standards.general.storage.server = {
 										keyList.push(location.split("<slash>").slice(-1)[0]);
 									}
 								} else if (doc.id.search(new RegExp("^" + location + "<slash>")) > -1) {  // if beginning of the document ID contains the file location
-									preKey = doc.id.slice(location.length + 7) + "<slash>";
+									if (location.includes("<slash>")) {
+										preKey = doc.id.slice(location.lastIndexOf("<slash>") + 7) + "<slash>";
+									} else {
+										preKey = "";
+									}
 									Standards.general.forEach(doc.data(), function (value, key) {
 										if (key != "<document>") {
 											keyList.push(preKey + key);
@@ -5219,7 +5223,8 @@ Standards.general.storage.server = {
 											keyList.push(remainingLocation.split("<slash>").slice(-1)[0]);
 										}
 									} else if (doc.id.search(new RegExp("^" + remainingLocation + "<slash>")) > -1) {  // if beginning of doc ID contains file location
-										preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
+										/// remainingLocation always contains "<slash>" at this point
+										preKey = doc.id.slice(remainingLocation.lastIndexOf("<slash>") + 7) + "<slash>";
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(preKey + key);
@@ -5319,27 +5324,18 @@ Standards.general.storage.server = {
 								});
 							} else if (location.split("<slash>").length - 1 == defaultLength) {
 								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
-								Standards.general.forEach(collectionProbe.docs, function (doc) {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {  //// needs to include the parent folder and stuff
 									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "<slash>")) > -1) {
 										console.log(Object.keys(doc.data()));
-										if (doc.id.length > locationKey.length) {
-											Standards.general.forEach(doc.data(), function (value, key) {
-												if (key != "<document>") {
-													keyList.push(doc.id.slice(locationKey.length + 7) + "<slash>" + key);
-												}
-											});
-										} else {
-											Standards.general.forEach(doc.data(), function (value, key) {
-												if (key != "<document>") {
-													keyList.push(locationKey + "<slash>" + key);
-												}
-											});
-										}
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(doc.id + "<slash>" + key);
+											}
+										});
 									}
 								});
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
-										console.log(Object.keys(doc.data()));
 										keyList.push(locationKey);
 									}
 									listener.value--;
