@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 22");
+		console.log("Test number 23");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5287,11 +5287,11 @@ Standards.general.storage.server = {
 							/// when a new document is encountered, listener.value is incremented
 							/// when a document's keys have been iterated, listener.value is decremented
 							function exploreCollection(collection, path) {
-								Standards.general.forEach(collection.docs, function (doc) {
+								Standards.general.forEach(collection, function (doc) {
 									listener.value++;
 									doc.ref.collection("<collection>").get().then(function (subcollection) {
 										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											exploreCollection(subcollection, path + doc.id + "<slash>");
+											exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 										}
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
@@ -5307,7 +5307,7 @@ Standards.general.storage.server = {
 								});
 							}
 							if (location.slice(-7) == "<slash>") {
-								exploreCollection(collectionProbe, "");
+								exploreCollection(collectionProbe.docs, "");
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
 										Standards.general.forEach(doc.data(), function (value, key) {
@@ -5487,11 +5487,11 @@ Standards.general.storage.server = {
 							/// when a new document is encountered, listener.value is incremented
 							/// when a document's keys have been iterated, listener.value is decremented
 							function exploreCollection(collection, path) {
-								Standards.general.forEach(collection.docs, function (doc) {
+								Standards.general.forEach(collection, function (doc) {
 									listener.value++;
 									doc.ref.collection("<collection>").get().then(function (subcollection) {
 										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											exploreCollection(subcollection, path + doc.id + "<slash>");
+											exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 										}
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
@@ -5507,7 +5507,7 @@ Standards.general.storage.server = {
 								});
 							}
 							if (location.slice(-7) == "<slash>") {
-								exploreCollection(collectionProbe, "");
+								exploreCollection(collectionProbe.docs, "");
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
 										Standards.general.forEach(doc.data(), function (value, key) {
