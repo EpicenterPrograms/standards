@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 24");
+		console.log("Test number 25");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5349,7 +5349,7 @@ Standards.general.storage.server = {
 							} else if (location.includes("<slash>")) {
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
-										exploreCollection([doc], location.slice(location.lastIndexOf("<slash>") + 7) + "<slash>");
+										exploreCollection([doc], "");
 									}
 								});
 								reference.get().then(function (doc) {
@@ -5366,7 +5366,7 @@ Standards.general.storage.server = {
 								console.log(collectionProbe.docs);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.exists && doc.id == location) {  // if a doc ID matches the location key (only true <= 1 time)
-										exploreCollection([doc], location + "<slash>");
+										exploreCollection([doc], "");
 									}
 								});
 								listener.value--;
@@ -5514,7 +5514,7 @@ Standards.general.storage.server = {
 							} else {
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
-										exploreCollection([doc], location.slice(location.lastIndexOf("<slash>") + 7) + "<slash>");
+										exploreCollection([doc], "");
 									}
 								});
 								reference.get().then(function (doc) {
