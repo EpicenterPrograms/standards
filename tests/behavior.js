@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 27");
+		console.log("Test number 28");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5601,73 +5601,152 @@ Standards.general.storage.server = {
 					} else {
 						resolve();
 					}
-				} else {
-					Standards.general.storage.server.recall(oldPlace).then(function (information) {
-						if (!(information instanceof Error)) {
-							if (newPlace.slice(-1) != "/") {
-								newPlace += "/";
+				} else if (Standards.general.getType(oldPlace) == "String" && Standards.general.getType(newPlace) == "String") {
+					if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
+						if (newPlace.slice(-1) != "/") {
+							newPlace += "/";
+						}
+						let remaining = new Standards.general.Listenable();
+						remaining.value = 0;
+						remaining.addEventListener("set", function (value) {
+							if (value == 0) {  // if there are no more items waiting to be moved
+								remaining.removeEventListener("set", arguments.callee);
+								if (callback) {
+									new Promise(function () {
+										callback();
+										resolve();
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
+								}
 							}
-							let remaining = new Standards.general.Listenable();
-							remaining.value = 0;
-							remaining.addEventListener("set", function (value) {
-								if (value == 0) {  // if there are no more items waiting to be moved
-									remaining.removeEventListener("set", arguments.callee);
-									if (callback) {
-										new Promise(function () {
-											callback();
-											resolve();
+						});
+						Standards.general.storage.server.list(oldPlace).then(function (oldList) {
+							if (oldPlace.slice(-1) == "/") {
+								Standards.general.forEach(oldList, function (key) {
+									remaining.value++;
+									Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
+										Standards.general.storage.server.store(newPlace + key, info).then(function () {
+											Standards.general.storage.server.forget(oldPlace).then(function () {
+												remaining.value--;
+											}).catch(function (error) {
+												console.error("There was a problem deleting the moved information.");
+												console.error(error);
+												reject(error);
+											});
 										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
+											console.error("There was a problem storing the information to move.");
+											console.error(error);
+											reject(error);
+										});
+									}).catch(function (error) {
+										console.error("There was a problem recalling the information to move.");
+										console.error(error);
+										reject(error);
+									});
+								});
+							} else {
+								Standards.general.forEach(oldList, function (key) {
+									remaining.value++;
+									key = key.split("/").slice(1).join("/");
+									if (key == "") {
+										Standards.general.storage.server.recall(oldPlace).then(function (info) {
+											Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
+												Standards.general.storage.server.forget(oldPlace).then(function () {
+													remaining.value--;
+												}).catch(function (error) {
+													console.error("There was a problem deleting the moved information.");
+													console.error(error);
+													reject(error);
+												});
+											}).catch(function (error) {
+												console.error("There was a problem storing the information to move.");
+												console.error(error);
+												reject(error);
+											});
+										}).catch(function (error) {
+											console.error("There was a problem recalling the information to move.");
 											console.error(error);
 											reject(error);
 										});
 									} else {
-										resolve();
-									}
-								}
-							});
-							Standards.general.storage.server.list(oldPlace).then(function (oldList) {
-								if (oldPlace.slice(-1) == "/") {
-									Standards.general.forEach(oldList, function (key) {
-										remaining.value++;
-										Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
+										Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
 											Standards.general.storage.server.store(newPlace + key, info).then(function () {
-												Standards.general.storage.server.forget(oldPlace).then(function () {
+												Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
 													remaining.value--;
+												}).catch(function (error) {
+													console.error("There was a problem deleting the moved information.");
+													console.error(error);
+													reject(error);
 												});
+											}).catch(function (error) {
+												console.error("There was a problem storing the information to move.");
+												console.error(error);
+												reject(error);
 											});
+										}).catch(function (error) {
+											console.error("There was a problem recalling the information to move.");
+											console.error(error);
+											reject(error);
 										});
-									});
-								} else {
-									Standards.general.forEach(oldList, function (key) {
-										remaining.value++;
-										key = key.split("/").slice(1).join("/");
-										if (key == "") {
-											Standards.general.storage.server.recall(oldPlace).then(function (info) {
-												Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
-													Standards.general.storage.server.forget(oldPlace).then(function () {
-														remaining.value--;
-													});
-												});
+									}
+								});
+							}
+						}).catch(function (error) {
+							console.error("There was a problem listing the information to move.");
+							console.error(error);
+							reject(error);
+						});
+						remaining.value = remaining.value;  // runs the listener if there aren't any items
+					} else {  // if neither place is a folder
+						Standards.general.storage.server.recall(oldPlace).then(function (info) {
+							if (info instanceof Error) {
+								console.error("No information was found to move.");
+								reject();
+							} else {
+								Standards.general.storage.server.store(newPlace, info).then(function () {
+									Standards.general.storage.server.forget(oldPlace).then(function () {
+										if (callback) {
+											new Promise(function () {
+												callback();
+												resolve();
+											}).catch(function (error) {
+												console.error("There was a problem running the callback.");
+												console.error(error);
+												reject(error);
 											});
 										} else {
-											Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
-												Standards.general.storage.server.store(newPlace + key, info).then(function () {
-													Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
-														remaining.value--;
-													});
-												});
-											});
+											resolve();
 										}
+									}).catch(function (error) {
+										console.error("There was a problem deleting the moved information.");
+										console.error(error);
+										reject(error);
 									});
-								}
-							});
-							remaining.value = remaining.value;  // runs the listener if there aren't any items
-						} else {
-							console.error("No information was found in the oldPlace.");
-							reject(new Error("No information was found in the oldPlace."));
-						}
-					});
+								}).catch(function (error) {
+									console.error("There was a problem storing the information to move.");
+									console.error(error);
+									reject(error);
+								});
+							}
+						}).catch(function (error) {
+							console.error("There was a problem recalling the information to move.");
+							console.error(error);
+							reject(error);
+						});
+					}
+				} else {
+					if (Standards.general.getType(oldPlace) == "String") {
+						console.error("The newPlace to move to is not a string.");
+						reject(new TypeError("The newPlace to move to is not a string."));
+					} else {
+						console.error("The oldPlace to move is not a string.");
+						reject(new TypeError("The oldPlace to move is not a string."));
+					}
 				}
 			});
 		}
