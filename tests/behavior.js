@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 26");
+		console.log("Test number 27");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4923,23 +4923,25 @@ Standards.general.storage.server = {
 								/// when a document is deleted, listener.value is decremented
 								function deleteCollection(collection) {
 									Standards.general.forEach(collection, function (subdoc) {
-										listener.value++;
-										subdoc.ref.collection("<collection>").get().then(function (subcollection) {
-											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-												deleteCollection(subcollection.docs);
-											}
-											subdoc.ref.delete().then(function () {
-												listener.value--;
+										if (subdoc.exists) {
+											listener.value++;
+											subdoc.ref.collection("<collection>").get().then(function (subcollection) {
+												if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+													deleteCollection(subcollection.docs);
+												}
+												subdoc.ref.delete().then(function () {
+													listener.value--;
+												}).catch(function (error) {
+													console.error("The information couldn't be deleted.");
+													console.error(error);
+													reject(error);
+												});
 											}).catch(function (error) {
-												console.error("The information couldn't be deleted.");
+												console.error("There was an error retrieving the information.");
 												console.error(error);
 												reject(error);
 											});
-										}).catch(function (error) {
-											console.error("There was an error retrieving the information.");
-											console.error(error);
-											reject(error);
-										});
+										}
 									});
 								}
 								deleteCollection(collectionProbe.docs);
@@ -5007,23 +5009,25 @@ Standards.general.storage.server = {
 							/// when a document is deleted, listener.value is decremented
 							function deleteCollection(collection) {
 								Standards.general.forEach(collection, function (subdoc) {
-									listener.value++;
-									subdoc.ref.collection("<collection>").get().then(function (subcollection) {
-										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											deleteCollection(subcollection.docs);
-										}
-										subdoc.ref.delete().then(function () {
-											listener.value--;
+									if (subdoc.exists) {
+										listener.value++;
+										subdoc.ref.collection("<collection>").get().then(function (subcollection) {
+											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+												deleteCollection(subcollection.docs);
+											}
+											subdoc.ref.delete().then(function () {
+												listener.value--;
+											}).catch(function (error) {
+												console.error("The information couldn't be deleted.");
+												console.error(error);
+												reject(error);
+											});
 										}).catch(function (error) {
-											console.error("The information couldn't be deleted.");
+											console.error("There was an error retrieving the information.");
 											console.error(error);
 											reject(error);
 										});
-									}).catch(function (error) {
-										console.error("There was an error retrieving the information.");
-										console.error(error);
-										reject(error);
-									});
+									}
 								});
 							}
 							deleteCollection(collectionProbe.docs);
