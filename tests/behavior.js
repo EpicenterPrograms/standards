@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 23");
+		console.log("Test number 24");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5288,22 +5288,24 @@ Standards.general.storage.server = {
 							/// when a document's keys have been iterated, listener.value is decremented
 							function exploreCollection(collection, path) {
 								Standards.general.forEach(collection, function (doc) {
-									listener.value++;
-									doc.ref.collection("<collection>").get().then(function (subcollection) {
-										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											exploreCollection(subcollection.docs, path + doc.id + "<slash>");
-										}
-										Standards.general.forEach(doc.data(), function (value, key) {
-											if (key != "<document>") {
-												keyList.push(path + doc.id + "<slash>" + key);
+									if (doc.exists) {
+										listener.value++;
+										doc.ref.collection("<collection>").get().then(function (subcollection) {
+											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
+											Standards.general.forEach(doc.data(), function (value, key) {
+												if (key != "<document>") {
+													keyList.push(path + doc.id + "<slash>" + key);
+												}
+											});
+											listener.value--;
+										}).catch(function (error) {
+											console.error("List retrieval failed.");
+											console.error(error);
+											reject(error);
 										});
-										listener.value--;
-									}).catch(function (error) {
-										console.error("List retrieval failed.");
-										console.error(error);
-										reject(error);
-									});
+									}
 								});
 							}
 							if (location.slice(-7) == "<slash>") {
@@ -5361,28 +5363,13 @@ Standards.general.storage.server = {
 									reject(error);
 								});
 							} else {
-								let found = false;
+								console.log(collectionProbe.docs);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
-									if (doc.id == location) {  // if a doc ID matches the location key (only true <= 1 time)
-										found = true;
+									if (doc.exists && doc.id == location) {  // if a doc ID matches the location key (only true <= 1 time)
 										exploreCollection([doc], location + "<slash>");
 									}
 								});
-								if (!found) {
-									console.warn("No information was found.");
-									if (callback) {
-										new Promise(function () {
-											callback(keyList);
-											resolve(keyList);
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
-										resolve(keyList);
-									}
-								}
+								listener.value--;
 							}
 						} else {  // if there's not sub-documents
 							reference.get().then(function (doc) {
@@ -5488,22 +5475,24 @@ Standards.general.storage.server = {
 							/// when a document's keys have been iterated, listener.value is decremented
 							function exploreCollection(collection, path) {
 								Standards.general.forEach(collection, function (doc) {
-									listener.value++;
-									doc.ref.collection("<collection>").get().then(function (subcollection) {
-										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											exploreCollection(subcollection.docs, path + doc.id + "<slash>");
-										}
-										Standards.general.forEach(doc.data(), function (value, key) {
-											if (key != "<document>") {
-												keyList.push(path + doc.id + "<slash>" + key);
+									if (doc.exists) {
+										listener.value++;
+										doc.ref.collection("<collection>").get().then(function (subcollection) {
+											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
+											Standards.general.forEach(doc.data(), function (value, key) {
+												if (key != "<document>") {
+													keyList.push(path + doc.id + "<slash>" + key);
+												}
+											});
+											listener.value--;
+										}).catch(function (error) {
+											console.error("List retrieval failed.");
+											console.error(error);
+											reject(error);
 										});
-										listener.value--;
-									}).catch(function (error) {
-										console.error("List retrieval failed.");
-										console.error(error);
-										reject(error);
-									});
+									}
 								});
 							}
 							if (location.slice(-7) == "<slash>") {
