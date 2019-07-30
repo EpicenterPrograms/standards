@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 25");
+		console.log("Test number 26");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4922,11 +4922,11 @@ Standards.general.storage.server = {
 								/// when a new document is encountered, listener.value is incremented
 								/// when a document is deleted, listener.value is decremented
 								function deleteCollection(collection) {
-									Standards.general.forEach(collection.docs, function (subdoc) {
+									Standards.general.forEach(collection, function (subdoc) {
 										listener.value++;
 										subdoc.ref.collection("<collection>").get().then(function (subcollection) {
 											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-												deleteCollection(subcollection);
+												deleteCollection(subcollection.docs);
 											}
 											subdoc.ref.delete().then(function () {
 												listener.value--;
@@ -4942,7 +4942,7 @@ Standards.general.storage.server = {
 										});
 									});
 								}
-								deleteCollection(collectionProbe);
+								deleteCollection(collectionProbe.docs);
 							}
 							listener++;
 							reference.delete().then(function () {
@@ -5006,11 +5006,11 @@ Standards.general.storage.server = {
 							/// when a new document is encountered, listener.value is incremented
 							/// when a document is deleted, listener.value is decremented
 							function deleteCollection(collection) {
-								Standards.general.forEach(collection.docs, function (subdoc) {
+								Standards.general.forEach(collection, function (subdoc) {
 									listener.value++;
 									subdoc.ref.collection("<collection>").get().then(function (subcollection) {
 										if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-											deleteCollection(subcollection);
+											deleteCollection(subcollection.docs);
 										}
 										subdoc.ref.delete().then(function () {
 											listener.value--;
@@ -5026,7 +5026,7 @@ Standards.general.storage.server = {
 									});
 								});
 							}
-							deleteCollection(collectionProbe);
+							deleteCollection(collectionProbe.docs);
 						}
 						listener++;
 						reference.delete().then(function () {
@@ -5194,10 +5194,6 @@ Standards.general.storage.server = {
 					});
 				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
-						console.log("---------->");
-						Standards.general.forEach(collection.docs, function (doc) {
-							console.log(doc.id);
-						});
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
 							remainingLocation = remainingLocation.slice(0, -7);
@@ -5257,10 +5253,6 @@ Standards.general.storage.server = {
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
-						console.log("<----------");
-						Standards.general.forEach(collectionProbe.docs, function (doc) {
-							console.log(doc.id);
-						});
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
 							let listener = new Standards.general.Listenable();
 							listener.value = 1;
@@ -5328,7 +5320,6 @@ Standards.general.storage.server = {
 								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "(?:<slash>|$)")) > -1) {
-										console.log(Object.keys(doc.data()));
 										Standards.general.forEach(doc.data(), function (value, key) {
 											if (key != "<document>") {
 												keyList.push(doc.id + "<slash>" + key);
@@ -5363,7 +5354,6 @@ Standards.general.storage.server = {
 									reject(error);
 								});
 							} else {
-								console.log(collectionProbe.docs);
 								Standards.general.forEach(collectionProbe.docs, function (doc) {
 									if (doc.exists && doc.id == location) {  // if a doc ID matches the location key (only true <= 1 time)
 										exploreCollection([doc], "");
