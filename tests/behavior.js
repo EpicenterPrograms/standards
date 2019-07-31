@@ -4849,6 +4849,7 @@ Standards.general.storage.server = {
 					} else {  // if deleting a single key-value pair
 						reference.collection("<collection>").get().then(function (collection) {
 							let found = false;
+							console.log(Standards.general.storage.server.defaultLocation);
 							console.log(location);
 							console.log(docLocation);
 							console.log(remainingLocation);
