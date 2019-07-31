@@ -4849,9 +4849,11 @@ Standards.general.storage.server = {
 					} else {  // if deleting a single key-value pair
 						reference.collection("<collection>").get().then(function (collection) {
 							let found = false;
+							console.log(location);
+							console.log(docLocation);
+							console.log(remainingLocation);
 							Standards.general.forEach(collection.docs, function (doc) {
 								console.log(doc.id);
-								console.log(remainingLocation);
 								if (doc.exists && doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("<slash>"))) {
 									found = true;
 									doc.ref.update({
