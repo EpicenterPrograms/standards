@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 28");
+		console.log("Test number 29");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4697,7 +4697,7 @@ Standards.general.storage.server = {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						let keyList = [];
 						Standards.general.forEach(collection.docs, function (subdoc) {
-							if (subdoc.id.slice(0, location.length) == location) {
+							if (subdoc.exists && subdoc.id.slice(0, location.length) == location) {
 								keyList.push(subdoc.id);
 							}
 						});
@@ -4747,7 +4747,7 @@ Standards.general.storage.server = {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						let found = false;
 						Standards.general.forEach(collection.docs, function (doc) {
-							if (doc.id == location.slice(0, location.lastIndexOf("<slash>"))) {
+							if (doc.exists && doc.id == location.slice(0, location.lastIndexOf("<slash>"))) {
 								found = true;
 								doc.ref.update({
 									[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
@@ -4800,7 +4800,7 @@ Standards.general.storage.server = {
 						reference.collection("<collection>").get().then(function (collection) {
 							let keyList = [];
 							Standards.general.forEach(collection.docs, function (subdoc) {
-								if (subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
+								if (subdoc.exists && subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
 									keyList.push(subdoc.id);
 								}
 							});
@@ -4850,7 +4850,9 @@ Standards.general.storage.server = {
 						reference.collection("<collection>").get().then(function (collection) {
 							let found = false;
 							Standards.general.forEach(collection.docs, function (doc) {
-								if (doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("<slash>"))) {
+								console.log(doc.id);
+								console.log(remainingLocation);
+								if (doc.exists && doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("<slash>"))) {
 									found = true;
 									doc.ref.update({
 										[remainingLocation.slice(remainingLocation.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
