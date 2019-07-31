@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 29");
+		console.log("Test number 30");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4681,16 +4681,6 @@ Standards.general.storage.server = {
 		}
 		return new Promise(function (resolve, reject) {
 			let reference = Standards.general.storage.server.getReference(location);
-			let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
-			let docLocation;
-			let remainingLocation;
-			docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>");
-			if (docLocation.includes("<slash>")) {
-				docLocation = docLocation.slice(0, docLocation.lastIndexOf("<slash>") + 7);
-			} else {
-				docLocation += "<slash>";
-			}
-			remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
 			if (Standards.general.storage.server.locationType == "shallow") {
 				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 					location = location.slice(0, -7);
@@ -4793,7 +4783,10 @@ Standards.general.storage.server = {
 					});
 				}
 			} else if (Standards.general.storage.server.locationType == "hybrid") {
+				let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
 				if (location.split("<slash>").length - 1 > defaultLength) {  // if the location extends into shallow folders
+					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
+					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
 					reference = Standards.general.storage.server.getReference(docLocation);
 					if (remainingLocation.slice(-7) == "<slash>") {  // if deleting a whole folder
 						remainingLocation = remainingLocation.slice(0, -7);
@@ -5163,17 +5156,6 @@ Standards.general.storage.server = {
 
 			} else if (Standards.general.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
 				let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
-				let docLocation;
-				let remainingLocation;
-				if (location != "~") {
-					docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>");
-					if (docLocation.includes("<slash>")) {
-						docLocation = docLocation.slice(0, docLocation.lastIndexOf("<slash>") + 7);
-					} else {
-						docLocation += "<slash>";
-					}
-					remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
-				}
 				if (location == "~") {
 					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
 						Standards.general.forEach(collection.docs, function (doc) {
@@ -5202,6 +5184,8 @@ Standards.general.storage.server = {
 						reject(error);
 					});
 				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
+					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
+					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
 					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
