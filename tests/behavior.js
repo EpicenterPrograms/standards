@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 30");
+		console.log("Test number 31");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4410,34 +4410,34 @@ Standards.general.storage.server = {
 			location = "~" + Standards.general.storage.server.defaultLocation;
 		}
 		if (Standards.general.getType(location) == "String") {
-			if (location.slice(0, 2) == "./") {
+			location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
+			if (location.slice(0, 8) == ".<slash>") {
 				location = "~" + Standards.general.storage.server.defaultLocation + location.slice(1);
 			}
 			if (location[0] == "~") {
 				location = location.slice(1);
-			} else if (location[0] == "/") {
-				if (location == "/") {
-					location = "users/" + Standards.general.storage.server.user.uid;
+			} else if (location.slice(0, 7) == "<slash>") {
+				if (location == "<slash>") {
+					location = "users<slash>" + Standards.general.storage.server.user.uid;
 				} else {
-					location = "users/" + Standards.general.storage.server.user.uid + location;
+					location = "users<slash>" + Standards.general.storage.server.user.uid + location;
 				}
 			} else {
-				let prelocation = Standards.general.storage.server.defaultLocation.split("/");
+				let prelocation = Standards.general.storage.server.defaultLocation.split("<slash>");
 				while (location.slice(0, 2) == "..") {
 					prelocation.pop();
 					location = location.slice(3);  // takes slashes into account
 				}
-				location = prelocation.join("/") + "/" + location;
+				location = prelocation.join("<slash>") + "<slash>" + location;
 			}
 		} else {
 			throw "The location given wasn't a String.";
 		}
-		if (!ignoreLength && location.indexOf("/") == -1) {
+		if (!ignoreLength && location.indexOf("<slash>") == -1) {
 			throw "No key was provided.";
 		} else if (location === "") {
 			location = "~";
 		}
-		location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
 		return location;  // returns the location without the key
 	},
 	getReference: function (location, shouldCreate) {
@@ -4464,7 +4464,9 @@ Standards.general.storage.server = {
 			let defaultFolders = Standards.general.storage.server.defaultLocation.split("<slash>").length;
 			let locationFolders = location.split("<slash>").length;
 			let index = 0;
+			console.log(location);
 			while (locationFolders > index && index < defaultFolders) {
+				console.log(index);
 				reference = reference.collection("<collection>").doc(location.split("<slash>")[index]);
 				if (shouldCreate) {
 					reference.set({ "<document>": "exists" }, { merge: true });
@@ -4842,12 +4844,7 @@ Standards.general.storage.server = {
 					} else {  // if deleting a single key-value pair
 						reference.collection("<collection>").get().then(function (collection) {
 							let found = false;
-							console.log(Standards.general.storage.server.defaultLocation);
-							console.log(location);
-							console.log(docLocation);
-							console.log(remainingLocation);
 							Standards.general.forEach(collection.docs, function (doc) {
-								console.log(doc.id);
 								if (doc.exists && doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("<slash>"))) {
 									found = true;
 									doc.ref.update({
