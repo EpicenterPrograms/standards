@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 33");
+		console.log("Test number 34");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4428,10 +4428,19 @@ Standards.general.storage.server = {
 				while (location.slice(0, 2) == "..") {
 					console.log("Going up");
 					prelocation.pop();
-					location = location.slice(9);  // takes slashes into account
+					location = location.slice(2);  // takes slashes into account
+					if (location == "" || location == "<slash>") {
+						break;
+					} else if (location.search(/<slash>./) > -1) {
+						location = location.slice(7);
+					} else {
+						throw "An invalid location pattern was provided.";
+					}
 				}
 				if (location == "") {
 					location = prelocation.join("<slash>");
+				} else if (location == "<slash>") {
+					location = prelocation.join("<slash>") + "<slash>";
 				} else {
 					location = prelocation.join("<slash>") + "<slash>" + location;
 				}
