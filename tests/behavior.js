@@ -5253,6 +5253,8 @@ Standards.general.storage.server = {
 					});
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
+					console.log(location);
+					console.log(reference);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						console.log(collectionProbe.docs);
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
