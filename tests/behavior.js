@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 35");
+		console.log("Test number 36");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4423,10 +4423,8 @@ Standards.general.storage.server = {
 					location = "users<slash>" + Standards.general.storage.server.user.uid + location;
 				}
 			} else {
-				console.log(location);
 				let prelocation = Standards.general.storage.server.defaultLocation.split("<slash>");
 				while (location.slice(0, 2) == "..") {
-					console.log("Going up");
 					prelocation.pop();
 					location = location.slice(2);
 					if (location == "" || location == "<slash>") {
@@ -4437,7 +4435,6 @@ Standards.general.storage.server = {
 						throw "An invalid location pattern was provided.";
 					}
 				}
-				console.log(location);
 				if (location == "") {
 					location = prelocation.join("<slash>");
 				} else if (location == "<slash>") {
@@ -4480,9 +4477,7 @@ Standards.general.storage.server = {
 			let defaultFolders = Standards.general.storage.server.defaultLocation.split("<slash>").length;
 			let locationFolders = location.split("<slash>").length;
 			let index = 0;
-			console.log(location);
 			while (locationFolders > index && index < defaultFolders) {
-				console.log(index);
 				reference = reference.collection("<collection>").doc(location.split("<slash>")[index]);
 				if (shouldCreate) {
 					reference.set({ "<document>": "exists" }, { merge: true });
@@ -5259,7 +5254,9 @@ Standards.general.storage.server = {
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
+						console.log(collectionProbe.docs);
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+							console.log(location);
 							let listener = new Standards.general.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
@@ -5289,6 +5286,7 @@ Standards.general.storage.server = {
 									if (doc.exists) {
 										listener.value++;
 										doc.ref.collection("<collection>").get().then(function (subcollection) {
+											console.log(subcollection.docs);
 											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
