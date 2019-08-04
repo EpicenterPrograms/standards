@@ -4906,11 +4906,13 @@ Standards.general.storage.server = {
 					if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 						console.log(location);
 						reference.collection("<collection>").get().then(function (collectionProbe) {
+							console.log("Got collection");
 							let listener = new Standards.general.Listenable();
 							listener.value = 0;
 							listener.addEventListener("set", function (value) {
 								console.log(value);
 								if (value == 0) {  // once all items have been deleted
+									console.log("Finishing forgetting");
 									listener.removeEventListener("set", arguments.callee);
 									if (callback) {
 										new Promise(function () {
@@ -4926,7 +4928,9 @@ Standards.general.storage.server = {
 									}
 								}
 							});
+							console.log("Created listener");
 							if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+								console.log("Subdocuments exist");
 								/// when a new document is encountered, listener.value is incremented
 								/// when a document is deleted, listener.value is decremented
 								function deleteCollection(collection) {
@@ -4955,7 +4959,9 @@ Standards.general.storage.server = {
 								deleteCollection(collectionProbe.docs);
 							}
 							listener++;
+							console.log("Listener incremented");
 							reference.delete().then(function () {
+								console.log("Listener decrementing");
 								listener.value--;
 							}).catch(function (error) {
 								console.error("The information couldn't be deleted.");
