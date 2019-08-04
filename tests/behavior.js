@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 36");
+		console.log("Test number 37");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4904,10 +4904,12 @@ Standards.general.storage.server = {
 				} else {  // if the location stays in "deep" folders
 					reference = Standards.general.storage.server.getReference(location);
 					if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
+						console.log(location);
 						reference.collection("<collection>").get().then(function (collectionProbe) {
 							let listener = new Standards.general.Listenable();
 							listener.value = 0;
 							listener.addEventListener("set", function (value) {
+								console.log(value);
 								if (value == 0) {  // once all items have been deleted
 									listener.removeEventListener("set", arguments.callee);
 									if (callback) {
@@ -5253,12 +5255,8 @@ Standards.general.storage.server = {
 					});
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
-					console.log(location);
-					console.log(reference);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
-						console.log(collectionProbe.docs);
 						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-							console.log(location);
 							let listener = new Standards.general.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
@@ -5288,7 +5286,6 @@ Standards.general.storage.server = {
 									if (doc.exists) {
 										listener.value++;
 										doc.ref.collection("<collection>").get().then(function (subcollection) {
-											console.log(subcollection.docs);
 											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
 												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
