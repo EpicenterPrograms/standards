@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 39");
+		console.log("Test number 40");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5628,10 +5628,23 @@ Standards.general.storage.server = {
 									remaining.value++;
 									Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
 										Standards.general.storage.server.store(newPlace + key, info).then(function () {
-											Standards.general.storage.server.forget(oldPlace).then(function () {
-												remaining.value--;
+											Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+												/// checks whether the information was actually moved
+												/// not essential but prevents premature deletion in strange circumstances
+												if (movedInfo === info) {
+													Standards.general.storage.server.forget(oldPlace).then(function () {
+														remaining.value--;
+													}).catch(function (error) {
+														console.error("There was a problem deleting the moved information.");
+														console.error(error);
+														reject(error);
+													});
+												} else {
+													console.error("The information in the newPlace doesn't match the information that was moved there.");
+													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+												}
 											}).catch(function (error) {
-												console.error("There was a problem deleting the moved information.");
+												console.error("There was a problem checking whether the information was actually moved.");
 												console.error(error);
 												reject(error);
 											});
@@ -5653,10 +5666,23 @@ Standards.general.storage.server = {
 									if (key == "") {
 										Standards.general.storage.server.recall(oldPlace).then(function (info) {
 											Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
-												Standards.general.storage.server.forget(oldPlace).then(function () {
-													remaining.value--;
+												Standards.general.storage.server.recall(newPlace.slice(0, -1)).then(function (movedInfo) {  // failsafe
+													/// checks whether the information was actually moved
+													/// not essential but prevents premature deletion in strange circumstances
+													if (movedInfo === info) {
+														Standards.general.storage.server.forget(oldPlace).then(function () {
+															remaining.value--;
+														}).catch(function (error) {
+															console.error("There was a problem deleting the moved information.");
+															console.error(error);
+															reject(error);
+														});
+													} else {
+														console.error("The information in the newPlace doesn't match the information that was moved there.");
+														reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+													}
 												}).catch(function (error) {
-													console.error("There was a problem deleting the moved information.");
+													console.error("There was a problem checking whether the information was actually moved.");
 													console.error(error);
 													reject(error);
 												});
@@ -5673,10 +5699,23 @@ Standards.general.storage.server = {
 									} else {
 										Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
 											Standards.general.storage.server.store(newPlace + key, info).then(function () {
-												Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
-													remaining.value--;
+												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+													/// checks whether the information was actually moved
+													/// not essential but prevents premature deletion in strange circumstances
+													if (movedInfo === info) {
+														Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
+															remaining.value--;
+														}).catch(function (error) {
+															console.error("There was a problem deleting the moved information.");
+															console.error(error);
+															reject(error);
+														});
+													} else {
+														console.error("The information in the newPlace doesn't match the information that was moved there.");
+														reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+													}
 												}).catch(function (error) {
-													console.error("There was a problem deleting the moved information.");
+													console.error("There was a problem checking whether the information was actually moved.");
 													console.error(error);
 													reject(error);
 												});
@@ -5706,21 +5745,34 @@ Standards.general.storage.server = {
 								reject();
 							} else {
 								Standards.general.storage.server.store(newPlace, info).then(function () {
-									Standards.general.storage.server.forget(oldPlace).then(function () {
-										if (callback) {
-											new Promise(function () {
-												callback();
-												resolve();
+									Standards.general.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
+										/// checks whether the information was actually moved
+										/// not essential but prevents premature deletion in strange circumstances
+										if (movedInfo === info) {
+											Standards.general.storage.server.forget(oldPlace).then(function () {
+												if (callback) {
+													new Promise(function () {
+														callback();
+														resolve();
+													}).catch(function (error) {
+														console.error("There was a problem running the callback.");
+														console.error(error);
+														reject(error);
+													});
+												} else {
+													resolve();
+												}
 											}).catch(function (error) {
-												console.error("There was a problem running the callback.");
+												console.error("There was a problem deleting the moved information.");
 												console.error(error);
 												reject(error);
 											});
 										} else {
-											resolve();
+											console.error("The information in the newPlace doesn't match the information that was moved there.");
+											reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 										}
 									}).catch(function (error) {
-										console.error("There was a problem deleting the moved information.");
+										console.error("There was a problem checking whether the information was actually moved.");
 										console.error(error);
 										reject(error);
 									});
