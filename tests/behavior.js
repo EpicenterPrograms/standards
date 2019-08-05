@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 41");
+		console.log("Test number 42");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5780,12 +5780,12 @@ Standards.general.storage.server = {
 									}
 								});
 							}
+							remaining.value = remaining.value;  // runs the listener if there aren't any items
 						}).catch(function (error) {
 							console.error("There was a problem listing the information to move.");
 							console.error(error);
 							reject(error);
 						});
-						remaining.value = remaining.value;  // runs the listener if there aren't any items
 					} else {  // if neither place is a folder
 						console.log("Neither place is a folder.");
 						Standards.general.storage.server.recall(oldPlace).then(function (info) {
