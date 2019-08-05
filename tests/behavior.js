@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 40");
+		console.log("Test number 41");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4505,33 +4505,73 @@ Standards.general.storage.server = {
 	},
 	signUp: function (methods) {
 		Standards.general.storage.server.checkCompatibility(true);
-		let buttons = {};
-		if (methods.includes("Google")) {
-			buttons.Google = function () {
-				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			};
+		if (methods === undefined) {
+			methods = "anonymous";
 		}
-		if (methods.includes("Anonymous")) {
-			buttons.Anonymous = function () {
-				firebase.auth().signInAnonymously();
-			};
+		if (Standards.general.getType(methods) == "Array") {
+			let buttons = {};
+			if (methods.includes("google")) {
+				buttons.Google = function () {
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+				};
+			}
+			if (methods.includes("anonymous")) {
+				buttons.Anonymous = function () {
+					firebase.auth().signInAnonymously();
+				};
+			}
+			Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
+		} else if (Standards.general.getType(methods) == "String") {
+			switch (methods.toLowerCase()) {
+				case "google":
+					break;
+				case "facebook":
+					break;
+				case "password":
+					break;
+				case "anonymous":
+					break;
+				default:
+					console.error("The method of sign-up wasn't recognized.");
+			}
+		} else {
+			console.error('The "methods" of sign-up was an incorrect type.');
 		}
-		Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
 	},
 	signIn: function (methods) {
 		Standards.general.storage.server.checkCompatibility(true);
-		let buttons = {};
-		if (methods.includes("Google")) {
-			buttons.Google = function () {
-				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			};
+		if (methods === undefined) {
+			methods = "anonymous";
 		}
-		if (methods.includes("Anonymous")) {
-			buttons.Anonymous = function () {
-				firebase.auth().signInAnonymously();
-			};
+		if (Standards.general.getType(methods) == "Array") {
+			let buttons = {};
+			if (methods.includes("google")) {
+				buttons.Google = function () {
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+				};
+			}
+			if (methods.includes("anonymous")) {
+				buttons.Anonymous = function () {
+					firebase.auth().signInAnonymously();
+				};
+			}
+			Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
+		} else if (Standards.general.getType(methods) == "String") {
+			switch (methods.toLowerCase()) {
+				case "google":
+					break;
+				case "facebook":
+					break;
+				case "password":
+					break;
+				case "anonymous":
+					break;
+				default:
+					console.error("The method of sign-in wasn't recognized.");
+			}
+		} else {
+			console.error('The "methods" of sign-in was an incorrect type.');
 		}
-		Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
 	},
 	signOut: function () {
 		Standards.general.storage.server.checkCompatibility();
@@ -5586,6 +5626,7 @@ Standards.general.storage.server = {
 			return new Promise(function (resolve, reject) {
 				if (oldPlace == newPlace) {
 					console.warn("The items are already in the desired location.");
+					console.log("Finishing moving.");
 					if (callback) {
 						new Promise(function () {
 							callback();
@@ -5599,7 +5640,9 @@ Standards.general.storage.server = {
 						resolve();
 					}
 				} else if (Standards.general.getType(oldPlace) == "String" && Standards.general.getType(newPlace) == "String") {
+					console.log("Both places are strings.");
 					if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
+						console.log("One place is a folder.");
 						if (newPlace.slice(-1) != "/") {
 							newPlace += "/";
 						}
@@ -5608,6 +5651,7 @@ Standards.general.storage.server = {
 						remaining.addEventListener("set", function (value) {
 							if (value == 0) {  // if there are no more items waiting to be moved
 								remaining.removeEventListener("set", arguments.callee);
+								console.log("Finishing moving.");
 								if (callback) {
 									new Promise(function () {
 										callback();
@@ -5624,6 +5668,7 @@ Standards.general.storage.server = {
 						});
 						Standards.general.storage.server.list(oldPlace).then(function (oldList) {
 							if (oldPlace.slice(-1) == "/") {
+								console.log("The oldPlace is a folder.");
 								Standards.general.forEach(oldList, function (key) {
 									remaining.value++;
 									Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
@@ -5660,10 +5705,12 @@ Standards.general.storage.server = {
 									});
 								});
 							} else {
+								console.log("The newPlace is a folder.");
 								Standards.general.forEach(oldList, function (key) {
 									remaining.value++;
 									key = key.split("/").slice(1).join("/");
 									if (key == "") {
+										console.log('key == ""');
 										Standards.general.storage.server.recall(oldPlace).then(function (info) {
 											Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
 												Standards.general.storage.server.recall(newPlace.slice(0, -1)).then(function (movedInfo) {  // failsafe
@@ -5697,6 +5744,7 @@ Standards.general.storage.server = {
 											reject(error);
 										});
 									} else {
+										console.log('key != ""');
 										Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
 											Standards.general.storage.server.store(newPlace + key, info).then(function () {
 												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
@@ -5739,6 +5787,7 @@ Standards.general.storage.server = {
 						});
 						remaining.value = remaining.value;  // runs the listener if there aren't any items
 					} else {  // if neither place is a folder
+						console.log("Neither place is a folder.");
 						Standards.general.storage.server.recall(oldPlace).then(function (info) {
 							if (info instanceof Error) {
 								console.error("No information was found to move.");
@@ -5750,6 +5799,7 @@ Standards.general.storage.server = {
 										/// not essential but prevents premature deletion in strange circumstances
 										if (movedInfo === info) {
 											Standards.general.storage.server.forget(oldPlace).then(function () {
+												console.log("Finishing moving.");
 												if (callback) {
 													new Promise(function () {
 														callback();
@@ -6171,12 +6221,12 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
 			document.getElementById("signIn").addEventListener("click", function () {
-				Standards.general.storage.server.signIn(["Google"]);
+				Standards.general.storage.server.signIn(["google"]);
 			});
 		}
 		if (document.getElementById("signUp")) {  // if there's a signUp button
 			document.getElementById("signUp").addEventListener("click", function () {
-				Standards.general.storage.server.signUp(["Google"]);
+				Standards.general.storage.server.signUp(["google"]);
 			});
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
