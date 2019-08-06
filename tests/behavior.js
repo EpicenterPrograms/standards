@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 42");
+		console.log("Test number 43");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5685,6 +5685,8 @@ Standards.general.storage.server = {
 														reject(error);
 													});
 												} else {
+													/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
+													//// Somehow, the items are deleted anyway.
 													console.error("The information in the newPlace doesn't match the information that was moved there.");
 													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 												}
@@ -5708,12 +5710,11 @@ Standards.general.storage.server = {
 								console.log("The newPlace is a folder.");
 								Standards.general.forEach(oldList, function (key) {
 									remaining.value++;
-									key = key.split("/").slice(1).join("/");
-									if (key == "") {
+									if (!key.includes("/")) {
 										console.log('key == ""');
 										Standards.general.storage.server.recall(oldPlace).then(function (info) {
-											Standards.general.storage.server.store(newPlace.slice(0, -1), info).then(function () {
-												Standards.general.storage.server.recall(newPlace.slice(0, -1)).then(function (movedInfo) {  // failsafe
+											Standards.general.storage.server.store(newPlace + key, info).then(function () {
+												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
 													/// checks whether the information was actually moved
 													/// not essential but prevents premature deletion in strange circumstances
 													if (movedInfo === info) {
@@ -5725,6 +5726,8 @@ Standards.general.storage.server = {
 															reject(error);
 														});
 													} else {
+														/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
+														//// Somehow, the items are deleted anyway.
 														console.error("The information in the newPlace doesn't match the information that was moved there.");
 														reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 													}
@@ -5745,13 +5748,13 @@ Standards.general.storage.server = {
 										});
 									} else {
 										console.log('key != ""');
-										Standards.general.storage.server.recall(oldPlace + "/" + key).then(function (info) {
+										Standards.general.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
 											Standards.general.storage.server.store(newPlace + key, info).then(function () {
 												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
 													/// checks whether the information was actually moved
 													/// not essential but prevents premature deletion in strange circumstances
 													if (movedInfo === info) {
-														Standards.general.storage.server.forget(oldPlace + "/" + key).then(function () {
+														Standards.general.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
 															remaining.value--;
 														}).catch(function (error) {
 															console.error("There was a problem deleting the moved information.");
@@ -5759,6 +5762,8 @@ Standards.general.storage.server = {
 															reject(error);
 														});
 													} else {
+														/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
+														//// Somehow, the items are deleted anyway.
 														console.error("The information in the newPlace doesn't match the information that was moved there.");
 														reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 													}
