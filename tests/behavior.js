@@ -3251,10 +3251,10 @@ Standards.general.makeDialog = function (message) {
 	makes a dialog box pop up
 	message = the content of the dialog box (can be an HTML element)
 	Arguments after the message are two-item arrays which form buttons.
-		first item = text of the button
+		first item = text of the button (innerHTML)
 		second item = the function to run if that button is pressed
 	The two-item arrays can be replaced with a single dictionary object.
-		key = text of the button
+		key = text of the button (innerHTML)
 		value = the function called when the button is pressed
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 43");
+		console.log("Test number 44");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4512,30 +4512,162 @@ Standards.general.storage.server = {
 			let buttons = {};
 			if (methods.includes("google")) {
 				buttons.Google = function () {
-					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
+				};
+			}
+			if (methods.includes("password")) {
+				buttons["Email &<br>password"] = function () {
+					Standards.general.makeDialog(
+						'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
+						[
+							"Sign up",
+							function () {
+								let email = document.getElementById("signUpEmailInput").value.trim();
+								if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
+									let password = document.getElementById("signUpPasswordInput").value.trim();
+									if (password.length < 8) {  // if the password isn't long enough
+										Standards.general.makeDialog(
+											"The password isn't long enough.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any capital letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
+										Standards.general.makeDialog(
+											"The password doesn't contain any numbers.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else {  // if the password passes
+										firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+											console.error("A problem occurred during sign-up.");
+											console.error(error);
+											Standards.general.makeDialog("A problem occurred during sign-up.");
+										});
+									}
+								} else {
+									Standards.general.makeDialog(
+										"A properly formatted email wasn't provided.",
+										["Try again", function () {
+											Standards.general.storage.server.signUp(methods);
+										}]
+									);
+								}
+							}
+						],
+						"Cancel"
+					);
 				};
 			}
 			if (methods.includes("anonymous")) {
 				buttons.Anonymous = function () {
-					firebase.auth().signInAnonymously();
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
 				};
 			}
 			Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
 		} else if (Standards.general.getType(methods) == "String") {
 			switch (methods.toLowerCase()) {
 				case "google":
-					break;
-				case "facebook":
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
 					break;
 				case "password":
+					Standards.general.makeDialog(
+						'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
+						[
+							"Sign up",
+							function () {
+								let email = document.getElementById("signUpEmailInput").value.trim();
+								if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
+									let password = document.getElementById("signUpPasswordInput").value.trim();
+									if (password.length < 8) {  // if the password isn't long enough
+										Standards.general.makeDialog(
+											"The password isn't long enough.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any capital letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
+										Standards.general.makeDialog(
+											"The password doesn't contain any numbers.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else {  // if the password passes
+										firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+											console.error("A problem occurred during sign-up.");
+											console.error(error);
+											Standards.general.makeDialog("A problem occurred during sign-up.");
+										});
+									}
+								} else {
+									Standards.general.makeDialog(
+										"A properly formatted email wasn't provided.",
+										["Try again", function () {
+											Standards.general.storage.server.signUp(methods);
+										}]
+									);
+								}
+							}
+						],
+						"Cancel"
+					);
 					break;
 				case "anonymous":
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
 					break;
 				default:
 					console.error("The method of sign-up wasn't recognized.");
+					Standards.general.makeDialog("An attempt was made to sign up with an incorrect method.");
 			}
 		} else {
 			console.error('The "methods" of sign-up was an incorrect type.');
+			Standards.general.makeDialog("A problem occurred during sign-up.");
 		}
 	},
 	signIn: function (methods) {
@@ -4547,30 +4679,84 @@ Standards.general.storage.server = {
 			let buttons = {};
 			if (methods.includes("google")) {
 				buttons.Google = function () {
-					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
+				};
+			}
+			if (methods.includes("password")) {
+				buttons["Email &<br>password"] = function () {
+					Standards.general.makeDialog(
+						'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
+						[
+							"Sign in",
+							function () {
+								firebase.auth().signInWithEmailAndPassword(
+									document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
+								).catch(function (error) {
+									console.error("A problem occurred during sign-in.");
+									console.error(error);
+									Standards.general.makeDialog("A problem occurred during sign-in.");
+								});
+							}
+						],
+						"Cancel"
+					);
 				};
 			}
 			if (methods.includes("anonymous")) {
 				buttons.Anonymous = function () {
-					firebase.auth().signInAnonymously();
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
 				};
 			}
 			Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
 		} else if (Standards.general.getType(methods) == "String") {
 			switch (methods.toLowerCase()) {
 				case "google":
-					break;
-				case "facebook":
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
 					break;
 				case "password":
+					Standards.general.makeDialog(
+						'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
+						[
+							"Sign in",
+							function () {
+								firebase.auth().signInWithEmailAndPassword(
+									document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
+								).catch(function (error) {
+									console.error("A problem occurred during sign-in.");
+									console.error(error);
+									Standards.general.makeDialog("A problem occurred during sign-in.");
+								});
+							}
+						],
+						"Cancel"
+					);
 					break;
 				case "anonymous":
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
 					break;
 				default:
 					console.error("The method of sign-in wasn't recognized.");
+					Standards.general.makeDialog("An attempt was made to sign in with an incorrect method.");
 			}
 		} else {
 			console.error('The "methods" of sign-in was an incorrect type.');
+			Standards.general.makeDialog("A problem occurred during sign-in.");
 		}
 	},
 	signOut: function () {
@@ -4731,6 +4917,9 @@ Standards.general.storage.server = {
 		if (location == "~") {
 			console.error("Deleting all server information is forbidden.");
 			return;
+		} else if (location == "users<slash>") {
+			console.error("Deleting every user's information is forbidden.");
+			return;
 		}
 		return new Promise(function (resolve, reject) {
 			let reference = Standards.general.storage.server.getReference(location);
@@ -4852,9 +5041,9 @@ Standards.general.storage.server = {
 							});
 							let remaining = new Standards.general.Listenable();
 							remaining.value = 0;
-							remaining.addEventListener("change", function (value) {
+							remaining.addEventListener("set", function (value) {
 								if (value == 0) {  // once all items have been deleted
-									remaining.removeEventListener("change", arguments.callee);
+									remaining.removeEventListener("set", arguments.callee);
 									if (callback) {
 										new Promise(function () {
 											callback();
@@ -4879,14 +5068,7 @@ Standards.general.storage.server = {
 									reject(error);
 								});
 							});
-							remaining.value++;
-							reference.delete().then(function () {  // deletes the document (which deletes all of the keys within)
-								remaining.value--;
-							}).catch(function (error) {
-								console.error("The information couldn't be deleted.");
-								console.error(error);
-								reject(error);
-							});
+							remaining.value = remaining.value;  // makes sure the callback is run even if there's nothing to delete
 						}).catch(function (error) {
 							console.error("There was an error finding the information.");
 							console.error(error);
@@ -4942,7 +5124,6 @@ Standards.general.storage.server = {
 						});
 					}
 				} else {  // if the location stays in "deep" folders
-					reference = Standards.general.storage.server.getReference(location);
 					if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 						reference.collection("<collection>").get().then(function (collectionProbe) {
 							let listener = new Standards.general.Listenable();
@@ -4964,7 +5145,7 @@ Standards.general.storage.server = {
 									}
 								}
 							});
-							if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+							if (collectionProbe.size > 0) {  // if there's sub-documents
 								/// when a new document is encountered, listener.value is incremented
 								/// when a document is deleted, listener.value is decremented
 								function deleteCollection(collection) {
@@ -4972,7 +5153,7 @@ Standards.general.storage.server = {
 										if (subdoc.exists) {
 											listener.value++;
 											subdoc.ref.collection("<collection>").get().then(function (subcollection) {
-												if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+												if (subcollection.size > 0) {  // if there's sub-sub-documents
 													deleteCollection(subcollection.docs);
 												}
 												subdoc.ref.delete().then(function () {
@@ -5050,7 +5231,7 @@ Standards.general.storage.server = {
 								}
 							}
 						});
-						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+						if (collectionProbe.size > 0) {  // if there's sub-documents
 							/// when a new document is encountered, listener.value is incremented
 							/// when a document is deleted, listener.value is decremented
 							function deleteCollection(collection) {
@@ -5058,7 +5239,7 @@ Standards.general.storage.server = {
 									if (subdoc.exists) {
 										listener.value++;
 										subdoc.ref.collection("<collection>").get().then(function (subcollection) {
-											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+											if (subcollection.size > 0) {  // if there's sub-sub-documents
 												deleteCollection(subcollection.docs);
 											}
 											subdoc.ref.delete().then(function () {
@@ -5294,7 +5475,7 @@ Standards.general.storage.server = {
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.general.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
-						if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+						if (collectionProbe.size > 0) {  // if there's sub-documents
 							let listener = new Standards.general.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
@@ -5324,7 +5505,7 @@ Standards.general.storage.server = {
 									if (doc.exists) {
 										listener.value++;
 										doc.ref.collection("<collection>").get().then(function (subcollection) {
-											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+											if (subcollection.size > 0) {  // if there's sub-sub-documents
 												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
 											Standards.general.forEach(doc.data(), function (value, key) {
@@ -5461,7 +5642,7 @@ Standards.general.storage.server = {
 			} else if (Standards.general.storage.server.locationType == "deep") {  // if every folder level is another nested document
 				let reference = Standards.general.storage.server.getReference(location);
 				reference.collection("<collection>").get().then(function (collectionProbe) {
-					if (collectionProbe.docs.length > 0) {  // if there's sub-documents
+					if (collectionProbe.size > 0) {  // if there's sub-documents
 						if (location == "~") {
 							Standards.general.forEach(collectionProbe.docs, function (doc) {
 								keyList.push(doc.id);
@@ -5509,7 +5690,7 @@ Standards.general.storage.server = {
 									if (doc.exists) {
 										listener.value++;
 										doc.ref.collection("<collection>").get().then(function (subcollection) {
-											if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
+											if (subcollection.size > 0) {  // if there's sub-sub-documents
 												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
 											Standards.general.forEach(doc.data(), function (value, key) {
@@ -6226,12 +6407,12 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
 			document.getElementById("signIn").addEventListener("click", function () {
-				Standards.general.storage.server.signIn(["google"]);
+				Standards.general.storage.server.signIn(["google", "password"]);
 			});
 		}
 		if (document.getElementById("signUp")) {  // if there's a signUp button
 			document.getElementById("signUp").addEventListener("click", function () {
-				Standards.general.storage.server.signUp(["google"]);
+				Standards.general.storage.server.signUp(["google", "password"]);
 			});
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
