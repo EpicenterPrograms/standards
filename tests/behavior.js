@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 44");
+		console.log("Test number 45");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -5807,7 +5807,6 @@ Standards.general.storage.server = {
 			return new Promise(function (resolve, reject) {
 				if (oldPlace == newPlace) {
 					console.warn("The items are already in the desired location.");
-					console.log("Finishing moving.");
 					if (callback) {
 						new Promise(function () {
 							callback();
@@ -5821,9 +5820,7 @@ Standards.general.storage.server = {
 						resolve();
 					}
 				} else if (Standards.general.getType(oldPlace) == "String" && Standards.general.getType(newPlace) == "String") {
-					console.log("Both places are strings.");
 					if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
-						console.log("One place is a folder.");
 						if (newPlace.slice(-1) != "/") {
 							newPlace += "/";
 						}
@@ -5832,7 +5829,6 @@ Standards.general.storage.server = {
 						remaining.addEventListener("set", function (value) {
 							if (value == 0) {  // if there are no more items waiting to be moved
 								remaining.removeEventListener("set", arguments.callee);
-								console.log("Finishing moving.");
 								if (callback) {
 									new Promise(function () {
 										callback();
@@ -5849,7 +5845,6 @@ Standards.general.storage.server = {
 						});
 						Standards.general.storage.server.list(oldPlace).then(function (oldList) {
 							if (oldPlace.slice(-1) == "/") {
-								console.log("The oldPlace is a folder.");
 								Standards.general.forEach(oldList, function (key) {
 									remaining.value++;
 									Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
@@ -5858,7 +5853,7 @@ Standards.general.storage.server = {
 												/// checks whether the information was actually moved
 												/// not essential but prevents premature deletion in strange circumstances
 												if (movedInfo === info) {
-													Standards.general.storage.server.forget(oldPlace).then(function () {
+													Standards.general.storage.server.forget(oldPlace + key).then(function () {
 														remaining.value--;
 													}).catch(function (error) {
 														console.error("There was a problem deleting the moved information.");
@@ -5888,11 +5883,9 @@ Standards.general.storage.server = {
 									});
 								});
 							} else {
-								console.log("The newPlace is a folder.");
 								Standards.general.forEach(oldList, function (key) {
 									remaining.value++;
 									if (!key.includes("/")) {
-										console.log('key == ""');
 										Standards.general.storage.server.recall(oldPlace).then(function (info) {
 											Standards.general.storage.server.store(newPlace + key, info).then(function () {
 												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
@@ -5928,7 +5921,6 @@ Standards.general.storage.server = {
 											reject(error);
 										});
 									} else {
-										console.log('key != ""');
 										Standards.general.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
 											Standards.general.storage.server.store(newPlace + key, info).then(function () {
 												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
@@ -5973,7 +5965,6 @@ Standards.general.storage.server = {
 							reject(error);
 						});
 					} else {  // if neither place is a folder
-						console.log("Neither place is a folder.");
 						Standards.general.storage.server.recall(oldPlace).then(function (info) {
 							if (info instanceof Error) {
 								console.error("No information was found to move.");
@@ -5985,7 +5976,6 @@ Standards.general.storage.server = {
 										/// not essential but prevents premature deletion in strange circumstances
 										if (movedInfo === info) {
 											Standards.general.storage.server.forget(oldPlace).then(function () {
-												console.log("Finishing moving.");
 												if (callback) {
 													new Promise(function () {
 														callback();
