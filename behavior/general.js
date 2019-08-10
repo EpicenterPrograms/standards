@@ -22,14 +22,14 @@ if (typeof Standards.general.options !== "undefined") {
 } else {
 	Standards.general.options = {};
 }
-	/**
-	allows specifications to be added if the variable is already present
-	(otherwise uses default values and settings)
-	valid options =
-		"automation": "none", "basic", "full"
-			runs a corresponding amount of code after defining everything
-			default = "full"
-	*/
+/**
+allows specifications to be added if the variable is already present
+(otherwise uses default values and settings)
+valid options =
+	"automation": "none", "basic", "full"
+		runs a corresponding amount of code after defining everything
+		default = "full"
+*/
 
 Standards.general.help = function (item, part) {
 	/**
@@ -52,7 +52,7 @@ Standards.general.help = function (item, part) {
 				break;
 			case "function":
 				if (content.indexOf("/**") > -1) {
-					content = content.slice(0, content.indexOf("/**")) + content.slice(content.indexOf("*/")+2);
+					content = content.slice(0, content.indexOf("/**")) + content.slice(content.indexOf("*/") + 2);
 				}
 				break;
 			case "non-natives":
@@ -161,20 +161,20 @@ if (typeof Standards.general.queue.list !== "undefined") {
 } else {
 	Standards.general.queue.list = [];
 };
-	/**
-	establishes a list of functions to be run once the page and this script has loaded
-	each item should be an object with a "runOrder" property and a "function" property
-	an "arguments" property can also be added and should consist of an array of the arguments to be run in the function
-	runOrder options:
-		"first" = will run first (or after preceeding functions with the "first" option)
-		"later" = will run some time in the middle
-		"last" = will run last (or before following functions with the "last" option)
-	functions can be run in a more specific order by searching for a certain function
-	all functions in this script that make use of Standards.general.queue have a "first" runOrder
-	example usage:
-		var Standards = {};
-		Standards.general.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
-	*/
+/**
+establishes a list of functions to be run once the page and this script has loaded
+each item should be an object with a "runOrder" property and a "function" property
+an "arguments" property can also be added and should consist of an array of the arguments to be run in the function
+runOrder options:
+	"first" = will run first (or after preceeding functions with the "first" option)
+	"later" = will run some time in the middle
+	"last" = will run last (or before following functions with the "last" option)
+functions can be run in a more specific order by searching for a certain function
+all functions in this script that make use of Standards.general.queue have a "first" runOrder
+example usage:
+	var Standards = {};
+	Standards.general.queue = [{"runOrder":"first", "function":pageJump, "arguments":["divID"]}];
+*/
 Standards.general.queue.run = function () {
 	/**
 	runs the functions in the queue
@@ -261,12 +261,12 @@ Standards.general.Sound = function (specs) {
 	var playQueue = [];
 
 	function setValues(time, shouldSetPlaying) {
-		time = time===undefined ? 0 : time;
-		shouldSetPlaying = shouldSetPlaying===undefined ? true : shouldSetPlaying;
+		time = time === undefined ? 0 : time;
+		shouldSetPlaying = shouldSetPlaying === undefined ? true : shouldSetPlaying;
 		if (time > 0) {
 			if (shouldSetPlaying) {
 				setTimeout(function () {
-					sound.playing = sound.volume==0 ? false : true;
+					sound.playing = sound.volume == 0 ? false : true;
 				}, time);
 			}
 			time /= 1000;  // ramps use time in seconds
@@ -274,9 +274,9 @@ Standards.general.Sound = function (specs) {
 				gain1.gain.exponentialRampToValueAtTime(.0001, Standards.general.audio.currentTime + time);  // exponential ramping doesn't work with 0s
 				setTimeout(function () {
 					gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
-				}, time*1000);
+				}, time * 1000);
 			} else {
-				gain1.gain.exponentialRampToValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime + time);
+				gain1.gain.exponentialRampToValueAtTime(Math.pow(10, sound.volume) / 10, Standards.general.audio.currentTime + time);
 			}
 			osc1.frequency.linearRampToValueAtTime(sound.frequency, Standards.general.audio.currentTime + time);
 			gain2.gain.linearRampToValueAtTime(sound.hertzChange, Standards.general.audio.currentTime + time);
@@ -286,13 +286,13 @@ Standards.general.Sound = function (specs) {
 			if (sound.volume == 0) {
 				gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
 			} else {
-				gain1.gain.setValueAtTime(Math.pow(10,sound.volume) / 10, Standards.general.audio.currentTime);
+				gain1.gain.setValueAtTime(Math.pow(10, sound.volume) / 10, Standards.general.audio.currentTime);
 			}
 			osc1.frequency.setValueAtTime(sound.frequency, Standards.general.audio.currentTime);
 			gain2.gain.setValueAtTime(sound.hertzChange, Standards.general.audio.currentTime);
 			osc2.frequency.setValueAtTime(sound.modulation, Standards.general.audio.currentTime);
 			if (shouldSetPlaying) {
-				sound.playing = sound.volume==0 ? false : true;
+				sound.playing = sound.volume == 0 ? false : true;
 			}
 		} else if (time < 0) {
 			console.error("It's impossible to travel back in time and change values.");
@@ -350,7 +350,7 @@ Standards.general.Sound = function (specs) {
 		fn.apply(window, args);
 		return true;
 	}
-	
+
 	this.start = function (time, volume, shouldSetPlaying) {
 		/**
 		starts/unmutes the tone
@@ -459,9 +459,9 @@ Standards.general.Sound = function (specs) {
 		} else if (sound.playing) {
 			playQueue.push([noteString, newDefaults, callback]);
 			if (playQueue.length == 1) {
-				window.addEventListener(sound.identifier+"StoppedPlaying", function () {
+				window.addEventListener(sound.identifier + "StoppedPlaying", function () {
 					sound.play(playQueue[0][0], playQueue[0][1], playQueue[0][2]);
-					window.removeEventListener(sound.identifier+"StoppedPlaying", arguments.callee);
+					window.removeEventListener(sound.identifier + "StoppedPlaying", arguments.callee);
 				});
 			}
 		} else if (arguments.length > 0) {
@@ -1077,38 +1077,38 @@ if (!Array.prototype.every) {
 		*/
 
 		var T, k;
-		
+
 		if (this == null) {
 			throw new TypeError('this is null or not defined');
 		}
-		
+
 		//  1. Let O be the result of calling ToObject passing the this 
 		//     value as the argument.
 		var O = Object(this);
-		
+
 		//  2. Let lenValue be the result of calling the Get internal method
 		//     of O with the argument "length".
 		//  3. Let len be ToUint32(lenValue).
 		var len = O.length >>> 0;
-		
+
 		//  4. If IsCallable(callbackfn) is false, throw a TypeError exception.
 		if (typeof callbackfn !== 'function') {
 			throw new TypeError();
 		}
-		
+
 		//  5. If thisArg was supplied, let T be thisArg; else let T be undefined.
 		if (arguments.length > 1) {
 			T = thisArg;
 		}
-		
+
 		//  6. Let k be 0.
 		k = 0;
-		
+
 		//  7. Repeat, while k < len
 		while (k < len) {
-			
+
 			var kValue;
-			
+
 			//  a. Let Pk be ToString(k).
 			//    This is implicit for LHS operands of the in operator
 			//  b. Let kPresent be the result of calling the HasProperty internal 
@@ -1116,16 +1116,16 @@ if (!Array.prototype.every) {
 			//     This step can be combined with c
 			//  c. If kPresent is true, then
 			if (k in O) {
-				
+
 				//  i. Let kValue be the result of calling the Get internal method
 				//     of O with argument Pk.
 				kValue = O[k];
-				
+
 				//  ii. Let testResult be the result of calling the Call internal method
 				//      of callbackfn with T as the this value and argument list 
 				//      containing kValue, k, and O.
 				var testResult = callbackfn.call(T, kValue, k, O);
-				
+
 				//  iii. If ToBoolean(testResult) is false, return false.
 				if (!testResult) {
 					return false;
@@ -1169,7 +1169,7 @@ String.prototype.format = function () {
 	*/
 	var args = arguments;  // If "arguments" was used in place of "args", if would return the values of the inner function arguments.
 	return this.replace(/{(\d+)}/g, function (match, number) {  // These function variables represent the match found and the number inside.
-		return (typeof args[number]!="undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
+		return (typeof args[number] != "undefined") ? args[number] : match;  // only replaces things if there's something to replace it with
 	});
 };
 
@@ -1180,8 +1180,8 @@ String.prototype.splice = function (start, length, replacement) {
 	because JavaScript is dumb and won't let me do that
 	non-native functions = none
 	*/
-	replacement = replacement===undefined ? "" : replacement;
-	return this.slice(0,start) + replacement + this.slice(start+length);
+	replacement = replacement === undefined ? "" : replacement;
+	return this.slice(0, start) + replacement + this.slice(start + length);
 };
 
 String.prototype.keepOnly = function (searchValue, replacement) {
@@ -1201,17 +1201,17 @@ String.prototype.keepOnly = function (searchValue, replacement) {
 		searchValue = searchValue.toString();
 		let flagIndex = searchValue.search(/\/[gimuy]+(?!\/)/);
 		if (flagIndex > -1) {
-			searchValue = new RegExp("(" + searchValue.slice(1,flagIndex) + ")|.", searchValue.slice(flagIndex+1));
+			searchValue = new RegExp("(" + searchValue.slice(1, flagIndex) + ")|.", searchValue.slice(flagIndex + 1));
 		} else {
-			searchValue = new RegExp("(" + searchValue.slice(1,-1) + ")|.");
+			searchValue = new RegExp("(" + searchValue.slice(1, -1) + ")|.");
 		}
 	} else {
 		console.error("Invalid searchValue type");
 		return undefined;
 	}
-	replacement = replacement===undefined ? "" : replacement;
+	replacement = replacement === undefined ? "" : replacement;
 	return this.replace(searchValue, function (match, validMatch) {
-		return validMatch===undefined ? replacement : validMatch;
+		return validMatch === undefined ? replacement : validMatch;
 	});
 };
 
@@ -1221,7 +1221,7 @@ Array.prototype.move = function (currentIndex, newIndex) {
 	if no new index is specified, the item is placed at the end of the array
 	non-native functions = none
 	*/
-	newIndex = newIndex===undefined ? this.length : newIndex;
+	newIndex = newIndex === undefined ? this.length : newIndex;
 	this.splice(newIndex, 0, this.splice(currentIndex, 1)[0]);
 	return this;
 };
@@ -1242,7 +1242,7 @@ Array.prototype.remove = function (item, where) {
 			default: "all"
 	non-native functions: none
 	*/
-	where = where===undefined ? "all" : where;
+	where = where === undefined ? "all" : where;
 	if (where == "all" || where === true) {
 		while (this.includes(item)) {
 			this.splice(this.indexOf(item), 1);
@@ -1414,7 +1414,7 @@ Standards.general.getId = function (item, ID) {
 	if (Standards.general.getType(item) == "String") {  // for regular searching
 		return document.getElementById(item);
 	} else if (Standards.general.getType(item) == "HTMLElement") {  // for searching in an element that isn't in the document
-		return item.querySelector("#"+ID);
+		return item.querySelector("#" + ID);
 	} else {
 		throw "An improper agument was given.";
 	}
@@ -1450,7 +1450,7 @@ Standards.general.getName = function (name, specific) {
 	if (specific) {
 		if (elements[0].nodeName == "INPUT") {
 			if (elements[0].type == "radio") {
-				for (let index=0; index<elements.length; index++) {
+				for (let index = 0; index < elements.length; index++) {
 					if (elements[index].checked) {
 						return elements[index];
 					}
@@ -1458,7 +1458,7 @@ Standards.general.getName = function (name, specific) {
 				return null;
 			} else if (elements[0].type == "checkbox") {
 				let list = [];
-				for (let index=0; index<elements.length; index++) {
+				for (let index = 0; index < elements.length; index++) {
 					if (elements[index].checked) {
 						list.push(elements[index]);
 					}
@@ -1484,8 +1484,14 @@ Standards.general.getType = function (item) {
 	if (reverseIndex > 0) {
 		while (reverseIndex--) {
 			let type = extraTypes[reverseIndex];
-			if (type && type.constructor === String && type.search(/[^\w.()]/) === -1 && item instanceof eval(type)) {  //// expand this for errors
-				return type;
+			if (type && type.constructor === String && type.search(/[^\w.()]/) === -1) {
+				try {
+					if (item instanceof eval(type)) {
+						return type;
+					}
+				} catch {
+					console.warn('There was a problem evaluating the type of "' + type + '".');
+				}
 			}
 		}
 	}
@@ -1568,9 +1574,9 @@ Standards.general.getEnd = function (iterable, index) {
 	if (Standards.general.getType(iterable[Symbol.iterator]) == "Function") {
 		index = index || -1;
 		if (index >= 0) {
-			return iterable[iterable.length-1-index];
+			return iterable[iterable.length - 1 - index];
 		} else {
-			return iterable[iterable.length+index];
+			return iterable[iterable.length + index];
 		}
 	} else {
 		throw "The provided item isn't iterable.";
@@ -1613,12 +1619,14 @@ Standards.general.toArray = function () {
 	var index1 = 0,
 		index2,
 		returnList = [];
-	for (index1; index1<arguments.length; index1++) {
-		if (arguments[index1][0] && arguments[index1].length) {  //// Standards.general.getType(list[Symbol.iterator]) == "Function"
-			for (index2=0; index2<arguments[index1].length; index2++) {
+	for (index1; index1 < arguments.length; index1++) {
+		if (arguments[index1] === undefined || arguments[index1] === null || arguments[index1] === []) {
+			// skip the item
+		} else if (typeof arguments[index1][Symbol.iterator] == "function") {
+			for (index2 = 0; index2 < arguments[index1].length; index2++) {
 				returnList.push(arguments[index1][index2]);
 			}
-		} else if (arguments[index1].length == undefined || arguments[index1].length > 0) {  // filters out empty lists
+		} else {
 			returnList.push(arguments[index1]);
 		}
 	}
@@ -1629,7 +1637,7 @@ Standards.general.toObject = function () {
 	/**
 
 	*/
-	
+
 };
 
 Standards.general.forEach = function (list, doStuff, shouldCopy) {
@@ -1645,7 +1653,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 			keys = Object.keys(list),
 			index = 0,
 			returnValue;
-		shouldCopy = shouldCopy===undefined ? false : shouldCopy;
+		shouldCopy = shouldCopy === undefined ? false : shouldCopy;
 		if (shouldCopy) {
 			associativeList = JSON.parse(JSON.stringify(list));
 		} else {
@@ -1696,7 +1704,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		let index = 0,
 			returnValue;
 		while (index < list) {
-			returnValue = doStuff(list-index, index, list);
+			returnValue = doStuff(list - index, index, list);
 			if (returnValue == "break") {
 				break;
 			} else {
@@ -1729,16 +1737,16 @@ Standards.general.compare = function (iterable1, iterable2) {
 		let sc;  // substitution cost
 		for (let y = 1; y <= iterable2.length; y++) {
 			for (let x = 1; x <= iterable1.length; x++) {
-				if (iterable1[x-1] == iterable2[y-1]) {  // if the iterables are the same at the current indices
+				if (iterable1[x - 1] == iterable2[y - 1]) {  // if the iterables are the same at the current indices
 					sc = 0;
 				} else {
 					sc = 1;
 				}
 				// fills the current item with the number of changes needed in the most efficient method of modification
 				matrix[x][y] = Math.min(
-					matrix[x-1][y] + 1,    // if a deletion is used
-					matrix[x][y-1] + 1,    // if an insertion is used
-					matrix[x-1][y-1] + sc  // if a substitution is used
+					matrix[x - 1][y] + 1,    // if a deletion is used
+					matrix[x][y - 1] + 1,    // if an insertion is used
+					matrix[x - 1][y - 1] + sc  // if a substitution is used
 				);
 			}
 		}
@@ -3251,10 +3259,10 @@ Standards.general.makeDialog = function (message) {
 	makes a dialog box pop up
 	message = the content of the dialog box (can be an HTML element)
 	Arguments after the message are two-item arrays which form buttons.
-		first item = text of the button
+		first item = text of the button (innerHTML)
 		second item = the function to run if that button is pressed
 	The two-item arrays can be replaced with a single dictionary object.
-		key = text of the button
+		key = text of the button (innerHTML)
 		value = the function called when the button is pressed
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
@@ -3390,7 +3398,7 @@ Standards.general.makeDialog = function (message) {
 	});
 };
 
-Standards.general.getFile = function (url, callback, convert) {  ////
+Standards.general.getFile = function (url, callback, convert) {
 	/**
 	asynchronously retieves a file as a string using an XMLHttpRequest
 	only files from the same domain can be retrieved without CORS
@@ -3596,7 +3604,7 @@ Standards.general.parse_str = function (encodedString) {
 				}
 				path = path[subkey];
 			});
-			path[decodeURIComponent(key[key.length-1])] = decodeURIComponent(value);
+			path[decodeURIComponent(key[key.length - 1])] = decodeURIComponent(value);
 			/// "decodedObject" doesn't need to be used because "path" is "decodedObject".
 		} else {
 			decodedObject[decodeURIComponent(key)] = decodeURIComponent(value);
@@ -4351,163 +4359,412 @@ Standards.general.storage.location = Standards.general.storage.local;
 
 Standards.general.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
-	defaultLocation: "",
-	user: undefined,  //// firebase.auth().currentUser
+	defaultLocation: "/",
+	user: undefined,  // gets set to firebase.auth().currentUser
 	checkCompatibility: function (shouldNotCheckUser) {
 		if (Standards.general.storage.server.database === undefined) {
-			alert("There's no server to handle this action.");
-			throw "Firebase or Firestore doesn't exist.";
+			Standards.general.makeDialog("There's no server to handle this action.");
+			console.error("Firebase or Firestore doesn't exist.");
 		}
 		if (window.location.protocol != "http:" && window.location.protocol != "https:") {
-			alert("Access to the server isn't allowed from this URL.");
-			throw 'The URL doesn\'t use the protocol "http" or "https".';
+			Standards.general.makeDialog("Access to the server isn't allowed from this URL.");
+			console.error('The URL doesn\'t use the protocol "http" or "https".');
 		}
 		if (!shouldNotCheckUser && !Standards.general.storage.server.user) {
-			alert("That action isn't allowed without logging in.");
+			Standards.general.makeDialog("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 			return false;
 		}
 		return true;
 	},
-	formatLocation: function (location, key) {
+	locationType: "hybrid",  // shallow, hybrid, or deep
+	formatLocation: function (location, ignoreLength) {
 		/**
 		formats the location
+		the last section of the path should be the storage key
 		preceding a location with a slash ("/") will allow location setting from the top of the user's directory
+		preceding a location with a tilde ("~") will allow absolute location setting (not within a user's directory)
+		ending a location with a slash ("/") indicates that a folder (not a key) is desired
 		".." goes up a level from the default location
+		ignoreLength = optional boolean; whether the length of the location should be ignored
+			default: false
 		non-native functions = getType
 		*/
-		if (location === undefined) {
-			location = Standards.general.storage.server.defaultLocation;
-		} else if (Standards.general.getType(location) == "String") {
-			if (location === "" || location[0] == "/") {
-				if (location == "/" || location === "") {
-					alert("An invalid storage location was given");
-					throw "An absolute storage location was indicated but not provided.";
+
+		// makes sure the default location is in the proper format
+		if (Standards.general.storage.server.defaultLocation[0] == ".") {
+			alert("An invalid default server storage location was provided");
+			throw "An invalid default server storage location was provided";
+		}
+		if (Standards.general.storage.server.defaultLocation[0] == "~") {
+			Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.slice(1);
+		} else if (Standards.general.storage.server.defaultLocation[0] == "/") {
+			Standards.general.storage.server.defaultLocation = "users/" + Standards.general.storage.server.user.uid + Standards.general.storage.server.defaultLocation;
+		}
+		if (Standards.general.storage.server.defaultLocation.slice(-1) == "/") {
+			Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.slice(0, -1);
+		}
+		Standards.general.storage.server.defaultLocation = Standards.general.storage.server.defaultLocation.replace(/\//g, "<slash>");
+		if (Standards.general.storage.server.defaultLocation.search(/^(?:(?:(?!<slash>).)+<slash>)*.+$/) == -1) {
+			alert("The default server storage location has an improper path pattern.");
+			throw "The default server storage location has an improper path pattern.";
+		}
+
+		// converts the location into an absolute file location
+		if (location === undefined || location === "") {
+			location = "~" + Standards.general.storage.server.defaultLocation + "/";
+		} else if (location == ".") {
+			location = "~" + Standards.general.storage.server.defaultLocation;
+		}
+		if (Standards.general.getType(location) == "String") {
+			location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
+			if (location.slice(0, 8) == ".<slash>") {
+				location = "~" + Standards.general.storage.server.defaultLocation + location.slice(1);
+			}
+			if (location[0] == "~") {
+				location = location.slice(1);
+			} else if (location.slice(0, 7) == "<slash>") {
+				if (location == "<slash>") {
+					location = "users<slash>" + Standards.general.storage.server.user.uid;
 				} else {
-					location = location.slice(1);
+					location = "users<slash>" + Standards.general.storage.server.user.uid + location;
 				}
 			} else {
-				let prelocation = Standards.general.storage.server.defaultLocation.split("/");
+				let prelocation = Standards.general.storage.server.defaultLocation.split("<slash>");
 				while (location.slice(0, 2) == "..") {
 					prelocation.pop();
-					location = location.slice(3);
+					location = location.slice(2);
+					if (location == "" || location == "<slash>") {
+						break;
+					} else if (location.search(/<slash>./) > -1) {
+						location = location.slice(7);
+					} else {
+						throw "An invalid location pattern was provided.";
+					}
 				}
-				if (location === "") {
-					location = prelocation.join("/");
+				if (location == "") {
+					location = prelocation.join("<slash>");
+				} else if (location == "<slash>") {
+					location = prelocation.join("<slash>") + "<slash>";
 				} else {
-					location = prelocation.join("/") + "/" + location;
+					location = prelocation.join("<slash>") + "<slash>" + location;
 				}
 			}
 		} else {
-			alert("An invalid storage location was given");
-			throw "The location given wasn't a string.";
+			throw "The location given wasn't a String.";
 		}
-		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
-			if (key[0] === "/") {
-				throw "An invalid key was given.";
-			} else {
-				key = key.split("/");
-				key.pop();
-				location = location + "/" + key.join("/");
-			}
+		if (!ignoreLength && location.indexOf("<slash>") == -1) {
+			throw "No key was provided.";
+		} else if (location === "") {
+			location = "~";
 		}
-		return location;
+		return location;  // returns the location without the key
 	},
-	getReference: function (location) {  //// make all location setting done here
+	getReference: function (location, shouldCreate) {
 		/**
 		creates a storage reference based on a provided location
-		different paths are separated by slashes ("/")
-		preceding a location with a tilde ("~") will allow absolute location setting (not within a user's directory)
-		(no optimization for user storage)
+		formatted locations are used here
+		shouldCreate = optional boolean; whether documents should be created as the path is navigated
+			default: false
+		different paths are separated by "<slash>"
 		uses Google Firebase
 		non-native functions = getType
 		*/
-		/*  // This is from when storage switched between collections and documents.
 		let reference = Standards.general.storage.server.database;
-		if (!location) {
-			location = Standards.general.storage.server.defaultLocation;
-			reference = reference.collection("users").doc(Standards.general.storage.server.user.uid);
-		} else if (Standards.general.getType(location) == "String") {
-			if (location[0] == "~") {
-				if (location == "~") {
-					alert("An invalid storage location was given");
-					throw "An absolute storage location was indicated but not provided.";
-				} else {
-					location = location.slice(1);
-				}
-			} else {
-				reference = reference.collection("users").doc(Standards.general.storage.server.user.uid);
-			}
-		} else {
-			alert("The action couldn't be completed.");
-			throw "The provided location is an invalid type.";
+		if (location === "~" || !location.includes("<slash>")) {
+			return reference;
 		}
-		if (location != "") {
-			location.split("/").forEach(function (place, index) {
-				if (index % 2 == 0) {
-					reference = reference.collection(place);
-				} else {
-					reference = reference.doc(place);
+		location = location.slice(0, location.lastIndexOf("<slash>"));
+		if (Standards.general.storage.server.locationType == "shallow") {
+			reference = reference.collection("<collection>").doc(location);
+			if (shouldCreate) {
+				reference.set({ "<document>": "exists" }, { merge: true });
+			}
+		} else if (Standards.general.storage.server.locationType == "hybrid") {
+			let defaultFolders = Standards.general.storage.server.defaultLocation.split("<slash>").length;
+			let locationFolders = location.split("<slash>").length;
+			let index = 0;
+			while (locationFolders > index && index < defaultFolders) {
+				reference = reference.collection("<collection>").doc(location.split("<slash>")[index]);
+				if (shouldCreate) {
+					reference.set({ "<document>": "exists" }, { merge: true });
+				}
+				index++;
+			}
+			if (locationFolders > defaultFolders) {
+				// puts everything after the number of default folders into one document
+				reference = reference.collection("<collection>").doc(location.match(new RegExp("(?:(?:(?!<slash>).)+<slash>){"+defaultFolders+"}(.+)"))[1]);
+				if (shouldCreate) {
+					reference.set({ "<document>": "exists" }, { merge: true });
+				}
+			}
+		} else if (Standards.general.storage.server.locationType == "deep") {
+			location.split("<slash>").forEach(function (place) {
+				reference = reference.collection("<collection>").doc(place);
+				if (shouldCreate) {
+					reference.set({ "<document>": "exists" }, { merge: true });
 				}
 			});
-		}
-		return reference;
-		*/
-		let reference = Standards.general.storage.server.database;
-		if (!location) {
-			location = Standards.general.storage.server.defaultLocation;
-			reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
-		} else if (Standards.general.getType(location) == "String") {
-			if (location[0] == "~") {
-				if (location == "~") {
-					alert("An invalid storage location was given");
-					throw "An absolute storage location was indicated but not provided.";
-				} else {
-					location = location.slice(1);
-				}
-			} else {
-				reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
-			}
 		} else {
-			alert("The action couldn't be completed.");
-			throw "The provided location is an invalid type.";
+			throw "An improper location type was given.";
 		}
-		location.split("/").forEach(function (place) {
-			reference = reference.collection("<collection>").doc(place);
-		});
 		return reference;
 	},
 	signUp: function (methods) {
 		Standards.general.storage.server.checkCompatibility(true);
-		let buttons = {};
-		if (methods.includes("Google")) {
-			buttons.Google = function () {
-				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			};
+		if (methods === undefined) {
+			methods = "anonymous";
 		}
-		if (methods.includes("Anonymous")) {
-			buttons.Anonymous = function () {
-				firebase.auth().signInAnonymously();
-			};
+		if (Standards.general.getType(methods) == "Array") {
+			let buttons = {};
+			if (methods.includes("google")) {
+				buttons.Google = function () {
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
+				};
+			}
+			if (methods.includes("password")) {
+				buttons["Email &<br>password"] = function () {
+					Standards.general.makeDialog(
+						'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
+						[
+							"Sign up",
+							function () {
+								let email = document.getElementById("signUpEmailInput").value.trim();
+								if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
+									let password = document.getElementById("signUpPasswordInput").value.trim();
+									if (password.length < 8) {  // if the password isn't long enough
+										Standards.general.makeDialog(
+											"The password isn't long enough.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any capital letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
+										Standards.general.makeDialog(
+											"The password doesn't contain any numbers.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else {  // if the password passes
+										firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+											console.error("A problem occurred during sign-up.");
+											console.error(error);
+											Standards.general.makeDialog("A problem occurred during sign-up.");
+										});
+									}
+								} else {
+									Standards.general.makeDialog(
+										"A properly formatted email wasn't provided.",
+										["Try again", function () {
+											Standards.general.storage.server.signUp(methods);
+										}]
+									);
+								}
+							}
+						],
+						"Cancel"
+					);
+				};
+			}
+			if (methods.includes("anonymous")) {
+				buttons.Anonymous = function () {
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
+				};
+			}
+			Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
+		} else if (Standards.general.getType(methods) == "String") {
+			switch (methods.toLowerCase()) {
+				case "google":
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
+					break;
+				case "password":
+					Standards.general.makeDialog(
+						'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
+						[
+							"Sign up",
+							function () {
+								let email = document.getElementById("signUpEmailInput").value.trim();
+								if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
+									let password = document.getElementById("signUpPasswordInput").value.trim();
+									if (password.length < 8) {  // if the password isn't long enough
+										Standards.general.makeDialog(
+											"The password isn't long enough.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
+										Standards.general.makeDialog(
+											"The password doesn't contain any capital letters.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
+										Standards.general.makeDialog(
+											"The password doesn't contain any numbers.",
+											["Try again", function () {
+												Standards.general.storage.server.signUp(methods);
+											}]
+										);
+									} else {  // if the password passes
+										firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+											console.error("A problem occurred during sign-up.");
+											console.error(error);
+											Standards.general.makeDialog("A problem occurred during sign-up.");
+										});
+									}
+								} else {
+									Standards.general.makeDialog(
+										"A properly formatted email wasn't provided.",
+										["Try again", function () {
+											Standards.general.storage.server.signUp(methods);
+										}]
+									);
+								}
+							}
+						],
+						"Cancel"
+					);
+					break;
+				case "anonymous":
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-up.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-up.");
+					});
+					break;
+				default:
+					console.error("The method of sign-up wasn't recognized.");
+					Standards.general.makeDialog("An attempt was made to sign up with an incorrect method.");
+			}
+		} else {
+			console.error('The "methods" of sign-up was an incorrect type.');
+			Standards.general.makeDialog("A problem occurred during sign-up.");
 		}
-		buttons.Cancel = function () { return; };
-		Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
 	},
 	signIn: function (methods) {
 		Standards.general.storage.server.checkCompatibility(true);
-		let buttons = {};
-		if (methods.includes("Google")) {
-			buttons.Google = function () {
-				firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-			};
+		if (methods === undefined) {
+			methods = "anonymous";
 		}
-		if (methods.includes("Anonymous")) {
-			buttons.Anonymous = function () {
-				firebase.auth().signInAnonymously();
-			};
+		if (Standards.general.getType(methods) == "Array") {
+			let buttons = {};
+			if (methods.includes("google")) {
+				buttons.Google = function () {
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
+				};
+			}
+			if (methods.includes("password")) {
+				buttons["Email &<br>password"] = function () {
+					Standards.general.makeDialog(
+						'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
+						[
+							"Sign in",
+							function () {
+								firebase.auth().signInWithEmailAndPassword(
+									document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
+								).catch(function (error) {
+									console.error("A problem occurred during sign-in.");
+									console.error(error);
+									Standards.general.makeDialog("A problem occurred during sign-in.");
+								});
+							}
+						],
+						"Cancel"
+					);
+				};
+			}
+			if (methods.includes("anonymous")) {
+				buttons.Anonymous = function () {
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
+				};
+			}
+			Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
+		} else if (Standards.general.getType(methods) == "String") {
+			switch (methods.toLowerCase()) {
+				case "google":
+					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
+					break;
+				case "password":
+					Standards.general.makeDialog(
+						'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
+						[
+							"Sign in",
+							function () {
+								firebase.auth().signInWithEmailAndPassword(
+									document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
+								).catch(function (error) {
+									console.error("A problem occurred during sign-in.");
+									console.error(error);
+									Standards.general.makeDialog("A problem occurred during sign-in.");
+								});
+							}
+						],
+						"Cancel"
+					);
+					break;
+				case "anonymous":
+					firebase.auth().signInAnonymously().catch(function (error) {
+						console.error("A problem occurred during sign-in.");
+						console.error(error);
+						Standards.general.makeDialog("A problem occurred during sign-in.");
+					});
+					break;
+				default:
+					console.error("The method of sign-in wasn't recognized.");
+					Standards.general.makeDialog("An attempt was made to sign in with an incorrect method.");
+			}
+		} else {
+			console.error('The "methods" of sign-in was an incorrect type.');
+			Standards.general.makeDialog("A problem occurred during sign-in.");
 		}
-		buttons.Cancel = function () { return; };
-		Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
 	},
 	signOut: function () {
 		Standards.general.storage.server.checkCompatibility();
@@ -4519,540 +4776,1263 @@ Standards.general.storage.server = {
 		);
 	},
 	mergeAccounts: function () {
-		if (Standards.general.storage.server.checkCompatibility()) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
 			//// do stuff
-		}
+		});
 	},
-	store: function (key, item, location, callback) {
-		if (Standards.general.storage.server.checkCompatibility()) {
-			location = Standards.general.storage.server.formatLocation(location, key);
-			if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
-				key = key.split("/")[key.split("/").length-1];
+	store: function (location, item, callback) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
 			}
-			let reference = Standards.general.storage.server.database;
-			if (!location) {
-				location = Standards.general.storage.server.defaultLocation;
-				reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
-			} else if (Standards.general.getType(location) == "String") {
-				if (location[0] == "~") {
-					if (location == "~") {
-						alert("An invalid storage location was given");
-						throw "An absolute storage location was indicated but not provided.";
-					} else {
-						location = location.slice(1);
-					}
-				} else {
-					reference = reference.collection("<collection>").doc("users").collection("<collection>").doc(Standards.general.storage.server.user.uid);
-				}
-			} else {
-				alert("The action couldn't be completed.");
-				throw "The provided location is an invalid type.";
-			}
-			location.split("/").forEach(function (place) {
-				reference = reference.collection("<collection>").doc(place);
-				reference.set({ "<document>": "exists" }, { merge: true });
-			});
-			if (key == null) {
+			location = Standards.general.storage.server.formatLocation(location);
+			let reference = Standards.general.storage.server.getReference(location, true);
+			if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
 				if (Standards.general.getType(item) == "Object") {
 					reference.set(item, { merge: true }).then(function () {
 						if (callback) {
-							callback()/*.catch(function (error) {
+							new Promise(function () {
+								callback();
+								resolve();
+							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
-							})*/;
+								reject(error);
+							});
+						} else {
+							resolve();
 						}
 					}).catch(function (error) {
-						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+						console.error("There was an error storing the information.");
 						console.error(error);
+						reject(error);
 					});
 				} else {
-					console.error("The item to store wasn't an object.");
+					console.error("Storing a folder requires an Object as the item to store.");
+					reject(new TypeError("Storing a folder requires an Object as the item to store."));
 				}
-			} else {
+			} else {  // if storing a single key-value pair
 				reference.set({
-					[key]: item
+					[location.slice(location.lastIndexOf("<slash>") + 7)]: item
 				}, { merge: true }).then(function () {
 					if (callback) {
-						callback()/*.catch(function (error) {
+						new Promise(function () {
+							callback();
+							resolve();
+						}).catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
-						})*/;
+							reject(error);
+						});
+					} else {
+						resolve();
 					}
 				}).catch(function (error) {
-					console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
+					console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 					console.error(error);
+					reject(error);
 				});
 			}
-			/*  // This was for handling collections.
-			if (Standards.general.getType(item) == "Object") {
-				key = key ? "/"+key : "";
-				Standards.general.storage.server.getReference(location+key).set(item).then(function () {
-					if (callback) {
-						callback()/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*;
-					}
-				}).catch(function (error) {
-					alert("The information couldn't be stored.");
-					console.error("There was an error storing the information.");
-					console.error(error);
-				});
-			} else {
-				alert("The information couldn't be stored.");
-				throw "The item to be stored wasn't an object.";
-			}
-			*/
-		}
-	},
-	recall: function (key, location, callback) {
-		if (!Standards.general.storage.server.checkCompatibility()) {
-			return;
-		}
-		location = Standards.general.storage.server.formatLocation(location, key);
-		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
-			key = key.split("/")[key.split("/").length-1];
-		}
-		if (key == null) {
-			Standards.general.storage.server.getReference(location).get().then(function (doc) {
-				if (doc.exists) {
-					let data = doc.data();
-					delete data["<document>"];
-					callback(data)/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
-				} else {
-					console.warn("An attempt was made to access a non-existent document.");
-				}
-			}).catch(function (error) {
-				console.log("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
-				console.error(error);
-			});
-		} else {
-			Standards.general.storage.server.getReference(location).get().then(function (doc) {
-				if (doc.exists) {
-					callback(doc.data()[key])/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
-				} else {
-					console.warn("An attempt was made to access a non-existent document.");
-				}
-			}).catch(function (error) {
-				console.log("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
-				console.error(error);
-			});
-		}
-		/*  // This was for handling collections.
-		Standards.general.storage.server.getReference(location).get().then(function (snapshot) {
-			snapshot.forEach(function (doc) {
-				if (doc.id == key) {
-					callback(doc.data())/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*;
-				}
-			});
-		}).catch(function (error) {
-			alert("The information couldn't be retrieved.");
-			console.error("An error occurred during recall.");
-			console.error(error);
 		});
-		*/
 	},
-	forget: function (key, location, callback) {
-		if (!Standards.general.storage.server.checkCompatibility()) {
-			return;
-		}
-		location = Standards.general.storage.server.formatLocation(location, key);
-		if (Standards.general.getType(key) == "String" && key.split("/").length > 1) {
-			key = key.split("/")[key.split("/").length-1];
-		}
-		let reference = Standards.general.storage.server.getReference(location);
-		if (key === null) {
-			reference.collection("<collection>").get().then(function (collectionProbe) {
-				if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-					let listener = new Standards.general.Listenable();
-					listener.value = 1;
-					listener.addEventListener("change", function (value) {
-						if (value == 0) {  // once all items have been deleted
+	recall: function (location, callback) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			location = Standards.general.storage.server.formatLocation(location);
+			if (location.slice(-7) == "<slash>") {  // if retrieving a folder
+				Standards.general.storage.server.getReference(location).get().then(function (doc) {
+					if (doc.exists) {
+						let data = doc.data();
+						delete data["<document>"];
+						if (callback) {
+							new Promise(function () {
+								callback(data);
+								resolve(data);
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve(data);
+						}
+					} else {
+						//// There might be something to do here depending on the locationType.
+						console.warn("An attempt was made to access a non-existent document.");
+						if (callback) {
+							new Promise(function () {
+								callback(Error("The information couldn't be found."));
+								resolve(Error("The information couldn't be found."));
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve(Error("The information couldn't be found."));
+						}
+					}
+				}).catch(function (error) {
+					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+					console.error(error);
+					reject(error);
+				});
+			} else {  // if retrieving a single item
+				Standards.general.storage.server.getReference(location).get().then(function (doc) {
+					if (doc.exists) {
+						if (callback) {
+							new Promise(function () {
+								callback(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
+								resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
+						}
+					} else {
+						console.warn("An attempt was made to access a non-existent document.");
+						if (callback) {
+							new Promise(function () {
+								callback(Error("The information couldn't be found."));
+								resolve(Error("The information couldn't be found."));
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve(Error("The information couldn't be found."));
+						}
+					}
+				}).catch(function (error) {
+					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+					console.error(error);
+					reject(error);
+				});
+			}
+		});
+	},
+	forget: function (location, callback) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			location = Standards.general.storage.server.formatLocation(location);
+			if (location == "~") {
+				console.error("Deleting all server information is forbidden.");
+				reject(new Error("Deleting all server information is forbidden."));
+			} else if (location == "users<slash>") {
+				console.error("Deleting every user's information is forbidden.");
+				reject(new Error("Deleting every user's information is forbidden."));
+			}
+			let reference = Standards.general.storage.server.getReference(location);
+			if (Standards.general.storage.server.locationType == "shallow") {
+				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
+					location = location.slice(0, -7);
+					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
+						let keyList = [];
+						Standards.general.forEach(collection.docs, function (subdoc) {
+							if (subdoc.exists && subdoc.id.slice(0, location.length) == location) {
+								keyList.push(subdoc.id);
+							}
+						});
+						let remaining = new Standards.general.Listenable();
+						remaining.value = 0;
+						remaining.addEventListener("change", function (value) {
+							if (value == 0) {  // once all items have been deleted
+								remaining.removeEventListener("change", arguments.callee);
+								if (callback) {
+									new Promise(function () {
+										callback();
+										resolve();
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
+								}
+							}
+						});
+						Standards.general.forEach(keyList, function (id) {
+							remaining.value++;
+							Standards.general.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
+								remaining.value--;
+							}).catch(function (error) {
+								console.error("The information couldn't be deleted.");
+								console.error(error);
+								reject(error);
+							});
+						});
+						remaining.value++;
+						Standards.general.storage.server.database.delete().then(function () {  // deletes the document (which deletes all of the keys within)
+							remaining.value--;
+						}).catch(function (error) {
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
+						});
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if deleting a single key-value pair
+					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
+						let found = false;
+						Standards.general.forEach(collection.docs, function (doc) {
+							if (doc.exists && doc.id == location.slice(0, location.lastIndexOf("<slash>"))) {
+								found = true;
+								doc.ref.update({
+									[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
+								}).then(function () {
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
+									}
+								}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+									console.error("The information couldn't be deleted.");
+									console.error(error);
+									reject(error);
+								});
+							}
+						});
+						if (!found) {
+							console.warn("No information was found to delete.");
 							if (callback) {
-								callback()/*.catch(function (error) {
+								new Promise(function () {
+									callback();
+									resolve();
+								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
-								})*/;
+									reject(error);
+								});
+							} else {
+								resolve();
 							}
-							listener.removeEventListener("change", arguments.callee);
 						}
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
 					});
-					/// when a new document is encountered, listener.value is incremented
-					/// when a document is deleted, listener.value is decremented
-					function deleteCollection(collection) {
-						Standards.general.forEach(collection.docs, function (doc) {
-							listener.value++;
-							doc.ref.collection("<collection>").get().then(function (subcollection) {
-								if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-									deleteCollection(subcollection);
+				}
+			} else if (Standards.general.storage.server.locationType == "hybrid") {
+				let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
+				if (location.split("<slash>").length - 1 > defaultLength) {  // if the location extends into shallow folders
+					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
+					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
+					reference = Standards.general.storage.server.getReference(docLocation);
+					if (remainingLocation.slice(-7) == "<slash>") {  // if deleting a whole folder
+						remainingLocation = remainingLocation.slice(0, -7);
+						reference.collection("<collection>").get().then(function (collection) {
+							let keyList = [];
+							Standards.general.forEach(collection.docs, function (subdoc) {
+								if (subdoc.exists && subdoc.id.slice(0, remainingLocation.length) == remainingLocation) {
+									keyList.push(subdoc.id);
 								}
-								doc.ref.delete().then(function () {
-									listener.value--;
+							});
+							let remaining = new Standards.general.Listenable();
+							remaining.value = 0;
+							remaining.addEventListener("set", function (value) {
+								if (value == 0) {  // once all items have been deleted
+									remaining.removeEventListener("set", arguments.callee);
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
+									}
+								}
+							});
+							Standards.general.forEach(keyList, function (id) {  // deletes all subdocuments
+								remaining.value++;
+								reference.collection("<collection>").doc(id).delete().then(function () {
+									remaining.value--;
 								}).catch(function (error) {
 									console.error("The information couldn't be deleted.");
 									console.error(error);
+									reject(error);
 								});
 							});
+							remaining.value = remaining.value;  // makes sure the callback is run even if there's nothing to delete
+						}).catch(function (error) {
+							console.error("There was an error finding the information.");
+							console.error(error);
+							reject(error);
 						});
-					}
-					deleteCollection(collectionProbe);
-					reference.delete().then(function () {
-						listener.value--;
-					}).catch(function (error) {
-						console.error("The information couldn't be deleted.");
-						console.error(error);
-					});
-				} else {
-					reference.delete().then(function () {
-						if (callback) {
-							callback()/*.catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-							})*/;
-						}
-					}).catch(function (error) {
-						console.error("The information couldn't be deleted.");
-						console.error(error);
-					});
-				}
-			});
-		} else {
-			reference.update({
-				[key]: firebase.firestore.FieldValue.delete()
-			}).then(function () {
-				if (callback) {
-					callback()/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*/;
-				}
-			}).catch(function (error) {
-				console.error("The information couldn't be deleted.");
-				console.error(error);
-			});
-		}
-	},
-	move: function (oldPlace, newPlace, location, callback) {
-		////
-	},
-	list: function (location, callback) {
-		if (!Standards.general.storage.server.checkCompatibility()) {
-			return;
-		}
-		location = Standards.general.storage.server.formatLocation(location);
-		let reference = Standards.general.storage.server.getReference(location);
-		reference.collection("<collection>").get().then(function (collectionProbe) {
-			if (collectionProbe.docs.length > 0) {  // if there's sub-documents
-				let keyList = [];
-				let listener = new Standards.general.Listenable();
-				listener.value = 1;
-				listener.addEventListener("change", function (value) {
-					if (value == 0) {  // once all items have been listed
-						if (callback) {
-							callback(keyList)/*.catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-							})*/;
-						}
-						listener.removeEventListener("change", arguments.callee);
-					}
-				});
-				/// when a new document is encountered, listener.value is incremented
-				/// when a document's keys have been iterated, listener.value is decremented
-				function exploreCollection(collection, path) {
-					Standards.general.forEach(collection.docs, function (doc) {
-						listener.value++;
-						doc.ref.collection("<collection>").get().then(function (subcollection) {
-							if (subcollection.docs.length > 0) {  // if there's sub-sub-documents
-								exploreCollection(subcollection, path + doc.id + "/");
-							}
-							Standards.general.forEach(doc.data(), function (value, key) {
-								if (key != "<document>") {
-									keyList.push(path + doc.id + "/" + key);
+					} else {  // if deleting a single key-value pair
+						reference.collection("<collection>").get().then(function (collection) {
+							let found = false;
+							Standards.general.forEach(collection.docs, function (doc) {
+								if (doc.exists && doc.id == remainingLocation.slice(0, remainingLocation.lastIndexOf("<slash>"))) {
+									found = true;
+									doc.ref.update({
+										[remainingLocation.slice(remainingLocation.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
+									}).then(function () {
+										if (callback) {
+											new Promise(function () {
+												callback();
+												resolve();
+											}).catch(function (error) {
+												console.error("There was a problem running the callback.");
+												console.error(error);
+												reject(error);
+											});
+										} else {
+											resolve();
+										}
+									}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+										console.error("The information couldn't be deleted.");
+										console.error(error);
+										reject(error);
+									});
 								}
 							});
-							listener.value--;
+							if (!found) {
+								console.warn("No information was found to delete.");
+								if (callback) {
+									new Promise(function () {
+										callback();
+										resolve();
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
+								}
+							}
+						}).catch(function (error) {
+							console.error("There was an error finding the information.");
+							console.error(error);
+							reject(error);
 						});
+					}
+				} else {  // if the location stays in "deep" folders
+					if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
+						reference.collection("<collection>").get().then(function (collectionProbe) {
+							let listener = new Standards.general.Listenable();
+							listener.value = 0;
+							listener.addEventListener("set", function (value) {
+								if (value == 0) {  // once all items have been deleted
+									listener.removeEventListener("set", arguments.callee);
+									if (callback) {
+										new Promise(function () {
+											callback();
+											resolve();
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve();
+									}
+								}
+							});
+							if (collectionProbe.size > 0) {  // if there's sub-documents
+								/// when a new document is encountered, listener.value is incremented
+								/// when a document is deleted, listener.value is decremented
+								function deleteCollection(collection) {
+									Standards.general.forEach(collection, function (subdoc) {
+										if (subdoc.exists) {
+											listener.value++;
+											subdoc.ref.collection("<collection>").get().then(function (subcollection) {
+												if (subcollection.size > 0) {  // if there's sub-sub-documents
+													deleteCollection(subcollection.docs);
+												}
+												subdoc.ref.delete().then(function () {
+													listener.value--;
+												}).catch(function (error) {
+													console.error("The information couldn't be deleted.");
+													console.error(error);
+													reject(error);
+												});
+											}).catch(function (error) {
+												console.error("There was an error retrieving the information.");
+												console.error(error);
+												reject(error);
+											});
+										}
+									});
+								}
+								deleteCollection(collectionProbe.docs);
+							}
+							listener.value++;
+							reference.delete().then(function () {
+								listener.value--;
+							}).catch(function (error) {
+								console.error("The information couldn't be deleted.");
+								console.error(error);
+								reject(error);
+							});
+						}).catch(function (error) {
+							console.error("There was an error retrieving the information.");
+							console.error(error);
+							reject(error);
+						});
+					} else {  // if deleting a single key-value pair
+						reference.update({
+							[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
+						}).then(function () {
+							if (callback) {
+								new Promise(function () {
+									callback();
+									resolve();
+								}).catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								resolve();
+							}
+						}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
+						});
+					}
+				}
+			} else if (Standards.general.storage.server.locationType == "deep") {
+				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
+					reference.collection("<collection>").get().then(function (collectionProbe) {
+						let listener = new Standards.general.Listenable();
+						listener.value = 0;
+						listener.addEventListener("change", function (value) {
+							if (value == 0) {  // once all items have been deleted
+								listener.removeEventListener("change", arguments.callee);
+								if (callback) {
+									new Promise(function () {
+										callback();
+										resolve();
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve();
+								}
+							}
+						});
+						if (collectionProbe.size > 0) {  // if there's sub-documents
+							/// when a new document is encountered, listener.value is incremented
+							/// when a document is deleted, listener.value is decremented
+							function deleteCollection(collection) {
+								Standards.general.forEach(collection, function (subdoc) {
+									if (subdoc.exists) {
+										listener.value++;
+										subdoc.ref.collection("<collection>").get().then(function (subcollection) {
+											if (subcollection.size > 0) {  // if there's sub-sub-documents
+												deleteCollection(subcollection.docs);
+											}
+											subdoc.ref.delete().then(function () {
+												listener.value--;
+											}).catch(function (error) {
+												console.error("The information couldn't be deleted.");
+												console.error(error);
+												reject(error);
+											});
+										}).catch(function (error) {
+											console.error("There was an error retrieving the information.");
+											console.error(error);
+											reject(error);
+										});
+									}
+								});
+							}
+							deleteCollection(collectionProbe.docs);
+						}
+						listener.value++;
+						reference.delete().then(function () {
+							listener.value--;
+						}).catch(function (error) {
+							console.error("The information couldn't be deleted.");
+							console.error(error);
+							reject(error);
+						});
+					}).catch(function (error) {
+						console.error("There was an error retrieving the information.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if deleting a single key-value pair
+					reference.update({
+						[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
+					}).then(function () {
+						if (callback) {
+							new Promise(function () {
+								callback();
+								resolve();
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve();
+						}
+					}).catch(function (error) {  // This comes after .then so .then doesn't always run.
+						console.error("The information couldn't be deleted.");
+						console.error(error);
+						reject(error);
 					});
 				}
-				exploreCollection(collectionProbe, "");
-				reference.get().then(function (doc) {
-					if (Object.keys(doc).length > 1) {  // if the document has any field values
-						Standards.general.forEach(doc.data(), function (value, key) {
-							if (key != "<document>") {
-								keyList.push(key);
-							}
-						});
-					}
-					listener.value--;
-				}).catch(function (error) {
-					alert("The list of information couldn't be retieved.");
-					console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
-					console.error(error);
-				});
-			} else {  // if there's not sub-documents
-				reference.get().then(function (doc) {
-					let keyList = [];
-					if (doc.exists) {
-						Standards.general.forEach(doc.data(), function (value, key) {
-							if (key != "<document>") {
-								keyList.push(key);
-							}
-						});
-						callback(keyList)/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
-					} else {
-						console.warn("An attempt was made to access a non-existent document.");
-						callback(keyList)/*.catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-						})*/;
-					}
-				}).catch(function (error) {
-					alert("The list of information couldn't be retieved.");
-					console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
-					console.error(error);
-				});
+			} else {
+				console.error("An improper locationType was provided.");
+				reject(new Error("An improper locationType was provided."));
 			}
 		});
-		/*
-		if (location.split("/")[location.split("/").length - 1] == "<collection>") {
-			location.splice(location.split("/").length - 1, 1);
-			Standards.general.storage.server.getReference(location).collection("<collection>").get().then(function (snapshot) {
-				let keyList = [];
-				if (snapshot.empty) {
-					console.warn("An attempt was made to access a non-existent collection.");
-					callback(keyList)/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*;
-				} else {
-					Standards.general.forEach(snapshot.docs, function (doc) {
-						keyList.push(doc.id);
-					});
-					callback(keyList)/*.catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-					})*;
-				}
-			}).catch(function (error) {
-				alert("The list of information couldn't be retieved.");
-				console.error(error);
-			});
-		} else {
-			Standards.general.storage.server.getReference(location).get().then(function (doc) {
-				let keyList = [];
-				if (doc.exists) {
-					Standards.general.forEach(doc.data(), function (value, key) {
-						keyList.push(key);
-					});
-					callback(keyList)/*.catch(function (error) {
-					console.error("There was a problem running the callback.");
-					console.error(error);
-				})*;
-				} else {
-					console.warn("An attempt was made to access a non-existent document.");
-					callback(keyList)/*.catch(function (error) {
-					console.error("There was a problem running the callback.");
-					console.error(error);
-				})*;
-				}
-			}).catch(function (error) {
-				alert("The list of information couldn't be retieved.");
-				console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error happens in Firebase.
-				console.error(error);
-			});
-		}
-		*/
-	}
-};
+	},
+	list: function (location, callback) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			if (location === undefined) {
+				location = "./";
+				/// makes sure the list doesn't include the parent folder
+				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
+			}
+			location = Standards.general.storage.server.formatLocation(location, true);
+			let keyList = [];
 
-/*
-Standards.general.storage.server = {
-	"username": null,
-	"password": null,
-	"passwordLocation": null,
-	"storageLocation": "volatileserver.appspot.com",
-	"notificationType": "alert",
-	"store": function (key, item, location) {
-		// /**
-		stores a user's information
-		creators of information are the owners
-		non-native functions = http_build_query() and parse_str()
-		// *
-		location = location || Standards.general.storage.server.storageLocation;
-		var message = {
-			"username": Standards.general.storage.server.username,
-			"password": Standards.general.storage.server.password,
-			"action": "store",
-			"location": "gs://" + location + "/" + key,
-			"information": item
-		};
-		if (Standards.general.storage.server.passwordLocation != null) {
-			message["pwd_path"] = Standards.general.storage.server.passwordLocation;
-		}
-		var file = new XMLHttpRequest();
-		file.open("POST", "https://" + location);
-		file.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // This is the encoding type.  //// text/html
-		file.onreadystatechange = function () {
-			if(file.readyState === 4) {
-				if(file.status === 200 || file.status == 0) {
-					var response = Standards.general.parse_str(file.responseText);
-					var notification = Standards.general.storage.server.notificationType.toLowerCase();
-					if (response.hasOwnProperty("errors")) {
-						response.errors.forEach(function (error) {
-							console.error(error);
+			if (Standards.general.storage.server.locationType == "shallow") {  // if all documents are held in one collection
+				Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
+					let preKey = "";  // holds the found file locations (document IDs)
+					if (location == "~") {  // if trying to get all keys
+						Standards.general.forEach(collection.docs, function (doc) {
+							let key = doc.id.split("<slash>")[0];
+							if (!keyList.includes(key)) {
+								keyList.push(key);
+							}
 						});
-					}
-					if (response.hasOwnProperty("warnings")) {
-						response.warnings.forEach(function (warning) {
-							if (notification == "alert") {
-								alert(warning);
-							} else if (notification == "return") {
-								// only changes things later
-							} else if (notification == "none") {
-								// does nothing
-							} else {
-								console.error(notification + " is an invalid type of notification.");
+						/// returns only the first folder level of everything at the top of the directory
+					} else if (location.slice(-7) == "<slash>") {  // if getting the key names within a folder
+						location = location.slice(0, -7);
+						Standards.general.forEach(collection.docs, function (doc) {
+							if (doc.exists && doc.id.search(new RegExp("^" + location + "(?:<slash>|$)")) > -1) {  // if beginning of document ID contains the file location
+								if (doc.id.length > location.length) {
+									preKey = doc.id.slice(location.length + 7) + "<slash>";
+								} else {
+									preKey = "";
+								}
+								Standards.general.forEach(doc.data(), function (value, key) {
+									if (key != "<document>") {
+										keyList.push(preKey + key);
+									}
+								});
+							}
+						});
+					} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
+						Standards.general.forEach(collection.docs, function (doc) {
+							if (doc.exists) {
+								if (doc.id == location.split("<slash>").slice(0, -1).join("<slash>")) {  // if the document is one folder-level up
+									if (doc.data().hasOwnProperty(location.split("<slash>").slice(-1)[0])) {  // if the document has the key at the end of the location
+										keyList.push(location.split("<slash>").slice(-1)[0]);
+									}
+								} else if (doc.id.search(new RegExp("^" + location + "<slash>")) > -1) {  // if beginning of the document ID contains the file location
+									if (location.includes("<slash>")) {
+										preKey = doc.id.slice(location.lastIndexOf("<slash>") + 7) + "<slash>";
+									} else {
+										preKey = "";
+									}
+									Standards.general.forEach(doc.data(), function (value, key) {
+										if (key != "<document>") {
+											keyList.push(preKey + key);
+										}
+									});
+								}
 							}
 						});
 					}
-					if (notification == "return") {
-						return response;
-					}
-				}
-			}
-		}
-		// file.onload might also be able to be used without the states and statuses
-		file.send(Standards.general.http_build_query(message));
-	},
-	"recall": function (key, location) {
-		// /**
-		recalls a user's information (if they have the correct permissions)
-		non-native functions = http_build_query() and parse_str()
-		// *
-		location = location || Standards.general.storage.server.storageLocation;
-		var message = {
-			"username": Standards.general.storage.server.username,
-			"password": Standards.general.storage.server.password,
-			"action": "recall",
-			"location": "gs://" + location + "/" + key
-		};
-		if (Standards.general.storage.server.passwordLocation != null) {
-			message["pwd_path"] = Standards.general.storage.server.passwordLocation;
-		}
-		var file = new XMLHttpRequest();
-		file.open("POST", "https://" + location);
-		file.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // This is the encoding type.  //// text/html
-		file.onreadystatechange = function () {
-			if(file.readyState === 4) {
-				if(file.status === 200 || file.status == 0) {
-					var response = Standards.general.parse_str(file.responseText);
-					var notification = Standards.general.storage.server.notificationType.toLowerCase();
-					if (response.hasOwnProperty("errors")) {
-						response.errors.forEach(function (error) {
+					Standards.general.forEach(keyList, function (key, index) {
+						keyList[index] = key.replace(/<slash>/g, "/");
+					});
+					if (callback) {
+						new Promise(function () {
+							callback(keyList);
+							resolve(keyList);
+						}).catch(function (error) {
+							console.error("There was a problem running the callback.");
 							console.error(error);
+							reject(error);
 						});
-					}
-					if (response.hasOwnProperty("warnings")) {
-						response.warnings.forEach(function (warning) {
-							if (notification == "alert") {
-								alert(warning);
-							} else if (notification == "return") {
-								// only changes things later
-							} else if (notification == "none") {
-								// does nothing
-							} else {
-								console.error(notification + " is an invalid type of notification.");
-							}
-						});
-					}
-					if (notification == "return") {
-						return response;
 					} else {
-						return response.value;
+						resolve(keyList);
 					}
-				}
-			}
-		}
-		// file.onload might also be able to be used without the states and statuses
-		file.send(Standards.general.http_build_query(message));
-	},
-	"forget": function (key, location) {
-		// /**
-		deletes a user's information (if they have owner permissions)
-		non-native functions = http_build_query() and parse_str()
-		// *
-		location = location || Standards.general.storage.server.storageLocation;
-		var message = {
-			"username": Standards.general.storage.server.username,
-			"password": Standards.general.storage.server.password,
-			"action": "forget",
-			"location": "gs://" + location + "/" + key
-		};
-		if (Standards.general.storage.server.passwordLocation != null) {
-			message["pwd_path"] = Standards.general.storage.server.passwordLocation;
-		}
-		var file = new XMLHttpRequest();
-		file.open("POST", "https://" + location);
-		file.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  // This is the encoding type.  //// text/html
-		file.onreadystatechange = function () {
-			if(file.readyState === 4) {
-				if(file.status === 200 || file.status == 0) {
-					var response = Standards.general.parse_str(file.responseText);
-					var notification = Standards.general.storage.server.notificationType.toLowerCase();
-					if (response.hasOwnProperty("errors")) {
-						response.errors.forEach(function (error) {
-							console.error(error);
-						});
-					}
-					if (response.hasOwnProperty("warnings")) {
-						response.warnings.forEach(function (warning) {
-							if (notification == "alert") {
-								alert(warning);
-							} else if (notification == "return") {
-								// only changes things later
-							} else if (notification == "none") {
-								// does nothing
-							} else {
-								console.error(notification + " is an invalid type of notification.");
+				}).catch(function (error) {
+					console.error("There was an error finding the information.");
+					console.error(error);
+					reject(error);
+				});
+
+			} else if (Standards.general.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
+				let defaultLength = Standards.general.storage.server.defaultLocation.split("<slash>").length;
+				if (location == "~") {
+					Standards.general.storage.server.database.collection("<collection>").get().then(function (collection) {
+						Standards.general.forEach(collection.docs, function (doc) {
+							let key = doc.id.split("<slash>")[0];
+							if (!keyList.includes(key)) {
+								keyList.push(key);
 							}
 						});
+						/// returns only the first folder level of everything at the top of the directory
+						// none of the keys should have "<slash>"
+						if (callback) {
+							new Promise(function () {
+								callback(keyList);
+								resolve(keyList);
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve(keyList);
+						}
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
+					});
+				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
+					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
+					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
+					Standards.general.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+						let preKey = "";  // holds the found file locations (document IDs)
+						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
+							remainingLocation = remainingLocation.slice(0, -7);
+							Standards.general.forEach(collection.docs, function (doc) {
+								if (doc.exists && doc.id.search(new RegExp("^" + remainingLocation + "(?:<slash>|$)")) > -1) {  // if beginning of doc ID contains location
+									if (doc.id.length > remainingLocation.length) {
+										preKey = doc.id.slice(remainingLocation.length + 7) + "<slash>";
+									} else {
+										preKey = "";
+									}
+									Standards.general.forEach(doc.data(), function (value, key) {
+										if (key != "<document>") {
+											keyList.push(preKey + key);
+										}
+									});
+								}
+							});
+						} else {  // if getting a key with the same name or keys within a folder (includes folder name in returned path)
+							Standards.general.forEach(collection.docs, function (doc) {
+								if (doc.exists) {
+									if (doc.id == remainingLocation.split("<slash>").slice(0, -1).join("<slash>")) {  // if the document is one folder-level up
+										if (doc.data().hasOwnProperty(remainingLocation.split("<slash>").slice(-1)[0])) {  // if document has key at the end of the location
+											keyList.push(remainingLocation.split("<slash>").slice(-1)[0]);
+										}
+									} else if (doc.id.search(new RegExp("^" + remainingLocation + "(?:<slash>|$)")) > -1) { // if beginning of doc ID contains file location
+										/// remainingLocation always contains "<slash>" at this point
+										preKey = doc.id.slice(remainingLocation.lastIndexOf("<slash>") + 7) + "<slash>";
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(preKey + key);
+											}
+										});
+									}
+								}
+							});
+						}
+						Standards.general.forEach(keyList, function (key, index) {
+							keyList[index] = key.replace(/<slash>/g, "/");
+						});
+						if (callback) {
+							new Promise(function () {
+								callback(keyList);
+								resolve(keyList);
+							}).catch(function (error) {
+								console.error("There was a problem running the callback.");
+								console.error(error);
+								reject(error);
+							});
+						} else {
+							resolve(keyList);
+						}
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if the provided location length is shallower than (or equal to) the default location
+					let reference = Standards.general.storage.server.getReference(location);
+					reference.collection("<collection>").get().then(function (collectionProbe) {
+						if (collectionProbe.size > 0) {  // if there's sub-documents
+							let listener = new Standards.general.Listenable();
+							listener.value = 1;
+							listener.addEventListener("change", function (value) {
+								if (value == 0) {  // once all items have been listed
+									listener.removeEventListener("change", arguments.callee);
+									Standards.general.forEach(keyList, function (key, index) {
+										keyList[index] = key.replace(/<slash>/g, "/");
+									});
+									if (callback) {
+										new Promise(function () {
+											callback(keyList);
+											resolve(keyList);
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve(keyList);
+									}
+								}
+							});
+							/// when a new document is encountered, listener.value is incremented
+							/// when a document's keys have been iterated, listener.value is decremented
+							function exploreCollection(collection, path) {
+								Standards.general.forEach(collection, function (doc) {
+									if (doc.exists) {
+										listener.value++;
+										doc.ref.collection("<collection>").get().then(function (subcollection) {
+											if (subcollection.size > 0) {  // if there's sub-sub-documents
+												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
+											}
+											Standards.general.forEach(doc.data(), function (value, key) {
+												if (key != "<document>") {
+													keyList.push(path + doc.id + "<slash>" + key);
+												}
+											});
+											listener.value--;
+										}).catch(function (error) {
+											console.error("List retrieval failed.");
+											console.error(error);
+											reject(error);
+										});
+									}
+								});
+							}
+							if (location.slice(-7) == "<slash>") {
+								exploreCollection(collectionProbe.docs, "");
+								reference.get().then(function (doc) {
+									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(key);
+											}
+										});
+									}
+									listener.value--;
+								}).catch(function (error) {
+									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+									console.error(error);
+									reject(error);
+								});
+							} else if (location.split("<slash>").length - 1 == defaultLength) {
+								let locationKey = location.slice(location.lastIndexOf("<slash>") + 7);
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
+									if (doc.exists && doc.id.search(new RegExp("^" + locationKey + "(?:<slash>|$)")) > -1) {
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(doc.id + "<slash>" + key);
+											}
+										});
+									}
+								});
+								reference.get().then(function (doc) {
+									if (doc.exists && Object.keys(doc.data()).includes(locationKey)) {  // if the document has the location's key
+										keyList.push(locationKey);
+									}
+									listener.value--;
+								}).catch(function (error) {
+									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+									console.error(error);
+									reject(error);
+								});
+							} else if (location.includes("<slash>")) {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
+									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
+										exploreCollection([doc], "");
+									}
+								});
+								reference.get().then(function (doc) {
+									if (doc.exists && Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if doc has location's key
+										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
+									}
+									listener.value--;
+								}).catch(function (error) {
+									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
+									if (doc.exists && doc.id == location) {  // if a doc ID matches the location key (only true <= 1 time)
+										exploreCollection([doc], "");
+									}
+								});
+								listener.value--;
+							}
+						} else {  // if there's not sub-documents
+							reference.get().then(function (doc) {
+								if (doc.exists) {
+									if (location.slice(-7) == "<slash>") {  // if getting the contents of a folder
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(key);
+											}
+										});
+									} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has location's key
+										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
+									}
+									Standards.general.forEach(keyList, function (key, index) {
+										keyList[index] = key.replace(/<slash>/g, "/");
+									});
+									if (callback) {
+										new Promise(function () {
+											callback(keyList);
+											resolve(keyList);
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve(keyList);
+									}
+								} else {
+									console.warn("An attempt was made to access a non-existent document.");
+									// keyList is empty and doesn't need to have "<slash>"s replaced
+									if (callback) {
+										new Promise(function () {
+											callback(keyList);
+											resolve(keyList);
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve(keyList);
+									}
+								}
+							}).catch(function (error) {
+								console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+								console.error(error);
+								reject(error);
+							});
+						}
+					}).catch(function (error) {
+						console.error("There was an error finding the information.");
+						console.error(error);
+						reject(error);
+					});
+				}
+				
+			} else if (Standards.general.storage.server.locationType == "deep") {  // if every folder level is another nested document
+				let reference = Standards.general.storage.server.getReference(location);
+				reference.collection("<collection>").get().then(function (collectionProbe) {
+					if (collectionProbe.size > 0) {  // if there's sub-documents
+						if (location == "~") {
+							Standards.general.forEach(collectionProbe.docs, function (doc) {
+								keyList.push(doc.id);
+							});
+							// none of the keys should have "<slash>"
+							if (callback) {
+								new Promise(function () {
+									callback(keyList);
+									resolve(keyList);
+								}).catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								resolve(keyList);
+							}
+						} else {
+							let listener = new Standards.general.Listenable();
+							listener.value = 1;
+							listener.addEventListener("change", function (value) {
+								if (value == 0) {  // once all items have been listed
+									listener.removeEventListener("change", arguments.callee);
+									Standards.general.forEach(keyList, function (key, index) {
+										keyList[index] = key.replace(/<slash>/g, "/");
+									});
+									if (callback) {
+										new Promise(function () {
+											callback(keyList);
+											resolve(keyList);
+										}).catch(function (error) {
+											console.error("There was a problem running the callback.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										resolve(keyList);
+									}
+								}
+							});
+							/// when a new document is encountered, listener.value is incremented
+							/// when a document's keys have been iterated, listener.value is decremented
+							function exploreCollection(collection, path) {
+								Standards.general.forEach(collection, function (doc) {
+									if (doc.exists) {
+										listener.value++;
+										doc.ref.collection("<collection>").get().then(function (subcollection) {
+											if (subcollection.size > 0) {  // if there's sub-sub-documents
+												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
+											}
+											Standards.general.forEach(doc.data(), function (value, key) {
+												if (key != "<document>") {
+													keyList.push(path + doc.id + "<slash>" + key);
+												}
+											});
+											listener.value--;
+										}).catch(function (error) {
+											console.error("List retrieval failed.");
+											console.error(error);
+											reject(error);
+										});
+									}
+								});
+							}
+							if (location.slice(-7) == "<slash>") {
+								exploreCollection(collectionProbe.docs, "");
+								reference.get().then(function (doc) {
+									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
+										Standards.general.forEach(doc.data(), function (value, key) {
+											if (key != "<document>") {
+												keyList.push(key);
+											}
+										});
+									}
+									listener.value--;
+								}).catch(function (error) {
+									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								Standards.general.forEach(collectionProbe.docs, function (doc) {
+									if (doc.id == location.slice(location.lastIndexOf("<slash>") + 7)) {  // if a doc ID matches the location key (only true <= 1 time)
+										exploreCollection([doc], "");
+									}
+								});
+								reference.get().then(function (doc) {
+									if (doc.exists && Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if doc has location's key
+										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
+									}
+									listener.value--;
+								}).catch(function (error) {
+									console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+									console.error(error);
+									reject(error);
+								});
+							}
+						}
+					} else {  // if there's not sub-documents
+						reference.get().then(function (doc) {
+							if (doc.exists) {
+								if (location.slice(-7) == "<slash>") {  // if getting the contents of a folder
+									Standards.general.forEach(doc.data(), function (value, key) {
+										if (key != "<document>") {
+											keyList.push(key);
+										}
+									});
+								} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
+									keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
+								}
+								Standards.general.forEach(keyList, function (key, index) {
+									keyList[index] = key.replace(/<slash>/g, "/");
+								});
+								if (callback) {
+									new Promise(function () {
+										callback(keyList);
+										resolve(keyList);
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve(keyList);
+								}
+							} else {
+								console.warn("An attempt was made to access a non-existent document.");
+								// keyList should be empty
+								if (callback) {
+									new Promise(function () {
+										callback(keyList);
+										resolve(keyList);
+									}).catch(function (error) {
+										console.error("There was a problem running the callback.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									resolve(keyList);
+								}
+							}
+						}).catch(function (error) {
+							console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+							console.error(error);
+							reject(error);
+						});
 					}
-					if (notification == "return") {
-						return response;
+				}).catch(function (error) {
+					console.error("There was an error finding the information.");
+					console.error(error);
+					reject(error);
+				});
+			} else {
+				alert("The action couldn't be completed.");
+				console.error("An improper location type was given.");
+				reject(new TypeError("An improper location type was given."));
+			}
+		});
+	},
+	move: function (oldPlace, newPlace, callback) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			if (oldPlace == newPlace) {
+				console.warn("The items are already in the desired location.");
+				if (callback) {
+					new Promise(function () {
+						callback();
+						resolve();
+					}).catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+						reject(error);
+					});
+				} else {
+					resolve();
+				}
+			} else if (Standards.general.getType(oldPlace) == "String" && Standards.general.getType(newPlace) == "String") {
+				if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
+					if (newPlace.slice(-1) != "/") {
+						newPlace += "/";
 					}
+					let remaining = new Standards.general.Listenable();
+					remaining.value = 0;
+					remaining.addEventListener("set", function (value) {
+						if (value == 0) {  // if there are no more items waiting to be moved
+							remaining.removeEventListener("set", arguments.callee);
+							if (callback) {
+								new Promise(function () {
+									callback();
+									resolve();
+								}).catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								resolve();
+							}
+						}
+					});
+					Standards.general.storage.server.list(oldPlace).then(function (oldList) {
+						if (oldPlace.slice(-1) == "/") {
+							Standards.general.forEach(oldList, function (key) {
+								remaining.value++;
+								Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
+									Standards.general.storage.server.store(newPlace + key, info).then(function () {
+										Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+											/// checks whether the information was actually moved
+											/// not essential but prevents premature deletion in strange circumstances
+											if (movedInfo === info) {
+												Standards.general.storage.server.forget(oldPlace + key).then(function () {
+													remaining.value--;
+												}).catch(function (error) {
+													console.error("There was a problem deleting the moved information.");
+													console.error(error);
+													reject(error);
+												});
+											} else {
+												console.error("The information in the newPlace doesn't match the information that was moved there.");
+												reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+											}
+										}).catch(function (error) {
+											console.error("There was a problem checking whether the information was actually moved.");
+											console.error(error);
+											reject(error);
+										});
+									}).catch(function (error) {
+										console.error("There was a problem storing the information to move.");
+										console.error(error);
+										reject(error);
+									});
+								}).catch(function (error) {
+									console.error("There was a problem recalling the information to move.");
+									console.error(error);
+									reject(error);
+								});
+							});
+						} else {
+							Standards.general.forEach(oldList, function (key) {
+								remaining.value++;
+								if (!key.includes("/")) {
+									Standards.general.storage.server.recall(oldPlace).then(function (info) {
+										Standards.general.storage.server.store(newPlace + key, info).then(function () {
+											Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+												/// checks whether the information was actually moved
+												/// not essential but prevents premature deletion in strange circumstances
+												if (movedInfo === info) {
+													Standards.general.storage.server.forget(oldPlace).then(function () {
+														remaining.value--;
+													}).catch(function (error) {
+														console.error("There was a problem deleting the moved information.");
+														console.error(error);
+														reject(error);
+													});
+												} else {
+													console.error("The information in the newPlace doesn't match the information that was moved there.");
+													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+												}
+											}).catch(function (error) {
+												console.error("There was a problem checking whether the information was actually moved.");
+												console.error(error);
+												reject(error);
+											});
+										}).catch(function (error) {
+											console.error("There was a problem storing the information to move.");
+											console.error(error);
+											reject(error);
+										});
+									}).catch(function (error) {
+										console.error("There was a problem recalling the information to move.");
+										console.error(error);
+										reject(error);
+									});
+								} else {
+									Standards.general.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
+										Standards.general.storage.server.store(newPlace + key, info).then(function () {
+											Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+												/// checks whether the information was actually moved
+												/// not essential but prevents premature deletion in strange circumstances
+												if (movedInfo === info) {
+													Standards.general.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
+														remaining.value--;
+													}).catch(function (error) {
+														console.error("There was a problem deleting the moved information.");
+														console.error(error);
+														reject(error);
+													});
+												} else {
+													console.error("The information in the newPlace doesn't match the information that was moved there.");
+													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+												}
+											}).catch(function (error) {
+												console.error("There was a problem checking whether the information was actually moved.");
+												console.error(error);
+												reject(error);
+											});
+										}).catch(function (error) {
+											console.error("There was a problem storing the information to move.");
+											console.error(error);
+											reject(error);
+										});
+									}).catch(function (error) {
+										console.error("There was a problem recalling the information to move.");
+										console.error(error);
+										reject(error);
+									});
+								}
+							});
+						}
+						remaining.value = remaining.value;  // runs the listener if there aren't any items
+					}).catch(function (error) {
+						console.error("There was a problem listing the information to move.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if neither place is a folder
+					Standards.general.storage.server.recall(oldPlace).then(function (info) {
+						if (info instanceof Error) {
+							console.error("No information was found to move.");
+							reject();
+						} else {
+							Standards.general.storage.server.store(newPlace, info).then(function () {
+								Standards.general.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
+									/// checks whether the information was actually moved
+									/// not essential but prevents premature deletion in strange circumstances
+									if (movedInfo === info) {
+										Standards.general.storage.server.forget(oldPlace).then(function () {
+											if (callback) {
+												new Promise(function () {
+													callback();
+													resolve();
+												}).catch(function (error) {
+													console.error("There was a problem running the callback.");
+													console.error(error);
+													reject(error);
+												});
+											} else {
+												resolve();
+											}
+										}).catch(function (error) {
+											console.error("There was a problem deleting the moved information.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										console.error("The information in the newPlace doesn't match the information that was moved there.");
+										reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+									}
+								}).catch(function (error) {
+									console.error("There was a problem checking whether the information was actually moved.");
+									console.error(error);
+									reject(error);
+								});
+							}).catch(function (error) {
+								console.error("There was a problem storing the information to move.");
+								console.error(error);
+								reject(error);
+							});
+						}
+					}).catch(function (error) {
+						console.error("There was a problem recalling the information to move.");
+						console.error(error);
+						reject(error);
+					});
+				}
+			} else {
+				if (Standards.general.getType(oldPlace) == "String") {
+					console.error("The newPlace to move to is not a string.");
+					reject(new TypeError("The newPlace to move to is not a string."));
+				} else {
+					console.error("The oldPlace to move is not a string.");
+					reject(new TypeError("The oldPlace to move is not a string."));
 				}
 			}
-		}
-		// file.onload might also be able to be used without the states and statuses
-		file.send(Standards.general.http_build_query(message));
-	},
-	"list": function (location) {
-		// /**
-		lists a user's information
-		non-native functions = http_build_query() and parse_str()
-		// *
-	},
-	"permissions": function (user, level, key, location) {
-		// /**
-		changes the permissions of other users to the information owned by you
-		non-native functions = http_build_query() and parse_str()
-		// *
+		});
 	}
 };
-*/
 
 Standards.general.colorCode = function (element, conversion) {
 	/**
@@ -5423,12 +6403,12 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
 			document.getElementById("signIn").addEventListener("click", function () {
-				Standards.general.storage.server.signIn(["Google"]);
+				Standards.general.storage.server.signIn(["google", "password"]);
 			});
 		}
 		if (document.getElementById("signUp")) {  // if there's a signUp button
 			document.getElementById("signUp").addEventListener("click", function () {
-				Standards.general.storage.server.signUp(["Google"]);
+				Standards.general.storage.server.signUp(["google", "password"]);
 			});
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
