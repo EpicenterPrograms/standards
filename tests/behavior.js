@@ -4355,15 +4355,15 @@ Standards.general.storage.server = {
 	user: undefined,  //// firebase.auth().currentUser
 	checkCompatibility: function (shouldNotCheckUser) {
 		if (Standards.general.storage.server.database === undefined) {
-			alert("There's no server to handle this action.");
-			throw "Firebase or Firestore doesn't exist.";
+			Standards.general.makeDialog("There's no server to handle this action.");
+			console.error("Firebase or Firestore doesn't exist.");
 		}
 		if (window.location.protocol != "http:" && window.location.protocol != "https:") {
-			alert("Access to the server isn't allowed from this URL.");
-			throw 'The URL doesn\'t use the protocol "http" or "https".';
+			Standards.general.makeDialog("Access to the server isn't allowed from this URL.");
+			console.error('The URL doesn\'t use the protocol "http" or "https".');
 		}
 		if (!shouldNotCheckUser && !Standards.general.storage.server.user) {
-			alert("That action isn't allowed without logging in.");
+			Standards.general.makeDialog("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 			return false;
 		}
@@ -4384,7 +4384,7 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 45");
+		console.log("Test number 46");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4774,38 +4774,15 @@ Standards.general.storage.server = {
 		}
 	},
 	store: function (location, item, callback) {
-		if (Standards.general.storage.server.checkCompatibility()) {
-			return new Promise(function (resolve, reject) {
-				location = Standards.general.storage.server.formatLocation(location);
-				let reference = Standards.general.storage.server.getReference(location, true);
-				if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
-					if (Standards.general.getType(item) == "Object") {
-						reference.set(item, { merge: true }).then(function () {
-							if (callback) {
-								new Promise(function () {
-									callback();
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
-								});
-							} else {
-								resolve();
-							}
-						}).catch(function (error) {
-							console.error("There was an error storing the information.");
-							console.error(error);
-							reject(error);
-						});
-					} else {
-						console.error("Storing a folder requires an Object as the item to store.");
-						reject(new TypeError("Storing a folder requires an Object as the item to store."));
-					}
-				} else {  // if storing a single key-value pair
-					reference.set({
-						[location.slice(location.lastIndexOf("<slash>") + 7)]: item
-					}, { merge: true }).then(function () {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			location = Standards.general.storage.server.formatLocation(location);
+			let reference = Standards.general.storage.server.getReference(location, true);
+			if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
+				if (Standards.general.getType(item) == "Object") {
+					reference.set(item, { merge: true }).then(function () {
 						if (callback) {
 							new Promise(function () {
 								callback();
@@ -4819,19 +4796,43 @@ Standards.general.storage.server = {
 							resolve();
 						}
 					}).catch(function (error) {
-						console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+						console.error("There was an error storing the information.");
 						console.error(error);
 						reject(error);
 					});
+				} else {
+					console.error("Storing a folder requires an Object as the item to store.");
+					reject(new TypeError("Storing a folder requires an Object as the item to store."));
 				}
-			});
-		}
+			} else {  // if storing a single key-value pair
+				reference.set({
+					[location.slice(location.lastIndexOf("<slash>") + 7)]: item
+				}, { merge: true }).then(function () {
+					if (callback) {
+						new Promise(function () {
+							callback();
+							resolve();
+						}).catch(function (error) {
+							console.error("There was a problem running the callback.");
+							console.error(error);
+							reject(error);
+						});
+					} else {
+						resolve();
+					}
+				}).catch(function (error) {
+					console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
+					console.error(error);
+					reject(error);
+				});
+			}
+		});
 	},
 	recall: function (location, callback) {
-		if (!Standards.general.storage.server.checkCompatibility()) {
-			return;
-		}
 		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
 			location = Standards.general.storage.server.formatLocation(location);
 			if (location.slice(-7) == "<slash>") {  // if retrieving a folder
 				Standards.general.storage.server.getReference(location).get().then(function (doc) {
@@ -4910,18 +4911,18 @@ Standards.general.storage.server = {
 		});
 	},
 	forget: function (location, callback) {
-		if (!Standards.general.storage.server.checkCompatibility()) {
-			return;
-		}
-		location = Standards.general.storage.server.formatLocation(location);
-		if (location == "~") {
-			console.error("Deleting all server information is forbidden.");
-			return;
-		} else if (location == "users<slash>") {
-			console.error("Deleting every user's information is forbidden.");
-			return;
-		}
 		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			location = Standards.general.storage.server.formatLocation(location);
+			if (location == "~") {
+				console.error("Deleting all server information is forbidden.");
+				reject(new Error("Deleting all server information is forbidden."));
+			} else if (location == "users<slash>") {
+				console.error("Deleting every user's information is forbidden.");
+				reject(new Error("Deleting every user's information is forbidden."));
+			}
 			let reference = Standards.general.storage.server.getReference(location);
 			if (Standards.general.storage.server.locationType == "shallow") {
 				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
@@ -5301,10 +5302,10 @@ Standards.general.storage.server = {
 		});
 	},
 	list: function (location, callback) {
-		if (!Standards.general.storage.server.checkCompatibility()) {
-			return;
-		}
 		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
 			if (location === undefined) {
 				location = "./";
 				/// makes sure the list doesn't include the parent folder
@@ -5803,57 +5804,98 @@ Standards.general.storage.server = {
 		});
 	},
 	move: function (oldPlace, newPlace, callback) {
-		if (Standards.general.storage.server.checkCompatibility()) {
-			return new Promise(function (resolve, reject) {
-				if (oldPlace == newPlace) {
-					console.warn("The items are already in the desired location.");
-					if (callback) {
-						new Promise(function () {
-							callback();
-							resolve();
-						}).catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-							reject(error);
-						});
-					} else {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			if (oldPlace == newPlace) {
+				console.warn("The items are already in the desired location.");
+				if (callback) {
+					new Promise(function () {
+						callback();
 						resolve();
+					}).catch(function (error) {
+						console.error("There was a problem running the callback.");
+						console.error(error);
+						reject(error);
+					});
+				} else {
+					resolve();
+				}
+			} else if (Standards.general.getType(oldPlace) == "String" && Standards.general.getType(newPlace) == "String") {
+				if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
+					if (newPlace.slice(-1) != "/") {
+						newPlace += "/";
 					}
-				} else if (Standards.general.getType(oldPlace) == "String" && Standards.general.getType(newPlace) == "String") {
-					if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
-						if (newPlace.slice(-1) != "/") {
-							newPlace += "/";
+					let remaining = new Standards.general.Listenable();
+					remaining.value = 0;
+					remaining.addEventListener("set", function (value) {
+						if (value == 0) {  // if there are no more items waiting to be moved
+							remaining.removeEventListener("set", arguments.callee);
+							if (callback) {
+								new Promise(function () {
+									callback();
+									resolve();
+								}).catch(function (error) {
+									console.error("There was a problem running the callback.");
+									console.error(error);
+									reject(error);
+								});
+							} else {
+								resolve();
+							}
 						}
-						let remaining = new Standards.general.Listenable();
-						remaining.value = 0;
-						remaining.addEventListener("set", function (value) {
-							if (value == 0) {  // if there are no more items waiting to be moved
-								remaining.removeEventListener("set", arguments.callee);
-								if (callback) {
-									new Promise(function () {
-										callback();
-										resolve();
+					});
+					Standards.general.storage.server.list(oldPlace).then(function (oldList) {
+						if (oldPlace.slice(-1) == "/") {
+							Standards.general.forEach(oldList, function (key) {
+								remaining.value++;
+								Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
+									Standards.general.storage.server.store(newPlace + key, info).then(function () {
+										Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+											/// checks whether the information was actually moved
+											/// not essential but prevents premature deletion in strange circumstances
+											if (movedInfo === info) {
+												Standards.general.storage.server.forget(oldPlace + key).then(function () {
+													remaining.value--;
+												}).catch(function (error) {
+													console.error("There was a problem deleting the moved information.");
+													console.error(error);
+													reject(error);
+												});
+											} else {
+												/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
+												//// Somehow, the items are deleted anyway.
+												console.error("The information in the newPlace doesn't match the information that was moved there.");
+												reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+											}
+										}).catch(function (error) {
+											console.error("There was a problem checking whether the information was actually moved.");
+											console.error(error);
+											reject(error);
+										});
 									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
+										console.error("There was a problem storing the information to move.");
 										console.error(error);
 										reject(error);
 									});
-								} else {
-									resolve();
-								}
-							}
-						});
-						Standards.general.storage.server.list(oldPlace).then(function (oldList) {
-							if (oldPlace.slice(-1) == "/") {
-								Standards.general.forEach(oldList, function (key) {
-									remaining.value++;
-									Standards.general.storage.server.recall(oldPlace + key).then(function (info) {
+								}).catch(function (error) {
+									console.error("There was a problem recalling the information to move.");
+									console.error(error);
+									reject(error);
+								});
+							});
+						} else {
+							Standards.general.forEach(oldList, function (key) {
+								remaining.value++;
+								if (!key.includes("/")) {
+									Standards.general.storage.server.recall(oldPlace).then(function (info) {
 										Standards.general.storage.server.store(newPlace + key, info).then(function () {
 											Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
 												/// checks whether the information was actually moved
 												/// not essential but prevents premature deletion in strange circumstances
 												if (movedInfo === info) {
-													Standards.general.storage.server.forget(oldPlace + key).then(function () {
+													Standards.general.storage.server.forget(oldPlace).then(function () {
 														remaining.value--;
 													}).catch(function (error) {
 														console.error("There was a problem deleting the moved information.");
@@ -5881,150 +5923,110 @@ Standards.general.storage.server = {
 										console.error(error);
 										reject(error);
 									});
-								});
-							} else {
-								Standards.general.forEach(oldList, function (key) {
-									remaining.value++;
-									if (!key.includes("/")) {
-										Standards.general.storage.server.recall(oldPlace).then(function (info) {
-											Standards.general.storage.server.store(newPlace + key, info).then(function () {
-												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
-													/// checks whether the information was actually moved
-													/// not essential but prevents premature deletion in strange circumstances
-													if (movedInfo === info) {
-														Standards.general.storage.server.forget(oldPlace).then(function () {
-															remaining.value--;
-														}).catch(function (error) {
-															console.error("There was a problem deleting the moved information.");
-															console.error(error);
-															reject(error);
-														});
-													} else {
-														/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
-														//// Somehow, the items are deleted anyway.
-														console.error("The information in the newPlace doesn't match the information that was moved there.");
-														reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
-													}
-												}).catch(function (error) {
-													console.error("There was a problem checking whether the information was actually moved.");
-													console.error(error);
-													reject(error);
-												});
-											}).catch(function (error) {
-												console.error("There was a problem storing the information to move.");
-												console.error(error);
-												reject(error);
-											});
-										}).catch(function (error) {
-											console.error("There was a problem recalling the information to move.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
-										Standards.general.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
-											Standards.general.storage.server.store(newPlace + key, info).then(function () {
-												Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
-													/// checks whether the information was actually moved
-													/// not essential but prevents premature deletion in strange circumstances
-													if (movedInfo === info) {
-														Standards.general.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
-															remaining.value--;
-														}).catch(function (error) {
-															console.error("There was a problem deleting the moved information.");
-															console.error(error);
-															reject(error);
-														});
-													} else {
-														/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
-														//// Somehow, the items are deleted anyway.
-														console.error("The information in the newPlace doesn't match the information that was moved there.");
-														reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
-													}
-												}).catch(function (error) {
-													console.error("There was a problem checking whether the information was actually moved.");
-													console.error(error);
-													reject(error);
-												});
-											}).catch(function (error) {
-												console.error("There was a problem storing the information to move.");
-												console.error(error);
-												reject(error);
-											});
-										}).catch(function (error) {
-											console.error("There was a problem recalling the information to move.");
-											console.error(error);
-											reject(error);
-										});
-									}
-								});
-							}
-							remaining.value = remaining.value;  // runs the listener if there aren't any items
-						}).catch(function (error) {
-							console.error("There was a problem listing the information to move.");
-							console.error(error);
-							reject(error);
-						});
-					} else {  // if neither place is a folder
-						Standards.general.storage.server.recall(oldPlace).then(function (info) {
-							if (info instanceof Error) {
-								console.error("No information was found to move.");
-								reject();
-							} else {
-								Standards.general.storage.server.store(newPlace, info).then(function () {
-									Standards.general.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
-										/// checks whether the information was actually moved
-										/// not essential but prevents premature deletion in strange circumstances
-										if (movedInfo === info) {
-											Standards.general.storage.server.forget(oldPlace).then(function () {
-												if (callback) {
-													new Promise(function () {
-														callback();
-														resolve();
+								} else {
+									Standards.general.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
+										Standards.general.storage.server.store(newPlace + key, info).then(function () {
+											Standards.general.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+												/// checks whether the information was actually moved
+												/// not essential but prevents premature deletion in strange circumstances
+												if (movedInfo === info) {
+													Standards.general.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
+														remaining.value--;
 													}).catch(function (error) {
-														console.error("There was a problem running the callback.");
+														console.error("There was a problem deleting the moved information.");
 														console.error(error);
 														reject(error);
 													});
 												} else {
-													resolve();
+													/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
+													//// Somehow, the items are deleted anyway.
+													console.error("The information in the newPlace doesn't match the information that was moved there.");
+													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 												}
 											}).catch(function (error) {
-												console.error("There was a problem deleting the moved information.");
+												console.error("There was a problem checking whether the information was actually moved.");
 												console.error(error);
 												reject(error);
 											});
-										} else {
-											console.error("The information in the newPlace doesn't match the information that was moved there.");
-											reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
-										}
+										}).catch(function (error) {
+											console.error("There was a problem storing the information to move.");
+											console.error(error);
+											reject(error);
+										});
 									}).catch(function (error) {
-										console.error("There was a problem checking whether the information was actually moved.");
+										console.error("There was a problem recalling the information to move.");
 										console.error(error);
 										reject(error);
 									});
+								}
+							});
+						}
+						remaining.value = remaining.value;  // runs the listener if there aren't any items
+					}).catch(function (error) {
+						console.error("There was a problem listing the information to move.");
+						console.error(error);
+						reject(error);
+					});
+				} else {  // if neither place is a folder
+					Standards.general.storage.server.recall(oldPlace).then(function (info) {
+						if (info instanceof Error) {
+							console.error("No information was found to move.");
+							reject();
+						} else {
+							Standards.general.storage.server.store(newPlace, info).then(function () {
+								Standards.general.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
+									/// checks whether the information was actually moved
+									/// not essential but prevents premature deletion in strange circumstances
+									if (movedInfo === info) {
+										Standards.general.storage.server.forget(oldPlace).then(function () {
+											if (callback) {
+												new Promise(function () {
+													callback();
+													resolve();
+												}).catch(function (error) {
+													console.error("There was a problem running the callback.");
+													console.error(error);
+													reject(error);
+												});
+											} else {
+												resolve();
+											}
+										}).catch(function (error) {
+											console.error("There was a problem deleting the moved information.");
+											console.error(error);
+											reject(error);
+										});
+									} else {
+										console.error("The information in the newPlace doesn't match the information that was moved there.");
+										reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
+									}
 								}).catch(function (error) {
-									console.error("There was a problem storing the information to move.");
+									console.error("There was a problem checking whether the information was actually moved.");
 									console.error(error);
 									reject(error);
 								});
-							}
-						}).catch(function (error) {
-							console.error("There was a problem recalling the information to move.");
-							console.error(error);
-							reject(error);
-						});
-					}
-				} else {
-					if (Standards.general.getType(oldPlace) == "String") {
-						console.error("The newPlace to move to is not a string.");
-						reject(new TypeError("The newPlace to move to is not a string."));
-					} else {
-						console.error("The oldPlace to move is not a string.");
-						reject(new TypeError("The oldPlace to move is not a string."));
-					}
+							}).catch(function (error) {
+								console.error("There was a problem storing the information to move.");
+								console.error(error);
+								reject(error);
+							});
+						}
+					}).catch(function (error) {
+						console.error("There was a problem recalling the information to move.");
+						console.error(error);
+						reject(error);
+					});
 				}
-			});
-		}
+			} else {
+				if (Standards.general.getType(oldPlace) == "String") {
+					console.error("The newPlace to move to is not a string.");
+					reject(new TypeError("The newPlace to move to is not a string."));
+				} else {
+					console.error("The oldPlace to move is not a string.");
+					reject(new TypeError("The oldPlace to move is not a string."));
+				}
+			}
+		});
 	}
 };
 
