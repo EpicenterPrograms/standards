@@ -1484,8 +1484,14 @@ Standards.general.getType = function (item) {
 	if (reverseIndex > 0) {
 		while (reverseIndex--) {
 			let type = extraTypes[reverseIndex];
-			if (type && type.constructor === String && type.search(/[^\w.()]/) === -1 && item instanceof eval(type)) {  //// expand this for errors
-				return type;
+			if (type && type.constructor === String && type.search(/[^\w.()]/) === -1) {
+				try {
+					if (item instanceof eval(type)) {
+						return type;
+					}
+				} catch {
+					console.warn('There was a problem evaluating the type of "' + type + '".');
+				}
 			}
 		}
 	}
@@ -1614,11 +1620,13 @@ Standards.general.toArray = function () {
 		index2,
 		returnList = [];
 	for (index1; index1 < arguments.length; index1++) {
-		if (arguments[index1][0] && arguments[index1].length) {  //// Standards.general.getType(list[Symbol.iterator]) == "Function"
+		if (arguments[index1] === undefined || arguments[index1] === null || arguments[index1] === []) {
+			// skip the item
+		} else if (typeof arguments[index1][Symbol.iterator] == "function") {
 			for (index2 = 0; index2 < arguments[index1].length; index2++) {
 				returnList.push(arguments[index1][index2]);
 			}
-		} else if (arguments[index1].length == undefined || arguments[index1].length > 0) {  // filters out empty lists
+		} else {
 			returnList.push(arguments[index1]);
 		}
 	}
@@ -3390,7 +3398,7 @@ Standards.general.makeDialog = function (message) {
 	});
 };
 
-Standards.general.getFile = function (url, callback, convert) {  ////
+Standards.general.getFile = function (url, callback, convert) {
 	/**
 	asynchronously retieves a file as a string using an XMLHttpRequest
 	only files from the same domain can be retrieved without CORS
@@ -4352,7 +4360,7 @@ Standards.general.storage.location = Standards.general.storage.local;
 Standards.general.storage.server = {
 	database: typeof firebase!="undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "/",
-	user: undefined,  //// firebase.auth().currentUser
+	user: undefined,  // gets set to firebase.auth().currentUser
 	checkCompatibility: function (shouldNotCheckUser) {
 		if (Standards.general.storage.server.database === undefined) {
 			Standards.general.makeDialog("There's no server to handle this action.");
@@ -4384,7 +4392,6 @@ Standards.general.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		console.log("Test number 46");
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
@@ -4769,9 +4776,12 @@ Standards.general.storage.server = {
 		);
 	},
 	mergeAccounts: function () {
-		if (Standards.general.storage.server.checkCompatibility()) {
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility()) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
 			//// do stuff
-		}
+		});
 	},
 	store: function (location, item, callback) {
 		return new Promise(function (resolve, reject) {
@@ -5864,8 +5874,6 @@ Standards.general.storage.server = {
 													reject(error);
 												});
 											} else {
-												/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
-												//// Somehow, the items are deleted anyway.
 												console.error("The information in the newPlace doesn't match the information that was moved there.");
 												reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 											}
@@ -5903,8 +5911,6 @@ Standards.general.storage.server = {
 														reject(error);
 													});
 												} else {
-													/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
-													//// Somehow, the items are deleted anyway.
 													console.error("The information in the newPlace doesn't match the information that was moved there.");
 													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 												}
@@ -5938,8 +5944,6 @@ Standards.general.storage.server = {
 														reject(error);
 													});
 												} else {
-													/// Among other causes, this happens when a folder of items is moved into one of its subfolders.
-													//// Somehow, the items are deleted anyway.
 													console.error("The information in the newPlace doesn't match the information that was moved there.");
 													reject(new Error("The information in the newPlace doesn't match the information that was moved there."));
 												}
