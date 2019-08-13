@@ -4585,15 +4585,6 @@ Standards.general.storage.server = {
 					);
 				};
 			}
-			if (methods.includes("anonymous")) {
-				buttons.Anonymous = function () {
-					firebase.auth().signInAnonymously().catch(function (error) {
-						console.error("A problem occurred during sign-up.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-up.");
-					});
-				};
-			}
 			Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
 		} else if (Standards.general.getType(methods) == "String") {
 			switch (methods.toLowerCase()) {
@@ -4660,13 +4651,6 @@ Standards.general.storage.server = {
 						],
 						"Cancel"
 					);
-					break;
-				case "anonymous":
-					firebase.auth().signInAnonymously().catch(function (error) {
-						console.error("A problem occurred during sign-up.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-up.");
-					});
 					break;
 				default:
 					console.error("The method of sign-up wasn't recognized.");
@@ -4761,6 +4745,27 @@ Standards.general.storage.server = {
 					console.error("The method of sign-in wasn't recognized.");
 					Standards.general.makeDialog("An attempt was made to sign in with an incorrect method.");
 			}
+		} else if (Standards.general.getType(methods) == "Promise") {
+			// allows briefly signing in to perform a function
+			firebase.auth().signInAnonymously().then(function (userCredential) {
+				methods.then(function () {
+					userCredential.user.delete().catch(function (error) {
+						console.error("It wasn't possible to delete the anonymous user's account.");
+						console.error(error);
+					});
+				}).catch(function (error) {
+					console.error("There was a problem completing the promise.");
+					console.error(error);
+					userCredential.user.delete().catch(function (error) {
+						console.error("It wasn't possible to delete the anonymous user's account.");
+						console.error(error);
+					});
+				});
+			}).catch(function (error) {
+				console.error("A problem occurred during sign-in.");
+				console.error(error);
+				Standards.general.makeDialog("A problem occurred during sign-in.");
+			});
 		} else {
 			console.error('The "methods" of sign-in was an incorrect type.');
 			Standards.general.makeDialog("A problem occurred during sign-in.");
@@ -6280,6 +6285,30 @@ if (!(Standards.general.options.runAuthCode == false) && typeof firebase != "und
 			}
 			if (document.getElementById("signOut")) {  // if there's a signOut button
 				document.getElementById("signOut").style.display = "inline-block";
+			}
+			console.log(person.providerData[0].providerId);  ////
+			if (person.providerData.length == 1 && person.providerData[0].providerId == "Anonymous") {  // if a user is logged in anonymously ////
+				window.addEventListener("beforeunload", function (event) {
+					event.preventDefault();  // don't close the webpage yet
+					Standards.general.makeDialog("Exiting...");
+					person.delete().then(function () {
+						window.close();
+					}).catch (function () {
+						firebase.auth().signInAnonymously().then(function () {
+							person.delete().then(function () {
+								window.close();
+							}).catch (function (error) {
+								console.error("It wasn't possible to delete the anonymous user's account.");
+								console.error(error);
+								window.close();
+							});
+						}).catch(function (error) {
+							console.error("There was a problem reauthenticating.");
+							console.error(error);
+							window.close();
+						});
+					});
+				});
 			}
 		} else {
 			if (document.getElementById("signIn")) {  // if there's a signIn button
