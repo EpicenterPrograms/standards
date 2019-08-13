@@ -3313,10 +3313,10 @@ Standards.general.makeDialog = function (message) {
 				pairs.splice(index, 1, [pair, function () { return; }]);
 			} else if (Standards.general.getType(pair) != "Array") {
 				console.error("The item at position " + (index + 1) + " isn't a two-item array.");
-				reject();
+				reject(new TypeError("The item at position " + (index + 1) + " isn't a two-item array."));
 			} else if (pair.length != 2) {
 				console.error("The item at position " + (index + 1) + " needs to have exactly two items.");
-				reject();
+				reject(new Error("The item at position " + (index + 1) + " needs to have exactly two items."));
 			}
 		});
 		let container = document.createElement("div");
@@ -3340,10 +3340,10 @@ Standards.general.makeDialog = function (message) {
 		pairs.forEach(function (pair, index) {
 			if (Standards.general.getType(pair[0]) != "String") {
 				console.error("The pair at position " + (index + 1) + " doesn't have a string as the first value.");
-				reject();
+				reject(new Error("The pair at position " + (index + 1) + " doesn't have a string as the first value."));
 			} else if (Standards.general.getType(pair[1]) != "Function") {
 				console.error("The pair at position " + (index + 1) + " doesn't have a function as the second value.");
-				reject();
+				reject(new Error("The pair at position " + (index + 1) + " doesn't have a function as the second value."));
 			}
 			if (placedButtonsNumber >= index) {
 				let button = contents.getElementsByClassName("replace")[index];
@@ -3374,6 +3374,7 @@ Standards.general.makeDialog = function (message) {
 		x.addEventListener("click", function () {
 			container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
 			this.removeEventListener("click", arguments.callee);
+			reject("X");
 		});
 		container.appendChild(x);
 		container.appendChild(dialog);
@@ -4511,265 +4512,295 @@ Standards.general.storage.server = {
 		return reference;
 	},
 	signUp: function (methods) {
-		Standards.general.storage.server.checkCompatibility(true);
-		if (methods === undefined) {
-			methods = "anonymous";
-		}
-		if (Standards.general.getType(methods) == "Array") {
-			let buttons = {};
-			if (methods.includes("google")) {
-				buttons.Google = function () {
-					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
-						console.error("A problem occurred during sign-up.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-up.");
-					});
-				};
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility(true)) {
+				reject();
 			}
-			if (methods.includes("password")) {
-				buttons["Email &<br>password"] = function () {
-					Standards.general.makeDialog(
-						'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
-						[
-							"Sign up",
-							function () {
-								let email = document.getElementById("signUpEmailInput").value.trim();
-								if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
-									let password = document.getElementById("signUpPasswordInput").value.trim();
-									if (password.length < 8) {  // if the password isn't long enough
+			if (methods === undefined) {
+				methods = "anonymous";
+			}
+			if (Standards.general.getType(methods) == "Array") {
+				let buttons = {};
+				if (methods.includes("google")) {
+					buttons.Google = function () {
+						firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+							console.error("A problem occurred during sign-up.");
+							console.error(error);
+							Standards.general.makeDialog("A problem occurred during sign-up.");
+						});
+					};
+				}
+				if (methods.includes("password")) {
+					buttons["Email &<br>password"] = function () {
+						Standards.general.makeDialog(
+							'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
+							[
+								"Sign up",
+								function () {
+									let email = document.getElementById("signUpEmailInput").value.trim();
+									if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
+										let password = document.getElementById("signUpPasswordInput").value.trim();
+										if (password.length < 8) {  // if the password isn't long enough
+											Standards.general.makeDialog(
+												"The password isn't long enough.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+										} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+											Standards.general.makeDialog(
+												"The password doesn't contain any letters.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+										} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
+											Standards.general.makeDialog(
+												"The password doesn't contain any capital letters.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+										} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
+											Standards.general.makeDialog(
+												"The password doesn't contain any numbers.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+										} else {  // if the password passes
+											firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+												console.error("A problem occurred during sign-up.");
+												console.error(error);
+												Standards.general.makeDialog("A problem occurred during sign-up.");
+											});
+										}
+									} else {
 										Standards.general.makeDialog(
-											"The password isn't long enough.",
+											"A properly formatted email wasn't provided.",
 											["Try again", function () {
 												Standards.general.storage.server.signUp(methods);
 											}]
 										);
-									} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
-										Standards.general.makeDialog(
-											"The password doesn't contain any letters.",
-											["Try again", function () {
-												Standards.general.storage.server.signUp(methods);
-											}]
-										);
-									} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
-										Standards.general.makeDialog(
-											"The password doesn't contain any capital letters.",
-											["Try again", function () {
-												Standards.general.storage.server.signUp(methods);
-											}]
-										);
-									} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
-										Standards.general.makeDialog(
-											"The password doesn't contain any numbers.",
-											["Try again", function () {
-												Standards.general.storage.server.signUp(methods);
-											}]
-										);
-									} else {  // if the password passes
-										firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
-											console.error("A problem occurred during sign-up.");
-											console.error(error);
-											Standards.general.makeDialog("A problem occurred during sign-up.");
-										});
 									}
-								} else {
-									Standards.general.makeDialog(
-										"A properly formatted email wasn't provided.",
-										["Try again", function () {
-											Standards.general.storage.server.signUp(methods);
-										}]
-									);
 								}
-							}
-						],
-						"Cancel"
-					);
-				};
-			}
-			Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons);
-		} else if (Standards.general.getType(methods) == "String") {
-			switch (methods.toLowerCase()) {
-				case "google":
-					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
-						console.error("A problem occurred during sign-up.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-up.");
-					});
-					break;
-				case "password":
-					Standards.general.makeDialog(
-						'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
-						[
-							"Sign up",
-							function () {
-								let email = document.getElementById("signUpEmailInput").value.trim();
-								if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
-									let password = document.getElementById("signUpPasswordInput").value.trim();
-									if (password.length < 8) {  // if the password isn't long enough
+							],
+							["Cancel", reject]
+						);
+					};
+				}
+				Standards.general.makeDialog("Sign up with your prefered sign-in provider.", buttons).then(resolve).catch(reject);
+			} else if (Standards.general.getType(methods) == "String") {
+				switch (methods.toLowerCase()) {
+					case "google":
+						firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+							console.error("A problem occurred during sign-up.");
+							console.error(error);
+							Standards.general.makeDialog("A problem occurred during sign-up.");
+						});
+						break;
+					case "password":
+						Standards.general.makeDialog(
+							'Enter an email and secure password. The password must be at least 8 characters long and contain at least one letter, one capital, and one number.<br><input type="text" id="signUpEmailInput" placeholder="Email"><br><input type="password" id="signUpPasswordInput" placeholder="Password">',
+							[
+								"Sign up",
+								function () {
+									let email = document.getElementById("signUpEmailInput").value.trim();
+									if (email.search(/.+@.+\..+/) > -1) {  // if a proper email is provided
+										let password = document.getElementById("signUpPasswordInput").value.trim();
+										if (password.length < 8) {  // if the password isn't long enough
+											Standards.general.makeDialog(
+												"The password isn't long enough.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+											reject();
+										} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+											Standards.general.makeDialog(
+												"The password doesn't contain any letters.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+											reject();
+										} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
+											Standards.general.makeDialog(
+												"The password doesn't contain any capital letters.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+											reject();
+										} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
+											Standards.general.makeDialog(
+												"The password doesn't contain any numbers.",
+												["Try again", function () {
+													Standards.general.storage.server.signUp(methods);
+												}]
+											);
+											reject();
+										} else {  // if the password passes
+											firebase.auth().createUserWithEmailAndPassword(email, password).then(resolve).catch(function (error) {
+												console.error("A problem occurred during sign-up.");
+												console.error(error);
+												Standards.general.makeDialog("A problem occurred during sign-up.");
+												reject();
+											});
+										}
+									} else {
 										Standards.general.makeDialog(
-											"The password isn't long enough.",
+											"A properly formatted email wasn't provided.",
 											["Try again", function () {
 												Standards.general.storage.server.signUp(methods);
 											}]
 										);
-									} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
-										Standards.general.makeDialog(
-											"The password doesn't contain any letters.",
-											["Try again", function () {
-												Standards.general.storage.server.signUp(methods);
-											}]
-										);
-									} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
-										Standards.general.makeDialog(
-											"The password doesn't contain any capital letters.",
-											["Try again", function () {
-												Standards.general.storage.server.signUp(methods);
-											}]
-										);
-									} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
-										Standards.general.makeDialog(
-											"The password doesn't contain any numbers.",
-											["Try again", function () {
-												Standards.general.storage.server.signUp(methods);
-											}]
-										);
-									} else {  // if the password passes
-										firebase.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
-											console.error("A problem occurred during sign-up.");
-											console.error(error);
-											Standards.general.makeDialog("A problem occurred during sign-up.");
-										});
+										reject();
 									}
-								} else {
-									Standards.general.makeDialog(
-										"A properly formatted email wasn't provided.",
-										["Try again", function () {
-											Standards.general.storage.server.signUp(methods);
-										}]
-									);
 								}
-							}
-						],
-						"Cancel"
-					);
-					break;
-				default:
-					console.error("The method of sign-up wasn't recognized.");
-					Standards.general.makeDialog("An attempt was made to sign up with an incorrect method.");
+							],
+							["Cancel", reject]
+						).catch(reject);
+						break;
+					default:
+						console.error("The method of sign-up wasn't recognized.");
+						Standards.general.makeDialog("An attempt was made to sign up with an incorrect method.");
+						reject();
+				}
+			} else {
+				console.error('The "methods" of sign-up was an incorrect type.');
+				Standards.general.makeDialog("A problem occurred during sign-up.");
+				reject();
 			}
-		} else {
-			console.error('The "methods" of sign-up was an incorrect type.');
-			Standards.general.makeDialog("A problem occurred during sign-up.");
-		}
+		});
 	},
 	signIn: function (methods) {
-		Standards.general.storage.server.checkCompatibility(true);
-		if (methods === undefined) {
-			methods = "anonymous";
-		}
-		if (Standards.general.getType(methods) == "Array") {
-			let buttons = {};
-			if (methods.includes("google")) {
-				buttons.Google = function () {
-					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
-						console.error("A problem occurred during sign-in.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-in.");
-					});
-				};
+		return new Promise(function (resolve, reject) {
+			if (!Standards.general.storage.server.checkCompatibility(true)) {
+				reject();
 			}
-			if (methods.includes("password")) {
-				buttons["Email &<br>password"] = function () {
-					Standards.general.makeDialog(
-						'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
-						[
-							"Sign in",
-							function () {
-								firebase.auth().signInWithEmailAndPassword(
-									document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
-								).catch(function (error) {
-									console.error("A problem occurred during sign-in.");
-									console.error(error);
-									Standards.general.makeDialog("A problem occurred during sign-in.");
-								});
-							}
-						],
-						"Cancel"
-					);
-				};
+			if (methods === undefined) {
+				methods = "anonymous";
 			}
-			if (methods.includes("anonymous")) {
-				buttons.Anonymous = function () {
-					firebase.auth().signInAnonymously().catch(function (error) {
-						console.error("A problem occurred during sign-in.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-in.");
-					});
-				};
-			}
-			Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons);
-		} else if (Standards.general.getType(methods) == "String") {
-			switch (methods.toLowerCase()) {
-				case "google":
-					firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
-						console.error("A problem occurred during sign-in.");
-						console.error(error);
-						Standards.general.makeDialog("A problem occurred during sign-in.");
-					});
+			switch (Standards.general.getType(methods)) {
+				case "Array":
+					let buttons = {};
+					if (methods.includes("google")) {
+						buttons.Google = function () {
+							firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function (error) {
+								console.error("A problem occurred during sign-in.");
+								console.error(error);
+								Standards.general.makeDialog("A problem occurred during sign-in.");
+							});
+						};
+					}
+					if (methods.includes("password")) {
+						buttons["Email &<br>password"] = function () {
+							Standards.general.makeDialog(
+								'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
+								[
+									"Sign in",
+									function () {
+										firebase.auth().signInWithEmailAndPassword(
+											document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
+										).catch(function (error) {
+											console.error("A problem occurred during sign-in.");
+											console.error(error);
+											Standards.general.makeDialog("A problem occurred during sign-in.");
+										});
+									}
+								],
+								"Cancel"
+							);
+						};
+					}
+					if (methods.includes("anonymous")) {
+						buttons.Anonymous = function () {
+							firebase.auth().signInAnonymously().catch(function (error) {
+								console.error("A problem occurred during sign-in.");
+								console.error(error);
+								Standards.general.makeDialog("A problem occurred during sign-in.");
+							});
+						};
+					}
+					Standards.general.makeDialog("Sign in with your prefered sign-in provider.", buttons).then(resolve).catch(reject);
 					break;
-				case "password":
-					Standards.general.makeDialog(
-						'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
-						[
-							"Sign in",
-							function () {
-								firebase.auth().signInWithEmailAndPassword(
-									document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
-								).catch(function (error) {
-									console.error("A problem occurred during sign-in.");
-									console.error(error);
-									Standards.general.makeDialog("A problem occurred during sign-in.");
-								});
-							}
-						],
-						"Cancel"
-					);
+				case "String":
+					switch (methods.toLowerCase()) {
+						case "google":
+							firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()).then(resolve).catch(function (error) {
+								console.error("A problem occurred during sign-in.");
+								console.error(error);
+								Standards.general.makeDialog("A problem occurred during sign-in.");
+								reject();
+							});
+							break;
+						case "password":
+							Standards.general.makeDialog(
+								'Enter your email and password.<br><input type="text" id="signInEmailInput" placeholder="Email"><br><input type="password" id="signInPasswordInput" placeholder="Password">',
+								[
+									"Sign in",
+									function () {
+										firebase.auth().signInWithEmailAndPassword(
+											document.getElementById("signInEmailInput").value.trim(), document.getElementById("signInPasswordInput").value.trim()
+										).then(resolve).catch(function (error) {
+											console.error("A problem occurred during sign-in.");
+											console.error(error);
+											Standards.general.makeDialog("A problem occurred during sign-in.");
+											reject();
+										});
+									}
+								],
+								["Cancel", reject]
+							).catch(reject);
+							break;
+						case "anonymous":
+							firebase.auth().signInAnonymously().then(resolve).catch(function (error) {
+								console.error("A problem occurred during sign-in.");
+								console.error(error);
+								Standards.general.makeDialog("A problem occurred during sign-in.");
+								reject();
+							});
+							break;
+						default:
+							console.error("The method of sign-in wasn't recognized.");
+							Standards.general.makeDialog("An attempt was made to sign in with an incorrect method.");
+							reject();
+					}
 					break;
-				case "anonymous":
-					firebase.auth().signInAnonymously().catch(function (error) {
+				case "Function":
+					methods = new Promise(methods);
+				case "Promise":
+					// allows briefly signing in to perform a function
+					firebase.auth().signInAnonymously().then(function (userCredential) {
+						methods.then(function () {
+							userCredential.user.delete().then(resolve).catch(function (error) {
+								console.error("It wasn't possible to delete the anonymous user's account.");
+								console.error(error);
+								resolve();
+							});
+						}).catch(function (error) {
+							console.error("There was a problem completing the provided promise.");
+							console.error(error);
+							userCredential.user.delete().then(reject).catch(function (error) {
+								console.error("It wasn't possible to delete the anonymous user's account.");
+								console.error(error);
+								reject();
+							});
+						});
+					}).catch(function (error) {
 						console.error("A problem occurred during sign-in.");
 						console.error(error);
 						Standards.general.makeDialog("A problem occurred during sign-in.");
+						reject();
 					});
 					break;
 				default:
-					console.error("The method of sign-in wasn't recognized.");
-					Standards.general.makeDialog("An attempt was made to sign in with an incorrect method.");
+					console.error('The "methods" of sign-in was an incorrect type.');
+					Standards.general.makeDialog("A problem occurred during sign-in.");
+					reject();
 			}
-		} else if (Standards.general.getType(methods) == "Promise") {
-			// allows briefly signing in to perform a function
-			firebase.auth().signInAnonymously().then(function (userCredential) {
-				methods.then(function () {
-					userCredential.user.delete().catch(function (error) {
-						console.error("It wasn't possible to delete the anonymous user's account.");
-						console.error(error);
-					});
-				}).catch(function (error) {
-					console.error("There was a problem completing the promise.");
-					console.error(error);
-					userCredential.user.delete().catch(function (error) {
-						console.error("It wasn't possible to delete the anonymous user's account.");
-						console.error(error);
-					});
-				});
-			}).catch(function (error) {
-				console.error("A problem occurred during sign-in.");
-				console.error(error);
-				Standards.general.makeDialog("A problem occurred during sign-in.");
-			});
-		} else {
-			console.error('The "methods" of sign-in was an incorrect type.');
-			Standards.general.makeDialog("A problem occurred during sign-in.");
-		}
+		});
 	},
 	signOut: function () {
 		Standards.general.storage.server.checkCompatibility();
