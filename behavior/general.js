@@ -6317,6 +6317,8 @@ if (!(Standards.general.options.runAuthCode == false) && typeof firebase != "und
 			if (document.getElementById("signOut")) {  // if there's a signOut button
 				document.getElementById("signOut").style.display = "inline-block";
 			}
+			console.log(person);
+			console.log(person.providerdata);
 			console.log(person.providerData[0].providerId);  ////
 			if (person.providerData.length == 1 && person.providerData[0].providerId == "Anonymous") {  // if a user is logged in anonymously ////
 				window.addEventListener("beforeunload", function (event) {
