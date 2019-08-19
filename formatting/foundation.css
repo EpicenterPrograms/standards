@@ -159,16 +159,15 @@ iframe.left-nav, nav.left-nav {
 	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
 	border-right: .05em solid #aaaaaa;
-	width: 15%;
+	width: 20%;
 	height: 100%;
 }
-
 body.left-nav {
 	/**
 	makes the body move over to make room for the navigation section on the left side of the screen
 	*/
-	margin: 0% 0% 0% 15%;
-	min-width: 85%;
+	margin: 0% 0% 0% 20%;
+	min-width: 80%;
 }
 
 aside {
@@ -196,7 +195,7 @@ aside h2 {
 	right: 0em;
 	top: 0em;
 	border-left: .05em solid #aaaaaa;
-	width: 15%;
+	width: 20%;
 	height: 100%;
 }
 
@@ -205,9 +204,9 @@ body.right-section {
 	makes the body move over to make room for a section on the right side of the screen
 	*/
 	position: static;
-	margin: 0% 15% 0% 0%;
+	margin: 0% 20% 0% 0%;
 	border: none;
-	min-width: 85%;
+	min-width: 80%;
 	height: auto;
 }
 
@@ -215,8 +214,8 @@ body.left-nav.right-section {
 	/**
 	makes the body make room for a section on the left and right side of the screen
 	*/
-	margin: 0% 15% 0% 15%;
-	min-width: 70%;
+	margin: 0% 20% 0% 20%;
+	min-width: 60%;
 }
 
 nav.hidden-left-nav {
