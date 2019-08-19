@@ -835,7 +835,7 @@ over- {
 	font-weight: bold;
 	cursor: default;
 }
-.current-selection a {
+.current-selection a, .current-selection > a {
 	color: darkgray;
 	cursor: default;
 }
