@@ -835,6 +835,10 @@ over- {
 	font-weight: bold;
 	cursor: default;
 }
+.current-selection a {
+	color: darkgray;
+	cursor: default;
+}
 
 .circle {
 	/**
