@@ -6365,7 +6365,7 @@ addEventListener("message", function (information) {
 });
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
-	
+	console.log("loaded");
 	if (!Standards.general.options.hasOwnProperty("automation") || Standards.general.options.automation == "full") {
 		
 		// allows radio buttons to be unchecked
