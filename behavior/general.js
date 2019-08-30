@@ -1648,6 +1648,9 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	if (Standards.general.getType(doStuff) != "Function") {
 		throw "The second arument provided in Standards.general.forEach (" + doStuff + ") isn't a function.";
 	}
+	console.log(list);
+	console.log(list[Symbol.iterator]);
+	console.log(Standards.general.getType(list[Symbol.iterator]));
 	if (Standards.general.getType(list) == "Object") {
 		let associativeList,
 			keys = Object.keys(list),
@@ -6270,8 +6273,6 @@ if (!(Standards.general.options.automation == "none")) {
 	
 	let needsIcon = true;
 	if (document.head.getElementsByTagName("link").length > 0) {
-		console.log(document.head);
-		console.log(document.head.getElementsByTagName("link"));
 		Standards.general.forEach(document.head.getElementsByTagName("link"), function (link) {
 			if (link.rel == "icon") {
 				needsIcon = false;
