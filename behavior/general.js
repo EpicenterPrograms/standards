@@ -1675,7 +1675,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		/// This is still about 10 times slower than looping through things with number indicies, though.
 		/// (These time comparisons are based on usage outside of this function;
 		/// doing things by referencing a function makes things about 10 times longer.)
-	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function") {
+	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function" || list instanceof HTMLCollection) {
 		let index = 0;
 		let returnValue;
 		if (shouldCopy) {
