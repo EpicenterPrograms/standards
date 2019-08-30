@@ -1646,7 +1646,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	non-native functions = getType
 	*/
 	if (Standards.general.getType(doStuff) != "Function") {
-		throw "The second arument provided in Standards.general.forEach isn't a function.";
+		throw "The second arument provided in Standards.general.forEach (" + doStuff + ") isn't a function.";
 	}
 	if (Standards.general.getType(list) == "Object") {
 		let associativeList,
@@ -1712,7 +1712,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 			}
 		}
 	} else {
-		throw "The item provided isn't iterable.";
+		throw "The item provided (" + list + ") isn't iterable.";
 	}
 	//// add a function type option
 };
@@ -6270,6 +6270,8 @@ if (!(Standards.general.options.automation == "none")) {
 	
 	let needsIcon = true;
 	if (document.head.getElementsByTagName("link").length > 0) {
+		console.log(document.head);
+		console.log(document.head.getElementsByTagName("link"));
 		Standards.general.forEach(document.head.getElementsByTagName("link"), function (link) {
 			if (link.rel == "icon") {
 				needsIcon = false;
@@ -6365,7 +6367,7 @@ addEventListener("message", function (information) {
 });
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
-	console.log("loaded");
+	
 	if (!Standards.general.options.hasOwnProperty("automation") || Standards.general.options.automation == "full") {
 		
 		// allows radio buttons to be unchecked
