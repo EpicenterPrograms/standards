@@ -1648,9 +1648,6 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	if (Standards.general.getType(doStuff) != "Function") {
 		throw "The second arument provided in Standards.general.forEach (" + doStuff + ") isn't a function.";
 	}
-	console.log(list);
-	console.log(list[Symbol.iterator]);
-	console.log(Standards.general.getType(list[Symbol.iterator]));
 	if (Standards.general.getType(list) == "Object") {
 		let associativeList,
 			keys = Object.keys(list),
@@ -1676,6 +1673,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		/// (These time comparisons are based on usage outside of this function;
 		/// doing things by referencing a function makes things about 10 times longer.)
 	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function" || list instanceof HTMLCollection) {
+		/// Microsoft Edge doesn't think HTMLCollections have Symbol.iterator
 		let index = 0;
 		let returnValue;
 		if (shouldCopy) {
