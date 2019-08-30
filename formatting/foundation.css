@@ -946,6 +946,7 @@ table.compact {
 		-ms-transform: scale(2);
 		-webkit-transform: scale(2);
 		transform: scale(2);
+		font-size: 1.6rem;
 	}
 	textarea {
 		width: 30rem;
