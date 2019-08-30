@@ -1489,7 +1489,7 @@ Standards.general.getType = function (item) {
 					if (item instanceof eval(type)) {
 						return type;
 					}
-				} catch {
+				} catch (error) {
 					console.warn('There was a problem evaluating the type of "' + type + '".');
 				}
 			}
@@ -3815,7 +3815,7 @@ Standards.general.storage.session = {
 						default:
 							try {
 								return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
-							} catch {
+							} catch (error) {
 								console.error("There was a problem converting the data type.");
 								return info.slice(info.indexOf("~") + 1);
 							}
@@ -4174,7 +4174,7 @@ Standards.general.storage.local = {
 						default:
 							try {
 								return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
-							} catch {
+							} catch (error) {
 								console.error("There was a problem converting the data type.");
 								return info.slice(info.indexOf("~") + 1);
 							}
