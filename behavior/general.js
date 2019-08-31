@@ -6303,7 +6303,7 @@ if (!(Standards.general.options.automation == "none")) {
 	}
 }
 
-if (Standards.general.options.runAuthCode != false && window.location.protocol != "file:" && typeof firebase != "undefined" && firebase.firestore) {
+if (Standards.general.options.runAuthCode != false && typeof firebase != "undefined" && firebase.firestore) {
 	firebase.auth().onAuthStateChanged(function (person) {  // listens for a change in authorization status (future onAuthStateChanged calls don't overwrite this one)
 		if (person) {  // if the user is signed in
 			if (document.getElementById("signIn")) {  // if there's a signIn button
