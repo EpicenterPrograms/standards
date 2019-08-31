@@ -943,9 +943,9 @@ table.compact {
 		font-size: 1.6rem;
 	}
 	input {
-		-ms-transform: scale(2);
-		-webkit-transform: scale(2);
-		transform: scale(2);
+		font-size: 1.6rem;
+	}
+	select {
 		font-size: 1.6rem;
 	}
 	textarea {
