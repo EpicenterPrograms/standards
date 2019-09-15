@@ -1648,11 +1648,11 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	if (Standards.general.getType(doStuff) != "Function") {
 		throw "The second arument provided in Standards.general.forEach (" + doStuff + ") isn't a function.";
 	}
+	let index = 0;
+	let returnValue;
 	if (Standards.general.getType(list) == "Object") {
 		let associativeList,
-			keys = Object.keys(list),
-			index = 0,
-			returnValue;
+			keys = Object.keys(list);
 		shouldCopy = shouldCopy === undefined ? false : shouldCopy;
 		if (shouldCopy) {
 			associativeList = JSON.parse(JSON.stringify(list));
@@ -1674,36 +1674,29 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		/// doing things by referencing a function makes things about 10 times longer.)
 	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function" || list instanceof HTMLCollection) {
 		/// Microsoft Edge doesn't think HTMLCollections have Symbol.iterator
-		let index = 0;
-		let returnValue;
+		let item;
 		if (shouldCopy) {
 			let items = [];
-			while (index < list.length) {
-				items.push(list[index]);
+			for (item of list) {
+				items.push(item);
+			}
+			for (item of items) {
+				returnValue = doStuff(item, index, items);
+				if (returnValue == "break") {
+					break;
+				}
 				index++;
 			}
-			index = 0;
-			while (index < items.length) {
-				returnValue = doStuff(items[index], index, items);
-				if (returnValue == "break") {
-					break;
-				} else {
-					index++;
-				}
-			}
 		} else {
-			while (index < list.length) {
-				returnValue = doStuff(list[index], index, list);
+			for (item of list) {
+				returnValue = doStuff(item, index, list);
 				if (returnValue == "break") {
 					break;
-				} else {
-					index++;
 				}
+				index++;
 			}
 		}
 	} else if (Standards.general.getType(list) == "Number") {
-		let index = 0,
-			returnValue;
 		while (index < list) {
 			returnValue = doStuff(list - index, index, list);
 			if (returnValue == "break") {
