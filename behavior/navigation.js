@@ -42,7 +42,7 @@ window.addEventListener("load", function () {
 						if (subpair[1] === window.parent.document.getElementsByClassName("main-title")[0].textContent.trim()) {
 							itemHTML += "' class='current-selction";
 						}
-					} catch { }
+					} finally { }
 					itemHTML += "'>" + subpair[1] + "</a><ul>";
 				} else {
 					itemHTML += "<li";
@@ -50,7 +50,7 @@ window.addEventListener("load", function () {
 						if (subpair[1] === window.parent.document.getElementsByClassName("main-title")[0].textContent.trim()) {
 							itemHTML += " class='current-selection'"
 						}
-					} catch { }
+					} finally { }
 					itemHTML += "><a href='" + subpair[0] + "'>" + subpair[1] + "</a></li>";
 				}
 			});
@@ -65,7 +65,7 @@ window.addEventListener("load", function () {
 				if (pair[1] === window.parent.document.getElementsByClassName("main-title")[0].textContent.trim()) {
 					listItem.className = "current-selection";
 				}
-			} catch { }
+			} finally { }
 			document.getElementById("contentsList").appendChild(listItem);
 			hiddenListItem.innerHTML = pair[1];
 			temporaryContainer.push(hiddenListItem);

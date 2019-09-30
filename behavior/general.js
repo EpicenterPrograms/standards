@@ -1674,6 +1674,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		/// doing things by referencing a function makes things about 10 times longer.)
 	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function" || list instanceof HTMLCollection) {
 		/// Microsoft Edge doesn't think HTMLCollections have Symbol.iterator
+		//// check this in Microsoft Edge again
 		let item;
 		if (shouldCopy) {
 			let items = [];
