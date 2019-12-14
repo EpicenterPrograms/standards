@@ -14,6 +14,22 @@ if (Standards.storage) {
 } else {
 	Standards.storage = {};
 }
+if (typeof Standards.storage.options !== "undefined") {
+	if (Standards.storage.options.constructor !== Object) {
+		Standards.storage.options = {};
+		console.warn("Standards.general.options is not an Object");
+	}
+} else {
+	Standards.storage.options = {};
+}
+/**
+allows specifications to be added if the variable is already present
+(otherwise uses default values and settings)
+valid options =
+	"automation": "none", "basic", "full"
+		runs a corresponding amount of code after defining everything
+		default = "full"
+*/
 
 
 Standards.storage.session = {
@@ -2449,3 +2465,85 @@ Standards.storage.server = {
 		});
 	}
 };
+
+
+if (Standards.general.options.runAuthCode != false && typeof firebase != "undefined" && firebase.firestore) {
+	firebase.auth().onAuthStateChanged(function (person) {  // listens for a change in authorization status (future onAuthStateChanged calls don't overwrite this one)
+		if (person) {  // if the user is signed in
+			if (document.getElementById("signIn")) {  // if there's a signIn button
+				document.getElementById("signIn").style.display = "none";
+			}
+			if (document.getElementById("signUp")) {  // if there's a signUp button
+				document.getElementById("signUp").style.display = "none";
+			}
+			if (document.getElementById("userSettings")) {  // if there's a userSettings button
+				document.getElementById("userSettings").style.display = "inline-block";
+			}
+			if (document.getElementById("signOut")) {  // if there's a signOut button
+				document.getElementById("signOut").style.display = "inline-block";
+			}
+			if (person.isAnonymous) {  // if a user is logged in anonymously
+				window.addEventListener("beforeunload", function (event) {
+					event.preventDefault();  // don't close the webpage yet
+					Standards.general.makeDialog("Exiting...");
+					person.delete().then(function () {
+						window.close();
+					}).catch(function () {
+						firebase.auth().signInAnonymously().then(function () {
+							person.delete().then(function () {
+								window.close();
+							}).catch(function (error) {
+								console.error("It wasn't possible to delete the anonymous user's account.");
+								console.error(error);
+								window.close();
+							});
+						}).catch(function (error) {
+							console.error("There was a problem reauthenticating.");
+							console.error(error);
+							window.close();
+						});
+					});
+				});
+			}
+		} else {
+			if (document.getElementById("signIn")) {  // if there's a signIn button
+				document.getElementById("signIn").style.display = "inline-block";
+			}
+			if (document.getElementById("signUp")) {  // if there's a signUp button
+				document.getElementById("signUp").style.display = "inline-block";
+			}
+			if (document.getElementById("userSettings")) {  // if there's a userSettings button
+				document.getElementById("userSettings").style.display = "none";
+			}
+			if (document.getElementById("signOut")) {  // if there's a signOut button
+				document.getElementById("signOut").style.display = "none";
+			}
+		}
+		Standards.general.storage.server.user = person;
+	});
+}
+
+if (!Standards.general.options.hasOwnProperty("automation") || Standards.general.options.automation == "full") {
+	addEventListener("load", function () {
+		// gives the login/user buttons functionality
+		if (document.getElementById("signIn")) {  // if there's a signIn button
+			document.getElementById("signIn").addEventListener("click", function () {
+				Standards.general.storage.server.signIn(["google", "password"]);
+			});
+		}
+		if (document.getElementById("signUp")) {  // if there's a signUp button
+			document.getElementById("signUp").addEventListener("click", function () {
+				Standards.general.storage.server.signUp(["google", "password"]);
+			});
+		}
+		if (document.getElementById("userSettings")) {  // if there's a userSettings button
+			document.getElementById("userSettings").addEventListener("click", function () {
+				Standards.general.makeDialog("You're currently signed in as " + Standards.general.storage.server.user.displayName +
+					"<br>with the email " + Standards.general.storage.server.user.email + ".");
+			});
+		}
+		if (document.getElementById("signOut")) {  // if there's a signOut button
+			document.getElementById("signOut").addEventListener("click", Standards.general.storage.server.signOut);
+		}
+	});
+}

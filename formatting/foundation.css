@@ -417,6 +417,8 @@ ol, ul {
 	margin: .5em auto;
 	padding-right: 1em;
 	text-align: justify;
+	-moz-text-align-last: left;
+	text-align-last: left;
 }
 ul {
 	padding-left: 2em;

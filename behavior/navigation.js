@@ -90,3 +90,13 @@ window.addEventListener("load", function () {
 		}
 	}
 });
+
+addEventListener("message", function (information) {
+	if (information instanceof Object) {
+		let base = window.location.href;
+		base = base.slice(0, base.lastIndexOf("/") + 1);
+		let path = information.url;
+		path = path.slice(base.length, path.lastIndexOf("."));
+		// base + path = URL of page
+	}
+});

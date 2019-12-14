@@ -6353,11 +6353,6 @@ if (Standards.general.options.runAuthCode != false && typeof firebase != "undefi
 	});
 }
 
-addEventListener("message", function (information) {
-	if (Standards.general.getType(information) == "Object") {
-
-	}
-});
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
 	
