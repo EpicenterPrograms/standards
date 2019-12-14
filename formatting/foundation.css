@@ -846,10 +846,12 @@ over- {
 .current-selection {
 	color: darkgray;
 	font-weight: bold;
+	animation: none;
 	cursor: default;
 }
 .current-selection a, .current-selection > a, li.current-selection a {
 	color: darkgray;
+	animation: none;
 	cursor: default;
 }
 
