@@ -1864,6 +1864,32 @@ Standards.general.listen = function (item, event, behavior, options) {
 				case "keydown":
 				case "keyhold":
 				case "keyup":
+					if (Standards.general.getType(item) == "HTMLElement") {
+						if (options.listenOnce) {
+							if (options.allowDefault) {
+								item.addEventListener(event, function (action) {
+									behavior.call(this, action);
+									item.removeEventListener(event, arguments.callee);
+								});
+							} else {
+								item.addEventListener(event, function (action) {
+									action.preventDefault();
+									behavior.call(this, action);
+									item.removeEventListener(event, arguments.callee);
+								});
+							}
+						} else {
+							if (options.allowDefault) {
+								item.addEventListener(event, behavior);
+							} else {
+								item.addEventListener(event, function (action) {
+									action.preventDefault();
+									behavior.call(this, action);
+								});
+							}
+						}
+						break;
+					}
 					if (item == "letter") {
 						item = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
 					} else if (item == "number") {
