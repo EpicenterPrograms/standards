@@ -1759,14 +1759,21 @@ Standards.general.listen = function (item, event, behavior, options) {
 	arguments:
 		item = required*; what will be listening
 			* not required if listening to a key press
-		    when a key:
+		    when an element or an ID which can be converted into an element:
+				the element to put the listener onto
+				the triggering event is passed to the function
+				when listening for keypresses, keys pressed can be accessed with event.keys
+			when an array or special string value:
 				the key or array of keys of interest
 				keys are designated by the "key" property of a KeyboardEvent object
+				puts the event listener on the document object
+					elements in use can be found with document.activeElement
 				special values:
 					"letter" = all capital and lowercase letters
 					"number" = a key that produces a number
 					"character" = any key that produces a character (includes whitespace characters)
 					"any" = when any key is pressed
+				**IMPORTANT**: IDs corresponding to any of the special values will be processed this way instead of the HTMLElement way
 		event = required; the event being listened for
 		behavior = required; what to do when the event is triggered
 			if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
@@ -1777,6 +1784,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 					default: "later"
 				listenOnce = whether the listener should be removed after being called
 					default: false
+					the events "keyhold", "mousehold", and "touchhold" can't be listened for once or have the listeners removed  ////////////////////
 				allowDefault = whether the default action of the key press should be allowed
 					default: true
 				recheckTime = the number of milliseconds before status is checked again
@@ -1864,32 +1872,6 @@ Standards.general.listen = function (item, event, behavior, options) {
 				case "keydown":
 				case "keyhold":
 				case "keyup":
-					if (Standards.general.getType(item) == "HTMLElement") {
-						if (options.listenOnce) {
-							if (options.allowDefault) {
-								item.addEventListener(event, function (action) {
-									behavior.call(this, action);
-									item.removeEventListener(event, arguments.callee);
-								});
-							} else {
-								item.addEventListener(event, function (action) {
-									action.preventDefault();
-									behavior.call(this, action);
-									item.removeEventListener(event, arguments.callee);
-								});
-							}
-						} else {
-							if (options.allowDefault) {
-								item.addEventListener(event, behavior);
-							} else {
-								item.addEventListener(event, function (action) {
-									action.preventDefault();
-									behavior.call(this, action);
-								});
-							}
-						}
-						break;
-					}
 					if (item == "letter") {
 						item = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
 					} else if (item == "number") {
@@ -1898,8 +1880,94 @@ Standards.general.listen = function (item, event, behavior, options) {
 						item = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
 						item.push("Enter");
 						item.push("Tab");
+					} else if (Standards.general.getType(item) == "String") {
+						if (document.getElementById(item)) {
+							item = document.getElementById(item);
+						} else {
+							console.error('There\'s no element with the ID "' + item + '"');
+							break;
+						}
 					}
-					if (event == "keydown") {
+					if (Standards.general.getType(item) == "HTMLElement") {
+						if (event == "keyhold") {
+							let activeKeys = [];
+							if (options.allowDefault) {
+								if (options.recheckTime == options.triggerTime) {
+									item.addEventListener("keydown", function (action) {
+										if (item.includes(action.key) && !activeKeys.includes(action.key)) {
+											activeKeys.push(action.key);
+											if (activeKeys.length == 1) {
+												recurrenceLoop = setInterval(function () {
+													behavior(activeKeys);
+												}, options.recheckTime);
+											}
+										}
+									});
+									item.addEventListener("keyup", function (action) {
+										if (item.includes(action.key)) {
+											activeKeys.splice(activeKeys.indexOf(action.key), 1);
+											if (activeKeys.length == 0) {
+												clearInterval(recurrenceLoop);
+											}
+										}
+									});
+								} else {
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
+								}
+							} else {
+								if (options.recheckTime == options.triggerTime) {
+									item.addEventListener("keydown", function (action) {
+										if (item.includes(action.key)) {
+											action.preventDefault();
+											if (!activeKeys.includes(action.key)) {
+												activeKeys.push(action.key);
+												if (activeKeys.length == 1) {
+													recurrenceLoop = setInterval(function () {
+														behavior(activeKeys);
+													}, options.recheckTime);
+												}
+											}
+										}
+									});
+									item.addEventListener("keyup", function (action) {
+										if (item.includes(action.key)) {
+											action.preventDefault();
+											activeKeys.splice(activeKeys.indexOf(action.key), 1);
+											if (activeKeys.length == 0) {
+												clearInterval(recurrenceLoop);
+											}
+										}
+									});
+								} else {
+									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
+								}
+							}
+						} else {
+							if (options.listenOnce) {
+								if (options.allowDefault) {
+									item.addEventListener(event, function (action) {
+										behavior.call(this, action);
+										item.removeEventListener(event, arguments.callee);
+									});
+								} else {
+									item.addEventListener(event, function (action) {
+										action.preventDefault();
+										behavior.call(this, action);
+										item.removeEventListener(event, arguments.callee);
+									});
+								}
+							} else {
+								if (options.allowDefault) {
+									item.addEventListener(event, behavior);
+								} else {
+									item.addEventListener(event, function (action) {
+										action.preventDefault();
+										behavior.call(this, action);
+									});
+								}
+							}
+						}
+					} else if (event == "keydown") {
 						if (Standards.general.getType(item) == "Array") {
 							if (options.allowDefault) {
 								document.addEventListener("keydown", function (event) {
@@ -1948,7 +2016,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 						let recurrenceLoop;
 						if (item == "any") {
 							let activeKeys = [];
-							if (allowDefault) {
+							if (options.allowDefault) {
 								if (options.recheckTime == options.triggerTime) {
 									document.addEventListener("keydown", function (action) {
 										if (!activeKeys.includes(action.key)) {
@@ -1956,7 +2024,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 											if (activeKeys.length == 1) {
 												recurrenceLoop = setInterval(function () {
 													behavior(activeKeys);
-												}, recheckTime);
+												}, options.recheckTime);
 											}
 										}
 									});
@@ -1978,7 +2046,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 											if (activeKeys.length == 1) {
 												recurrenceLoop = setInterval(function () {
 													behavior(activeKeys);
-												}, recheckTime);
+												}, options.recheckTime);
 											}
 										}
 									});
@@ -1995,7 +2063,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 							}
 						} else if (Standards.general.getType(item) == "Array") {
 							let activeKeys = [];
-							if (allowDefault) {
+							if (options.allowDefault) {
 								if (options.recheckTime == options.triggerTime) {
 									document.addEventListener("keydown", function (action) {
 										if (item.includes(action.key) && !activeKeys.includes(action.key)) {
@@ -2003,7 +2071,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 											if (activeKeys.length == 1) {
 												recurrenceLoop = setInterval(function () {
 													behavior(activeKeys);
-												}, recheckTime);
+												}, options.recheckTime);
 											}
 										}
 									});
@@ -2028,7 +2096,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 												if (activeKeys.length == 1) {
 													recurrenceLoop = setInterval(function () {
 														behavior(activeKeys);
-													}, recheckTime);
+													}, options.recheckTime);
 												}
 											}
 										}
@@ -2046,14 +2114,14 @@ Standards.general.listen = function (item, event, behavior, options) {
 									console.error("Setting a keyhold trigger time isn't supported yet.");  ////
 								}
 							}
-						} else if (Standards.general.getType(item) == "String") {
+						} else if (Standards.general.getType(item) == "String") {  //// This is no longer supported.
 							let keyActive = false;
-							if (allowDefault) {
+							if (options.allowDefault) {
 								if (options.recheckTime == options.triggerTime) {
 									document.addEventListener("keydown", function (action) {
 										if (action.key == item && !keyActive) {
 											keyActive = true;
-											recurrenceLoop = setInterval(behavior, recheckTime);
+											recurrenceLoop = setInterval(behavior, options.recheckTime);
 										}
 									});
 									document.addEventListener("keyup", function (action) {
@@ -2072,7 +2140,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 											action.preventDefault();
 											if (!keyActive) {
 												keyActive = true;
-												recurrenceLoop = setInterval(behavior, recheckTime);
+												recurrenceLoop = setInterval(behavior, options.recheckTime);
 											}
 										}
 									});
@@ -2092,7 +2160,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 						}
 					} else {  // keyup
 						if (Standards.general.getType(item) == "Array") {
-							if (allowDefault) {
+							if (options.allowDefault) {
 								document.addEventListener("keyup", function (action) {
 									if (item.includes(action.key)) {
 										behavior(action);
@@ -2108,7 +2176,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 							}
 						} else if (Standards.general.getType(item) == "String") {
 							if (item == "any") {
-								if (allowDefault) {
+								if (options.allowDefault) {
 									document.addEventListener("keyup", behavior);
 								} else {
 									document.addEventListener("keyup", function (action) {
@@ -2117,7 +2185,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 									});
 								}
 							} else {
-								if (allowDefault) {
+								if (options.allowDefault) {
 									document.addEventListener("keyup", function (action) {
 										if (action.key == item) {
 											behavior(action);
@@ -2331,888 +2399,6 @@ Standards.general.listen = function (item, event, behavior, options) {
 		arguments: [item, event, behavior, options]
 	});
 };
-
-Standards.general.onKeyDown = function (key, doStuff, allowDefault) {
-	/**
-	allows actions when a key is pressed down
-	this doesn't replace any previous uses
-	arguments:
-		key = required; the key or array of keys of interest
-			keys are designated by the "key" property of a KeyboardEvent object
-			special values:
-				"letter" = all capital and lowercase letters
-				"number" = a key that produces a number
-				"character" = any key that produces a character (includes whitespace characters)
-				"any" = when any key is pressed
-		doStuff = required; the function to call when the desired key(s) is/are pressed
-			the KeyboardEvent object of the keydown listener is passed to the function as an argument
-		allowDefault = optional; whether the default action of the key press should be allowed
-			default: false
-	non-native functions = getType
-	*/
-	if (key == "letter") {
-		key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
-	} else if (key == "number") {
-		key = "0123456789".split();
-	} else if (key == "character") {
-		key = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
-		key.push("Enter");
-		key.push("Tab");
-	}
-	if (Standards.general.getType(key) == "Array") {
-		if (allowDefault) {
-			document.addEventListener("keydown", function (event) {
-				if (key.includes(event.key)) {
-					doStuff(event);
-				}
-			});
-		} else {
-			document.addEventListener("keydown", function (event) {
-				if (key.includes(event.key)) {
-					event.preventDefault();
-					doStuff(event);
-				}
-			});
-		}
-	} else if (Standards.general.getType(key) == "String") {
-		if (key == "any") {
-			if (allowDefault) {
-				document.addEventListener("keydown", doStuff);
-			} else {
-				document.addEventListener("keydown", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		} else {
-			if (allowDefault) {
-				document.addEventListener("keydown", function (event) {
-					if (event.key == key) {
-						doStuff(event);
-					}
-				});
-			} else {
-				document.addEventListener("keydown", function (event) {
-					if (event.key == key) {
-						event.preventDefault();
-						doStuff(event);
-					}
-				});
-			}
-		}
-	} else {
-		console.error("An invalid key type was given.");
-	}
-};
-
-Standards.general.onKeyHold = function (key, doStuff, allowDefault, triggerTime, intervalTime) {
-	/**
-	allows actions when a key is held down
-	this doesn't replace any previous uses
-	there's no distinction between a press and a hold
-	arguments:
-		key = required; the key or array of keys of interest
-			keys are designated by the "key" property of a KeyboardEvent object
-			special values:
-				"letter" = all capital and lowercase letters
-				"number" = a key that produces a number
-				"character" = any key that produces a character (includes whitespace characters)
-				"any" = when any key is pressed
-		doStuff = required; the function to call when the desired key(s) is/are pressed
-			an array of pressed keys is passed the the function as an argument
-				(that includes modifier keys such as "Control" or "Alt")
-			no argument is passed if only one key is being listened to (and it's not in an array)
-		allowDefault = optional; whether the default action of the key press should be allowed
-			default: false
-		intervalTime = optional; the number of milliseconds before doStuff is called again
-			default: 15
-	non-native functions = getType
-	*/
-	if (key == "letter") {
-		key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
-	} else if (key == "number") {
-		key = "0123456789".split();
-	} else if (key == "character") {
-		key = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
-		key.push("Enter");
-		key.push("Tab");
-	}
-	intervalTime = intervalTime || 15;
-	var recurrenceLoop;
-	if (key == "any") {
-		var activeKeys = [];
-		if (allowDefault) {
-			document.addEventListener("keydown", function (event) {
-				if (!activeKeys.includes(event.key)) {
-					activeKeys.push(event.key);
-					if (activeKeys.length == 1) {
-						recurrenceLoop = setInterval(function () {
-							doStuff(activeKeys);
-						}, intervalTime);
-					}
-				}
-			});
-			document.addEventListener("keyup", function (event) {
-				activeKeys.splice(activeKeys.indexOf(event.key), 1);
-				if (activeKeys.length == 0) {
-					clearInterval(recurrenceLoop);
-				}
-			});
-		} else {
-			document.addEventListener("keydown", function (event) {
-				event.preventDefault();
-				if (!activeKeys.includes(event.key)) {
-					activeKeys.push(event.key);
-					if (activeKeys.length == 1) {
-						recurrenceLoop = setInterval(function () {
-							doStuff(activeKeys);
-						}, intervalTime);
-					}
-				}
-			});
-			document.addEventListener("keyup", function (event) {
-				event.preventDefault();
-				activeKeys.splice(activeKeys.indexOf(event.key), 1);
-				if (activeKeys.length == 0) {
-					clearInterval(recurrenceLoop);
-				}
-			});
-		}
-	} else if (Standards.general.getType(key) == "Array") {
-		var activeKeys = [];
-		if (allowDefault) {
-			document.addEventListener("keydown", function (event) {
-				if (key.includes(event.key) && !activeKeys.includes(event.key)) {
-					activeKeys.push(event.key);
-					if (activeKeys.length == 1) {
-						recurrenceLoop = setInterval(function () {
-							doStuff(activeKeys);
-						}, intervalTime);
-					}
-				}
-			});
-			document.addEventListener("keyup", function (event) {
-				if (key.includes(event.key)) {
-					activeKeys.splice(activeKeys.indexOf(event.key), 1);
-					if (activeKeys.length == 0) {
-						clearInterval(recurrenceLoop);
-					}
-				}
-			});
-		} else {
-			document.addEventListener("keydown", function (event) {
-				if (key.includes(event.key)) {
-					event.preventDefault();
-					if (!activeKeys.includes(event.key)) {
-						activeKeys.push(event.key);
-						if (activeKeys.length == 1) {
-							recurrenceLoop = setInterval(function () {
-								doStuff(activeKeys);
-							}, intervalTime);
-						}
-					}
-				}
-			});
-			document.addEventListener("keyup", function (event) {
-				if (key.includes(event.key)) {
-					event.preventDefault();
-					activeKeys.splice(activeKeys.indexOf(event.key), 1);
-					if (activeKeys.length == 0) {
-						clearInterval(recurrenceLoop);
-					}
-				}
-			});
-		}
-	} else if (Standards.general.getType(key) == "String") {
-		var keyActive = false;
-		if (allowDefault) {
-			document.addEventListener("keydown", function (event) {
-				if (event.key == key && !keyActive) {
-					keyActive = true;
-					recurrenceLoop = setInterval(doStuff, intervalTime);
-				}
-			});
-			document.addEventListener("keyup", function (event) {
-				if (event.key == key) {
-					keyActive = false;
-					clearInterval(recurrenceLoop);
-				}
-			});
-		} else {
-			document.addEventListener("keydown", function (event) {
-				if (event.key == key) {
-					event.preventDefault();
-					if (!keyActive) {
-						keyActive = true;
-						recurrenceLoop = setInterval(doStuff, intervalTime);
-					}
-				}
-			});
-			document.addEventListener("keyup", function (event) {
-				if (event.key == key) {
-					event.preventDefault();
-					keyActive = false;
-					clearInterval(recurrenceLoop);
-				}
-			});
-		}
-	} else {
-		console.error("An invalid key type was given.");
-	}
-};
-
-Standards.general.onKeyUp = function (key, doStuff, allowDefault) {
-	/**
-	allows actions when a key is let up
-	this doesn't replace any previous uses
-	arguments:
-		key = required; the key or array of keys of interest
-			keys are designated by the "key" property of a KeyboardEvent object
-			special values:
-				"letter" = all capital and lowercase letters
-				"number" = a key that produces a number
-				"character" = any key that produces a character (includes whitespace characters)
-				"any" = when any key is pressed
-		doStuff = required; the function to call when the desired key(s) is/are pressed
-			the KeyboardEvent object of the keyup listener is passed to the function as an argument
-		allowDefault = optional; whether the default action of the key press should be allowed
-			default: false
-	non-native functions = getType
-	*/
-	if (key == "letter") {
-		key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcbdefghijklmnopqrstuvwxyz".split();
-	} else if (key == "number") {
-		key = "0123456789".split();
-	} else if (key == "character") {
-		key = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ".split();
-		key.push("Enter");
-		key.push("Tab");
-	}
-	if (Standards.general.getType(key) == "Array") {
-		if (allowDefault) {
-			document.addEventListener("keyup", function (event) {
-				if (key.includes(event.key)) {
-					doStuff(event);
-				}
-			});
-		} else {
-			document.addEventListener("keyup", function (event) {
-				if (key.includes(event.key)) {
-					event.preventDefault();
-					doStuff(event);
-				}
-			});
-		}
-	} else if (Standards.general.getType(key) == "String") {
-		if (key == "any") {
-			if (allowDefault) {
-				document.addEventListener("keyup", doStuff);
-			} else {
-				document.addEventListener("keyup", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		} else {
-			if (allowDefault) {
-				document.addEventListener("keyup", function (event) {
-					if (event.key == key) {
-						doStuff(event);
-					}
-				});
-			} else {
-				document.addEventListener("keyup", function (event) {
-					if (event.key == key) {
-						event.preventDefault();
-						doStuff(event);
-					}
-				});
-			}
-		}
-	} else {
-		console.error("An invalid key type was given.");
-	}
-};
-
-Standards.general.onMouseDown = function (element, doStuff, allowDefault) {
-	/**
-	does something when the mouse is pressed down
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = optional; whether the default behavior of the action should be allowed
-			default: false
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "HTMLElement":
-						break;
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			if (allowDefault) {
-				element.addEventListener("mousedown", function (event) {
-					doStuff(event);
-				});
-			} else {
-				element.addEventListener("mousedown", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		},
-		arguments: [element, doStuff, allowDefault]
-	});
-};
-
-Standards.general.onMouseHold = function (element, doStuff, allowDefault, triggerTime, intervalTime) {
-	/**
-	does something while the mouse is held down
-	there's no distinction between a press and a hold
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = optional; whether the default behavior of the action should be allowed
-			default: false
-		triggerTime = optional; the time, in milliseconds, after which the provided function should be called
-			falsy values (or Infinity) cause the function to be continually called
-			causes the need for the hold to be sustained for a certain amount of time before executing doStuff
-			default: undefined
-		intervalTime = optional; the number of milliseconds before doStuff is (potentially) called again
-			doesn't call the function every time if a triggerTime is provided
-			default: 15;
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault, triggerTime, intervalTime) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLElement":
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			intervalTime = intervalTime || 15;
-			let recurrenceLoop,
-				mouseDown = false;
-			if (allowDefault) {
-				if (!triggerTime || triggerTime == Infinity) {
-					element.addEventListener("mousedown", function () {
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(doStuff, intervalTime);
-						}
-					});
-					element.addEventListener("mouseup", function () {
-						clearInterval(recurrenceLoop);
-					});
-				} else {
-					if (Standards.general.getType(triggerTime) != "Number") {
-						throw "The trigger time isn't a number.";
-					} else if (triggerTime < 0) {
-						throw "Negative trigger times aren't allowed.";
-					}
-					let runTimes = 0;
-					element.addEventListener("mousedown", function () {
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(function () {
-								if (++runTimes == Math.round(triggerTime / intervalTime)) {
-									doStuff();
-								}
-							}, intervalTime);
-						}
-					});
-					element.addEventListener("mouseup", function () {
-						clearInterval(recurrenceLoop);
-						runTimes = 0;
-					});
-				}
-			} else {
-				if (!triggerTime || triggerTime == Infinity) {
-					element.addEventListener("mousedown", function (event) {
-						event.preventDefault();
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(doStuff, intervalTime);
-						}
-					});
-					element.addEventListener("mouseup", function (event) {
-						event.preventDefault();
-						clearInterval(recurrenceLoop);
-					});
-				} else {
-					if (Standards.general.getType(triggerTime) != "Number") {
-						throw "The trigger time isn't a number.";
-					} else if (triggerTime < 0) {
-						throw "Negative trigger times aren't allowed.";
-					}
-					let runTimes = 0;
-					element.addEventListener("mousedown", function (event) {
-						event.preventDefault();
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(function () {
-								if (++runTimes == Math.round(triggerTime / intervalTime)) {
-									doStuff();
-								}
-							}, intervalTime);
-						}
-					});
-					element.addEventListener("mouseup", function (event) {
-						event.preventDefault();
-						clearInterval(recurrenceLoop);
-						runTimes = 0;
-					});
-				}
-			}
-		},
-		arguments: [element, doStuff, allowDefault, triggerTime, intervalTime]
-	});
-};
-
-Standards.general.onMouseUp = function (element, doStuff, allowDefault) {
-	/**
-	does something when the mouse is let up
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = whether the default behavior of the action should be allowed
-			default: false
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLElement":
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			if (allowDefault) {
-				element.addEventListener("mouseup", function (event) {
-					doStuff(event);
-				});
-			} else {
-				element.addEventListener("mouseup", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		},
-		arguments: [element, doStuff, allowDefault]
-	});
-};
-
-Standards.general.onTouchStart = function (element, doStuff, allowDefault) {
-	/**
-	does something when a screen touch begins
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = whether the default behavior of the action should be allowed
-			default: false
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLElement":
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			if (allowDefault) {
-				element.addEventListener("touchstart", function (event) {
-					doStuff(event);
-				});
-			} else {
-				element.addEventListener("touchstart", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		},
-		arguments: [element, doStuff, allowDefault]
-	});
-};
-
-Standards.general.onTouchHold = function (element, doStuff, allowDefault, triggerTime, intervalTime) {
-	/**
-	does something while a touch is sustained
-	there's no distinction between a tap and a hold
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = optional; whether the default behavior of the action should be allowed
-			default: false
-		triggerTime = optional; the time, in milliseconds, after which the provided function should be called
-			falsy values (or Infinity) cause the function to be continually called
-			causes the need for the hold to be sustained for a certain amount of time before executing doStuff
-			default: undefined
-		intervalTime = optional; the number of milliseconds before doStuff is (potentially) called again
-			doesn't call the function every time if a triggerTime is provided
-			default: 15;
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault, triggerTime, intervalTime) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLElement":
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			intervalTime = intervalTime || 15;
-			let recurrenceLoop,
-				mouseDown = false,
-				movement = false;
-			if (allowDefault) {
-				if (!triggerTime || triggerTime == Infinity) {
-					element.addEventListener("touchstart", function () {
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(doStuff, intervalTime);
-						}
-					});
-					element.addEventListener("touchmove", function () {
-						clearInterval(recurrenceLoop);
-						movement = true;
-					});
-					element.addEventListener("touchend", function () {
-						if (!movement) {
-							clearInterval(recurrenceLoop);
-						} else {
-							movement = false;
-						}
-					});
-				} else {
-					if (Standards.general.getType(triggerTime) != "Number") {
-						throw "The trigger time isn't a number.";
-					} else if (triggerTime < 0) {
-						throw "Negative trigger times aren't allowed.";
-					}
-					let runTimes = 0;
-					element.addEventListener("touchstart", function () {
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(function () {
-								if (++runTimes == Math.round(triggerTime / intervalTime)) {
-									doStuff();
-								}
-							}, intervalTime);
-						}
-					});
-					element.addEventListener("touchmove", function () {
-						clearInterval(recurrenceLoop);
-						runTimes = 0;
-						movement = true;
-					});
-					element.addEventListener("touchend", function () {
-						if (!movement) {
-							clearInterval(recurrenceLoop);
-							runTimes = 0;
-						} else {
-							movement = false;
-						}
-					});
-				}
-			} else {
-				if (!triggerTime || triggerTime == Infinity) {
-					element.addEventListener("touchstart", function (event) {
-						//// event.preventDefault();
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(doStuff, intervalTime);
-						}
-					});
-					element.addEventListener("touchmove", function (event) {
-						//// event.preventDefault();
-						clearInterval(recurrenceLoop);
-						movement = true;
-					});
-					element.addEventListener("touchend", function (event) {
-						event.preventDefault();  // This prevents things like pressing buttons.
-						if (!movement) {
-							clearInterval(recurrenceLoop);
-						} else {
-							movement = false;
-						}
-					});
-				} else {
-					if (Standards.general.getType(triggerTime) != "Number") {
-						throw "The trigger time isn't a number.";
-					} else if (triggerTime < 0) {
-						throw "Negative trigger times aren't allowed.";
-					}
-					let runTimes = 0;
-					element.addEventListener("touchstart", function (event) {
-						//// event.preventDefault();
-						if (!mouseDown) {
-							recurrenceLoop = setInterval(function () {
-								if (++runTimes == Math.round(triggerTime / intervalTime)) {
-									doStuff();
-								}
-							}, intervalTime);
-						}
-					});
-					element.addEventListener("touchmove", function (event) {
-						//// event.preventDefault();
-						clearInterval(recurrenceLoop);
-						runTimes = 0;
-						movement = true;
-					});
-					element.addEventListener("touchend", function (event) {
-						event.preventDefault();  // This prevents things like pressing buttons.
-						if (!movement) {
-							clearInterval(recurrenceLoop);
-							runTimes = 0;
-						} else {
-							movement = false;
-						}
-					});
-				}
-			}
-		},
-		arguments: [element, doStuff, allowDefault, triggerTime, intervalTime]
-	});
-};
-
-Standards.general.onTouchMove = function (element, doStuff, allowDefault) {
-	/**
-	does something when a screen touch is moved
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = whether the default behavior of the action should be allowed
-			default: false
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLElement":
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			if (allowDefault) {
-				element.addEventListener("touchmove", function (event) {
-					doStuff(event);
-				});
-			} else {
-				element.addEventListener("touchmove", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		},
-		arguments: [element, doStuff, allowDefault]
-	});
-};
-
-Standards.general.onTouchEnd = function (element, doStuff, allowDefault) {
-	/**
-	does something when a screen touch ends
-	doesn't replace previous uses
-	arguments:
-		element = required; the HTML element to place the listener on
-			types of values:
-				falsy value = uses the "document" object
-				HTML element = not converted
-				string = uses the element with an ID of that string
-				HTML collection = uses the first item of the collection
-				node list = uses the first item of the list
-				function = uses the result of the function
-		doStuff = required; the stuff to do
-		allowDefault = whether the default behavior of the action should be allowed
-			default: false
-	non-native functions = queue.add and getType
-	*/
-	Standards.general.queue.add({
-		runOrder: "first",
-		function: function (element, doStuff, allowDefault) {
-			if (element) {
-				switch (Standards.general.getType(element)) {
-					case "String":
-						element = document.getElementById(element);
-						break;
-					case "HTMLElement":
-						break;
-					case "HTMLCollection":
-						element = element[0];
-						break;
-					case "NodeList":
-						element = element[0];
-						break;
-					case "Function":
-						element = element();
-						break;
-					default:
-						throw "The element reference provided isn't a valid type.";
-				}
-			} else {
-				element = document;
-			}
-			if (allowDefault) {
-				element.addEventListener("touchend", function (event) {
-					doStuff(event);
-				});
-			} else {
-				element.addEventListener("touchend", function (event) {
-					event.preventDefault();
-					doStuff(event);
-				});
-			}
-		},
-		arguments: [element, doStuff, allowDefault]
-	});
-};
-
 /// There are more touch events.
 
 Standards.general.safeWhile = function (condition, doStuff, loops) {
