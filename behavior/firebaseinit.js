@@ -1,3 +1,10 @@
+/*
+This assumes you have previously imported the scripts:
+https://www.gstatic.com/firebasejs/4.6.1/firebase.js
+https://www.gstatic.com/firebasejs/4.6.1/firebase-firestore.js
+and are making use of the project with the ID "epicenterresources"
+*/
+
 if (Standards) {
 	if (!(Standards instanceof Object)) {
 		var Standards = {};

@@ -426,27 +426,27 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.session.defaultLocation != "") {
-				location = Standards.storage.storage.session.defaultLocation;
+			if (location === undefined && Standards.storage.session.defaultLocation != "") {
+				location = Standards.storage.session.defaultLocation;
 			} else if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "") {
+				} else if (Standards.storage.session.defaultLocation == "") {
 					throw "No default location is present.";
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.session.defaultLocation;
+					location = Standards.storage.session.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(2);
+					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.session.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(1);
+						location = Standards.storage.session.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "/") {
+				} else if (Standards.storage.session.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.session.defaultLocation.split("/");
+					let prelocation = Standards.storage.session.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -527,8 +527,8 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.session.defaultLocation != "") {
-				location = Standards.storage.storage.session.defaultLocation;
+			if (location === undefined && Standards.storage.session.defaultLocation != "") {
+				location = Standards.storage.session.defaultLocation;
 			} else if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
@@ -536,20 +536,20 @@ Standards.storage.session = {
 					} else {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "") {
+				} else if (Standards.storage.session.defaultLocation == "") {
 					throw ReferenceError("No default location is present.");
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.session.defaultLocation;
+					location = Standards.storage.session.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(2);
+					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.session.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(1);
+						location = Standards.storage.session.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "/") {
+				} else if (Standards.storage.session.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.session.defaultLocation.split("/");
+					let prelocation = Standards.storage.session.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -626,27 +626,27 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.session.defaultLocation != "") {
-				location = Standards.storage.storage.session.defaultLocation;
+			if (location === undefined && Standards.storage.session.defaultLocation != "") {
+				location = Standards.storage.session.defaultLocation;
 			} else if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "") {
+				} else if (Standards.storage.session.defaultLocation == "") {
 					throw "No default location is present.";
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.session.defaultLocation;
+					location = Standards.storage.session.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(2);
+					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.session.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(1);
+						location = Standards.storage.session.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "/") {
+				} else if (Standards.storage.session.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.session.defaultLocation.split("/");
+					let prelocation = Standards.storage.session.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -679,8 +679,8 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.session.defaultLocation != "") {
-				location = Standards.storage.storage.session.defaultLocation;
+			if (location === undefined && Standards.storage.session.defaultLocation != "") {
+				location = Standards.storage.session.defaultLocation;
 				if (location.slice(-1) != "/") {
 					location += "/";
 				}
@@ -691,20 +691,20 @@ Standards.storage.session = {
 					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "") {
+				} else if (Standards.storage.session.defaultLocation == "") {
 					throw "No default location is present.";
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.session.defaultLocation;
+					location = Standards.storage.session.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(2);
+					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.session.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.session.defaultLocation + location.slice(1);
+						location = Standards.storage.session.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.session.defaultLocation == "/") {
+				} else if (Standards.storage.session.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.session.defaultLocation.split("/");
+					let prelocation = Standards.storage.session.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -746,24 +746,24 @@ Standards.storage.session = {
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
-		} else if (oldPlace != newPlace && Standards.storage.storage.session.recall(oldPlace) !== null) {
+		} else if (oldPlace != newPlace && Standards.storage.session.recall(oldPlace) !== null) {
 			if (newPlace.slice(-1) != "/") {
 				newPlace += "/";
 			}
 			if (oldPlace.slice(-1) == "/") {
-				Standards.storage.forEach(Standards.storage.storage.session.list(oldPlace), function (key) {
-					Standards.storage.storage.session.store(newPlace + key, Standards.storage.storage.session.recall(oldPlace + key));
+				Standards.storage.forEach(Standards.storage.session.list(oldPlace), function (key) {
+					Standards.storage.session.store(newPlace + key, Standards.storage.session.recall(oldPlace + key));
 				});
-				Standards.storage.storage.session.forget(oldPlace);
+				Standards.storage.session.forget(oldPlace);
 			} else {
-				Standards.storage.forEach(Standards.storage.storage.session.list(oldPlace), function (key) {
+				Standards.storage.forEach(Standards.storage.session.list(oldPlace), function (key) {
 					key = key.split("/").slice(1).join("/");
 					if (key == "") {
-						Standards.storage.storage.session.store(newPlace.slice(0, -1), Standards.storage.storage.session.recall(oldPlace));
-						Standards.storage.storage.session.forget(oldPlace);
+						Standards.storage.session.store(newPlace.slice(0, -1), Standards.storage.session.recall(oldPlace));
+						Standards.storage.session.forget(oldPlace);
 					} else {
-						Standards.storage.storage.session.store(newPlace + key, Standards.storage.storage.session.recall(oldPlace + "/" + key));
-						Standards.storage.storage.session.forget(oldPlace + "/" + key);
+						Standards.storage.session.store(newPlace + key, Standards.storage.session.recall(oldPlace + "/" + key));
+						Standards.storage.session.forget(oldPlace + "/" + key);
 					}
 				});
 			}
@@ -785,27 +785,27 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.local.defaultLocation != "") {
-				location = Standards.storage.storage.local.defaultLocation;
+			if (location === undefined && Standards.storage.local.defaultLocation != "") {
+				location = Standards.storage.local.defaultLocation;
 			} else if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "") {
+				} else if (Standards.storage.local.defaultLocation == "") {
 					throw "No default location is present.";
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.local.defaultLocation;
+					location = Standards.storage.local.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(2);
+					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.local.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(1);
+						location = Standards.storage.local.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "/") {
+				} else if (Standards.storage.local.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.local.defaultLocation.split("/");
+					let prelocation = Standards.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -886,8 +886,8 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.local.defaultLocation != "") {
-				location = Standards.storage.storage.local.defaultLocation;
+			if (location === undefined && Standards.storage.local.defaultLocation != "") {
+				location = Standards.storage.local.defaultLocation;
 			} else if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
@@ -895,20 +895,20 @@ Standards.storage.local = {
 					} else {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "") {
+				} else if (Standards.storage.local.defaultLocation == "") {
 					throw ReferenceError("No default location is present.");
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.local.defaultLocation;
+					location = Standards.storage.local.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(2);
+					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.local.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(1);
+						location = Standards.storage.local.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "/") {
+				} else if (Standards.storage.local.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.local.defaultLocation.split("/");
+					let prelocation = Standards.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -985,27 +985,27 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.local.defaultLocation != "") {
-				location = Standards.storage.storage.local.defaultLocation;
+			if (location === undefined && Standards.storage.local.defaultLocation != "") {
+				location = Standards.storage.local.defaultLocation;
 			} else if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "") {
+				} else if (Standards.storage.local.defaultLocation == "") {
 					throw "No default location is present.";
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.local.defaultLocation;
+					location = Standards.storage.local.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(2);
+					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.local.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(1);
+						location = Standards.storage.local.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "/") {
+				} else if (Standards.storage.local.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.local.defaultLocation.split("/");
+					let prelocation = Standards.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -1038,8 +1038,8 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.storage.local.defaultLocation != "") {
-				location = Standards.storage.storage.local.defaultLocation;
+			if (location === undefined && Standards.storage.local.defaultLocation != "") {
+				location = Standards.storage.local.defaultLocation;
 				if (location.slice(-1) != "/") {
 					location += "/";
 				}
@@ -1050,20 +1050,20 @@ Standards.storage.local = {
 					if (location != "/") {
 						location = location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "") {
+				} else if (Standards.storage.local.defaultLocation == "") {
 					throw "No default location is present.";
 				} else if (location === "" || location === ".") {
-					location = Standards.storage.storage.local.defaultLocation;
+					location = Standards.storage.local.defaultLocation;
 				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(2);
+					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
+						location = Standards.storage.local.defaultLocation + location.slice(2);
 					} else {
-						location = Standards.storage.storage.local.defaultLocation + location.slice(1);
+						location = Standards.storage.local.defaultLocation + location.slice(1);
 					}
-				} else if (Standards.storage.storage.local.defaultLocation == "/") {
+				} else if (Standards.storage.local.defaultLocation == "/") {
 					// do nothing
 				} else {
-					let prelocation = Standards.storage.storage.local.defaultLocation.split("/");
+					let prelocation = Standards.storage.local.defaultLocation.split("/");
 					while (location.slice(0, 2) == "..") {
 						prelocation.pop();
 						location = location.slice(3);  // takes slashes into account
@@ -1105,24 +1105,24 @@ Standards.storage.local = {
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
-		} else if (oldPlace != newPlace && Standards.storage.storage.local.recall(oldPlace) !== null) {
+		} else if (oldPlace != newPlace && Standards.storage.local.recall(oldPlace) !== null) {
 			if (newPlace.slice(-1) != "/") {
 				newPlace += "/";
 			}
 			if (oldPlace.slice(-1) == "/") {
-				Standards.storage.forEach(Standards.storage.storage.local.list(oldPlace), function (key) {
-					Standards.storage.storage.local.store(newPlace + key, Standards.storage.storage.local.recall(oldPlace + key));
+				Standards.storage.forEach(Standards.storage.local.list(oldPlace), function (key) {
+					Standards.storage.local.store(newPlace + key, Standards.storage.local.recall(oldPlace + key));
 				});
-				Standards.storage.storage.local.forget(oldPlace);
+				Standards.storage.local.forget(oldPlace);
 			} else {
-				Standards.storage.forEach(Standards.storage.storage.local.list(oldPlace), function (key) {
+				Standards.storage.forEach(Standards.storage.local.list(oldPlace), function (key) {
 					key = key.split("/").slice(1).join("/");
 					if (key == "") {
-						Standards.storage.storage.local.store(newPlace.slice(0, -1), Standards.storage.storage.local.recall(oldPlace));
-						Standards.storage.storage.local.forget(oldPlace);
+						Standards.storage.local.store(newPlace.slice(0, -1), Standards.storage.local.recall(oldPlace));
+						Standards.storage.local.forget(oldPlace);
 					} else {
-						Standards.storage.storage.local.store(newPlace + key, Standards.storage.storage.local.recall(oldPlace + "/" + key));
-						Standards.storage.storage.local.forget(oldPlace + "/" + key);
+						Standards.storage.local.store(newPlace + key, Standards.storage.local.recall(oldPlace + "/" + key));
+						Standards.storage.local.forget(oldPlace + "/" + key);
 					}
 				});
 			}
@@ -1139,7 +1139,7 @@ Standards.storage.server = {
 	defaultLocation: "/",
 	user: undefined,  // gets set to firebase.auth().currentUser
 	checkCompatibility: function (shouldNotCheckUser) {
-		if (Standards.storage.storage.server.database === undefined) {
+		if (Standards.storage.server.database === undefined) {
 			Standards.storage.makeDialog("There's no server to handle this action.");
 			console.error("Firebase or Firestore doesn't exist.");
 		}
@@ -1147,7 +1147,7 @@ Standards.storage.server = {
 			Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
 			console.error('The URL doesn\'t use the protocol "http" or "https".');
 		}
-		if (!shouldNotCheckUser && !Standards.storage.storage.server.user) {
+		if (!shouldNotCheckUser && !Standards.storage.server.user) {
 			Standards.storage.makeDialog("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 			return false;
@@ -1169,45 +1169,45 @@ Standards.storage.server = {
 		*/
 
 		// makes sure the default location is in the proper format
-		if (Standards.storage.storage.server.defaultLocation[0] == ".") {
+		if (Standards.storage.server.defaultLocation[0] == ".") {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
 		}
-		if (Standards.storage.storage.server.defaultLocation[0] == "~") {
-			Standards.storage.storage.server.defaultLocation = Standards.storage.storage.server.defaultLocation.slice(1);
-		} else if (Standards.storage.storage.server.defaultLocation[0] == "/") {
-			Standards.storage.storage.server.defaultLocation = "users/" + Standards.storage.storage.server.user.uid + Standards.storage.storage.server.defaultLocation;
+		if (Standards.storage.server.defaultLocation[0] == "~") {
+			Standards.storage.server.defaultLocation = Standards.storage.server.defaultLocation.slice(1);
+		} else if (Standards.storage.server.defaultLocation[0] == "/") {
+			Standards.storage.server.defaultLocation = "users/" + Standards.storage.server.user.uid + Standards.storage.server.defaultLocation;
 		}
-		if (Standards.storage.storage.server.defaultLocation.slice(-1) == "/") {
-			Standards.storage.storage.server.defaultLocation = Standards.storage.storage.server.defaultLocation.slice(0, -1);
+		if (Standards.storage.server.defaultLocation.slice(-1) == "/") {
+			Standards.storage.server.defaultLocation = Standards.storage.server.defaultLocation.slice(0, -1);
 		}
-		Standards.storage.storage.server.defaultLocation = Standards.storage.storage.server.defaultLocation.replace(/\//g, "<slash>");
-		if (Standards.storage.storage.server.defaultLocation.search(/^(?:(?:(?!<slash>).)+<slash>)*.+$/) == -1) {
+		Standards.storage.server.defaultLocation = Standards.storage.server.defaultLocation.replace(/\//g, "<slash>");
+		if (Standards.storage.server.defaultLocation.search(/^(?:(?:(?!<slash>).)+<slash>)*.+$/) == -1) {
 			alert("The default server storage location has an improper path pattern.");
 			throw "The default server storage location has an improper path pattern.";
 		}
 
 		// converts the location into an absolute file location
 		if (location === undefined || location === "") {
-			location = "~" + Standards.storage.storage.server.defaultLocation + "/";
+			location = "~" + Standards.storage.server.defaultLocation + "/";
 		} else if (location == ".") {
-			location = "~" + Standards.storage.storage.server.defaultLocation;
+			location = "~" + Standards.storage.server.defaultLocation;
 		}
 		if (Standards.storage.getType(location) == "String") {
 			location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
 			if (location.slice(0, 8) == ".<slash>") {
-				location = "~" + Standards.storage.storage.server.defaultLocation + location.slice(1);
+				location = "~" + Standards.storage.server.defaultLocation + location.slice(1);
 			}
 			if (location[0] == "~") {
 				location = location.slice(1);
 			} else if (location.slice(0, 7) == "<slash>") {
 				if (location == "<slash>") {
-					location = "users<slash>" + Standards.storage.storage.server.user.uid;
+					location = "users<slash>" + Standards.storage.server.user.uid;
 				} else {
-					location = "users<slash>" + Standards.storage.storage.server.user.uid + location;
+					location = "users<slash>" + Standards.storage.server.user.uid + location;
 				}
 			} else {
-				let prelocation = Standards.storage.storage.server.defaultLocation.split("<slash>");
+				let prelocation = Standards.storage.server.defaultLocation.split("<slash>");
 				while (location.slice(0, 2) == "..") {
 					prelocation.pop();
 					location = location.slice(2);
@@ -1247,18 +1247,18 @@ Standards.storage.server = {
 		uses Google Firebase
 		non-native functions = getType
 		*/
-		let reference = Standards.storage.storage.server.database;
+		let reference = Standards.storage.server.database;
 		if (location === "~" || !location.includes("<slash>")) {
 			return reference;
 		}
 		location = location.slice(0, location.lastIndexOf("<slash>"));
-		if (Standards.storage.storage.server.locationType == "shallow") {
+		if (Standards.storage.server.locationType == "shallow") {
 			reference = reference.collection("<collection>").doc(location);
 			if (shouldCreate) {
 				reference.set({ "<document>": "exists" }, { merge: true });
 			}
-		} else if (Standards.storage.storage.server.locationType == "hybrid") {
-			let defaultFolders = Standards.storage.storage.server.defaultLocation.split("<slash>").length;
+		} else if (Standards.storage.server.locationType == "hybrid") {
+			let defaultFolders = Standards.storage.server.defaultLocation.split("<slash>").length;
 			let locationFolders = location.split("<slash>").length;
 			let index = 0;
 			while (locationFolders > index && index < defaultFolders) {
@@ -1275,7 +1275,7 @@ Standards.storage.server = {
 					reference.set({ "<document>": "exists" }, { merge: true });
 				}
 			}
-		} else if (Standards.storage.storage.server.locationType == "deep") {
+		} else if (Standards.storage.server.locationType == "deep") {
 			location.split("<slash>").forEach(function (place) {
 				reference = reference.collection("<collection>").doc(place);
 				if (shouldCreate) {
@@ -1289,7 +1289,7 @@ Standards.storage.server = {
 	},
 	signUp: function (methods) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility(true)) {
+			if (!Standards.storage.server.checkCompatibility(true)) {
 				reject();
 			}
 			if (methods === undefined) {
@@ -1320,28 +1320,28 @@ Standards.storage.server = {
 											Standards.storage.makeDialog(
 												"The password isn't long enough.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 										} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
 											Standards.storage.makeDialog(
 												"The password doesn't contain any letters.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 										} else if (password == password.toLowerCase()) {  // if the password doesn't have any capital letters
 											Standards.storage.makeDialog(
 												"The password doesn't contain any capital letters.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 										} else if (password.search(/\d/) == -1) {  // if the password doesn't have any numbers
 											Standards.storage.makeDialog(
 												"The password doesn't contain any numbers.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 										} else {  // if the password passes
@@ -1355,7 +1355,7 @@ Standards.storage.server = {
 										Standards.storage.makeDialog(
 											"A properly formatted email wasn't provided.",
 											["Try again", function () {
-												Standards.storage.storage.server.signUp(methods);
+												Standards.storage.server.signUp(methods);
 											}]
 										);
 									}
@@ -1388,7 +1388,7 @@ Standards.storage.server = {
 											Standards.storage.makeDialog(
 												"The password isn't long enough.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 											reject();
@@ -1396,7 +1396,7 @@ Standards.storage.server = {
 											Standards.storage.makeDialog(
 												"The password doesn't contain any letters.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 											reject();
@@ -1404,7 +1404,7 @@ Standards.storage.server = {
 											Standards.storage.makeDialog(
 												"The password doesn't contain any capital letters.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 											reject();
@@ -1412,7 +1412,7 @@ Standards.storage.server = {
 											Standards.storage.makeDialog(
 												"The password doesn't contain any numbers.",
 												["Try again", function () {
-													Standards.storage.storage.server.signUp(methods);
+													Standards.storage.server.signUp(methods);
 												}]
 											);
 											reject();
@@ -1428,7 +1428,7 @@ Standards.storage.server = {
 										Standards.storage.makeDialog(
 											"A properly formatted email wasn't provided.",
 											["Try again", function () {
-												Standards.storage.storage.server.signUp(methods);
+												Standards.storage.server.signUp(methods);
 											}]
 										);
 										reject();
@@ -1452,7 +1452,7 @@ Standards.storage.server = {
 	},
 	signIn: function (methods) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility(true)) {
+			if (!Standards.storage.server.checkCompatibility(true)) {
 				reject();
 			}
 			if (methods === undefined) {
@@ -1579,7 +1579,7 @@ Standards.storage.server = {
 		});
 	},
 	signOut: function () {
-		Standards.storage.storage.server.checkCompatibility();
+		Standards.storage.server.checkCompatibility();
 		Standards.storage.makeDialog("Are you sure you want to log out?",
 			["Yes", function () {
 				firebase.auth().signOut();
@@ -1589,7 +1589,7 @@ Standards.storage.server = {
 	},
 	mergeAccounts: function () {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility()) {
+			if (!Standards.storage.server.checkCompatibility()) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			//// do stuff
@@ -1597,11 +1597,11 @@ Standards.storage.server = {
 	},
 	store: function (location, item, callback) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility()) {
+			if (!Standards.storage.server.checkCompatibility()) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
-			location = Standards.storage.storage.server.formatLocation(location);
-			let reference = Standards.storage.storage.server.getReference(location, true);
+			location = Standards.storage.server.formatLocation(location);
+			let reference = Standards.storage.server.getReference(location, true);
 			if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
 				if (Standards.storage.getType(item) == "Object") {
 					reference.set(item, { merge: true }).then(function () {
@@ -1652,12 +1652,12 @@ Standards.storage.server = {
 	},
 	recall: function (location, callback) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility()) {
+			if (!Standards.storage.server.checkCompatibility()) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
-			location = Standards.storage.storage.server.formatLocation(location);
+			location = Standards.storage.server.formatLocation(location);
 			if (location.slice(-7) == "<slash>") {  // if retrieving a folder
-				Standards.storage.storage.server.getReference(location).get().then(function (doc) {
+				Standards.storage.server.getReference(location).get().then(function (doc) {
 					if (doc.exists) {
 						let data = doc.data();
 						delete data["<document>"];
@@ -1695,7 +1695,7 @@ Standards.storage.server = {
 					reject(error);
 				});
 			} else {  // if retrieving a single item
-				Standards.storage.storage.server.getReference(location).get().then(function (doc) {
+				Standards.storage.server.getReference(location).get().then(function (doc) {
 					if (doc.exists) {
 						if (callback) {
 							new Promise(function () {
@@ -1734,10 +1734,10 @@ Standards.storage.server = {
 	},
 	forget: function (location, callback) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility()) {
+			if (!Standards.storage.server.checkCompatibility()) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
-			location = Standards.storage.storage.server.formatLocation(location);
+			location = Standards.storage.server.formatLocation(location);
 			if (location == "~") {
 				console.error("Deleting all server information is forbidden.");
 				reject(new Error("Deleting all server information is forbidden."));
@@ -1745,11 +1745,11 @@ Standards.storage.server = {
 				console.error("Deleting every user's information is forbidden.");
 				reject(new Error("Deleting every user's information is forbidden."));
 			}
-			let reference = Standards.storage.storage.server.getReference(location);
-			if (Standards.storage.storage.server.locationType == "shallow") {
+			let reference = Standards.storage.server.getReference(location);
+			if (Standards.storage.server.locationType == "shallow") {
 				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 					location = location.slice(0, -7);
-					Standards.storage.storage.server.database.collection("<collection>").get().then(function (collection) {
+					Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 						let keyList = [];
 						Standards.storage.forEach(collection.docs, function (subdoc) {
 							if (subdoc.exists && subdoc.id.slice(0, location.length) == location) {
@@ -1777,7 +1777,7 @@ Standards.storage.server = {
 						});
 						Standards.storage.forEach(keyList, function (id) {
 							remaining.value++;
-							Standards.storage.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
+							Standards.storage.server.database.collection("<collection>").doc(id).delete().then(function () {
 								remaining.value--;
 							}).catch(function (error) {
 								console.error("The information couldn't be deleted.");
@@ -1786,7 +1786,7 @@ Standards.storage.server = {
 							});
 						});
 						remaining.value++;
-						Standards.storage.storage.server.database.delete().then(function () {  // deletes the document (which deletes all of the keys within)
+						Standards.storage.server.database.delete().then(function () {  // deletes the document (which deletes all of the keys within)
 							remaining.value--;
 						}).catch(function (error) {
 							console.error("The information couldn't be deleted.");
@@ -1799,7 +1799,7 @@ Standards.storage.server = {
 						reject(error);
 					});
 				} else {  // if deleting a single key-value pair
-					Standards.storage.storage.server.database.collection("<collection>").get().then(function (collection) {
+					Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 						let found = false;
 						Standards.storage.forEach(collection.docs, function (doc) {
 							if (doc.exists && doc.id == location.slice(0, location.lastIndexOf("<slash>"))) {
@@ -1847,12 +1847,12 @@ Standards.storage.server = {
 						reject(error);
 					});
 				}
-			} else if (Standards.storage.storage.server.locationType == "hybrid") {
-				let defaultLength = Standards.storage.storage.server.defaultLocation.split("<slash>").length;
+			} else if (Standards.storage.server.locationType == "hybrid") {
+				let defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
 				if (location.split("<slash>").length - 1 > defaultLength) {  // if the location extends into shallow folders
 					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
 					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
-					reference = Standards.storage.storage.server.getReference(docLocation);
+					reference = Standards.storage.server.getReference(docLocation);
 					if (remainingLocation.slice(-7) == "<slash>") {  // if deleting a whole folder
 						remainingLocation = remainingLocation.slice(0, -7);
 						reference.collection("<collection>").get().then(function (collection) {
@@ -2032,7 +2032,7 @@ Standards.storage.server = {
 						});
 					}
 				}
-			} else if (Standards.storage.storage.server.locationType == "deep") {
+			} else if (Standards.storage.server.locationType == "deep") {
 				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						let listener = new Standards.storage.Listenable();
@@ -2125,7 +2125,7 @@ Standards.storage.server = {
 	},
 	list: function (location, callback) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility()) {
+			if (!Standards.storage.server.checkCompatibility()) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			if (location === undefined) {
@@ -2133,11 +2133,11 @@ Standards.storage.server = {
 				/// makes sure the list doesn't include the parent folder
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 			}
-			location = Standards.storage.storage.server.formatLocation(location, true);
+			location = Standards.storage.server.formatLocation(location, true);
 			let keyList = [];
 
-			if (Standards.storage.storage.server.locationType == "shallow") {  // if all documents are held in one collection
-				Standards.storage.storage.server.database.collection("<collection>").get().then(function (collection) {
+			if (Standards.storage.server.locationType == "shallow") {  // if all documents are held in one collection
+				Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 					let preKey = "";  // holds the found file locations (document IDs)
 					if (location == "~") {  // if trying to get all keys
 						Standards.storage.forEach(collection.docs, function (doc) {
@@ -2206,10 +2206,10 @@ Standards.storage.server = {
 					reject(error);
 				});
 
-			} else if (Standards.storage.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
-				let defaultLength = Standards.storage.storage.server.defaultLocation.split("<slash>").length;
+			} else if (Standards.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
+				let defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
 				if (location == "~") {
-					Standards.storage.storage.server.database.collection("<collection>").get().then(function (collection) {
+					Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 						Standards.storage.forEach(collection.docs, function (doc) {
 							let key = doc.id.split("<slash>")[0];
 							if (!keyList.includes(key)) {
@@ -2238,7 +2238,7 @@ Standards.storage.server = {
 				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
 					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
-					Standards.storage.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+					Standards.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
 							remainingLocation = remainingLocation.slice(0, -7);
@@ -2296,7 +2296,7 @@ Standards.storage.server = {
 						reject(error);
 					});
 				} else {  // if the provided location length is shallower than (or equal to) the default location
-					let reference = Standards.storage.storage.server.getReference(location);
+					let reference = Standards.storage.server.getReference(location);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						if (collectionProbe.size > 0) {  // if there's sub-documents
 							let listener = new Standards.storage.Listenable();
@@ -2462,8 +2462,8 @@ Standards.storage.server = {
 					});
 				}
 
-			} else if (Standards.storage.storage.server.locationType == "deep") {  // if every folder level is another nested document
-				let reference = Standards.storage.storage.server.getReference(location);
+			} else if (Standards.storage.server.locationType == "deep") {  // if every folder level is another nested document
+				let reference = Standards.storage.server.getReference(location);
 				reference.collection("<collection>").get().then(function (collectionProbe) {
 					if (collectionProbe.size > 0) {  // if there's sub-documents
 						if (location == "~") {
@@ -2627,7 +2627,7 @@ Standards.storage.server = {
 	},
 	move: function (oldPlace, newPlace, callback) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.storage.server.checkCompatibility()) {
+			if (!Standards.storage.server.checkCompatibility()) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			if (oldPlace == newPlace) {
@@ -2668,17 +2668,17 @@ Standards.storage.server = {
 							}
 						}
 					});
-					Standards.storage.storage.server.list(oldPlace).then(function (oldList) {
+					Standards.storage.server.list(oldPlace).then(function (oldList) {
 						if (oldPlace.slice(-1) == "/") {
 							Standards.storage.forEach(oldList, function (key) {
 								remaining.value++;
-								Standards.storage.storage.server.recall(oldPlace + key).then(function (info) {
-									Standards.storage.storage.server.store(newPlace + key, info).then(function () {
-										Standards.storage.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+								Standards.storage.server.recall(oldPlace + key).then(function (info) {
+									Standards.storage.server.store(newPlace + key, info).then(function () {
+										Standards.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
 											/// checks whether the information was actually moved
 											/// not essential but prevents premature deletion in strange circumstances
 											if (movedInfo === info) {
-												Standards.storage.storage.server.forget(oldPlace + key).then(function () {
+												Standards.storage.server.forget(oldPlace + key).then(function () {
 													remaining.value--;
 												}).catch(function (error) {
 													console.error("There was a problem deleting the moved information.");
@@ -2709,13 +2709,13 @@ Standards.storage.server = {
 							Standards.storage.forEach(oldList, function (key) {
 								remaining.value++;
 								if (!key.includes("/")) {
-									Standards.storage.storage.server.recall(oldPlace).then(function (info) {
-										Standards.storage.storage.server.store(newPlace + key, info).then(function () {
-											Standards.storage.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+									Standards.storage.server.recall(oldPlace).then(function (info) {
+										Standards.storage.server.store(newPlace + key, info).then(function () {
+											Standards.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
 												/// checks whether the information was actually moved
 												/// not essential but prevents premature deletion in strange circumstances
 												if (movedInfo === info) {
-													Standards.storage.storage.server.forget(oldPlace).then(function () {
+													Standards.storage.server.forget(oldPlace).then(function () {
 														remaining.value--;
 													}).catch(function (error) {
 														console.error("There was a problem deleting the moved information.");
@@ -2742,13 +2742,13 @@ Standards.storage.server = {
 										reject(error);
 									});
 								} else {
-									Standards.storage.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
-										Standards.storage.storage.server.store(newPlace + key, info).then(function () {
-											Standards.storage.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+									Standards.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
+										Standards.storage.server.store(newPlace + key, info).then(function () {
+											Standards.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
 												/// checks whether the information was actually moved
 												/// not essential but prevents premature deletion in strange circumstances
 												if (movedInfo === info) {
-													Standards.storage.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
+													Standards.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
 														remaining.value--;
 													}).catch(function (error) {
 														console.error("There was a problem deleting the moved information.");
@@ -2784,17 +2784,17 @@ Standards.storage.server = {
 						reject(error);
 					});
 				} else {  // if neither place is a folder
-					Standards.storage.storage.server.recall(oldPlace).then(function (info) {
+					Standards.storage.server.recall(oldPlace).then(function (info) {
 						if (info instanceof Error) {
 							console.error("No information was found to move.");
 							reject();
 						} else {
-							Standards.storage.storage.server.store(newPlace, info).then(function () {
-								Standards.storage.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
+							Standards.storage.server.store(newPlace, info).then(function () {
+								Standards.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
 									/// checks whether the information was actually moved
 									/// not essential but prevents premature deletion in strange circumstances
 									if (movedInfo === info) {
-										Standards.storage.storage.server.forget(oldPlace).then(function () {
+										Standards.storage.server.forget(oldPlace).then(function () {
 											if (callback) {
 												new Promise(function () {
 													callback();
@@ -2900,7 +2900,7 @@ if (Standards.storage.options.runAuthCode != false && typeof firebase != "undefi
 				document.getElementById("signOut").style.display = "none";
 			}
 		}
-		Standards.storage.storage.server.user = person;
+		Standards.storage.server.user = person;
 	});
 }
 
@@ -2909,22 +2909,22 @@ if (!Standards.storage.options.hasOwnProperty("automation") || Standards.storage
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
 			document.getElementById("signIn").addEventListener("click", function () {
-				Standards.storage.storage.server.signIn(["google", "password"]);
+				Standards.storage.server.signIn(["google", "password"]);
 			});
 		}
 		if (document.getElementById("signUp")) {  // if there's a signUp button
 			document.getElementById("signUp").addEventListener("click", function () {
-				Standards.storage.storage.server.signUp(["google", "password"]);
+				Standards.storage.server.signUp(["google", "password"]);
 			});
 		}
 		if (document.getElementById("userSettings")) {  // if there's a userSettings button
 			document.getElementById("userSettings").addEventListener("click", function () {
-				Standards.storage.makeDialog("You're currently signed in as " + Standards.storage.storage.server.user.displayName +
-					"<br>with the email " + Standards.storage.storage.server.user.email + ".");
+				Standards.storage.makeDialog("You're currently signed in as " + Standards.storage.server.user.displayName +
+					"<br>with the email " + Standards.storage.server.user.email + ".");
 			});
 		}
 		if (document.getElementById("signOut")) {  // if there's a signOut button
-			document.getElementById("signOut").addEventListener("click", Standards.storage.storage.server.signOut);
+			document.getElementById("signOut").addEventListener("click", Standards.storage.server.signOut);
 		}
 	});
 }
