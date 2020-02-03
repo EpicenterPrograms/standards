@@ -2886,6 +2886,7 @@ if (Standards.storage.options.runAuthCode != false && typeof firebase != "undefi
 					});
 				});
 			}
+			dispatchEvent(new Event("signed in"));
 		} else {
 			if (document.getElementById("signIn")) {  // if there's a signIn button
 				document.getElementById("signIn").style.display = "inline-block";
