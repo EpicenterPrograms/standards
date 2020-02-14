@@ -4,14 +4,56 @@
 		<title>
 			Standards
 		</title>
+		<base target="_blank">
 		<script src="https://epicenterprograms.github.io/standards/behavior/general.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.6.1/firebase.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.6.1/firebase-firestore.js"></script>
+		<script src="https://epicenterprograms.github.io/standards/behavior/firebaseinit.js"></script>
+		<script src="https://epicenterprograms.github.io/standards/behavior/storage.js"></script>
+		<script>
+			var S = Standards.general;
+
+			S.onLoad(function () {
+				let contents = [
+					["cracking.mp3", "testing.mp3"],  // audio
+					["firebaseinit.js", "game.js", "general.js", "navigation.js", "presentation.js", "storage.js"],  // behavior
+					["black circle.ico", "blue circle.ico", "cyan circle.ico", "green circle.ico", "magenta circle.ico", "no icon.ico", "purple circle.ico", "red circle.ico", "yellow circle.ico"],  // favicons
+					["Bad Duck.ttf", "Braille.ttf"],  // fonts
+					["christmas.css", "foundation.css", "fourthofjuly.css", "game.css", "halloween.css", "presentation.css", "thanksgiving.css"],  // formatting
+					["star.svg"]  // icons
+				];
+				let maxIndex = 0;
+				S.forEach(contents, function (folder) {
+					if (folder.length - 1 > maxIndex) {
+						maxIndex = folder.length - 1;
+					}
+				});
+				S.forEach(maxIndex + 1, function (_, index) {
+					let row = S.getId("repositoryContents").insertRow(-1);
+					S.forEach(contents, function (folder, column) {
+						let file = document.createElement("td");
+						let link = "";
+						if (folder[index]) {
+							link = "<a href='https://epicenterprograms.github.io/standards/"
+								+ S.getId("repositoryContents").getElementsByTagName("th")[column + 1].textContent
+								+ folder[index]
+								+ "'>"
+								+ folder[index]
+								+ "</a>";
+						}
+						file.innerHTML = link;
+						row.appendChild(file);
+					});
+				});
+			});
+		</script>
 		<link rel="stylesheet" href="https://epicenterprograms.github.io/standards/formatting/foundation.css">
 	</head>
 	<body>
 		<h1 class="main-title">
 			Standards
 		</h1>
-		<div class="user-section">
+		<div class="user-section" style="display:none">
 			<button id="signIn">
 				Log in
 			</button>
@@ -27,8 +69,21 @@
 		</div>
 		<main>
 			<p>
-				This website hosts the standards I use elsewhere.
+				This website hosts the standards I use elsewhere. The GitHub repository for this site can be found <a href="https://github.com/EpicenterPrograms/standards">here</a>. The most useful standards to link to are the script reference at general.js and the style sheet reference at foundation.css. The contents of this repository are summarized below.
 			</p>
+			<table id="repositoryContents">
+				<tr>
+					<th colspan="6">https://epicenterprograms.github.io/standards/</th>
+				</tr>
+				<tr>
+					<th>audio/</th>
+					<th>behavior/</th>
+					<th>favicons/</th>
+					<th>fonts/</th>
+					<th>formatting/</th>
+					<th>icons/</th>
+				</tr>
+			</table>
 		</main>
 	</body>
 </html>

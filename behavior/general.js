@@ -1793,12 +1793,12 @@ Standards.general.listen = function (item, event, behavior, options) {
 				triggerTime = the number of milliseconds before the behavior is called once
 					if the trigger time is less than or equal to the recheckTime, the behavior will be executed at every recheckTime
 					default: 300
-			default = { listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 }
+			default = { listenOnce: false, allowDefault: true, recheckTime: 15, triggerTime: 300 }
 	non-native functions = getType(), Standards.general.queue.add()
 	*/
 	switch (Standards.general.getType(options)) {
 		case "Boolean":
-			options = { listenOnce: options, allowDefault: false, recheckTime: 15 };
+			options = { listenOnce: options, allowDefault: true, recheckTime: 15 };
 			break;
 		case "Object":
 			if (!options.hasOwnProperty("runOrder") || Standards.general.getType(options.runOrder) != "String") {
@@ -1828,7 +1828,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 			}
 			break;
 		default:
-			options = { runOrder: "later", listenOnce: false, allowDefault: false, recheckTime: 15, triggerTime: 300 };
+			options = { runOrder: "later", listenOnce: false, allowDefault: true, recheckTime: 15, triggerTime: 300 };
 	}
 	Standards.general.queue.add({
 		runOrder: options.runOrder,
@@ -2641,6 +2641,9 @@ Standards.general.getFile = function (url, callback, convert) {
 				} else if (new URL(url, window.location.href).protocol == "file:") {
 					let input = document.createElement("input");
 					input.type = "file";
+					if (url.slice(-1) == "/") {
+						input.multiple = true;
+					}
 					let changed = false;
 					input.addEventListener("change", function () {
 						if (this.files.length > 0) {
@@ -2651,9 +2654,28 @@ Standards.general.getFile = function (url, callback, convert) {
 										console.error(reader.error);
 									}
 									callback(reader.result);
-									resolve();
+									resolve(reader.result);
 								});
 								reader.readAsDataURL(this.files[0]);
+							} else if (url.slice(-1) == "/") {
+								let folder = [];
+								for (let item of this.files) {
+									reader = new FileReader();
+									reader.addEventListener("loadend", function () {
+										folder.push({
+											name: item.name,
+											lastModified: item.lastModified,
+											size: item.size,
+											type: item.type,
+											content: this.result
+										});
+										if (folder.length == input.files.length) {  // when finished iterating
+											callback(folder);
+											resolve(folder);
+										}
+									});
+									reader.readAsText(item);
+								}
 							} else {
 								reader.addEventListener("loadend", function () {
 									if (reader.error != null) {
@@ -2663,22 +2685,26 @@ Standards.general.getFile = function (url, callback, convert) {
 										switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
 											case "html":
 												callback(Standards.general.toHTML(reader.result));
+												resolve(Standards.general.toHTML(reader.result));
 												break;
 											case "json":
 												callback(JSON.parse(reader.result));
+												resolve(JSON.parse(reader.result));
 												break;
 											case "txt":
 												console.info("What do you think I'm supposed to convert a .txt file into?");
 												callback(reader.result);
+												resolve(reader.result);
 												break;
 											default:
 												console.warn("The file doesn't have a convertible file extension.");
 												callback(reader.result);
+												resolve(reader.result);
 										}
 									} else {
 										callback(reader.result);
+										resolve(reader.result);
 									}
-									resolve();
 								});
 								reader.readAsText(this.files[0]);
 							}
@@ -2706,7 +2732,23 @@ Standards.general.getFile = function (url, callback, convert) {
 						waitForDumbStuff();
 					}]);
 				} else {
-					var file = new XMLHttpRequest();
+					/*
+					potential code for retrieving multiple files:
+					var directory=<path>;  // the path of the folder you want listed
+					var xmlHttp = new XMLHttpRequest();
+					xmlHttp.open( "GET", directory, false ); // false for synchronous request
+					xmlHttp.send( null );
+					var ret=xmlHttp.responseText;
+					var fileList=ret.split('\n');
+					for(i=0;i<fileList.length;i++){
+						var fileinfo=fileList[i].split(' ');
+						if ( fileinfo[0] == "201:" ) {
+							document.write(fileinfo[1]+"<br />");
+							document.write("<img src=\""+directory+fileinfo[1]+"\" />");
+						}
+					}
+					*/
+					let file = new XMLHttpRequest();
 					file.open("GET", url);  // Don't add false as an extra argument (browsers don't like it). (default: asynchronous=true)
 					file.onreadystatechange = function () {
 						if (file.readyState === 4) {  // Is it done?
@@ -2716,22 +2758,26 @@ Standards.general.getFile = function (url, callback, convert) {
 									switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
 										case "html":
 											callback(Standards.general.toHTML(file.responseText));
+											resolve(Standards.general.toHTML(file.responseText));
 											break;
 										case "json":
 											callback(JSON.parse(file.responseText));
+											resolve(JSON.parse(file.responseText));
 											break;
 										case "txt":
 											console.info("What do you think I'm supposed to convert a .txt file into?");
 											callback(file.responseText);
+											resolve(file.responseText);
 											break;
 										default:
 											console.warn("The file doesn't have a convertible file extension.");
 											callback(file.responseText);
+											resolve(file.responseText);
 									}
 								} else {
 									callback(file.responseText);
+									resolve(file.responseText);
 								}
-								resolve();
 							} else {
 								console.error("The file couldn't be retieved.");
 							}
