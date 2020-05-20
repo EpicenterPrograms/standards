@@ -996,8 +996,8 @@ table.compact {
 		transform: translateX(75vw);
 	}
 	nav.hidden-left-nav::after {
-		width: 12%;
-		height: 12vh;
+		width: 10%;
+		height: 10vh;
 	}
 	/*
 	nav.hidden-left-nav {
