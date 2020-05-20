@@ -949,6 +949,7 @@ table.compact {
 		font-size: 2rem;
 	}
 	main {
+		width: 100%;
 		font-size: 2rem;
 	}
 	div {
@@ -980,6 +981,23 @@ table.compact {
 	.dialog {
 		max-width: 90%;
 		max-height: 90%;
+	}
+	body.navigation.bigger {
+		font-size: 3rem;
+	}
+	nav.hidden-left-nav {
+		left: -75.5vw;
+		width: 75.5vw;
+		padding: 0rem;
+	}
+	nav.hidden-left-nav:hover {
+		-ms-transform: translateX(75vw);
+		-webkit-transform: translateX(75vw);
+		transform: translateX(75vw);
+	}
+	nav.hidden-left-nav::after {
+		width: 12%;
+		height: 12vh;
 	}
 	/*
 	nav.hidden-left-nav {
