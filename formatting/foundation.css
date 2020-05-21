@@ -328,7 +328,7 @@ iframe.top-nav, nav.top-nav, .site-editor {
 	top: 0em;  /* sticky positioning doesn't work without a position specification */
 	z-index: 1;
 	padding: 0em;
-	width: 100%;
+	width: 90%;
 	background: darkblue;
 }
 nav.top-nav div.drop-down, div div.drop-down {
@@ -582,7 +582,7 @@ label {
 section {
 	/**
 	This is basically a replacement for paragraph tags.
-	(<p> tags don't allow <div> tags inside them)
+	(<p> tags don't allow <div> tags or many other tags inside them)
 	*/
 	display: block;
 	margin: 1em 0em;
@@ -999,6 +999,9 @@ table.compact {
 	}
 	nav.hidden-left-nav::after {
 		height: 10vh;
+	}
+	iframe.top-nav, nav.top-nav, .site-editor {
+		width: 100%;
 	}
 	/*
 	nav.hidden-left-nav {
