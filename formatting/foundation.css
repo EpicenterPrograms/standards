@@ -576,7 +576,7 @@ mark {
 }
 
 label {
-	cursor: text;
+	cursor: pointer;
 }
 
 section {
