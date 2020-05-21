@@ -984,9 +984,6 @@ table.compact {
 		max-width: 90%;
 		max-height: 90%;
 	}
-	body.navigation.bigger {
-		font-size: 3rem;
-	}
 	nav.hidden-left-nav {
 		left: -75.5vw;
 		width: 75.5vw;
@@ -1021,4 +1018,13 @@ table.compact {
 		font-size: 2.5rem;
 	}
 	*/
+}
+
+@media (min-width: 400px) {
+	/**
+	tries to account for the iframe size of hidden left navs
+	*/
+	body.navigation.bigger {
+		font-size: 3rem;
+	}
 }
