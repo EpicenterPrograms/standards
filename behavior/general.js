@@ -5646,16 +5646,6 @@ addEventListener("load", function () {  // This waits for everything past the sc
 							previouslyChecked = this;
 						}
 					});
-					if (box.nextSibling && box.nextSibling.nodeName == "LABEL") {
-						box.nextSibling.addEventListener("click", function () {
-							if (box == previouslyChecked) {
-								box.checked = false;
-								previouslyChecked = undefined;
-							} else {
-								previouslyChecked = box;
-							}
-						});
-					}
 				});
 			}
 		});
