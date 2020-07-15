@@ -1774,7 +1774,9 @@ Standards.general.listen = function (item, event, behavior, options) {
 					"character" = any key that produces a character (includes whitespace characters)
 					"any" = when any key is pressed
 				**IMPORTANT**: IDs corresponding to any of the special values will be processed this way instead of the HTMLElement way
-		event = required; the event being listened for
+		event = required; the event(s) being listened for
+			if a string, the event to be used in the listener
+			if an array, a list of events to listen for with everything else the same
 		behavior = required; what to do when the event is triggered
 			if the event is "hover", behavior needs to be an array with two functions, the first for hovering and the second for not hovering
 		options = optional; various specifications for the listener
@@ -1794,8 +1796,15 @@ Standards.general.listen = function (item, event, behavior, options) {
 					if the trigger time is less than or equal to the recheckTime, the behavior will be executed at every recheckTime
 					default: 300
 			default = { listenOnce: false, allowDefault: true, recheckTime: 15, triggerTime: 300 }
-	non-native functions = getType(), Standards.general.queue.add()
+	non-native functions = getType(), forEach(), Standards.general.queue.add()
 	*/
+	if (Standards.general.getType(event) == "Array") {
+		Standards.general.forEach(event, function (e) {
+			Standards.general.listen(item, e, behavior, options);
+		});
+		return;
+	}
+
 	switch (Standards.general.getType(options)) {
 		case "Boolean":
 			options = { listenOnce: options, allowDefault: true, recheckTime: 15 };
