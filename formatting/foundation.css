@@ -555,6 +555,7 @@ option:disabled {
 }
 
 textarea {
+	padding: .5em;
 	width: 15rem;
 	height: 5rem;
 	font-family: inherit;
