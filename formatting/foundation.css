@@ -186,6 +186,14 @@ aside {
 aside h2 {
 	margin-top: 0em;
 }
+aside::before {
+	content: attr(data-heading);
+	display: block;
+	margin-bottom: 1em;
+	text-align: center;
+	font-size: 1.5em;
+	font-weight: bold;
+}
 button.hide-aside {
 	position: absolute;
 	right: .5rem;
