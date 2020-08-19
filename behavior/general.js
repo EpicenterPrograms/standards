@@ -5771,6 +5771,40 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			link.href = window.location.href.split("#")[1].trim();
 			link.click();
 		}
+
+		// enables making use of elaborations
+		S.forEach(place.getElementsByTagName("aside"), function (section) {
+			if (!section.dataset.hasOwnProperty("heading")) {
+				section.dataset.heading = "Elaboration";
+			}
+			if (section.textContent.trim() == "") {  // if I forgot to fill the aside
+				section.textContent = "Oops, I forgot to fill this.";
+			}
+			let button = document.createElement("button");
+			button.className = "hide-aside";
+			button.textContent = "[Hide]";
+			button.addEventListener("click", function () {
+				section.style.left = "100%";
+			});
+			section.appendChild(button);
+		});
+		S.forEach(place.getElementsByClassName("elaborate"), function (trigger) {
+			trigger.addEventListener("click", function () {
+				let aside = trigger;
+				while (aside.nextSibling && aside.tagName != "ASIDE") {
+					aside = aside.nextSibling;
+				}
+				if (aside.tagName != "ASIDE" && aside.parentNode) {
+					aside = aside.parentNode;
+					while (aside.nextSibling && aside.tagName != "ASIDE") {
+						aside = aside.nextSibling;
+					}
+				}
+				if (aside.tagName == "ASIDE") {
+					aside.style.left = "60%";
+				}
+			});
+		});
 	}
 	
 	Standards.general.queue.run();
