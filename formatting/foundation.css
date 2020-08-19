@@ -514,28 +514,40 @@ input[type="text"]:disabled {
 	cursor: default;
 }
 input[type="checkbox"] {
-	margin: .5rem;
+	margin: .5em;
+	width: 1em;
+	height: 1em;
 	cursor: pointer;
 }
 input[type="checkbox"]:disabled {
 	cursor: default;
 }
 input[type="radio"] {
-	margin: .5rem;
+	margin: .5em;
+	width: 1em;
+	height: 1em;
 	cursor: pointer;
 }
 input[type="radio"]:disabled {
 	cursor: default;
 }
+input[type="range"] {
+	width: 9.6em;
+	height: 1.2em;
+	cursor: pointer;
+}
+input[type="range"]:disabled {
+	cursor: default;
+}
 input[type="button"] {
-	margin: .5rem;
+	margin: .5em;
 	cursor: pointer;
 }
 input[type="button"]:disabled {
 	cursor: default;
 }
 button {
-	margin: .5rem;
+	margin: .5em;
 	cursor: pointer;
 }
 button:disabled {
@@ -556,10 +568,10 @@ option:disabled {
 
 textarea {
 	padding: .5em;
-	width: 15rem;
-	height: 5rem;
+	width: 15em;
+	height: 8em;
 	font-family: inherit;
-	font-size: 1rem;
+	font-size: 1em;
 }
 
 sup, sub {
@@ -939,7 +951,7 @@ table.compact {
 */
 @font-face {
 	font-family: "Bad Duck";
-	src: url(https://epicenterprograms.github.io/standards/fonts/Bad Duck.ttf) format("truetype");
+	src: url("https://epicenterprograms.github.io/standards/fonts/Bad Duck.ttf") format("truetype");
 }
 
 @media (max-width: 1000px) {
@@ -964,18 +976,8 @@ table.compact {
 	input {
 		font-size: 2.4rem;
 	}
-	input[type="checkbox"], input[type="radio"], input[type="range"] {
-		-ms-transform: scale(3);
-		-webkit-transform: scale(3);
-		transform: scale(3);
-	}
 	select {
 		font-size: 2.4rem;
-	}
-	textarea {
-		width: 30rem;
-		height: 10rem;
-		font-size: 3rem;
 	}
 	.user-section {
 		display: block;
