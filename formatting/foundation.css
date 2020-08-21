@@ -984,6 +984,12 @@ table.compact {
 	input {
 		font-size: 2.4rem;
 	}
+	input[type="range"] {  /* the height doesn't resize right with just 1.2em */
+		margin: calc(1.2em/3) calc(9.6em/3) calc(1.2em/3) calc(9.6em/3);
+		width: calc(9.6em/3);
+		height: calc(1.2em/3);
+		transform: scale(3);
+	}
 	select {
 		font-size: 2.4rem;
 	}
