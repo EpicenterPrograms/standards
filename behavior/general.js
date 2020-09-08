@@ -5773,7 +5773,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		}
 
 		// enables making use of elaborations
-		S.forEach(document.getElementsByTagName("aside"), function (section) {
+		Standards.general.forEach(document.getElementsByTagName("aside"), function (section) {
 			if (!section.dataset.hasOwnProperty("heading")) {
 				section.dataset.heading = "Elaboration";
 			}
@@ -5788,7 +5788,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			});
 			section.appendChild(button);
 		});
-		S.forEach(document.getElementsByClassName("elaborate"), function (trigger) {
+		Standards.general.forEach(document.getElementsByClassName("elaborate"), function (trigger) {
 			trigger.addEventListener("click", function () {
 				let aside = trigger;
 				while (aside.nextSibling && aside.tagName != "ASIDE") {
