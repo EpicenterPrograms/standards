@@ -1763,6 +1763,9 @@ Standards.general.listen = function (item, event, behavior, options) {
 				the element to put the listener onto
 				the triggering event is passed to the function
 				when listening for keypresses, keys pressed can be accessed with event.keys
+			when an array:
+				a list of items for which the same listener should be applied
+			vv deprecated; only applies to "Enter" and ["Enter"] now
 			when an array or special string value:
 				the key or array of keys of interest
 				keys are designated by the "key" property of a KeyboardEvent object
@@ -1774,6 +1777,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 					"character" = any key that produces a character (includes whitespace characters)
 					"any" = when any key is pressed
 				**IMPORTANT**: IDs corresponding to any of the special values will be processed this way instead of the HTMLElement way
+			^^ deprecated
 		event = required; the event(s) being listened for
 			if a string, the event to be used in the listener
 			if an array, a list of events to listen for with everything else the same
@@ -1798,6 +1802,15 @@ Standards.general.listen = function (item, event, behavior, options) {
 			default = { listenOnce: false, allowDefault: true, recheckTime: 15, triggerTime: 300 }
 	non-native functions = getType(), forEach(), Standards.general.queue.add()
 	*/
+	if (item == "Enter") {  //// legacy compatibility
+		item == ["Enter"];
+    }
+	if (Standards.general.getType(item) == "Array" && item != ["Enter"]) {
+		Standards.general.forEach(item, function (i) {
+			Standards.general.listen(i, event, behavior, options);
+		});
+		return;
+	}
 	if (Standards.general.getType(event) == "Array") {
 		Standards.general.forEach(event, function (e) {
 			Standards.general.listen(item, e, behavior, options);
