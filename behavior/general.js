@@ -40,7 +40,7 @@ Standards.general.help = function (item, part) {
 	non-native functions = none
 	*/
 	if (Standards.general.getType(item) == "Function") {
-		part = part || "all";
+		part = part || "docstring";
 		let content = item.toString();
 		switch (part) {
 			case "docstring":
@@ -56,8 +56,8 @@ Standards.general.help = function (item, part) {
 				}
 				break;
 			case "non-natives":
-				if (content.indexOf("non-native functions") > -1) {
-					content = content.slice(content.lastIndexOf("non-native functions", content.indexOf("*/")), content.indexOf("*/"));
+				if (content.search(/non-native functions/i) > -1) {
+					content = content.slice(content.toLowerCase().lastIndexOf("non-native functions", content.indexOf("*/")), content.indexOf("*/"));
 					if (content.includes("=")) {
 						content = content.slice(content.indexOf("=") + 2, content.indexOf("\n"));
 					} else if (content.includes(":")) {
@@ -1256,146 +1256,6 @@ Array.prototype.remove = function (item, where) {
 	}
 };
 
-/*
-HTMLCollection.prototype.forEach = function (doStuff, copy) {
-	/**
-	HTMLCollection elements = stuff like the list in document.getElementsByClassName() or document.getElementsByTagName()
-	creates a static list of HTMLCollection elements
-	and does stuff for each one like Array.forEach()
-	(.forEach() doesn't work for these lists without this code)
-	implication of static list = you can remove the elements in doStuff without messing everything up
-	doStuff will be run with the arguments (value, index, list)
-	doStuff can return a value of "break" to break out of the loop
-	if "copy" is set to true, the items of the list will be cloned then looped through
-		default = false
-	non-native functions = none
-	*
-	copy = copy===true ? true : false;  // This variable can't be set with || notation because false is falsy (what a thought).
-	var elements = [],
-		index = 0,
-		returnValue;
-	if (copy) {
-		for (index; index<this.length; index++) {
-			elements.push(this[index].cloneNode(true));
-		}
-		for (index=0; index<elements.length; index++) {
-			returnValue = doStuff(elements[index], index, elements);
-			if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
-				break;
-			}
-		}
-	} else {
-		for (index; index<this.length; index++) {  // makes the static list from the live HTMLCollection
-			elements.push(this[index]);
-		}
-		for (index=0; index<elements.length; index++) {
-			returnValue = doStuff(elements[index], index, elements);
-			if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
-				break;
-			}
-		}
-	}
-};
-/*
-
-/*
-CSSRuleList.prototype.forEach = function (doStuff) {
-	// /**
-	CSSRuleList = a list of rules for a stylesheet
-	creates a static list of CSSRuleList elements
-	and does stuff for each one like Array.forEach()
-	(.forEach() doesn't work for these lists without this code)
-	implication of static list = you can remove the elements in doStuff without messing everything up
-	doStuff will be run with the arguments (value, index, list)
-	doStuff can return a value of "break" to break out of the loop
-	the .selectorText of a stylesheet rule will return something like p, .class, #ID, etc.
-	the properties and values of a stylesheet rule can be accessed and set like a normal object
-	non-native functions = none
-	// *
-	var elements = [];
-	for (var index=0; index<this.length; index++) {
-		elements.push(this[index]);
-	}
-	for (index=0; index<elements.length; index++) {
-		let returnValue = doStuff(elements[index], index, elements);
-		if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-			break;
-		}
-	}
-};
-
-NodeList.prototype.forEach = function (doStuff) {
-	// /**
-	similar to HTMLCollection.forEach()
-	non-native functions = none
-	// *
-	var elements = [];
-	for (var index=0; index<this.length; index++) {
-		elements.push(this[index]);
-	}
-	for (index=0; index<elements.length; index++) {
-		let returnValue = doStuff(elements[index], index, elements);
-		if (typeof returnValue == "string" && returnValue.toLowerCase() == "break") {
-			break;
-		}
-	}
-};
-
-// Changing the object prototypes prevents the proper working of Google Firestore.
-Object.prototype.forEach = function (doStuff, copy) {
-	// /**
-	loops through every property of the object
-	-->> USE THIS TO LOOP THROUGH PROPERTIES INSTEAD OF A FOR LOOP <<--
-	if a for loop is used in place of this, the prototype properties from this script will also be included
-	doStuff will be run with the arguments (property value, property, original object, arbitrary index)
-	properites that are numbers only are at the beginning in ascending order no matter what
-		e.g. {0:"value1", 3:"value2", 7:"value3", 42:"value4, "oranges":"value5", "apples":"value6"}
-	doStuff can return a value of "break" to break out of the loop
-	if "copy" is set to true, a copy of the object will be looped through
-		default = false
-	non-native functions = none
-	// *
-	copy = copy===undefined ? false : copy;
-	let keys = Object.keys(this),
-		index = 0,
-		returnValue;
-	if (copy) {
-		let newObject = JSON.parse(JSON.stringify(this));
-		while (index < keys.length) {
-			returnValue = doStuff(newObject[keys[index]], keys[index], newObject, index);
-			if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
-				break;
-			} else {
-				index++;
-			}
-		}
-	} else {
-		while (index < keys.length) {
-			returnValue = doStuff(this[keys[index]], keys[index], this, index);
-			if (returnValue && returnValue.constructor == String && returnValue.toLowerCase() == "break") {
-				break;
-			} else {
-				index++;
-			}
-		}
-	}
-	/// Using Object.keys() and a while loop is about 100 times faster than a for...in... loop.
-	/// That's not to mention the fact that this.propertyIsEnumerable() would also need to be used which is also slow.
-	/// This is still about 10 times slower than looping through things with number indicies, though.
-	/// (These time comparisons are based on usage outside of this function;
-	/// doing things by referencing a function makes things about 10 times longer.)
-};
-
-Object.prototype.keyHasValue = function (key, value) {  // This was actually pretty pointless.
-	// /**
-	checks if an object has a property and then
-	checks if the property equals the value
-	non-native functions = none
-	// *
-	return (this.hasOwnProperty(key)&&this[key]==value) ? true : false;
-};
-*/
-
 Standards.general.onLoad = function (doStuff) {
 	/**
 	does whatever the argument of the function says after the page loads and this script finishes running
@@ -1643,6 +1503,16 @@ Standards.general.toObject = function () {
 Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	/**
 	does stuff for every item of an iterable list (or object)
+	arguments:
+		list = the iterable to go through
+		doStuff = a function to be run for every item in the list
+			arguments put in the function:
+				if an iterable list (Array, HTMLCollection, String, ...): item, index, list
+				if an object/dictionary: value, key, object, itemIndex
+				if a number: number-index, index, number
+			can return "break" to stop execution of the function
+		shouldCopy = a copy should be worked with
+			doesn't alter the original list
 	non-native functions = getType
 	*/
 	if (Standards.general.getType(doStuff) != "Function") {

@@ -67,16 +67,26 @@ Standards.game.getType = function (item) {
 Standards.game.forEach = function (list, doStuff, shouldCopy) {
 	/**
 	does stuff for every item of an iterable list (or object)
+	arguments:
+		list = the iterable to go through
+		doStuff = a function to be run for every item in the list
+			arguments put in the function:
+				if an iterable list (Array, HTMLCollection, String, ...): item, index, list
+				if an object/dictionary: value, key, object, itemIndex
+				if a number: number-index, index, number
+			can return "break" to stop execution of the function
+		shouldCopy = a copy should be worked with
+			doesn't alter the original list
 	non-native functions = getType
 	*/
-	if (Standards.game.getType(doStuff) != "Function") {
-		throw "The second arument provided in Standards.game.forEach isn't a function.";
+	if (Standards.general.getType(doStuff) != "Function") {
+		throw "The second arument provided in Standards.general.forEach (" + doStuff + ") isn't a function.";
 	}
-	if (Standards.game.getType(list) == "Object") {
+	let index = 0;
+	let returnValue;
+	if (Standards.general.getType(list) == "Object") {
 		let associativeList,
-			keys = Object.keys(list),
-			index = 0,
-			returnValue;
+			keys = Object.keys(list);
 		shouldCopy = shouldCopy === undefined ? false : shouldCopy;
 		if (shouldCopy) {
 			associativeList = JSON.parse(JSON.stringify(list));
@@ -96,28 +106,34 @@ Standards.game.forEach = function (list, doStuff, shouldCopy) {
 		/// This is still about 10 times slower than looping through things with number indicies, though.
 		/// (These time comparisons are based on usage outside of this function;
 		/// doing things by referencing a function makes things about 10 times longer.)
-	} else if (Standards.game.getType(list[Symbol.iterator]) == "Function") {
-		let items = [],
-			index,
-			returnValue;
-		while (index < list.length) {
-			items.push(list[index]);
-			index++;
-		}
-		index = 0;
-		while (index < list.length) {
-			returnValue = doStuff(list[index], index, list);
-			if (returnValue == "break") {
-				break;
-			} else {
+	} else if (Standards.general.getType(list[Symbol.iterator]) == "Function" || list instanceof HTMLCollection) {
+		/// Microsoft Edge doesn't think HTMLCollections have Symbol.iterator
+		//// check this in Microsoft Edge again
+		let item;
+		if (shouldCopy) {
+			let items = [];
+			for (item of list) {
+				items.push(item);
+			}
+			for (item of items) {
+				returnValue = doStuff(item, index, items);
+				if (returnValue == "break") {
+					break;
+				}
+				index++;
+			}
+		} else {
+			for (item of list) {
+				returnValue = doStuff(item, index, list);
+				if (returnValue == "break") {
+					break;
+				}
 				index++;
 			}
 		}
-	} else if (Standards.game.getType(list) == "Number") {
-		let index = 0,
-			returnValue;
+	} else if (Standards.general.getType(list) == "Number") {
 		while (index < list) {
-			returnValue = doStuff(index + 1, index, list);
+			returnValue = doStuff(list - index, index, list);
 			if (returnValue == "break") {
 				break;
 			} else {
@@ -125,7 +141,7 @@ Standards.game.forEach = function (list, doStuff, shouldCopy) {
 			}
 		}
 	} else {
-		throw "The item provided isn't iterable.";
+		throw "The item provided (" + list + ") isn't iterable.";
 	}
 	//// add a function type option
 };
@@ -474,7 +490,7 @@ Standards.game.Character = function (source, options) {
 	var character = this;  // necessary for accessing this within a function
 
 	if (source) {
-		if (Standards.game.getType(source) != "String" && Standards.game.getType(source) != "HTMLElement") {
+		if (!["String", "HTMLElement", "Array"].includes(Standards.game.getType(source))) {
 			throw "The type of character isn't a string or an HTML element.";
 		}
 	} else {
@@ -484,6 +500,8 @@ Standards.game.Character = function (source, options) {
 	if (Standards.game.getType(source) == "HTMLElement") {  // if it's an HTML element
 		this.body = source;
 		this.body.className = "character";
+	} else if (Standards.game.getType(source) == "Array") {
+		this.body = document.createElement("div");  // acts as a filler
 	} else if (source.includes(".")) {
 		this.body = document.createElement("img");
 		this.body.src = source;
@@ -588,24 +606,43 @@ Standards.game.Character = function (source, options) {
 		}
 	};
 
-	this.position = {
-		internalX: 0,
-		get x() {
-			return this.internalX;
-		},
-		set x(value) {
-			this.internalX = value;
-			character.body.style.left = Standards.game.toPixels(value - character.width / 2) + "px";
-		},
-		internalY: 0,
-		get y() {
-			return this.internalY;
-		},
-		set y(value) {
-			this.internalY = value;
-			character.body.style.top = Standards.game.toPixels(value - character.height / 2) + "px";
-		}
-	};
+	if (Standards.game.getType(source) == "Array") {
+		this.position = {
+			internalX: source[0],
+			get x() {
+				return this.internalX;
+			},
+			set x(value) {
+				this.internalX = value;
+			},
+			internalY: source[1],
+			get y() {
+				return this.internalY;
+			},
+			set y(value) {
+				this.internalY = value;
+			}
+		};
+	} else {
+		this.position = {
+			internalX: 0,
+			get x() {
+				return this.internalX;
+			},
+			set x(value) {
+				this.internalX = value;
+				character.body.style.left = Standards.game.toPixels(value - character.width / 2) + "px";
+			},
+			internalY: 0,
+			get y() {
+				return this.internalY;
+			},
+			set y(value) {
+				this.internalY = value;
+				character.body.style.top = Standards.game.toPixels(value - character.height / 2) + "px";
+			}
+		};
+	}
 	this.velocity = { x: 0, y: 0 };
 	this.acceleration = { x: 0, y: 0 };
 
