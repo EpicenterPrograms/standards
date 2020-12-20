@@ -251,6 +251,7 @@ nav.hidden-left-nav {
 	padding: 0rem;
 	transition: .8s;
 	transition: var(--nav-slide-time);
+	pointer-events: none;
 }
 nav.hidden-left-nav:hover {
 	/**
@@ -260,6 +261,7 @@ nav.hidden-left-nav:hover {
 	-webkit-transform: translateX(30vw);  /* Safari */
 	transform: translateX(30vw);  /* standard syntax */
 	/* These aren't 30.5% because, otherwise, the far left end of the screen would stop the hovering. */
+	pointer-events: auto;
 }
 nav.hidden-left-nav::before {
 	/**
@@ -315,6 +317,7 @@ nav.hidden-left-nav::after {
 	-ms-user-select: none;  /* Internet Explorer and Microsoft Edge */
 	user-select: none;  /* non-prefixed version of preventing text selection */
 	cursor: default;
+	pointer-events: auto;
 }
 nav.hidden-left-nav:hover::after {
 	/**
