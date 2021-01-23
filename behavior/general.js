@@ -5665,9 +5665,10 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			}
 			let button = document.createElement("button");
 			button.className = "hide-aside";
-			button.textContent = "[Hide]";
 			button.addEventListener("click", function () {
-				section.style.left = "100%";
+				let classes = section.className.split(" ");
+				classes.splice(classes.indexOf("displayed"), 1);
+				section.className = classes.join(" ");
 			});
 			section.appendChild(button);
 		});
@@ -5684,7 +5685,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 					}
 				}
 				if (aside.tagName == "ASIDE") {
-					aside.style.left = "60%";
+					aside.className += " displayed";
 				}
 			});
 		});

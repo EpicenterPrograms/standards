@@ -170,6 +170,12 @@ body.left-nav {
 	min-width: 80%;
 }
 
+.elaborate {
+	cursor: pointer;
+}
+.elaborate:hover {
+	text-decoration: underline;
+}
 aside {
 	position: fixed;
 	left: 100%;
@@ -194,6 +200,9 @@ aside::before {
 	font-size: 1.5em;
 	font-weight: bold;
 }
+aside.displayed {
+	left: 60%;
+}
 button.hide-aside {
 	position: absolute;
 	right: .5rem;
@@ -201,6 +210,9 @@ button.hide-aside {
 	border: none;
 	background: none;
 	color: blue;
+}
+button.hide-aside::before {
+	content: "[Hide]";
 }
 button.hide-aside:hover {
 	text-decoration: underline;
@@ -1038,6 +1050,12 @@ table.compact {
 		font-size: 2.5rem;
 	}
 	*/
+	aside {
+		width: 80%;
+	}
+	aside.displayed {
+		left: 20%;
+	}
 }
 
 @media (min-width: 425px) {
