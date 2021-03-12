@@ -1138,7 +1138,9 @@ Standards.storage.server = {
 	database: typeof firebase != "undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "/",
 	user: undefined,  // gets set to firebase.auth().currentUser
-	checkCompatibility: function (shouldNotCheckUser) {
+	requireSignIn: true,
+	checkCompatibility: function (shouldCheckUser) {
+		shouldCheckUser = shouldCheckUser === undefined ? Standards.storage.server.requireSignIn : shouldCheckUser;
 		if (Standards.storage.server.database === undefined) {
 			Standards.storage.makeDialog("There's no server to handle this action.");
 			console.error("Firebase or Firestore doesn't exist.");
@@ -1147,7 +1149,7 @@ Standards.storage.server = {
 			Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
 			console.error('The URL doesn\'t use the protocol "http" or "https".');
 		}
-		if (!shouldNotCheckUser && !Standards.storage.server.user) {
+		if (shouldCheckUser && !Standards.storage.server.user) {
 			Standards.storage.makeDialog("That action isn't allowed without logging in.");
 			console.warn("The action couldn't be completed because the user wasn't logged on.");
 			return false;
@@ -1289,7 +1291,7 @@ Standards.storage.server = {
 	},
 	signUp: function (methods) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility(true)) {
+			if (!Standards.storage.server.checkCompatibility(false)) {
 				reject();
 			}
 			if (methods === undefined) {
@@ -1452,7 +1454,7 @@ Standards.storage.server = {
 	},
 	signIn: function (methods) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility(true)) {
+			if (!Standards.storage.server.checkCompatibility(false)) {
 				reject();
 			}
 			if (methods === undefined) {
@@ -1595,9 +1597,10 @@ Standards.storage.server = {
 			//// do stuff
 		});
 	},
-	store: function (location, item, callback) {
+	store: function (location, item, callback, options) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility()) {
+			options = options || {};
+			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			location = Standards.storage.server.formatLocation(location);
@@ -1650,9 +1653,10 @@ Standards.storage.server = {
 			}
 		});
 	},
-	recall: function (location, callback) {
+	recall: function (location, callback, options) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility()) {
+			options = options || {};
+			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			location = Standards.storage.server.formatLocation(location);
@@ -1732,9 +1736,10 @@ Standards.storage.server = {
 			}
 		});
 	},
-	forget: function (location, callback) {
+	forget: function (location, callback, options) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility()) {
+			options = options || {};
+			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			location = Standards.storage.server.formatLocation(location);
@@ -2123,9 +2128,10 @@ Standards.storage.server = {
 			}
 		});
 	},
-	list: function (location, callback) {
+	list: function (location, callback, options) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility()) {
+			options = options || {};
+			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			if (location === undefined) {
@@ -2625,9 +2631,10 @@ Standards.storage.server = {
 			}
 		});
 	},
-	move: function (oldPlace, newPlace, callback) {
+	move: function (oldPlace, newPlace, callback, options) {
 		return new Promise(function (resolve, reject) {
-			if (!Standards.storage.server.checkCompatibility()) {
+			options = options || {};
+			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			if (oldPlace == newPlace) {

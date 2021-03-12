@@ -185,6 +185,8 @@ aside {
 	background-color: white;
 	width: 40%;
 	height: 100%;
+	text-align: center;
+	text-align-last: center;
 	overflow: auto;
 	transition: .8s;
 	transition: var(--nav-slide-time);
