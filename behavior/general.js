@@ -2470,6 +2470,8 @@ Standards.general.makeDialog = function (message) {
 		let dialogs = document.getElementsByClassName("dialog");
 		if (dialogs.length > 0 && dialogs[dialogs.length - 1].innerHTML == dialog.innerHTML) {  // if it's a repeat dialog
 			console.warn("A dialog with this same message was already created.");
+			console.log(dialogs[dialogs.length - 1].innerHTML);
+			console.log(dialog.innerHTML);
 		} else {
 			let x = document.createElement("div");
 			x.className = "x";
