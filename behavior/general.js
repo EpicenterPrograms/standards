@@ -2468,10 +2468,10 @@ Standards.general.makeDialog = function (message) {
 			dialog.appendChild(buttons);
 		}
 		let dialogs = document.getElementsByClassName("dialog");
+		console.log(dialogs[dialogs.length - 1].innerHTML);
+		console.log(dialog.innerHTML);
 		if (dialogs.length > 0 && dialogs[dialogs.length - 1].innerHTML == dialog.innerHTML) {  // if it's a repeat dialog
 			console.warn("A dialog with this same message was already created.");
-			console.log(dialogs[dialogs.length - 1].innerHTML);
-			console.log(dialog.innerHTML);
 		} else {
 			let x = document.createElement("div");
 			x.className = "x";
