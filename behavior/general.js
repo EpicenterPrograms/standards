@@ -2467,34 +2467,39 @@ Standards.general.makeDialog = function (message) {
 		if (buttons.innerHTML) {
 			dialog.appendChild(buttons);
 		}
-		let x = document.createElement("div");
-		x.className = "x";
-		x.textContent = "X";
-		x.addEventListener("click", function () {
-			container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
-			this.removeEventListener("click", arguments.callee);
-			reject("X");
-		});
-		container.appendChild(x);
-		container.appendChild(dialog);
-		darkener.appendChild(container);
-		document.body.appendChild(darkener);
-		container.addEventListener("dialog" + identifier + "Answered", function () {
-			darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
-			this.style.MsTransform = "scale(.001, .001)";
-			this.style.WebkitTransform = "scale(.001, .001)";
-			this.style.transform = "scale(.001, .001)";
-			setTimeout(function () {  // waits until the dialog box is finished transitioning before removing it
-				document.body.removeChild(darkener);
-				resolve();
-			}, 500);
-		});
-		setTimeout(function () {  // This breaks out of the execution block and allows transitioning to the states.
-			darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
-			container.style.MsTransform = "scale(1, 1)";
-			container.style.WebkitTransform = "scale(1, 1)";
-			container.style.transform = "scale(1, 1)";
-		}, 0);
+		let dialogs = document.getElementsByClassName("dialog");
+		if (dialogs.length > 0 && dialogs[dialogs.length - 1].innerHTML == dialog.innerHTML) {  // if it's a repeat dialog
+			console.warn("A dialog with this same message was already created.");
+		} else {
+			let x = document.createElement("div");
+			x.className = "x";
+			x.textContent = "X";
+			x.addEventListener("click", function () {
+				container.dispatchEvent(new Event("dialog" + identifier + "Answered"));
+				this.removeEventListener("click", arguments.callee);
+				reject("X");
+			});
+			container.appendChild(x);
+			container.appendChild(dialog);
+			darkener.appendChild(container);
+			document.body.appendChild(darkener);
+			container.addEventListener("dialog" + identifier + "Answered", function () {
+				darkener.style.backgroundColor = "rgba(0, 0, 0, 0)";
+				this.style.MsTransform = "scale(.001, .001)";
+				this.style.WebkitTransform = "scale(.001, .001)";
+				this.style.transform = "scale(.001, .001)";
+				setTimeout(function () {  // waits until the dialog box is finished transitioning before removing it
+					document.body.removeChild(darkener);
+					resolve();
+				}, 500);
+			});
+			setTimeout(function () {  // This breaks out of the execution block and allows transitioning to the states.
+				darkener.style.backgroundColor = "rgba(0, 0, 0, .8)";
+				container.style.MsTransform = "scale(1, 1)";
+				container.style.WebkitTransform = "scale(1, 1)";
+				container.style.transform = "scale(1, 1)";
+			}, 0);
+		}
 	});
 };
 
