@@ -251,6 +251,18 @@ body.left-nav.right-section {
 	min-width: 60%;
 }
 
+@keyframes allow-clicking {
+	/**
+	prevents hidden navigation contents from being clicked before the contents slide out
+	*/
+	from {
+		pointer-events: none;
+	}
+	to {
+		pointer-events: auto;
+	}
+}
+
 nav.hidden-left-nav {
 	/**
 	creates a fixed navigation section hidden behind the left side of the screen
@@ -275,7 +287,8 @@ nav.hidden-left-nav:hover {
 	-webkit-transform: translateX(30vw);  /* Safari */
 	transform: translateX(30vw);  /* standard syntax */
 	/* These aren't 30.5% because, otherwise, the far left end of the screen would stop the hovering. */
-	pointer-events: auto;
+	animation-name: allow-clicking;
+	/*animation-delay: 0.5s;*/
 }
 nav.hidden-left-nav::before {
 	/**
