@@ -288,7 +288,7 @@ nav.hidden-left-nav:hover {
 	transform: translateX(30vw);  /* standard syntax */
 	/* These aren't 30.5% because, otherwise, the far left end of the screen would stop the hovering. */
 	animation-name: allow-clicking;
-	/*animation-delay: 0.5s;*/
+	animation-delay: 0.5s;
 }
 nav.hidden-left-nav::before {
 	/**
