@@ -1016,6 +1016,12 @@ table.compact {
 	table {
 		font-size: 2.4rem;
 	}
+	th {
+		font-size: 2.4rem;
+	}
+	td {
+		font-size: 2.4rem;
+	}
 	button {
 		font-size: 2.4rem;
 	}
