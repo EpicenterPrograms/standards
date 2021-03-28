@@ -53,6 +53,7 @@ main {
 	height: 100%;
 	padding: 1% 5% 5% 5%;
 	background: rgba(255, 255, 255, .5);
+	overflow: auto;
 }
 
 p {
