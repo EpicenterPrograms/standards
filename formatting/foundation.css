@@ -457,7 +457,7 @@ a:hover {
 }
 
 ol, ul {
-	display: table;
+	display: table;  /* "width: fit-content" could replace this if Internet Explorer didn't matter */
 	margin: .5em auto;
 	padding-right: 1em;
 	text-align: justify;
@@ -829,6 +829,9 @@ over- {
 .to-top {
 	text-align: center;
 }
+.page-jump-sections {
+	max-width: 100%;
+}
 
 .user-section {
 	position: absolute;
@@ -1015,7 +1018,10 @@ table.compact {
 		font-size: 3rem;
 	}
 	table {
+		display: inline-block;
+		max-width: 100%;
 		font-size: 2.4rem;
+		overflow: auto;
 	}
 	th {
 		font-size: 2.4rem;
@@ -1045,6 +1051,15 @@ table.compact {
 	.dialog {
 		max-width: 90%;
 		max-height: 90%;
+	}
+	.details {
+		display: inline-table;
+		table-layout: fixed;
+		width: 100%;
+		overflow: auto;
+	}
+	.details > input:first-child:checked ~ table {
+		display: inline-block;
 	}
 	nav.hidden-left-nav {
 		left: -75.5vw;
