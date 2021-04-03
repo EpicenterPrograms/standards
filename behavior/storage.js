@@ -1150,9 +1150,9 @@ Standards.storage.server = {
 			Standards.storage.makeDialog("There's no server to handle this action.");
 			console.error("Firebase or Firestore doesn't exist.");
 		}
-		if (window.location.protocol != "http:" && window.location.protocol != "https:") {
+		if (window.location.protocol != "http:" && window.location.protocol != "https:" && window.location.protocol != "file:") {
 			Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
-			console.error('The URL doesn\'t use the protocol "http" or "https".');
+			console.error('The URL doesn\'t use the protocol "http:", "https:", or "file:".');
 		}
 		if (shouldCheckUser && !Standards.storage.server.user) {
 			Standards.storage.makeDialog("That action isn't allowed without logging in.");
