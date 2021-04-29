@@ -5269,7 +5269,11 @@ Standards.general.colorCode = function (element, conversion) {
 				[0, 1, 2].forEach(function (index) {  // determines what the color should be based on how close the value is to the two closest ends' colors
 					finalColors.push(Math.round(colors[endIndex-1][index] + (colors[endIndex][index]-colors[endIndex-1][index]) * (value-ends[endIndex-1]) / (ends[endIndex]-ends[endIndex-1])));
 				});
-				return "rgb(" + finalColors.join(", ") + ")";
+				if (finalColors.join(", ").indexOf("NaN") > -1) {  // if the math didn't work out (especially if both ends are the same)
+					return "white";
+				} else {
+					return "rgb(" + finalColors.join(", ") + ")";
+				}
 			}
 			if (element == null) {
 				end1 = 0;
