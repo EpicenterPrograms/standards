@@ -5400,11 +5400,13 @@ Standards.general.colorCode = function (element, conversion) {
 				} else {
 					end1 = 0;
 					end2 = 100;
-					if (isNaN(conversion)) {
+					if (typeof conversion == "function") {
 						element.style.backgroundColor = backgroundColor(conversion());
-					} else {
+					} else if (typeof conversion == "number") {
 						element.style.backgroundColor = backgroundColor(conversion);
-					}
+					} else {
+						console.error("An improper conversion was provided.");
+                    }
 				}
 			}
 		},

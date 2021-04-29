@@ -417,6 +417,68 @@ Standards.storage.Listenable = function () {
 
 
 
+function convertToString(item) {
+	if (Standards.storage.getType(item) === undefined) {
+		item = "~~" + String(item);
+	} else {
+		switch (Standards.storage.getType(item)) {
+			case "Array":
+				item = "~Array~" + JSON.stringify(item);
+				break;
+			case "Object":
+				item = "~Object~" + JSON.stringify(item);
+				break;
+			case "HTMLElement":
+				let container = document.createElement("div");
+				container.appendChild(item.cloneNode(true));
+				item = "~HTMLElement~" + container.innerHTML;
+				break;
+			case "Function":
+				item = "~Function~";
+				let stringified = String(item);
+				if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
+					item += stringified.slice(stringified.indexOf("{") + 1, stringified.lastIndexOf("}"));
+				} else {
+					item += stringified;
+				}
+			default:
+				item = "~" + Standards.storage.getType(item) + "~" + String(item);
+		}
+	}
+	return item;
+}
+function convertFromString(info) {
+	if (info.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
+		info = info.slice(1);
+		switch (info.split("~")[0]) {
+			case "undefined":
+			case "":
+				return undefined;
+			case "null":
+				return null;
+			case "NaN":
+				return NaN;
+			case "Array":
+			case "Object":
+				return JSON.parse(info.slice(info.indexOf("~") + 1));
+			case "HTMLElement":
+				let container = document.createElement("div");
+				container.innerHTML = info.slice(info.indexOf("~") + 1);
+				return container.children[0];
+			default:
+				try {
+					return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
+				} catch (error) {
+					console.error("There was a problem converting the data type.");
+					return info.slice(info.indexOf("~") + 1);
+				}
+		}
+	} else {
+		console.warn("The information didn't have a data type associated with it.");
+		return info;
+	}
+}
+
 Standards.storage.session = {
 	defaultLocation: "/",
 	store: function (location, information) {
@@ -461,57 +523,27 @@ Standards.storage.session = {
 			} else {
 				throw TypeError("The location given wasn't a String.");
 			}
-			function convert(item) {
-				if (Standards.storage.getType(item) === undefined) {
-					item = "~~" + String(item);
-				} else {
-					switch (Standards.storage.getType(item)) {
-						case "Array":
-							item = "~Array~" + JSON.stringify(item);
-							break;
-						case "Object":
-							item = "~Object~" + JSON.stringify(item);
-							break;
-						case "HTMLElement":
-							let container = document.createElement("div");
-							container.appendChild(item.cloneNode(true));
-							item = "~HTMLElement~" + container.innerHTML;
-							break;
-						case "Function":
-							item = "~Function~";
-							let stringified = String(item);
-							if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
-								item += stringified.slice(stringified.indexOf("{") + 1, stringified.lastIndexOf("}"));
-							} else {
-								item += stringified;
-							}
-						default:
-							item = "~" + Standards.storage.getType(item) + "~" + String(item);
-					}
-				}
-				return item;
-			}
 			if (location.slice(-1) == "/") {
 				if (Standards.storage.getType(information) == "Object") {
 					if (location == "/") {
 						Standards.storage.forEach(information, function (value, key) {
-							sessionStorage.setItem(key, convert(value));
+							sessionStorage.setItem(key, convertToString(value));
 						});
 					} else {
 						Standards.storage.forEach(information, function (value, key) {
-							sessionStorage.setItem(location + key, convert(value));
+							sessionStorage.setItem(location + key, convertToString(value));
 						});
 					}
 				} else {
 					console.warn("The folder was converted into a key since the information wasn't an Object.");
 					if (location != "/") {
-						sessionStorage.setItem(location.slice(0, -1), convert(information));
+						sessionStorage.setItem(location.slice(0, -1), convertToString(information));
 					} else {
 						throw "No storage key was provided.";
 					}
 				}
 			} else if (location != "/") {
-				sessionStorage.setItem(location, convert(information));
+				sessionStorage.setItem(location, convertToString(information));
 			} else {
 				throw "No storage key was provided.";
 			}
@@ -575,50 +607,19 @@ Standards.storage.session = {
 			} else {
 				information = sessionStorage.getItem(location);
 			}
-			function convert(info) {
-				if (info.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
-					info = info.slice(1);
-					switch (info.split("~")[0]) {
-						case "undefined":
-						case "":
-							return undefined;
-						case "null":
-							return null;
-						case "NaN":
-							return NaN;
-						case "Array":
-						case "Object":
-							return JSON.parse(info.slice(info.indexOf("~") + 1));
-						case "HTMLElement":
-							let container = document.createElement("div");
-							container.innerHTML = info.slice(info.indexOf("~") + 1);
-							return container.children[0];
-						default:
-							try {
-								return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
-							} catch (error) {
-								console.error("There was a problem converting the data type.");
-								return info.slice(info.indexOf("~") + 1);
-							}
-					}
-				} else {
-					console.warn("The information didn't have a data type associated with it.");
-					return info;
-				}
-			}
 			if (information === null) {
 				console.warn("The information couldn't be found.");
 				return Error("The information couldn't be found.");
 			} else if (Standards.storage.getType(information) == "String") {
-				return convert(information);
+				return convertFromString(information);
 			} else if (Standards.storage.getType(information) == "Object") {
 				Standards.storage.forEach(information, function (value, key) {
-					information[key] = convert(value);
+					information[key] = convertFromString(value);
 				});
 				return information;
 			} else {
 				console.error("An error occurred while retrieving the information.");
-				return convert(information);
+				return convertFromString(information);
 			}
 		}
 	},
@@ -820,57 +821,27 @@ Standards.storage.local = {
 			} else {
 				throw TypeError("The location given wasn't a String.");
 			}
-			function convert(item) {
-				if (Standards.storage.getType(item) === undefined) {
-					item = "~~" + String(item);
-				} else {
-					switch (Standards.storage.getType(item)) {
-						case "Array":
-							item = "~Array~" + JSON.stringify(item);
-							break;
-						case "Object":
-							item = "~Object~" + JSON.stringify(item);
-							break;
-						case "HTMLElement":
-							let container = document.createElement("div");
-							container.appendChild(item.cloneNode(true));
-							item = "~HTMLElement~" + container.innerHTML;
-							break;
-						case "Function":
-							item = "~Function~";
-							let stringified = String(item);
-							if (stringified.search(/function *\( *\) *\{/) > -1) {  // if it's an anonymous function
-								item += stringified.slice(stringified.indexOf("{") + 1, stringified.lastIndexOf("}"));
-							} else {
-								item += stringified;
-							}
-						default:
-							item = "~" + Standards.storage.getType(item) + "~" + String(item);
-					}
-				}
-				return item;
-			}
 			if (location.slice(-1) == "/") {
 				if (Standards.storage.getType(information) == "Object") {
 					if (location == "/") {
 						Standards.storage.forEach(information, function (value, key) {
-							localStorage.setItem(key, convert(value));
+							localStorage.setItem(key, convertToString(value));
 						});
 					} else {
 						Standards.storage.forEach(information, function (value, key) {
-							localStorage.setItem(location + key, convert(value));
+							localStorage.setItem(location + key, convertToString(value));
 						});
 					}
 				} else {
 					console.warn("The folder was converted into a key since the information wasn't an Object.");
 					if (location != "/") {
-						localStorage.setItem(location.slice(0, -1), convert(information));
+						localStorage.setItem(location.slice(0, -1), convertToString(information));
 					} else {
 						throw "No storage key was provided.";
 					}
 				}
 			} else if (location != "/") {
-				localStorage.setItem(location, convert(information));
+				localStorage.setItem(location, convertToString(information));
 			} else {
 				throw "No storage key was provided.";
 			}
@@ -934,50 +905,19 @@ Standards.storage.local = {
 			} else {
 				information = localStorage.getItem(location);
 			}
-			function convert(info) {
-				if (info.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
-					info = info.slice(1);
-					switch (info.split("~")[0]) {
-						case "undefined":
-						case "":
-							return undefined;
-						case "null":
-							return null;
-						case "NaN":
-							return NaN;
-						case "Array":
-						case "Object":
-							return JSON.parse(info.slice(info.indexOf("~") + 1));
-						case "HTMLElement":
-							let container = document.createElement("div");
-							container.innerHTML = info.slice(info.indexOf("~") + 1);
-							return container.children[0];
-						default:
-							try {
-								return window[info.split("~")[0]](info.slice(info.indexOf("~") + 1));  // dynamically creates a constructor
-							} catch (error) {
-								console.error("There was a problem converting the data type.");
-								return info.slice(info.indexOf("~") + 1);
-							}
-					}
-				} else {
-					console.warn("The information didn't have a data type associated with it.");
-					return info;
-				}
-			}
 			if (information === null) {
 				console.warn("The information couldn't be found.");
 				return Error("The information couldn't be found.");
 			} else if (Standards.storage.getType(information) == "String") {
-				return convert(information);
+				return convertFromString(information);
 			} else if (Standards.storage.getType(information) == "Object") {
 				Standards.storage.forEach(information, function (value, key) {
-					information[key] = convert(value);
+					information[key] = convertFromString(value);
 				});
 				return information;
 			} else {
 				console.error("An error occurred while retrieving the information.");
-				return convert(information);
+				return convertFromString(information);
 			}
 		}
 	},
@@ -1150,9 +1090,13 @@ Standards.storage.server = {
 			Standards.storage.makeDialog("There's no server to handle this action.");
 			console.error("Firebase or Firestore doesn't exist.");
 		}
-		if (window.location.protocol != "http:" && window.location.protocol != "https:" && window.location.protocol != "file:") {
-			Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
-			console.error('The URL doesn\'t use the protocol "http:", "https:", or "file:".');
+		if (window.location.protocol != "http:" && window.location.protocol != "https:") {
+			if (window.location.protocol == "file:") {
+				console.warn("Signing in isn't possible from this URL.");
+			} else {
+				Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
+				console.error('The URL doesn\'t use the protocol "http" or "https".');
+			}
 		}
 		if (shouldCheckUser && !Standards.storage.server.user) {
 			Standards.storage.makeDialog("That action isn't allowed without logging in.");
