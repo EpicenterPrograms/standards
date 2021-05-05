@@ -1455,7 +1455,7 @@ Standards.general.itemAt = function (iterable, index) {
 			negative numbers start counting from the end at -1
 	non-native functions: getType
 	*/
-	if (!iterable) {
+	if (iterable === undefined) {
 		throw new Error("No item was provided.");
 	} else if (Standards.general.getType(iterable) == "Object" && Standards.general.getType(index) == "String") {
 		return iterable[index];
