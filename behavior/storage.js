@@ -417,7 +417,7 @@ Standards.storage.Listenable = function () {
 
 
 
-function convertToString(item) {
+function convertToString(item) {  //// Make part of Standards.storage object?
 	if (Standards.storage.getType(item) === undefined) {
 		item = "~~" + String(item);
 	} else {
@@ -447,7 +447,7 @@ function convertToString(item) {
 	}
 	return item;
 }
-function convertFromString(info) {
+function convertFromString(info) {  //// Make part of Standards.storage object?
 	if (info.search(/^~\w{0,20}~/) > -1) {  // if the information indicates a type
 		info = info.slice(1);
 		switch (info.split("~")[0]) {
@@ -676,11 +676,12 @@ Standards.storage.session = {
 			}
 		}
 	},
-	list: function (location) {
+	list: function (location, options) {
 		/**
 		lists the keys of everything in session storage
 		non-native functions = getType
 		*/
+		options = options || {};
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -741,7 +742,20 @@ Standards.storage.session = {
 					}
 				}
 			});
-			return keyList;
+			if (options.shallowKeyList) {
+				let parentFolders = [];
+				Standards.storage.forEach(keyList, function (key) {
+					if (key.indexOf("/") > -1) {
+						key = key.slice(0, key.indexOf("/"));
+					}
+					if (!parentFolders.includes(key)) {
+						parentFolders.push(key);
+					}
+				});
+				return parentFolders;
+			} else {
+				return keyList;
+			}
 		}
 	},
 	move: function (oldPlace, newPlace) {
@@ -974,11 +988,12 @@ Standards.storage.local = {
 			}
 		}
 	},
-	list: function (location) {
+	list: function (location, options) {
 		/**
 		lists the keys of everything in local storage
 		non-native functions = getType
 		*/
+		options = options || {};
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -1039,7 +1054,20 @@ Standards.storage.local = {
 					}
 				}
 			});
-			return keyList;
+			if (options.shallowKeyList) {
+				let parentFolders = [];
+				Standards.storage.forEach(keyList, function (key) {
+					if (key.indexOf("/") > -1) {
+						key = key.slice(0, key.indexOf("/"));
+					}
+					if (!parentFolders.includes(key)) {
+						parentFolders.push(key);
+					}
+				});
+				return parentFolders;
+			} else {
+				return keyList;
+			}
 		}
 	},
 	move: function (oldPlace, newPlace) {
@@ -2145,15 +2173,42 @@ Standards.storage.server = {
 					});
 					if (callback) {
 						new Promise(function () {
-							callback(keyList);
-							resolve(keyList);
+							if (options.shallowKeyList) {
+								let parentFolders = [];
+								Standards.storage.forEach(keyList, function (key) {
+									if (key.indexOf("/") > -1) {
+										key = key.slice(0, key.indexOf("/"));
+									}
+									if (!parentFolders.includes(key)) {
+										parentFolders.push(key);
+									}
+								});
+								callback(parentFolders);
+								resolve(parentFolders);
+							} else {
+								callback(keyList);
+								resolve(keyList);
+							}
 						}).catch(function (error) {
 							console.error("There was a problem running the callback.");
 							console.error(error);
 							reject(error);
 						});
 					} else {
-						resolve(keyList);
+						if (options.shallowKeyList) {
+							let parentFolders = [];
+							Standards.storage.forEach(keyList, function (key) {
+								if (key.indexOf("/") > -1) {
+									key = key.slice(0, key.indexOf("/"));
+								}
+								if (!parentFolders.includes(key)) {
+									parentFolders.push(key);
+								}
+							});
+							resolve(parentFolders);
+						} else {
+							resolve(keyList);
+						}
 					}
 				}).catch(function (error) {
 					console.error("There was an error finding the information.");
@@ -2175,15 +2230,42 @@ Standards.storage.server = {
 						// none of the keys should have "<slash>"
 						if (callback) {
 							new Promise(function () {
-								callback(keyList);
-								resolve(keyList);
+								if (options.shallowKeyList) {
+									let parentFolders = [];
+									Standards.storage.forEach(keyList, function (key) {
+										if (key.indexOf("/") > -1) {
+											key = key.slice(0, key.indexOf("/"));
+										}
+										if (!parentFolders.includes(key)) {
+											parentFolders.push(key);
+										}
+									});
+									callback(parentFolders);
+									resolve(parentFolders);
+								} else {
+									callback(keyList);
+									resolve(keyList);
+								}
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
 								reject(error);
 							});
 						} else {
-							resolve(keyList);
+							if (options.shallowKeyList) {
+								let parentFolders = [];
+								Standards.storage.forEach(keyList, function (key) {
+									if (key.indexOf("/") > -1) {
+										key = key.slice(0, key.indexOf("/"));
+									}
+									if (!parentFolders.includes(key)) {
+										parentFolders.push(key);
+									}
+								});
+								resolve(parentFolders);
+							} else {
+								resolve(keyList);
+							}
 						}
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
@@ -2235,15 +2317,42 @@ Standards.storage.server = {
 						});
 						if (callback) {
 							new Promise(function () {
-								callback(keyList);
-								resolve(keyList);
+								if (options.shallowKeyList) {
+									let parentFolders = [];
+									Standards.storage.forEach(keyList, function (key) {
+										if (key.indexOf("/") > -1) {
+											key = key.slice(0, key.indexOf("/"));
+										}
+										if (!parentFolders.includes(key)) {
+											parentFolders.push(key);
+										}
+									});
+									callback(parentFolders);
+									resolve(parentFolders);
+								} else {
+									callback(keyList);
+									resolve(keyList);
+								}
 							}).catch(function (error) {
 								console.error("There was a problem running the callback.");
 								console.error(error);
 								reject(error);
 							});
 						} else {
-							resolve(keyList);
+							if (options.shallowKeyList) {
+								let parentFolders = [];
+								Standards.storage.forEach(keyList, function (key) {
+									if (key.indexOf("/") > -1) {
+										key = key.slice(0, key.indexOf("/"));
+									}
+									if (!parentFolders.includes(key)) {
+										parentFolders.push(key);
+									}
+								});
+								resolve(parentFolders);
+							} else {
+								resolve(keyList);
+							}
 						}
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
@@ -2264,15 +2373,42 @@ Standards.storage.server = {
 									});
 									if (callback) {
 										new Promise(function () {
-											callback(keyList);
-											resolve(keyList);
+											if (options.shallowKeyList) {
+												let parentFolders = [];
+												Standards.storage.forEach(keyList, function (key) {
+													if (key.indexOf("/") > -1) {
+														key = key.slice(0, key.indexOf("/"));
+													}
+													if (!parentFolders.includes(key)) {
+														parentFolders.push(key);
+													}
+												});
+												callback(parentFolders);
+												resolve(parentFolders);
+											} else {
+												callback(keyList);
+												resolve(keyList);
+											}
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 											reject(error);
 										});
 									} else {
-										resolve(keyList);
+										if (options.shallowKeyList) {
+											let parentFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												if (key.indexOf("/") > -1) {
+													key = key.slice(0, key.indexOf("/"));
+												}
+												if (!parentFolders.includes(key)) {
+													parentFolders.push(key);
+												}
+											});
+											resolve(parentFolders);
+										} else {
+											resolve(keyList);
+										}
 									}
 								}
 							});
@@ -2378,30 +2514,84 @@ Standards.storage.server = {
 									});
 									if (callback) {
 										new Promise(function () {
-											callback(keyList);
-											resolve(keyList);
+											if (options.shallowKeyList) {
+												let parentFolders = [];
+												Standards.storage.forEach(keyList, function (key) {
+													if (key.indexOf("/") > -1) {
+														key = key.slice(0, key.indexOf("/"));
+													}
+													if (!parentFolders.includes(key)) {
+														parentFolders.push(key);
+													}
+												});
+												callback(parentFolders);
+												resolve(parentFolders);
+											} else {
+												callback(keyList);
+												resolve(keyList);
+											}
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 											reject(error);
 										});
 									} else {
-										resolve(keyList);
+										if (options.shallowKeyList) {
+											let parentFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												if (key.indexOf("/") > -1) {
+													key = key.slice(0, key.indexOf("/"));
+												}
+												if (!parentFolders.includes(key)) {
+													parentFolders.push(key);
+												}
+											});
+											resolve(parentFolders);
+										} else {
+											resolve(keyList);
+										}
 									}
 								} else {
 									console.warn("An attempt was made to access a non-existent document.");
 									// keyList is empty and doesn't need to have "<slash>"s replaced
 									if (callback) {
 										new Promise(function () {
-											callback(keyList);
-											resolve(keyList);
+											if (options.shallowKeyList) {
+												let parentFolders = [];
+												Standards.storage.forEach(keyList, function (key) {
+													if (key.indexOf("/") > -1) {
+														key = key.slice(0, key.indexOf("/"));
+													}
+													if (!parentFolders.includes(key)) {
+														parentFolders.push(key);
+													}
+												});
+												callback(parentFolders);
+												resolve(parentFolders);
+											} else {
+												callback(keyList);
+												resolve(keyList);
+											}
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 											reject(error);
 										});
 									} else {
-										resolve(keyList);
+										if (options.shallowKeyList) {
+											let parentFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												if (key.indexOf("/") > -1) {
+													key = key.slice(0, key.indexOf("/"));
+												}
+												if (!parentFolders.includes(key)) {
+													parentFolders.push(key);
+												}
+											});
+											resolve(parentFolders);
+										} else {
+											resolve(keyList);
+										}
 									}
 								}
 							}).catch(function (error) {
@@ -2428,15 +2618,42 @@ Standards.storage.server = {
 							// none of the keys should have "<slash>"
 							if (callback) {
 								new Promise(function () {
-									callback(keyList);
-									resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
+											}
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
+										});
+										callback(parentFolders);
+										resolve(parentFolders);
+									} else {
+										callback(keyList);
+										resolve(keyList);
+									}
 								}).catch(function (error) {
 									console.error("There was a problem running the callback.");
 									console.error(error);
 									reject(error);
 								});
 							} else {
-								resolve(keyList);
+								if (options.shallowKeyList) {
+									let parentFolders = [];
+									Standards.storage.forEach(keyList, function (key) {
+										if (key.indexOf("/") > -1) {
+											key = key.slice(0, key.indexOf("/"));
+										}
+										if (!parentFolders.includes(key)) {
+											parentFolders.push(key);
+										}
+									});
+									resolve(parentFolders);
+								} else {
+									resolve(keyList);
+								}
 							}
 						} else {
 							let listener = new Standards.storage.Listenable();
@@ -2449,15 +2666,42 @@ Standards.storage.server = {
 									});
 									if (callback) {
 										new Promise(function () {
-											callback(keyList);
-											resolve(keyList);
+											if (options.shallowKeyList) {
+												let parentFolders = [];
+												Standards.storage.forEach(keyList, function (key) {
+													if (key.indexOf("/") > -1) {
+														key = key.slice(0, key.indexOf("/"));
+													}
+													if (!parentFolders.includes(key)) {
+														parentFolders.push(key);
+													}
+												});
+												callback(parentFolders);
+												resolve(parentFolders);
+											} else {
+												callback(keyList);
+												resolve(keyList);
+											}
 										}).catch(function (error) {
 											console.error("There was a problem running the callback.");
 											console.error(error);
 											reject(error);
 										});
 									} else {
-										resolve(keyList);
+										if (options.shallowKeyList) {
+											let parentFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												if (key.indexOf("/") > -1) {
+													key = key.slice(0, key.indexOf("/"));
+												}
+												if (!parentFolders.includes(key)) {
+													parentFolders.push(key);
+												}
+											});
+											resolve(parentFolders);
+										} else {
+											resolve(keyList);
+										}
 									}
 								}
 							});
@@ -2536,30 +2780,84 @@ Standards.storage.server = {
 								});
 								if (callback) {
 									new Promise(function () {
-										callback(keyList);
-										resolve(keyList);
+										if (options.shallowKeyList) {
+											let parentFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												if (key.indexOf("/") > -1) {
+													key = key.slice(0, key.indexOf("/"));
+												}
+												if (!parentFolders.includes(key)) {
+													parentFolders.push(key);
+												}
+											});
+											callback(parentFolders);
+											resolve(parentFolders);
+										} else {
+											callback(keyList);
+											resolve(keyList);
+										}
 									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
 										reject(error);
 									});
 								} else {
-									resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
+											}
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
+										});
+										resolve(parentFolders);
+									} else {
+										resolve(keyList);
+									}
 								}
 							} else {
 								console.warn("An attempt was made to access a non-existent document.");
 								// keyList should be empty
 								if (callback) {
 									new Promise(function () {
-										callback(keyList);
-										resolve(keyList);
+										if (options.shallowKeyList) {
+											let parentFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												if (key.indexOf("/") > -1) {
+													key = key.slice(0, key.indexOf("/"));
+												}
+												if (!parentFolders.includes(key)) {
+													parentFolders.push(key);
+												}
+											});
+											callback(parentFolders);
+											resolve(parentFolders);
+										} else {
+											callback(keyList);
+											resolve(keyList);
+										}
 									}).catch(function (error) {
 										console.error("There was a problem running the callback.");
 										console.error(error);
 										reject(error);
 									});
 								} else {
-									resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
+											}
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
+										});
+										resolve(parentFolders);
+									} else {
+										resolve(keyList);
+									}
 								}
 							}
 						}).catch(function (error) {
