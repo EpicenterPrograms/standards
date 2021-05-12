@@ -1048,9 +1048,10 @@ table.compact {
 		display: block;
 		position: static;
 	}
-	.dialog {
+	.dialog-container {
 		max-width: 90%;
 		max-height: 90%;
+		height: 60%;  /* //// ? */
 	}
 	.details {
 		display: inline-table;

@@ -1377,7 +1377,7 @@ Standards.storage.server = {
 												}]
 											);
 											reject();
-										} else if (password.search(/\w/) == -1) {  // if the password doesn't have any letters
+										} else if (password.search(/[a-zA-Z]/) == -1) {  // if the password doesn't have any letters
 											Standards.storage.makeDialog(
 												"The password doesn't contain any letters.",
 												["Try again", function () {
