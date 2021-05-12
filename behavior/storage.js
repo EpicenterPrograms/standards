@@ -1113,25 +1113,31 @@ Standards.storage.server = {
 	user: undefined,  // gets set to firebase.auth().currentUser
 	requireSignIn: true,
 	checkCompatibility: function (shouldCheckUser) {
-		shouldCheckUser = shouldCheckUser === undefined ? Standards.storage.server.requireSignIn : shouldCheckUser;
-		if (Standards.storage.server.database === undefined) {
-			Standards.storage.makeDialog("There's no server to handle this action.");
-			console.error("Firebase or Firestore doesn't exist.");
-		}
-		if (window.location.protocol != "http:" && window.location.protocol != "https:") {
-			if (window.location.protocol == "file:") {
-				console.warn("Signing in isn't possible from this URL.");
-			} else {
-				Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
-				console.error('The URL doesn\'t use the protocol "http" or "https".');
+		if (navigator.onLine) {
+			shouldCheckUser = shouldCheckUser === undefined ? Standards.storage.server.requireSignIn : shouldCheckUser;
+			if (Standards.storage.server.database === undefined) {
+				Standards.storage.makeDialog("There's no server to handle this action.");
+				console.error("Firebase or Firestore doesn't exist.");
 			}
-		}
-		if (shouldCheckUser && !Standards.storage.server.user) {
-			Standards.storage.makeDialog("That action isn't allowed without logging in.");
-			console.warn("The action couldn't be completed because the user wasn't logged on.");
+			if (window.location.protocol != "http:" && window.location.protocol != "https:") {
+				if (window.location.protocol == "file:") {
+					console.warn("Signing in isn't possible from this URL.");
+				} else {
+					Standards.storage.makeDialog("Access to the server isn't allowed from this URL.");
+					console.error('The URL doesn\'t use the protocol "http" or "https".');
+				}
+			}
+			if (shouldCheckUser && !Standards.storage.server.user) {
+				Standards.storage.makeDialog("That action isn't allowed without logging in.");
+				console.warn("The action couldn't be completed because the user wasn't logged on.");
+				return false;
+			}
+			return true;
+		} else {
+			Standards.storage.makeDialog("You're not connected to the internet.");
+			console.error("No internet connection.");
 			return false;
 		}
-		return true;
 	},
 	locationType: "hybrid",  // shallow, hybrid, or deep
 	formatLocation: function (location, ignoreLength) {

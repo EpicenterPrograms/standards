@@ -2509,7 +2509,7 @@ Standards.general.getFile = function (url, callback, convert) {
 	only files from the same domain can be retrieved without CORS
 	local files can only be accessed from a file selector
 	arguments:
-		URL = required; the URL of the desired file
+		url = required; the URL of the desired file
 			can be absolute or relative
 		callback = required; what to do after receiving the file
 			one argument will be provided: the received file
