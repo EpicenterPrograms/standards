@@ -675,7 +675,7 @@ footer {
 	box-sizing: content-box;  /* This prevents the border from crowding out the content in extreme screen circumstances. */
 	z-index: 10;
 	border: 12px solid #aadddd;  /* This is in pixels in order to prevent random scroll bars appearing (probably because of otherwise getting a fraction of a pixel). */
-	border-radius: 4vh;
+	border-radius: 4vh 0vh 4vh 4vh;
 	padding: 1em;
 	max-width: 100%;
 	max-height: 100%;
