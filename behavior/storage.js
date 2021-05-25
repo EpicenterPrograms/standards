@@ -495,7 +495,8 @@ Standards.storage.session = {
 		} else {
 			if (location === undefined && Standards.storage.session.defaultLocation != "") {
 				location = Standards.storage.session.defaultLocation;
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
@@ -566,7 +567,8 @@ Standards.storage.session = {
 		} else {
 			if (location === undefined && Standards.storage.session.defaultLocation != "") {
 				location = Standards.storage.session.defaultLocation;
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						throw ReferenceError("Root-level data retrieval isn't possible.");
@@ -634,7 +636,8 @@ Standards.storage.session = {
 		} else {
 			if (location === undefined && Standards.storage.session.defaultLocation != "") {
 				location = Standards.storage.session.defaultLocation;
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
@@ -693,7 +696,8 @@ Standards.storage.session = {
 				}
 				/// makes sure the list doesn't include the parent folder
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
@@ -807,7 +811,8 @@ Standards.storage.local = {
 		} else {
 			if (location === undefined && Standards.storage.local.defaultLocation != "") {
 				location = Standards.storage.local.defaultLocation;
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
@@ -878,7 +883,8 @@ Standards.storage.local = {
 		} else {
 			if (location === undefined && Standards.storage.local.defaultLocation != "") {
 				location = Standards.storage.local.defaultLocation;
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location == "/") {
 						throw ReferenceError("Root-level data retrieval isn't possible.");
@@ -946,7 +952,8 @@ Standards.storage.local = {
 		} else {
 			if (location === undefined && Standards.storage.local.defaultLocation != "") {
 				location = Standards.storage.local.defaultLocation;
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
@@ -1005,7 +1012,8 @@ Standards.storage.local = {
 				}
 				/// makes sure the list doesn't include the parent folder
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
-			} else if (Standards.storage.getType(location) == "String") {
+			}
+			if (Standards.storage.getType(location) == "String") {
 				if (location[0] == "/") {
 					if (location != "/") {
 						location = location.slice(1);
