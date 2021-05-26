@@ -479,6 +479,58 @@ function convertFromString(info) {  //// Make part of Standards.storage object?
 	}
 }
 
+Standards.storage.standardizeStorageLocation = function (location, type, shouldAddSlash) {
+	if ((location === undefined || location === "") && Standards.storage[type].defaultLocation != "") {
+		location = Standards.storage[type].defaultLocation;
+		if (shouldAddSlash && location.slice(-1) != "/") {
+			location += "/";
+		}
+		/// makes sure the list doesn't include the parent folder
+		/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
+	}
+	if (Standards.storage.getType(location) == "String") {
+		if (location === "" || location[0] == "." && Standards.storage[type].defaultLocation == "") {
+			throw "No default location is present.";
+		} else if (location.slice(0, 2) == "..") {
+			let prelocation = Standards.storage[type].defaultLocation;
+			if (prelocation[0] == "/") {
+				prelocation = prelocation.slice(1);
+			}
+			if (prelocation.slice(-1) == "/") {
+				prelocation = prelocation.slice(0, -1);
+			}
+			prelocation = prelocation.split("/");
+			while (location.slice(0, 2) == "..") {
+				prelocation.pop();
+				location = location.slice(3);  // takes slashes into account
+			}
+			location = prelocation.join("/") + "/" + location;
+		} else if (location[0] == ".") {
+			if (Standards.storage[type].defaultLocation.slice(-1) == "/") {
+				location = Standards.storage[type].defaultLocation + location.slice(2);
+			} else {
+				location = Standards.storage[type].defaultLocation + location.slice(1);
+			}
+		}
+		if (location[0] == "/") {
+			// do nothing
+		} else if (Standards.storage[type].defaultLocation.slice(-1) == "/") {
+			location = Standards.storage[type].defaultLocation + location;
+		} else {
+			location = Standards.storage[type].defaultLocation + "/" + location;
+		}
+		if (location[0] == "/" && location != "/") {
+			location = location.slice(1);
+		}
+		if (location != "/" && location.search(/^[^/]+(?:\/[^/]+)*\/?$/) == -1) {
+			throw "The location isn't formatted properly.";
+		}
+	} else {
+		throw TypeError("The location given wasn't a String.");
+	}
+	return location;
+}
+
 Standards.storage.session = {
 	defaultLocation: "/",
 	store: function (location, information) {
@@ -493,37 +545,7 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.session.defaultLocation != "") {
-				location = Standards.storage.session.defaultLocation;
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location != "/") {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "") {
-					throw "No default location is present.";
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.session.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.session.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.session.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.session.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "session");
 			if (location.slice(-1) == "/") {
 				if (Standards.storage.getType(information) == "Object") {
 					if (location == "/") {
@@ -565,39 +587,7 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.session.defaultLocation != "") {
-				location = Standards.storage.session.defaultLocation;
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location == "/") {
-						throw ReferenceError("Root-level data retrieval isn't possible.");
-					} else {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "") {
-					throw ReferenceError("No default location is present.");
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.session.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.session.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.session.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.session.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "session");
 			let information = "";
 			if (location.slice(-1) == "/") {
 				information = {};
@@ -634,37 +624,7 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.session.defaultLocation != "") {
-				location = Standards.storage.session.defaultLocation;
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location != "/") {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "") {
-					throw "No default location is present.";
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.session.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.session.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.session.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.session.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "session");
 			if (location == "/") {
 				sessionStorage.clear();
 			} else if (location.slice(-1) == "/") {
@@ -689,42 +649,7 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.session.defaultLocation != "") {
-				location = Standards.storage.session.defaultLocation;
-				if (location.slice(-1) != "/") {
-					location += "/";
-				}
-				/// makes sure the list doesn't include the parent folder
-				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location != "/") {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "") {
-					throw "No default location is present.";
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.session.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.session.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.session.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.session.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.session.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.session.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "session", true);
 			var keyList = [];
 			Object.keys(sessionStorage).forEach(function (key) {
 				if (location == "/") {
@@ -809,37 +734,7 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.local.defaultLocation != "") {
-				location = Standards.storage.local.defaultLocation;
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location != "/") {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "") {
-					throw "No default location is present.";
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.local.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.local.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.local.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.local.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "local");
 			if (location.slice(-1) == "/") {
 				if (Standards.storage.getType(information) == "Object") {
 					if (location == "/") {
@@ -881,39 +776,7 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.local.defaultLocation != "") {
-				location = Standards.storage.local.defaultLocation;
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location == "/") {
-						throw ReferenceError("Root-level data retrieval isn't possible.");
-					} else {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "") {
-					throw ReferenceError("No default location is present.");
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.local.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.local.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.local.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.local.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "local");
 			let information = "";
 			if (location.slice(-1) == "/") {
 				information = {};
@@ -950,37 +813,7 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.local.defaultLocation != "") {
-				location = Standards.storage.local.defaultLocation;
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location != "/") {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "") {
-					throw "No default location is present.";
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.local.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.local.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.local.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.local.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "local");
 			if (location == "/") {
 				localStorage.clear();
 			} else if (location.slice(-1) == "/") {
@@ -1005,42 +838,7 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else {
-			if (location === undefined && Standards.storage.local.defaultLocation != "") {
-				location = Standards.storage.local.defaultLocation;
-				if (location.slice(-1) != "/") {
-					location += "/";
-				}
-				/// makes sure the list doesn't include the parent folder
-				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
-			}
-			if (Standards.storage.getType(location) == "String") {
-				if (location[0] == "/") {
-					if (location != "/") {
-						location = location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "") {
-					throw "No default location is present.";
-				} else if (location === "" || location === ".") {
-					location = Standards.storage.local.defaultLocation;
-				} else if (location.slice(0, 2) == "./") {
-					if (Standards.storage.local.defaultLocation.slice(-1) == "/") {
-						location = Standards.storage.local.defaultLocation + location.slice(2);
-					} else {
-						location = Standards.storage.local.defaultLocation + location.slice(1);
-					}
-				} else if (Standards.storage.local.defaultLocation == "/") {
-					// do nothing
-				} else {
-					let prelocation = Standards.storage.local.defaultLocation.split("/");
-					while (location.slice(0, 2) == "..") {
-						prelocation.pop();
-						location = location.slice(3);  // takes slashes into account
-					}
-					location = prelocation.join("/") + "/" + location;
-				}
-			} else {
-				throw TypeError("The location given wasn't a String.");
-			}
+			location = Standards.storage.standardizeStorageLocation(location, "local", true);
 			var keyList = [];
 			Object.keys(localStorage).forEach(function (key) {
 				if (location == "/") {
