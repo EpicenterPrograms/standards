@@ -30,6 +30,60 @@ valid options =
 		runs a corresponding amount of code after defining everything
 		default = "full"
 */
+(function () {
+	console.messages = [];
+	let oldConsole = {};
+	oldConsole.log = console.log;
+	oldConsole.warn = console.warn;
+	oldConsole.error = console.error;
+	oldConsole.info = console.info;
+	oldConsole.clear = console.clear;
+	console.log = function (message) {
+		oldConsole.log(message);
+		let msg;
+		if (S.getType(message) == "Array") {
+			msg = "[\n" + message.join("\n") + "\n]";
+		} else if (message instanceof Object) {
+			msg = "{\n";
+			for (const key in message) {
+				msg += key + ": " + message[key].toString().replace(/\r\n/g, "\n") + "\n";
+			}
+			msg += "}";
+		} else {
+			msg = message;
+		}
+		console.messages.push(msg);
+		window.dispatchEvent(new Event("console written"));
+	};
+	console.warn = function (message) {
+		oldConsole.warn(message);
+		console.messages.push("Warning {\n\t" + message + "\n}");
+		window.dispatchEvent(new Event("console written"));
+	};
+	console.error = function (message) {
+		oldConsole.error(message);
+		if (message instanceof Error) {
+			console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
+		} else {
+			console.messages.push("Error {\n\t" + message + "\n}");
+		}
+		window.dispatchEvent(new Event("console written"));
+	};
+	console.info = function (message) {
+		oldConsole.info(message);
+		console.messages.push("Info {\n\t" + message + "\n}");
+		window.dispatchEvent(new Event("console written"));
+	};
+	console.clear = function () {
+		oldConsole.clear();
+		console.messages = [];
+		window.dispatchEvent(new Event("console cleared"));
+	};
+})();
+window.addEventListener("error", function (error) {
+	console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
+	window.dispatchEvent(new Event("console written"));
+});
 
 Standards.general.help = function (item, part) {
 	/**
@@ -1365,6 +1419,8 @@ Standards.general.getType = function (item) {
 		return "NaN";
 	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
 		return "HTMLElement";
+	} else if (item instanceof Error) {
+		return "Error";
 	} else {
 		let match = item.constructor.toString().match(/^function (\w+)\(\)/);
 		if (match === null) {
@@ -1629,7 +1685,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 	arguments:
 		item = required*; what will be listening
 			* not required if listening to a key press
-		    when an element or an ID which can be converted into an element:
+			when an element or an ID which can be converted into an element:
 				the element to put the listener onto
 				the triggering event is passed to the function
 				when listening for keypresses, keys pressed can be accessed with event.keys
@@ -1674,7 +1730,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 	*/
 	if (item == "Enter") {  //// legacy compatibility
 		item == ["Enter"];
-    }
+	}
 	if (Standards.general.getType(item) == "Array" && item != ["Enter"]) {
 		Standards.general.forEach(item, function (i) {
 			Standards.general.listen(i, event, behavior, options);
@@ -5410,7 +5466,7 @@ Standards.general.colorCode = function (element, conversion) {
 						element.style.backgroundColor = backgroundColor(conversion);
 					} else {
 						console.error("An improper conversion was provided.");
-                    }
+					}
 				}
 			}
 		},
