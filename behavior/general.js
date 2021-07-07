@@ -1425,6 +1425,8 @@ Standards.general.getType = function (item) {
 		let match = item.constructor.toString().match(/^function (\w+)\(\)/);
 		if (match === null) {
 			console.error(TypeError("The item has an unknown type."));
+			console.log(item.constructor.toString());
+			console.log(item.constructor);
 			return undefined;
 		} else {
 			return match[1];
