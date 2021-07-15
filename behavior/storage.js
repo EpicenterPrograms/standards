@@ -2174,6 +2174,9 @@ Standards.storage.server = {
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.storage.server.getReference(location);
 					console.log("Probing the collection");
+					console.log(location);
+					console.log(reference);
+					console.log(reference.collection("<collection>"));
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						console.log("Probe obtained");
 						if (collectionProbe.size > 0) {  // if there's sub-documents
