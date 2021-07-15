@@ -46,7 +46,13 @@ valid options =
 		} else if (message instanceof Object) {
 			msg = "{\n";
 			for (const key in message) {
-				msg += key + ": " + message[key].toString().replace(/\r\n/g, "\n") + "\n";
+				if (message[key] === undefined) {
+					msg += key + ": undefined\n";
+				} else if (message[key].toString) {
+					msg += key + ": " + message[key].toString().replace(/\r\n/g, "\n") + "\n";
+				} else {
+					msg += key + ": " + message[key] + "\n";
+                }
 			}
 			msg += "}";
 		} else {
