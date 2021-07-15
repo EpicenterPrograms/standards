@@ -48,11 +48,13 @@ valid options =
 			for (const key in message) {
 				if (message[key] === undefined) {
 					msg += key + ": undefined\n";
+				} else if (message[key] === null) {
+					msg += key + ": null\n";
 				} else if (message[key].toString) {
 					msg += key + ": " + message[key].toString().replace(/\r\n/g, "\n") + "\n";
 				} else {
 					msg += key + ": " + message[key] + "\n";
-                }
+				}
 			}
 			msg += "}";
 		} else {
@@ -1673,8 +1675,8 @@ Standards.general.compare = function (iterable1, iterable2) {
 				}
 				// fills the current item with the number of changes needed in the most efficient method of modification
 				matrix[x][y] = Math.min(
-					matrix[x - 1][y] + 1,    // if a deletion is used
-					matrix[x][y - 1] + 1,    // if an insertion is used
+					matrix[x - 1][y] + 1,      // if a deletion is used
+					matrix[x][y - 1] + 1,      // if an insertion is used
 					matrix[x - 1][y - 1] + sc  // if a substitution is used
 				);
 			}
