@@ -41,7 +41,7 @@ valid options =
 	console.log = function (message) {
 		oldConsole.log(message);
 		let msg;
-		if (S.getType(message) == "Array") {
+		if (message instanceof Array) {
 			msg = "[\n" + message.join("\n") + "\n]";
 		} else if (message instanceof Object) {
 			msg = "{\n";
