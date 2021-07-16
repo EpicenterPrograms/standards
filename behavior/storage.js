@@ -2173,19 +2173,12 @@ Standards.storage.server = {
 					});
 				} else {  // if the provided location length is shallower than (or equal to) the default location
 					let reference = Standards.storage.server.getReference(location);
-					console.log("Probing the collection");
-					console.log(location);
-					console.log(reference);
-					console.log(reference.collection("<collection>"));
 					reference.collection("<collection>").get().then(function (collectionProbe) {
-						console.log("Probe obtained");
 						if (collectionProbe.size > 0) {  // if there's sub-documents
-							console.log("Subdocuments exist");
 							let listener = new Standards.storage.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been listed
-									console.log("All items have been listed");
 									listener.removeEventListener("change", arguments.callee);
 									Standards.storage.forEach(keyList, function (key, index) {
 										keyList[index] = key.replace(/<slash>/g, "/");
@@ -2234,14 +2227,10 @@ Standards.storage.server = {
 							/// when a new document is encountered, listener.value is incremented
 							/// when a document's keys have been iterated, listener.value is decremented
 							function exploreCollection(collection, path) {
-								console.log("Exploring collection using path " + path);
-								console.log(collection);
 								Standards.storage.forEach(collection, function (doc) {
 									if (doc.exists) {
 										listener.value++;
-										console.log("Probing for another collection");
 										doc.ref.collection("<collection>").get().then(function (subcollection) {
-											console.log("Finished probing another collection");
 											if (subcollection.size > 0) {  // if there's sub-sub-documents
 												exploreCollection(subcollection.docs, path + doc.id + "<slash>");
 											}
@@ -2260,7 +2249,6 @@ Standards.storage.server = {
 								});
 							}
 							if (location.slice(-7) == "<slash>") {
-								console.log("Location ends in a slash");
 								exploreCollection(collectionProbe.docs, "");
 								reference.get().then(function (doc) {
 									if (doc.exists && Object.keys(doc.data()).length > 1) {  // if the document has any field values
@@ -2322,7 +2310,6 @@ Standards.storage.server = {
 								listener.value--;
 							}
 						} else {  // if there's not sub-documents
-							console.log("Subdocuments don't exist.");
 							reference.get().then(function (doc) {
 								if (doc.exists) {
 									if (location.slice(-7) == "<slash>") {  // if getting the contents of a folder
