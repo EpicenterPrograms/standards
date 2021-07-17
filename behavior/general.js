@@ -2850,6 +2850,9 @@ Standards.general.parse_str = function (encodedString) {
 	return decodedObject;
 };
 
+
+/*
+
 Standards.general.storage = {};
 
 Standards.general.storage.session = {
@@ -2861,7 +2864,7 @@ Standards.general.storage.session = {
 		string type tags are used behind the scenes to keep track of data types
 		items stored with this function will always be recalled correctly with the recall() function
 		non-native functions = getType, forEach
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -2962,7 +2965,7 @@ Standards.general.storage.session = {
 			items without "~[type]~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
 		non-native functions = getType, forEach
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3061,7 +3064,7 @@ Standards.general.storage.session = {
 		/**
 		deletes information in session storage
 		non-native functions = getType
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3114,7 +3117,7 @@ Standards.general.storage.session = {
 		/**
 		lists the keys of everything in session storage
 		non-native functions = getType
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3182,7 +3185,7 @@ Standards.general.storage.session = {
 		/**
 		moves information in one place to another place
 		non-native functions = getType, forEach
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3220,7 +3223,7 @@ Standards.general.storage.local = {
 		string type tags are used behind the scenes to keep track of data types
 		items stored with this function will always be recalled correctly with the recall() function
 		non-native functions = getType, forEach
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3321,7 +3324,7 @@ Standards.general.storage.local = {
 			items without "~[type]~" at the beginning should return as a string
 			including any of those tags at the beginning will result in the tag being removed and the data type possibly being incorrectly determined
 		non-native functions = getType, forEach
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3420,7 +3423,7 @@ Standards.general.storage.local = {
 		/**
 		deletes information in local storage
 		non-native functions = getType
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3473,7 +3476,7 @@ Standards.general.storage.local = {
 		/**
 		lists the keys of everything in local storage
 		non-native functions = getType
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3541,7 +3544,7 @@ Standards.general.storage.local = {
 		/**
 		moves information in one place to another place
 		non-native functions = getType, forEach
-		*/
+		*
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
@@ -3606,7 +3609,7 @@ Standards.general.storage.server = {
 		ignoreLength = optional boolean; whether the length of the location should be ignored
 			default: false
 		non-native functions = getType
-		*/
+		*
 
 		// makes sure the default location is in the proper format
 		if (Standards.general.storage.server.defaultLocation[0] == ".") {
@@ -3634,7 +3637,8 @@ Standards.general.storage.server = {
 			location = "~" + Standards.general.storage.server.defaultLocation;
 		}
 		if (Standards.general.getType(location) == "String") {
-			location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
+			//// add back the ending slash to the regular expression if reimplementing the storage functions
+			location = location.trim().replace(/\s*\/\s*g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
 			if (location.slice(0, 8) == ".<slash>") {
 				location = "~" + Standards.general.storage.server.defaultLocation + location.slice(1);
 			}
@@ -3686,7 +3690,7 @@ Standards.general.storage.server = {
 		different paths are separated by "<slash>"
 		uses Google Firebase
 		non-native functions = getType
-		*/
+		*
 		let reference = Standards.general.storage.server.database;
 		if (location === "~" || !location.includes("<slash>")) {
 			return reference;
@@ -5285,6 +5289,10 @@ Standards.general.storage.server = {
 		});
 	}
 };
+
+*/
+
+
 
 Standards.general.colorCode = function (element, conversion) {
 	/**
