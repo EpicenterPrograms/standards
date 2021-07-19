@@ -2794,7 +2794,7 @@ Standards.general.parse_str = function (encodedString) {
 	/**
 	a close approximation of the PHP function parse_str()
 	turns a URL-encoded string into an object (returns the object)
-	particularly useful when receiving information encoded into a string (as happens within Standards.general.storage.____.recall())
+	particularly useful when receiving information encoded into a string (as happens within Standards.storage.____.recall())
 	example:
 		var options = "greeting=Hello!&number=42&animal=cuttlefish";
 		var result = Standards.general.parse_str(options);
@@ -5532,6 +5532,7 @@ if (!(Standards.general.options.automation == "none")) {
 	}
 }
 
+/*
 if (Standards.general.options.runAuthCode != false && typeof firebase != "undefined" && firebase.firestore) {
 	firebase.auth().onAuthStateChanged(function (person) {  // listens for a change in authorization status (future onAuthStateChanged calls don't overwrite this one)
 		if (person) {  // if the user is signed in
@@ -5587,6 +5588,7 @@ if (Standards.general.options.runAuthCode != false && typeof firebase != "undefi
 		Standards.general.storage.server.user = person;
 	});
 }
+*/
 
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
@@ -5673,7 +5675,8 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			}, true);
 			table.style.visibility = "visible";
 		}
-		
+
+		/*
 		// gives the login/user buttons functionality
 		if (document.getElementById("signIn")) {  // if there's a signIn button
 			document.getElementById("signIn").addEventListener("click", function () {
@@ -5694,6 +5697,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		if (document.getElementById("signOut")) {  // if there's a signOut button
 			document.getElementById("signOut").addEventListener("click", Standards.general.storage.server.signOut);
 		}
+		*/
 
 		// adds page jumping capabilities
 		Standards.general.forEach(document.getElementsByClassName("page-jump-sections"), function (division) {
