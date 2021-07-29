@@ -1,3 +1,4 @@
+alert("Checkpoint 0");
 if (typeof Standards !== "undefined") {
 	if (Standards.constructor !== Object) {
 		var Standards = {};
@@ -92,7 +93,7 @@ window.addEventListener("error", function (error) {
 	console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
 	window.dispatchEvent(new Event("console written"));
 });
-
+alert("Checkpoint 0.5");
 Standards.general.help = function (item, part) {
 	/**
 	This prints out the source code of what you want to learn about
