@@ -5492,7 +5492,7 @@ Standards.general.colorCode = function (element, conversion) {
 	});
 };
 
-Standards.general.makeDialog("Checkpoint 1");
+alert("Checkpoint 1");
 
 if (!(Standards.general.options.automation == "none")) {
 	
@@ -5589,7 +5589,7 @@ if (Standards.general.options.runAuthCode != false && typeof firebase != "undefi
 	});
 }
 */
-Standards.general.makeDialog("Checkpoint 2");
+alert("Checkpoint 2");
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
 	
@@ -5619,7 +5619,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				});
 			}
 		});
-		Standards.general.makeDialog("Checkpoint 3");
+		alert("Checkpoint 3");
 		// interprets <note-> tags
 		/*
 		var noteNumber = 1;
@@ -5743,7 +5743,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			link.href = window.location.href.split("#")[1].trim();
 			link.click();
 		}
-		Standards.general.makeDialog("Checkpoint 4");
+		alert("Checkpoint 4");
 		// enables making use of elaborations
 		Standards.general.forEach(document.getElementsByTagName("aside"), function (section) {
 			if (!section.dataset.hasOwnProperty("heading")) {
@@ -5779,7 +5779,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			});
 		});
 	}
-	Standards.general.makeDialog("Checkpoint 5");
+	alert("Checkpoint 5");
 	Standards.general.queue.run();
 });
 
