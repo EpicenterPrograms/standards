@@ -1,4 +1,3 @@
-alert("Checkpoint 0");
 if (typeof Standards !== "undefined") {
 	if (Standards.constructor !== Object) {
 		var Standards = {};
@@ -93,7 +92,7 @@ window.addEventListener("error", function (error) {
 	console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
 	window.dispatchEvent(new Event("console written"));
 });
-alert("Checkpoint 0.5");
+
 Standards.general.help = function (item, part) {
 	/**
 	This prints out the source code of what you want to learn about
@@ -5361,7 +5360,7 @@ Standards.general.colorCode = function (element, conversion) {
 					console.error("No element was given and an improper conversion was provided.");
 				}
 			} else {
-				if (element.tagName == "TABLE") {  // This might have to be capitalized.
+				if (element.tagName == "TABLE" || element.tagName == "TR") {  // This might have to be capitalized.
 					var tds = [];  // This needs to be set to an array for it to be used in toArray().
 						// tds[3] and tds[6] are representative samples of the type of data
 					if (list) {
@@ -5493,7 +5492,7 @@ Standards.general.colorCode = function (element, conversion) {
 	});
 };
 
-alert("Checkpoint 1");
+
 
 if (!(Standards.general.options.automation == "none")) {
 	
@@ -5590,7 +5589,7 @@ if (Standards.general.options.runAuthCode != false && typeof firebase != "undefi
 	});
 }
 */
-alert("Checkpoint 2");
+
 
 addEventListener("load", function () {  // This waits for everything past the script import to load before running.
 	
@@ -5620,7 +5619,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				});
 			}
 		});
-		alert("Checkpoint 3");
+		
 		// interprets <note-> tags
 		/*
 		var noteNumber = 1;
@@ -5744,7 +5743,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			link.href = window.location.href.split("#")[1].trim();
 			link.click();
 		}
-		alert("Checkpoint 4");
+		
 		// enables making use of elaborations
 		Standards.general.forEach(document.getElementsByTagName("aside"), function (section) {
 			if (!section.dataset.hasOwnProperty("heading")) {
@@ -5780,7 +5779,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			});
 		});
 	}
-	alert("Checkpoint 5");
+	
 	Standards.general.queue.run();
 });
 
