@@ -509,6 +509,7 @@ table.labeled-list th {
 	border: none;
 	background: none;
 	text-align: right;
+	vertical-align: top;
 }
 table.labeled-list td {
 	/**
@@ -517,6 +518,7 @@ table.labeled-list td {
 	border: none;
 	background: none;
 	text-align: justify;
+	vertical-align: top;
 }
 table.labeled-list td:first-child {
 	/**
@@ -532,6 +534,7 @@ table.conversation th {
 	border: none;
 	background: none;
 	text-align: right;
+	vertical-align: top;
 }
 table.conversation td {
 	/**
@@ -540,6 +543,7 @@ table.conversation td {
 	border: none;
 	background: none;
 	text-align: justify;
+	vertical-align: top;
 }
 table.conversation td:first-child {
 	/**
