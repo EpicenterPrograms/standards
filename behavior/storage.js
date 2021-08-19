@@ -696,7 +696,7 @@ Standards.storage.session = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else if (oldPlace != newPlace && Standards.storage.session.recall(oldPlace) !== null) {
-			if (newPlace.slice(-1) != "/") {
+			if (newPlace.slice(-1) != "/") { //// ?
 				newPlace += "/";
 			}
 			if (oldPlace.slice(-1) == "/") {
@@ -885,7 +885,7 @@ Standards.storage.local = {
 			alert("Your browser doesn't support the Storage object.");
 			throw "Client storage isn't supported.";
 		} else if (oldPlace != newPlace && Standards.storage.local.recall(oldPlace) !== null) {
-			if (newPlace.slice(-1) != "/") {
+			if (newPlace.slice(-1) != "/") {  //// ?
 				newPlace += "/";
 			}
 			if (oldPlace.slice(-1) == "/") {
@@ -2712,7 +2712,7 @@ Standards.storage.server = {
 				}
 			} else if (Standards.storage.getType(oldPlace) == "String" && Standards.storage.getType(newPlace) == "String") {
 				if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
-					if (newPlace.slice(-1) != "/") {
+					if (newPlace.slice(-1) != "/") {  //// ?
 						newPlace += "/";
 					}
 					let remaining = new Standards.storage.Listenable();

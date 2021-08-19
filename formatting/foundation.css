@@ -526,6 +526,12 @@ table.labeled-list td:first-child {
 	*/
 	text-align: center;
 }
+table.labeled-list ol, table.labeled-list ul {
+	margin: 0em .5em 0em 1em;
+}
+table.labeled-list li ol, table.labeled-list li ul {
+	margin-left: 1.5em;
+}
 
 table.conversation th {
 	/**
@@ -653,7 +659,7 @@ section {
 }
 
 footer {
-	margin: 1.5em 3em;
+	margin: 1.5em 3em 0em;
 }
 
 .dialog-container {
