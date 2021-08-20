@@ -906,7 +906,7 @@ over- {
 	*/
 	display: table;
 }
-.details > input:first-child:checked ~ section {
+.details > input:first-child:checked ~ section, .details > input:first-child:checked ~ h1, .details > input:first-child:checked ~ h2, .details > input:first-child:checked ~ h3, .details > input:first-child:checked ~ h4, .details > input:first-child:checked ~ h5, .details > input:first-child:checked ~ h6 {
 	display: block;
 }
 .details > input:first-child:checked ~ note-, .details > input:first-child:checked ~ over- {
