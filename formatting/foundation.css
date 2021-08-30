@@ -1054,6 +1054,9 @@ table.compact {
 	select {
 		font-size: 2.4rem;
 	}
+	footer {
+		margin: 1.5em 3em;
+	}
 	.user-section {
 		display: block;
 		position: static;
@@ -1071,6 +1074,11 @@ table.compact {
 	}
 	.details > input:first-child:checked ~ table {
 		display: inline-block;
+	}
+	.labeled-list tbody, .labeled-list tr, .labeled-list th, .labeled-list td {
+		display: block;
+		text-align: justify;
+		text-align-last: center;
 	}
 	nav.hidden-left-nav {
 		left: -75.5vw;
