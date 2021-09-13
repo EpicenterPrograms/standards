@@ -1044,15 +1044,15 @@ Standards.game.Character = function (source, options) {
 		var currentRunTime = 0;
 		var path = Math.floor(Math.random()*3)==0 ? "circular" : "linear";
 		if (character.position.x < minX) {
-			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90-45, path: path, stopType: "time", stopPlace: duration });
+			character.oldMove({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90-45, path: path, stopType: "time", stopPlace: duration });
 		} else if (character.position.x > maxX) {
-			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90+135, path: path, stopType: "time", stopPlace: duration });
+			character.oldMove({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90+135, path: path, stopType: "time", stopPlace: duration });
 		} else if (character.position.y < minY) {
-			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*-90-45, path: path, stopType: "time", stopPlace: duration });
+			character.oldMove({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*-90-45, path: path, stopType: "time", stopPlace: duration });
 		} else if (character.position.y > maxY) {
-			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90+45, path: path, stopType: "time", stopPlace: duration });
+			character.oldMove({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*90+45, path: path, stopType: "time", stopPlace: duration });
 		} else {
-			character.move({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*360, path: path, stopType: "time", stopPlace: duration });
+			character.oldMove({ speed: Math.random()*maxDistance/totalRunTimes, direction: Math.random()*360, path: path, stopType: "time", stopPlace: duration });
 		}
 	};
 
