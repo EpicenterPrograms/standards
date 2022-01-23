@@ -32,13 +32,15 @@ valid options =
 */
 (function () {
 	console.messages = [];
+	/*
 	let oldConsole = {};
 	oldConsole.log = console.log;
 	oldConsole.warn = console.warn;
 	oldConsole.error = console.error;
 	oldConsole.info = console.info;
 	oldConsole.clear = console.clear;
-	console.log = function (message) {
+	*/
+	console.loggedLog = function (message) {  //// allows viewing these console logs on a website (without interfering with the regular log traceback)
 		oldConsole.log(message);
 		let msg;
 		if (message instanceof Array) {
@@ -63,6 +65,7 @@ valid options =
 		console.messages.push(msg);
 		window.dispatchEvent(new Event("console written"));
 	};
+	/*
 	console.warn = function (message) {
 		oldConsole.warn(message);
 		console.messages.push("Warning {\n\t" + message + "\n}");
@@ -87,6 +90,7 @@ valid options =
 		console.messages = [];
 		window.dispatchEvent(new Event("console cleared"));
 	};
+	*/
 })();
 window.addEventListener("error", function (error) {
 	console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");

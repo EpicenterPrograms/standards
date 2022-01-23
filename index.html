@@ -12,6 +12,7 @@
 		<script src="https://epicenterprograms.github.io/standards/behavior/storage.js"></script>
 		<script>
 			var S = Standards.general;
+			var M = Standards.storage;
 
 			S.onLoad(function () {
 				let contents = [
@@ -45,15 +46,59 @@
 						row.appendChild(file);
 					});
 				});
+
+				let holidayStyling = document.createElement("link");
+				holidayStyling.rel = "stylesheet";
+				holidayStyling.href = "https://epicenterprograms.github.io/standards/formatting/";
+				switch (new Date().getMonth() + 1) {
+					case 7:
+						holidayStyling.href += "fourthofjuly.css";
+						document.head.appendChild(holidayStyling);
+						break;
+					case 10:
+						holidayStyling.href += "halloween.css";
+						document.head.appendChild(holidayStyling);
+						break;
+					case 11:
+						holidayStyling.href += "thanksgiving.css";
+						document.head.appendChild(holidayStyling);
+						break;
+					case 12:
+						holidayStyling.href += "christmas.css";
+						document.head.appendChild(holidayStyling);
+						break;
+				}
+			});
+
+
+			S.listen("showAdmins", "click", function () {
+				S.makeDialog(M.server.recall("/admin/permissions/full").join("<br>"), "Done");
+			});
+			S.listen("showUsers", "click", function () {
+				S.makeDialog(M.server.list("/users", { shallowKeyList: true }).join("<br>"), "Done");
+			});
+
+
+			firebase.auth().onAuthStateChanged(function (person) {
+				if (person && M.server.recall("/admin/permissions/full").includes(person.uid)) {  // if an administrative user signed in
+					S.getId("adminControls").style.display = "block";
+				} else {
+					S.getId("adminControls").style.display = "none";
+				}
 			});
 		</script>
 		<link rel="stylesheet" href="https://epicenterprograms.github.io/standards/formatting/foundation.css">
+		<style>
+			#adminControls {
+				display: none;
+			}
+		</style>
 	</head>
 	<body>
 		<h1 class="main-title">
 			Standards
 		</h1>
-		<div class="user-section" style="display:none">
+		<div class="user-section">
 			<button id="signIn">
 				Log in
 			</button>
@@ -68,9 +113,9 @@
 			</button>
 		</div>
 		<main>
-			<p>
+			<section>
 				This website hosts the standards I use elsewhere. The GitHub repository for this site can be found <a href="https://github.com/EpicenterPrograms/standards">here</a>. The most useful standards to link to are the script reference at general.js and the style sheet reference at foundation.css. The contents of this repository are summarized below.
-			</p>
+			</section>
 			<table id="repositoryContents">
 				<tr>
 					<th colspan="6">https://epicenterprograms.github.io/standards/</th>
@@ -84,6 +129,14 @@
 					<th>icons/</th>
 				</tr>
 			</table>
+			<div id="adminControls">
+				<button id="showAdmins">
+					Show users
+				</button>
+				<button id="showUsers">
+					Show users
+				</button>
+			</div>
 		</main>
 	</body>
 </html>
