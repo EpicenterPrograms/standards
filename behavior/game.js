@@ -163,7 +163,7 @@ Standards.game.displayHeight = 100;
 
 Standards.game.setRefresh = function (time) {
 	/**
-
+	sets how many milliseconds should pass before executing behavior for the next frame
 	*/
 	if (Standards.game.getType(time) == "Number") {
 		Standards.game.refreshInterval = time;
@@ -389,7 +389,8 @@ Standards.game.animations.add = function (duration, doStuff) {
 	/**
 	arguments:
 		duration = required; how long you want an action to last
-			units are in seconds
+			units are in milliseconds
+			can be a string of an event to signal the end
 		doStuff = required; the stuff you want to be done (a function)
 			the index+1 of the frame number is provided as an agument to the function
 	*/
@@ -399,7 +400,7 @@ Standards.game.animations.add = function (duration, doStuff) {
 		if (duration < 0) {
 			throw "Actions can't be done in the past.";
 		}
-		let frames = Math.round(duration * 1000 / Standards.game.refreshInterval + 1);  // This is the number of frames it will take to complete the action.
+		let frames = Math.round(duration / Standards.game.refreshInterval + 1);  // This is the number of frames it will take to complete the action.
 		let index = 0;
 		while (index < frames) {
 			Standards.game.animations.queue.push({ fn: doStuff, args: [++index] });
@@ -749,46 +750,133 @@ Standards.game.Character = function (source, options) {
 		}
 	};
 
-	this.setVelocity = function (arg1, arg2, notUsingDegrees) {
+	this.setVelocity = function (arg1, arg2, type) {
 		/**
 		sets the character's velocity
+		units of magnitude are in game units per second (or thousandths of a game unit per millisecond)
 		arguments:
 			arg1 = required; either the total magnitude of the velocity or just its x-component
 			arg2 = required; either the direction of the velocity (in degrees) or the y-component
 				(possible values are stated respective to arg1)
 				0 degrees is pointing right
-			notUsingDegrees = optional; whether whether the first or second set of arguments should be used
-				default: false (uses magnitude and degrees)
+			type = optional; how the direction is determined
+				"xy": the combined values of x- and y-magnitudes
+					the first argument is the x-magnitude, and the second argument is the y-magnitude
+				"degrees": degrees of a circle
+					the first argument is the total magnitude, and the second argument is the degrees
+				"radians": radians of a circle
+					the first argument is the total magnitude, and the second argument is the radians
+				default: "degrees"
 		*/
-		if (notUsingDegrees) {
+		type = type || "degrees";
+		if (type == "xy") {
 			character.velocity.x = arg1;
 			character.velocity.y = arg2;
 		} else {
-			arg2 = arg2 * Math.PI / 180;  // converts degrees to radians
+			if (type == "degrees") {
+				arg2 = arg2 * Math.PI / 180;  // converts degrees to radians
+			}
 			character.velocity.x = arg1 * Math.cos(arg2);
 			character.velocity.y = arg1 * Math.sin(-arg2);  // This needs a negative because the y-axis is lowest at the top (causing clockwise rotation).
 		}
 	};
 
-	this.setAcceleration = function (arg1, arg2, notUsingDegrees) {
+	this.setAcceleration = function (arg1, arg2, type) {
 		/**
 		sets the character's acceleration
+		units of magnitude are in game units per second (or thousandths of a game unit per millisecond)
 		arguments:
 			arg1 = required; either the total magnitude of the acceleration or just its x-component
 			arg2 = required; either the direction of the acceleration (in degrees) or the y-component
 				(possible values are stated respective to arg1)
 				0 degrees is pointing right
-			notUsingDegrees = optional; whether whether the first or second set of arguments should be used
-				default: false (uses magnitude and degrees)
+			type = optional; how the direction is determined
+				"xy": the combined values of x- and y-magnitudes
+					the first argument is the x-magnitude, and the second argument is the y-magnitude
+				"degrees": degrees of a circle
+					the first argument is the total magnitude, and the second argument is the degrees
+				"radians": radians of a circle
+					the first argument is the total magnitude, and the second argument is the radians
+				default: "degrees"
 		*/
-		if (notUsingDegrees) {
+		type = type || "degrees";
+		if (type == "xy") {
 			character.acceleration.x = arg1;
 			character.acceleration.y = arg2;
 		} else {
-			arg2 = arg2 * Math.PI / 180;  // converts degrees to radians
+			if (type == "degrees") {
+				arg2 = arg2 * Math.PI / 180;  // converts degrees to radians
+			}
 			character.acceleration.x = arg1 * Math.cos(arg2);
 			character.acceleration.y = arg1 * Math.sin(-arg2);  // This needs a negative because the y-axis is lowest at the top (causing clockwise rotation).
 		}
+	};
+
+	this.approach = function (place, speed) {
+		/**
+		causes the character to approach a place or thing
+		(points the velocity towards the center of a location)
+
+		arguments:
+			place = where the character should be going
+				can be a 2-item array for coordinates, an HTML element, or a Character
+			speed = how fast the character should approach
+			    can be any number
+				negative numbers will make the character move in the opposite direction
+		*/
+		if (Standards.game.getType(speed) == "Number") {
+			let xDisplacement = 0;
+			let yDisplacement = 0;
+			let hypotenuse = 0;
+			let angle = 0;
+			switch (Standards.game.getType(place)) {
+				case "Array":
+					xDisplacement = place[0] - character.position.x;
+					yDisplacement = place[1] - character.position.y;
+					hypotenuse = (xDisplacement ** 2 + yDisplacement ** 2) ** .5;
+					angle = Math.sin(-yDisplacement / hypotenuse);  // yDisplacement needs to be negative because HTML flips the y-axis
+					if (xDisplacement < 0) {  // trigonometric values can only point to the right without this (-1 < angle < 1)
+						character.setVelocity(speed, -(angle + Math.PI), "radians");
+					} else {
+						character.setVelocity(speed, angle, "radians");
+                    }
+					break;
+				case "String":
+					place = document.getElementById(place);
+				case "HTMLElement":
+					console.error("This place isn't supported yet.");  ////
+					/*
+					xDisplacement = place.position.x - character.position.x;
+					yDisplacement = place.position.y - character.position.y;
+					hypotenuse = (xDisplacement ** 2 + yDisplacement ** 2) ** .5;
+					angle = Math.sin(-yDisplacement / hypotenuse);  // yDisplacement needs to be negative because HTML flips the y-axis
+					if (xDisplacement < 0) {  // trigonometric values can only point to the right without this (-1 < angle < 1)
+						character.setVelocity(speed, -(angle + Math.PI), "radians");
+					} else {
+						character.setVelocity(speed, angle, "radians");
+					}
+					*/
+					break;
+				case "Character":
+					xDisplacement = place.position.x - character.position.x;
+					yDisplacement = place.position.y - character.position.y;
+					hypotenuse = (xDisplacement ** 2 + yDisplacement ** 2) ** .5;
+					angle = Math.sin(-yDisplacement / hypotenuse);  // yDisplacement needs to be negative because HTML flips the y-axis
+					if (xDisplacement < 0) {  // trigonometric values can only point to the right without this (-1 < angle < 1)
+						character.setVelocity(speed, -(angle + Math.PI), "radians");
+					} else {
+						character.setVelocity(speed, angle, "radians");
+					}
+					break;
+				case "undefined":
+					console.error("The place to approach doesn't exist.");
+					break;
+				default:
+					console.error("The place to approach is of an incorrect type.");
+			}
+		} else {
+			console.error("The provided speed needs to be a number.");
+        }
 	};
 
 	this.actionQueue = [];
@@ -869,7 +957,6 @@ Standards.game.Character = function (source, options) {
 		var mover;
 		switch (specs.stopType) {
 			case "time":
-				// This needs to be in milliseconds.
 				if (Standards.game.getType(specs.stopPlace) == "Number") {
 					let elapsedTime = 0;
 					mover = setInterval(function () {
@@ -1075,14 +1162,22 @@ Standards.game.Character = function (source, options) {
 	this.actions = {};
 
 	this.startAction = function (name, action, delay) {
-		delay = delay || Standards.game.refreshInterval;
-		var runTimes = 0;
-		character.actions[name] = setInterval(function () {
+		if (Standards.game.getType(name) != "String") {
+			console.error("The name of the action isn't a string.");
+		} else if (Standards.game.getType(action) != "Function") {
+			console.error("The provided action isn't a function.");
+		} else {
+			delay = delay || Standards.game.refreshInterval;
+			var runTimes = 0;
 			action.call(character, runTimes++);  // using .call on the function allows setting "character" as the "this" value
-		}, delay);
+			character.actions[name] = setInterval(function () {
+				action.call(character, runTimes++);
+			}, delay);
+		}
 	};
 	this.stopAction = function (name) {
 		clearInterval(character.actions[name]);
+		character.actions[name] = undefined;
 	};
 
 	this.moveRandomly = function (options) {
@@ -1153,7 +1248,7 @@ Standards.game.Character = function (source, options) {
 	};
 
 	this.move = function (time, shouldRun) {
-		Standards.game.animations.add(time, this.moveOneFrame);
+		Standards.game.animations.add(time, character.moveOneFrame);
 		shouldRun = shouldRun === undefined ? true : shouldRun;
 		if (shouldRun) {
 			Standards.game.animations.run();
@@ -1175,7 +1270,7 @@ Standards.game.Character = function (source, options) {
 			speechTriangle.className = "speech-triangle";
 			speechBubble.textContent = speech;
 			// sets the time of display for the speech bubble
-			let displayTime = Math.pow(speech.length, .5) * 500;  ////
+			let displayTime = speech.length ** .5 * 500;  ////
 			// displays the speech bubble
 			if (Standards.game.container.className.includes("slides") && Standards.game.container.hasAttribute("data-current-slide")) {  // if the game container is a slideshow
 				let currentSlide = Standards.game.container.children[Standards.game.container.getAttribute("data-current-slide")];
@@ -1305,3 +1400,45 @@ Standards.game.Character = function (source, options) {
 	Standards.game.Character.instances.push(this);
 };
 Standards.game.Character.instances = [];
+
+Standards.game.getDistance = function (thing1, thing2) {
+	switch (Standards.game.getType(thing1)) {
+		case "Array":
+			switch (Standards.game.getType(thing2)) {
+				case "Array":
+					return ((thing2[0] - thing1[0]) ** 2 + (thing2[1] - thing1[1]) ** 2) ** .5;
+				case "String":
+					thing1 = document.getElementById(thing1);
+				case "HTMLElement":
+					console.error("Calculating the distance from this thing isn't supported yet.");  ////
+					break;
+				case "Character":
+					return ((thing2.position.x - thing1[0]) ** 2 + (thing2.position.y - thing1[1]) ** 2) ** .5;
+				default:
+					console.error("The thing you're trying to calculate the distance from is of an incorrect type.");
+			}
+			break;
+		case "String":
+			thing1 = document.getElementById(thing1);
+		case "HTMLElement":
+			console.error("Calculating the distance from this thing isn't supported yet.");  ////
+			break;
+		case "Character":
+			switch (Standards.game.getType(thing2)) {
+				case "Array":
+					return ((thing2[0] - thing1.position.x) ** 2 + (thing2[1] - thing1.position.y) ** 2) ** .5;
+				case "String":
+					thing1 = document.getElementById(thing1);
+				case "HTMLElement":
+					console.error("Calculating the distance from this thing isn't supported yet.");  ////
+					break;
+				case "Character":
+					return ((thing2.position.x - thing1.position.x) ** 2 + (thing2.position.y - thing1.position.y) ** 2) ** .5;
+				default:
+					console.error("The thing you're trying to calculate the distance from is of an incorrect type.");
+			}
+			break;
+		default:
+			console.error("The thing you're trying to calculate the distance from is of an incorrect type.");
+    }
+};
