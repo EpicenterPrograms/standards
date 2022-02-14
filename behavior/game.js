@@ -324,14 +324,31 @@ Standards.game.updateScaling = function (x, y) {
 			return container;
 		},
 		set: function (candidate) {
-			if (Standards.game.getType(candidate) != "HTMLElement") {
-				throw "The container isn't an HTML element.";
+			if (Standards.game.getType(candidate) == "String") {
+				if (document.readyState == "complete") {
+					container = document.getElementById(candidate);
+					let x = Number(window.getComputedStyle(container).width.slice(0, -2));
+					let y = Number(window.getComputedStyle(container).height.slice(0, -2));
+					let originalDimensions = [x, y];
+					Standards.game.setDisplayDimensions(x, y);
+				} else {
+					window.addEventListener("load", function () {
+						container = document.getElementById(candidate);
+						let x = Number(window.getComputedStyle(container).width.slice(0, -2));
+						let y = Number(window.getComputedStyle(container).height.slice(0, -2));
+						let originalDimensions = [x, y];
+						Standards.game.setDisplayDimensions(x, y);
+					});
+				}
+			} else if (Standards.game.getType(candidate) = "HTMLElement") {
+				container = candidate;
+				let x = Number(window.getComputedStyle(container).width.slice(0, -2));
+				let y = Number(window.getComputedStyle(container).height.slice(0, -2));
+				let originalDimensions = [x, y];
+				Standards.game.setDisplayDimensions(x, y);
+			} else {
+				throw "The container isn't an ID string or an HTML element.";
 			}
-			container = candidate;
-			let x = Number(window.getComputedStyle(container).width.slice(0, -2));
-			let y = Number(window.getComputedStyle(container).height.slice(0, -2));
-			let originalDimensions = [x, y];
-			Standards.game.setDisplayDimensions(x, y);
 			/*  ////
 			container.addEventListener("fullscreenchange", function () {
 				if (document.fullscreenElement === null) {  // if the container is not in full-screen mode
@@ -542,6 +559,46 @@ Standards.game.Character = function (source, options) {
 
 	this.movementUnit = options.movementUnit || "%" || Standards.game.lengthUnit;  ////
 
+	if (Standards.game.getType(source) == "Array") {
+		this.position = {
+			internalX: source[0],
+			get x() {
+				return this.internalX;
+			},
+			set x(value) {
+				this.internalX = value;
+			},
+			internalY: source[1],
+			get y() {
+				return this.internalY;
+			},
+			set y(value) {
+				this.internalY = value;
+			}
+		};
+	} else {
+		this.position = {
+			internalX: 0,
+			get x() {
+				return this.internalX;
+			},
+			set x(value) {
+				this.internalX = value;
+				character.body.style.left = Standards.game.toPixels(value - character.width / 2) + "px";
+			},
+			internalY: 0,
+			get y() {
+				return this.internalY;
+			},
+			set y(value) {
+				this.internalY = value;
+				character.body.style.top = Standards.game.toPixels(value - character.height / 2) + "px";
+			}
+		};
+	}
+	this.velocity = { x: 0, y: 0 };
+	this.acceleration = { x: 0, y: 0 };
+
 	this.insertBodyInto = function (container, onLoad) {
 		if (container.className.includes("slides") && container.hasAttribute("data-current-slide")) {
 			container.children[container.getAttribute("data-current-slide")].appendChild(character.body);
@@ -605,46 +662,77 @@ Standards.game.Character = function (source, options) {
 			}
 		}
 	};
-
-	if (Standards.game.getType(source) == "Array") {
-		this.position = {
-			internalX: source[0],
-			get x() {
-				return this.internalX;
-			},
-			set x(value) {
-				this.internalX = value;
-			},
-			internalY: source[1],
-			get y() {
-				return this.internalY;
-			},
-			set y(value) {
-				this.internalY = value;
+	this.insertBodyAt = function (x, y, container) {
+		function insertTheBody() {
+			container = container || Standards.game.container;
+			if (container.className.includes("slides") && container.hasAttribute("data-current-slide")) {
+				container.children[container.getAttribute("data-current-slide")].appendChild(character.body);
+			} else {
+				container.appendChild(character.body);
 			}
-		};
-	} else {
-		this.position = {
-			internalX: 0,
-			get x() {
-				return this.internalX;
-			},
-			set x(value) {
-				this.internalX = value;
-				character.body.style.left = Standards.game.toPixels(value - character.width / 2) + "px";
-			},
-			internalY: 0,
-			get y() {
-				return this.internalY;
-			},
-			set y(value) {
-				this.internalY = value;
-				character.body.style.top = Standards.game.toPixels(value - character.height / 2) + "px";
+			let width, height;
+			Object.defineProperty(character, "width", {
+				get: function () {
+					return width;
+				},
+				set: function (value) {
+					width = value;
+					character.body.style.width = Standards.game.toPixels(value) + "px";
+				}
+			});
+			Object.defineProperty(character, "height", {
+				get: function () {
+					return height;
+				},
+				set: function (value) {
+					height = value;
+					character.body.style.height = Standards.game.toPixels(value) + "px";
+				}
+			});
+			if (character.body.nodeName == "IMG") {
+				character.body.addEventListener("load", function () {
+					width = Standards.game.toLengthStandard(character.body.width);
+					height = Standards.game.toLengthStandard(character.body.height);
+					character.position.x = x;
+					character.position.y = y;
+					character.body.removeEventListener("load", arguments.callee);
+				});
+			} else {
+				switch (Standards.game.lengthUnit) {
+					case "100":
+					case 100:
+						width = Number(window.getComputedStyle(character.body).width.slice(0, -2)) / Standards.game.lengthPixels;
+						height = Number(window.getComputedStyle(character.body).height.slice(0, -2)) / Standards.game.lengthPixels;
+						break;
+					case "%":
+						width = Number(window.getComputedStyle(character.body).width.slice(0, -2)) / Number(window.getComputedStyle(container).width.slice(0, -2)) * 100;
+						height = Number(window.getComputedStyle(character.body).height.slice(0, -2)) / Number(window.getComputedStyle(container).height.slice(0, -2)) * 100;
+						break;
+					case "em":
+						width = Number(window.getComputedStyle(character.body).width.slice(0, -2)) / 16;
+						height = Number(window.getComputedStyle(character.body).height.slice(0, -2)) / 16;
+						break;
+					case "px":
+						width = Number(window.getComputedStyle(character.body).width.slice(0, -2));
+						height = Number(window.getComputedStyle(character.body).height.slice(0, -2));
+						break;
+					case "vw":  ////
+					case "vh":  ////
+					default:
+						throw "The standard length unit isn't a recognized value.";
+				}
+				character.position.x = x;
+				character.position.y = y;
 			}
-		};
-	}
-	this.velocity = { x: 0, y: 0 };
-	this.acceleration = { x: 0, y: 0 };
+		}
+		if (document.readyState == "complete") {
+			insertTheBody();
+		} else {
+			window.addEventListener("load", function () {
+				insertTheBody();
+			});
+		}
+	};
 
 	this.goTo = function (x, y, addToQueue) {
 		if (Standards.game.getType(x) != "Number" || Standards.game.getType(y) != "Number") {
