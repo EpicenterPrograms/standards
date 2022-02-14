@@ -93,7 +93,11 @@ valid options =
 	*/
 })();
 window.addEventListener("error", function (error) {
-	console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
+	if (error.error === null) {
+		console.messages.push("Error {\n\tScript execution failed in an artificial context. Check instances of \"call\" and \"apply\" methods.\n}");
+	} else {
+		console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
+	}
 	window.dispatchEvent(new Event("console written"));
 });
 
