@@ -2609,7 +2609,7 @@ Standards.general.getFile = function (url, callback, convert) {
 					console.error("The provided URL wasn't a string.");
 				} else if (!callback) {
 					console.error("No callback was provided.");
-				} else if (url.search(/^\w+:/) > -1 || url.indexOf(":") == -1 && new URL(url, window.location.href).protocol == "file:") {  // if it's a local file
+				} else if (url.search(/^file:|^\w:/) > -1 || url.indexOf(":") == -1 && new URL(url, window.location.href).protocol == "file:") {  // if it's a local file
 					let input = document.createElement("input");
 					input.type = "file";
 					if (url.slice(-1) == "/") {
