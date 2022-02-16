@@ -32,14 +32,14 @@ valid options =
 */
 (function () {
 	console.messages = [];
-	/*
 	let oldConsole = {};
+	/*
 	oldConsole.log = console.log;
 	oldConsole.warn = console.warn;
 	oldConsole.error = console.error;
 	oldConsole.info = console.info;
-	oldConsole.clear = console.clear;
 	*/
+	oldConsole.clear = console.clear;
 	console.loggedLog = function (message) {  //// allows viewing these console logs on a website (without interfering with the regular log traceback)
 		oldConsole.log(message);
 		let msg;
@@ -85,12 +85,12 @@ valid options =
 		console.messages.push("Info {\n\t" + message + "\n}");
 		window.dispatchEvent(new Event("console written"));
 	};
+	*/
 	console.clear = function () {
 		oldConsole.clear();
 		console.messages = [];
 		window.dispatchEvent(new Event("console cleared"));
 	};
-	*/
 })();
 window.addEventListener("error", function (error) {
 	if (error.error === null) {
