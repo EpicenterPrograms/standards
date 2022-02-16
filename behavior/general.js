@@ -33,8 +33,8 @@ valid options =
 (function () {
 	console.messages = [];
 	let oldConsole = {};
-	/*
 	oldConsole.log = console.log;
+	/*
 	oldConsole.warn = console.warn;
 	oldConsole.error = console.error;
 	oldConsole.info = console.info;
@@ -94,7 +94,7 @@ valid options =
 })();
 window.addEventListener("error", function (error) {
 	if (error.error === null) {
-		console.messages.push("Error {\n\tScript execution failed in an artificial context. Check instances of \"call\" and \"apply\" methods.\n}");
+		console.messages.push("Error {\n\tScript execution failed in an artificial context. Check \"eval\" or instances of \"call\" and \"apply\" methods.\n}");
 	} else {
 		console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
 	}
