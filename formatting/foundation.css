@@ -518,13 +518,14 @@ table.labeled-list td {
 	border: none;
 	background: none;
 	text-align: justify;
+	text-align-last: left;
 	vertical-align: top;
 }
 table.labeled-list td:first-child {
 	/**
 	allows centering unlabeled items
 	*/
-	text-align: center;
+	text-align-last: center;
 }
 table.labeled-list ol, table.labeled-list ul {
 	margin: 0em .5em 0em 1em;
