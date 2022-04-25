@@ -1012,6 +1012,67 @@ table.compact {
 	src: url("https://epicenterprograms.github.io/standards/fonts/Bad Duck.ttf") format("truetype");
 }
 
+@media (prefers-color-scheme: dark) {
+	/**
+	changes to a dark theme if that's what the  user prefers
+	*/
+	body {
+		background: repeating-linear-gradient(black, black 24vh, red 25vh, black 26vh, black 49vh, green 50vh, black 51vh, black 74vh, blue 75vh, black 76vh, black 100vh);
+		color: white;
+	}
+	main {
+		background: rgba(128, 128, 128, .5);
+	}
+
+	button, input[type="button"] {
+		border: .15em solid gray;
+		padding: .2em .6em;
+		border-radius: .5em;
+		background: black;
+		color: yellow;
+	}
+	button:active, input[type="button"]:active {
+		background: yellow;
+		color: black;
+	}
+	button:disabled, input[type="button"]:disabled {
+		border: .15em solid #333;
+		background: #888;
+		color: #666;
+	}
+
+	input {
+		border-style: none;
+		background: #111;
+		color: white;
+	}
+
+	textarea {
+		background: #111;
+		color: white;
+	}
+	
+	nav.top-nav {
+		background: #333;
+	}
+	nav.top-nav div.drop-down div {
+		background: #777;
+		color: #eee;
+	}
+	nav.top-nav div.drop-down>div:first-child {
+		background: #333;
+		color: #ddd;
+	}
+	nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
+		background: #aaa;
+		color: black;
+	}
+	nav.top-nav>button {
+		background: #777;
+		color: #eee;
+	}
+}
+
 @media (max-width: 1000px) {
 	/**
 	styles things for mobile devices
