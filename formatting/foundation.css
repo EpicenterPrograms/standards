@@ -451,6 +451,7 @@ nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, n
 
 a {
 	text-decoration: none;
+	cursor: pointer;
 }
 a:hover {
 	text-decoration: underline;
@@ -1024,6 +1025,24 @@ table.compact {
 		background: rgba(128, 128, 128, .5);
 	}
 
+	h1, h2, h3, h4, h5, h6 {
+		color: #0ef;
+	}
+
+	a {
+		color: yellow;
+	}
+
+	th, td {
+		border: .05em solid #aaa;
+	}
+	th {
+		background: #555;
+	}
+	td {
+		background: #111;
+	}
+
 	button, input[type="button"] {
 		border: .15em solid gray;
 		padding: .2em .6em;
@@ -1040,6 +1059,13 @@ table.compact {
 		background: #888;
 		color: #666;
 	}
+	button.hide-aside {
+		color: yellow;
+	}
+	button.hide-aside:active {
+		background: none;
+		color: red;
+	}
 
 	input {
 		border-style: none;
@@ -1051,7 +1077,26 @@ table.compact {
 		background: #111;
 		color: white;
 	}
-	
+
+	.page-jump-list {
+		background: rgba(100, 100, 100, .5);
+	}
+
+	nav, body.navigation {
+		background: black;
+		background: linear-gradient(#111, #444);
+	}
+	body.navigation a {
+		color: white;
+	}
+	nav.hidden-left-nav {
+		border-right: 1em solid #00f;
+	}
+	nav.hidden-left-nav::after {
+		border-color: white;
+		background: #555;
+		color: #ccc;
+	}
 	nav.top-nav {
 		background: #333;
 	}
@@ -1070,6 +1115,10 @@ table.compact {
 	nav.top-nav>button {
 		background: #777;
 		color: #eee;
+	}
+
+	aside, .right-section {
+		background: #222;
 	}
 }
 
