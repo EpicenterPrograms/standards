@@ -68,12 +68,13 @@ div {
 }
 
 nav {
+	padding: 1rem;
 	background: white;
 	background: -webkit-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: -moz-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: -o-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: repeating-linear-gradient(white, lightgray 100vh, white 200vh);
-	padding: 1rem;
+	background-attachment: fixed;
 }
 
 iframe {
@@ -88,6 +89,7 @@ body.navigation {
 	background: -moz-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: -o-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: repeating-linear-gradient(white, lightgray 100vh, white 200vh);
+	background-attachment: fixed;
 }
 nav div {
 	overflow: auto;
@@ -1078,6 +1080,11 @@ table.compact {
 		color: white;
 	}
 
+	dialog, .dialog {
+		border-color: #00f;
+		background: #222;
+	}
+
 	.page-jump-list {
 		background: rgba(100, 100, 100, .5);
 	}
@@ -1119,6 +1126,19 @@ table.compact {
 
 	aside, .right-section {
 		background: #222;
+		background: linear-gradient(#111, #444);
+		background-attachment: fixed;
+	}
+	aside::before {
+		color: #0ef;
+	}
+
+	.details, .details > .summary, .details > input:first-child:checked ~ .summary {
+		border-color: #ccc;
+	}
+	.details > .summary {
+		background: #222;
+		color: #0ef;
 	}
 }
 
