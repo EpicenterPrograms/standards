@@ -666,6 +666,13 @@ footer {
 	margin: 1.5em 3em 0em;
 }
 
+.generic-background {
+	background: white;
+}
+.generic-border {
+	border: .05em solid black;
+}
+
 .dialog-container {
 	max-width: 35%;
 	height: 50%;
@@ -1020,7 +1027,8 @@ table.compact {
 	changes to a dark theme if that's what the  user prefers
 	*/
 	body {
-		background: repeating-linear-gradient(black, black 24vh, red 25vh, black 26vh, black 49vh, green 50vh, black 51vh, black 74vh, blue 75vh, black 76vh, black 100vh);
+		background: black;
+		background-image: repeating-linear-gradient(black, black 24vh, red 25vh, black 26vh, black 49vh, green 50vh, black 51vh, black 74vh, blue 75vh, black 76vh, black 100vh);
 		color: white;
 	}
 	main {
@@ -1091,7 +1099,7 @@ table.compact {
 
 	nav, body.navigation {
 		background: black;
-		background: linear-gradient(#111, #444);
+		background-image: linear-gradient(#111, #444);
 	}
 	body.navigation a {
 		color: white;
@@ -1126,11 +1134,18 @@ table.compact {
 
 	aside, .right-section {
 		background: #222;
-		background: linear-gradient(#111, #444);
+		background-image: linear-gradient(#111, #444);
 		background-attachment: fixed;
 	}
 	aside::before {
 		color: #0ef;
+	}
+
+	.generic-background {
+		background: black;
+	}
+	.generic-border {
+		border-color: white;
 	}
 
 	.details, .details > .summary, .details > input:first-child:checked ~ .summary {
