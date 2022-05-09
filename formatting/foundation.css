@@ -1083,9 +1083,13 @@ table.compact {
 		background: #111;
 		color: white;
 	}
+	input:disabled {
+		background: gray;
+		color: black;
+	}
 
 	textarea {
-		background: #111;
+		background: black;
 		color: white;
 	}
 
