@@ -598,18 +598,11 @@ input[type="range"] {
 input[type="range"]:disabled {
 	cursor: default;
 }
-input[type="button"] {
+input[type="button"], input[type="submit"], button {
 	margin: .5em;
 	cursor: pointer;
 }
-input[type="button"]:disabled {
-	cursor: default;
-}
-button {
-	margin: .5em;
-	cursor: pointer;
-}
-button:disabled {
+input[type="button"]:disabled, input[type="submit"]:disabled, button:disabled {
 	cursor: default;
 }
 select {
@@ -1054,18 +1047,18 @@ table.compact {
 		background: #111;
 	}
 
-	button, input[type="button"] {
+	button, input[type="button"], input[type="submit"] {
 		border: .15em solid gray;
 		padding: .2em .6em;
 		border-radius: .5em;
 		background: black;
 		color: yellow;
 	}
-	button:active, input[type="button"]:active {
+	button:active, input[type="button"]:active, input[type="submit"]:active {
 		background: yellow;
 		color: black;
 	}
-	button:disabled, input[type="button"]:disabled {
+	button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
 		border: .15em solid #333;
 		background: #888;
 		color: #666;
