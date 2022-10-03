@@ -254,6 +254,7 @@ div.speech-bubble {
 	max-height: 50%;
 	width: auto;
 	height: auto;
+	color: black;
 	font-size: 1.25rem;
 }
 div.speech-triangle {
