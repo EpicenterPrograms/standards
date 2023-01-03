@@ -951,7 +951,8 @@ Standards.storage.server = {
 		formats the location
 		the last section of the path should be the storage key
 		preceding a location with a slash ("/") will allow location setting from the top of the user's directory
-		preceding a location with a tilde ("~") will allow absolute location setting (not within a user's directory)
+		preceding a location with a tilde ("~") or caret ("^") will allow absolute location setting (not within a user's directory)
+		(the tilde is deprecated and will be changed eventually)
 		ending a location with a slash ("/") indicates that a folder (not a key) is desired
 		".." goes up a level from the default location
 		ignoreLength = optional boolean; whether the length of the location should be ignored
@@ -964,7 +965,7 @@ Standards.storage.server = {
 			alert("An invalid default server storage location was provided");
 			throw "An invalid default server storage location was provided";
 		}
-		if (Standards.storage.server.defaultLocation[0] == "~") {
+		if (Standards.storage.server.defaultLocation[0] == "~" || Standards.storage.server.defaultLocation[0] == "^") {
 			Standards.storage.server.defaultLocation = Standards.storage.server.defaultLocation.slice(1);
 		} else if (Standards.storage.server.defaultLocation[0] == "/") {
 			Standards.storage.server.defaultLocation = "users/" + Standards.storage.server.user.uid + Standards.storage.server.defaultLocation;
@@ -980,16 +981,16 @@ Standards.storage.server = {
 
 		// converts the location into an absolute file location
 		if (location === undefined || location === "") {
-			location = "~" + Standards.storage.server.defaultLocation + "/";
+			location = "^" + Standards.storage.server.defaultLocation + "/";
 		} else if (location == ".") {
-			location = "~" + Standards.storage.server.defaultLocation;
+			location = "^" + Standards.storage.server.defaultLocation;
 		}
 		if (Standards.storage.getType(location) == "String") {
 			location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
 			if (location.slice(0, 8) == ".<slash>") {
-				location = "~" + Standards.storage.server.defaultLocation + location.slice(1);
+				location = "^" + Standards.storage.server.defaultLocation + location.slice(1);
 			}
-			if (location[0] == "~") {
+			if (location[0] == "~" || location[0] == "^") {
 				location = location.slice(1);
 			} else if (location.slice(0, 7) == "<slash>") {
 				if (location == "<slash>") {
@@ -1024,7 +1025,7 @@ Standards.storage.server = {
 		if (!ignoreLength && location.indexOf("<slash>") == -1) {
 			throw "No key was provided.";
 		} else if (location === "") {
-			location = "~";
+			location = "^";
 		}
 		return location;  // returns the location without the key
 	},
@@ -1039,7 +1040,7 @@ Standards.storage.server = {
 		non-native functions = getType
 		*/
 		let reference = Standards.storage.server.database;
-		if (location === "~" || !location.includes("<slash>")) {
+		if (location === "~" || location === "^" || !location.includes("<slash>")) {
 			return reference;
 		}
 		location = location.slice(0, location.lastIndexOf("<slash>"));
@@ -1532,7 +1533,7 @@ Standards.storage.server = {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			location = Standards.storage.server.formatLocation(location);
-			if (location == "~") {
+			if (location == "~" || location == "^") {
 				console.error("Deleting all server information is forbidden.");
 				reject(new Error("Deleting all server information is forbidden."));
 			} else if (location == "users<slash>") {
@@ -1934,7 +1935,7 @@ Standards.storage.server = {
 			if (Standards.storage.server.locationType == "shallow") {  // if all documents are held in one collection
 				Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 					let preKey = "";  // holds the found file locations (document IDs)
-					if (location == "~") {  // if trying to get all keys
+					if (location == "~" || location == "^") {  // if trying to get all keys
 						Standards.storage.forEach(collection.docs, function (doc) {
 							let key = doc.id.split("<slash>")[0];
 							if (!keyList.includes(key)) {
@@ -2030,7 +2031,7 @@ Standards.storage.server = {
 
 			} else if (Standards.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
 				let defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
-				if (location == "~") {
+				if (location == "~" || location == "^") {
 					Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 						Standards.storage.forEach(collection.docs, function (doc) {
 							let key = doc.id.split("<slash>")[0];
@@ -2423,7 +2424,7 @@ Standards.storage.server = {
 				let reference = Standards.storage.server.getReference(location);
 				reference.collection("<collection>").get().then(function (collectionProbe) {
 					if (collectionProbe.size > 0) {  // if there's sub-documents
-						if (location == "~") {
+						if (location == "~" || location == "^") {
 							Standards.storage.forEach(collectionProbe.docs, function (doc) {
 								keyList.push(doc.id);
 							});
