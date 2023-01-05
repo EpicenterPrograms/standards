@@ -1689,7 +1689,7 @@ Standards.general.compare = function (iterable1, iterable2) {
 				);
 			}
 		}
-		// returns the lat item of the matrix
+		// returns the last item of the matrix
 		return matrix[iterable1.length][iterable2.length];
 	} else {
 		console.error("At least one of the items to be compared isn't iterable.");

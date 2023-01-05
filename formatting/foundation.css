@@ -1219,11 +1219,13 @@ table.compact {
 	.details > input:first-child:checked ~ table {
 		display: inline-block;
 	}
+	/*
 	table.labeled-list tbody, table.labeled-list tr, table.labeled-list th, table.labeled-list td {
 		display: block;
 		text-align: justify;
 		text-align-last: center;
 	}
+	*/
 	nav.hidden-left-nav {
 		left: -75.5vw;
 		width: 75.5vw;
