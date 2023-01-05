@@ -1237,6 +1237,8 @@ table.compact {
 		transform: translateX(75vw);
 	}
 	nav.hidden-left-nav::after {
+		left: calc(100% + .5em);
+		left: calc(100% + attr(border-right-width length) / 2);
 		height: 10vh;
 	}
 	iframe.top-nav, nav.top-nav, .site-editor {
