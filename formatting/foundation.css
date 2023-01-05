@@ -1244,24 +1244,6 @@ table.compact {
 	iframe.top-nav, nav.top-nav, .site-editor {
 		width: 100%;
 	}
-	/*
-	nav.hidden-left-nav {
-		left: -60.5vw;
-		width: 60.5vw;
-	}
-	nav.hidden-left-nav:hover {
-		-ms-transform: translateX(60vw);
-		-webkit-transform: translateX(60vw);
-		transform: translateX(60vw);
-	}
-	nav.hidden-left-nav::after {
-		height: 16vh;
-		border-radius: 0vh 3vh 3vh 0vh;
-	}
-	body.navigation.bigger {
-		font-size: 2.5rem;
-	}
-	*/
 	aside {
 		width: 80%;
 	}
