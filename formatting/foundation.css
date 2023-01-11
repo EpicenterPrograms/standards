@@ -89,7 +89,7 @@ body.navigation {
 	background: -moz-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: -o-repeating-linear-gradient(white, lightgray 100vh, white 200vh);
 	background: repeating-linear-gradient(white, lightgray 100vh, white 200vh);
-	background-attachment: fixed;
+	/* background-attachment: fixed;  /* I wish this worked */
 }
 nav div {
 	overflow: auto;
@@ -187,6 +187,8 @@ aside {
 	padding: 1em;
 	border-left: .05em solid #aaaaaa;
 	background-color: white;
+	background-image: linear-gradient(white, lightgray);
+	/* background-attachment: fixed;  /* I wish this worked */
 	width: 40%;
 	height: 100%;
 	text-align: justify;
@@ -234,6 +236,9 @@ button.hide-aside:hover {
 	border-left: .05em solid #aaaaaa;
 	width: 20%;
 	height: 100%;
+	background-color: white;
+	background-image: linear-gradient(white, lightgray);
+	/* background-attachment: fixed;  /* I wish this worked */
 }
 
 body.right-section {
@@ -1133,7 +1138,6 @@ table.compact {
 	aside, .right-section {
 		background: #222;
 		background-image: linear-gradient(#111, #444);
-		background-attachment: fixed;
 	}
 	aside::before {
 		color: #0ef;
