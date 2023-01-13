@@ -2410,6 +2410,7 @@ Standards.general.toHTML = function (HTML) {
 		throw "The provided argument is of an incorrect type.";
 	}
 	let container = document.createElement("div");
+	HTML = HTML.replace(/<!--[^]*-->/g, "");  // filters out comments, especially if they contain a script tag
 	container.innerHTML = HTML;
 	// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
 	let scripts = HTML.split("<script");  // adding the closing ">" in the splitting would close the script block
@@ -3177,7 +3178,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			let sections = division.getElementsByTagName("h2");
 			let toTop = document.createElement("p");  // This has to be a <p><a></a></p> rather than just a <a></a> because, otherwise, "To top" has the possibility of appearing in-line.
 			toTop.className = "to-top";
-			toTop.innerHTML = '<a href="#">To top</a>';
+			toTop.innerHTML = '<a href="#" target="_self">To top</a>';
 			let listItems = document.createElement("ol");
 			Standards.general.forEach(sections, function (heading, index, sections) {
 				let inside = encodeURIComponent(sections[index].textContent.trim());
@@ -3210,8 +3211,11 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		// This takes you to a certain part of the page after the IDs and links load. (if you were trying to go to a certain part of the page)
 		if (window.location.href.indexOf("#") > -1) {
 			let link = document.createElement("a");
-			link.href = window.location.href.split("#")[1].trim();
-			link.click();
+			link.href = "#" + window.location.href.split("#")[1].trim();
+			link.target = "_self";
+			window.addEventListener("finished", function () {  //// something happens during script execution to undo the clicking if not done here
+				link.click();
+			});
 		}
 		
 		// enables making use of elaborations
