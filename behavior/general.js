@@ -2410,7 +2410,7 @@ Standards.general.toHTML = function (HTML) {
 		throw "The provided argument is of an incorrect type.";
 	}
 	let container = document.createElement("div");
-	HTML = HTML.replace(/<!--[^]*-->/g, "");  // filters out comments, especially if they contain a script tag
+	HTML = HTML.replace(/<!--[^]*?-->/g, "");  // filters out comments, especially if they contain a script tag
 	container.innerHTML = HTML;
 	// This is necessary because HTML5 doesn't think script tags and innerHTML should go together (for security reasons).
 	let scripts = HTML.split("<script");  // adding the closing ">" in the splitting would close the script block
