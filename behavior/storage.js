@@ -482,6 +482,9 @@ function convertFromString(info) {  //// Make part of Standards.storage object?
 Standards.storage.standardizeStorageLocation = function (location, type, shouldAddSlash) {
 	if ((location === undefined || location === "") && Standards.storage[type].defaultLocation != "") {
 		location = Standards.storage[type].defaultLocation;
+		if (location != "" && location[0] != "/") {
+			location = "/" + location;
+		}
 		if (shouldAddSlash && location.slice(-1) != "/") {
 			location += "/";
 		}
@@ -504,12 +507,12 @@ Standards.storage.standardizeStorageLocation = function (location, type, shouldA
 				prelocation.pop();
 				location = location.slice(3);  // takes slashes into account
 			}
-			location = prelocation.join("/") + "/" + location;
+			location = "/" + prelocation.join("/") + "/" + location;
 		} else if (location[0] == ".") {
 			if (Standards.storage[type].defaultLocation.slice(-1) == "/") {
-				location = Standards.storage[type].defaultLocation + location.slice(2);
+				location = "/" + Standards.storage[type].defaultLocation + location.slice(2);
 			} else {
-				location = Standards.storage[type].defaultLocation + location.slice(1);
+				location = "/" + Standards.storage[type].defaultLocation + location.slice(1);
 			}
 		}
 		if (location[0] == "/") {
