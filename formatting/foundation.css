@@ -1253,7 +1253,7 @@ table.compact {
 	aside {
 		width: 80%;
 	}
-	aside.displayed {
+	aside:focus, aside:focus-within {
 		left: 20%;
 	}
 }
