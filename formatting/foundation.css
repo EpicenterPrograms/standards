@@ -47,7 +47,7 @@ main {
 	/**
 	meant to hold the main content of the page
 	*/
-	margin: 4% auto 0%;
+	margin: 0% auto;
 	width: 90%;
 	min-height: 100%;
 	height: 100%;
@@ -208,8 +208,9 @@ aside::before {
 	font-size: 1.5em;
 	font-weight: bold;
 }
-aside.displayed {
+aside:focus, aside:focus-within {
 	left: 60%;
+	outline: none;
 }
 button.hide-aside {
 	position: absolute;
@@ -345,7 +346,6 @@ nav.hidden-left-nav::after {
 	color: #777777;
 	-webkit-touch-callout: none;  /* iOS Safari */
 	-webkit-user-select: none;  /* Safari */
-	-khtml-user-select: none;  /* Konqueror HTML */
 	-moz-user-select: none;  /* Firefox */
 	-ms-user-select: none;  /* Internet Explorer and Microsoft Edge */
 	user-select: none;  /* non-prefixed version of preventing text selection */
@@ -379,6 +379,7 @@ iframe.top-nav, nav.top-nav, .site-editor {
 	position: sticky;
 	top: 0em;  /* sticky positioning doesn't work without a position specification */
 	z-index: 1;
+	margin: auto;
 	padding: 0em;
 	width: 90%;
 	background: darkblue;
@@ -425,7 +426,7 @@ nav.top-nav label, div div.drop-down label {
 	*/
 	white-space: nowrap;
 }
-nav.top-nav div.drop-down:focus > div, nav.top-nav div.drop-down > div:hover, nav.top-nav div.drop-down:focus-within > div, div div.drop-down:focus > div, div div.drop-down > div:hover, div div.drop-down:focus-within > div {
+nav.top-nav:not(.manual) div.drop-down:focus > div, nav.top-nav:not(.manual) div.drop-down > div:hover, nav.top-nav:not(.manual) div.drop-down:focus-within > div, div:not(.manual) div.drop-down:focus > div, div:not(.manual) div.drop-down > div:hover, div:not(.manual) div.drop-down:focus-within > div {
 	/**
 	unhides the drop-down menu when focus is received
 	<div>s need a tabindex to receive focus
@@ -967,6 +968,7 @@ h1.main-title {
 	/**
 	formats the main title of the website/page
 	*/
+	margin-bottom: 3%;
 	color: white;
 }
 

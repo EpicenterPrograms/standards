@@ -3220,7 +3220,8 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		
 		// enables making use of elaborations
 		Standards.general.forEach(document.getElementsByTagName("aside"), function (section) {
-			if (!section.dataset.hasOwnProperty("heading")) {
+			section.tabIndex = section.tabIndex > -1 ? section.tabIndex : 0;
+			if (!section.dataset.hasOwnProperty("heading") && !(section.firstElementChild && section.firstElementChild.tagName == "H2")) {  // if there's not a data-heading or an HTML heading
 				section.dataset.heading = "Elaboration";
 			}
 			if (section.textContent.trim() == "") {  // if I forgot to fill the aside
@@ -3229,13 +3230,13 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			let button = document.createElement("button");
 			button.className = "hide-aside";
 			button.addEventListener("click", function () {
-				let classes = section.className.split(" ");
-				classes.splice(classes.indexOf("displayed"), 1);
-				section.className = classes.join(" ");
+				this.blur();  // hides the aside
+				/// this can't be section.blur() because, once the button is pressed, the focus has already shifted away from the parent aside
 			});
 			section.appendChild(button);
 		});
 		Standards.general.forEach(document.getElementsByClassName("elaborate"), function (trigger) {
+			trigger.tabIndex = trigger.tabIndex > -1 ? trigger.tabIndex : 0;
 			trigger.addEventListener("click", function () {
 				let aside = trigger;
 				while (aside.nextSibling && aside.tagName != "ASIDE") {
@@ -3248,7 +3249,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 					}
 				}
 				if (aside.tagName == "ASIDE") {
-					aside.className += " displayed";
+					aside.focus({ focusVisible: false });
 				}
 			});
 		});
