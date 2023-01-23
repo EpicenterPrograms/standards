@@ -512,16 +512,17 @@ table.organizational th, table.organizational td {
 	background: none;
 }
 
-table.labeled-list th {
+table.labeled-list th, .conversation th {
 	/**
 	styles the label
 	*/
 	border: none;
 	background: none;
 	text-align: right;
+	text-align-last: right;
 	vertical-align: top;
 }
-table.labeled-list td {
+table.labeled-list td, .conversation td {
 	/**
 	styles the "list" item
 	*/
@@ -531,42 +532,93 @@ table.labeled-list td {
 	text-align-last: left;
 	vertical-align: top;
 }
-table.labeled-list td:first-child {
+table.labeled-list td:first-child, .conversation td:first-child {
 	/**
 	allows centering unlabeled items
 	*/
 	text-align-last: center;
 }
-table.labeled-list ol, table.labeled-list ul {
+table.labeled-list ol, table.labeled-list ul, .conversation ol, .conversation ul {
 	margin: 0em .5em 0em 1em;
 }
-table.labeled-list li ol, table.labeled-list li ul {
+table.labeled-list li ol, table.labeled-list li ul, .conversation li ol, .conversation li ul {
 	margin-left: 1.5em;
 }
 
-table.conversation th {
+.conversation th::after {
 	/**
 	styles the name of the speaker
 	*/
-	border: none;
-	background: none;
-	text-align: right;
-	vertical-align: top;
+	content: ":";
 }
-table.conversation td {
+.conversation.snapchat th::after {
 	/**
-	styles what the speaker said
+	styles the name of the speaker
 	*/
-	border: none;
-	background: none;
-	text-align: justify;
-	vertical-align: top;
+	content: "";
 }
-table.conversation td:first-child {
-	/**
-	allows unspoken events to be centered
-	*/
-	text-align: center;
+.conversation th:empty {
+	padding: 0em;
+}
+.conversation th:empty::after {
+	content: "";
+}
+.conversation.snapchat th, .conversation.snapchat td {
+	display: block;
+}
+.conversation.snapchat th {
+	padding-left: 0em;
+	text-align: left;
+	text-align-last: left;
+	color: blue;
+}
+.conversation.snapchat td {
+	border-left: .2em solid blue;
+}
+.conversation.snapchat td.saved-message {
+	background-color: gray;
+}
+.conversation.snapchat tr.saved-message td {
+	background-color: gray;
+}
+.conversation.snapchat td:first-child {
+	border-left: none;
+}
+.conversation.snapchat tr[data-speaker="me"] th, .conversation.snapchat tr[data-speaker="1"] th {
+	color: red;
+}
+.conversation.snapchat tr[data-speaker="me"] td, .conversation.snapchat tr[data-speaker="1"] td {
+	border-left-color: red;
+}
+.conversation.snapchat tr[data-speaker="2"] th {
+	color: blue;
+}
+.conversation.snapchat tr[data-speaker="2"] td {
+	border-left-color: blue;
+}
+.conversation.snapchat tr[data-speaker="3"] th {
+	color: green;
+}
+.conversation.snapchat tr[data-speaker="3"] td {
+	border-left-color: green;
+}
+.conversation.snapchat tr[data-speaker="4"] th {
+	color: gold;
+}
+.conversation.snapchat tr[data-speaker="4"] td {
+	border-left-color: gold;
+}
+.conversation.snapchat tr[data-speaker="5"] th {
+	color: purple;
+}
+.conversation.snapchat tr[data-speaker="5"] td {
+	border-left-color: purple;
+}
+.conversation.snapchat tr[data-color] th {
+	color: attr(data-color color);
+}
+.conversation.snapchat tr[data-color] td {
+	border-left-color: attr(data-color color);
 }
 
 input {

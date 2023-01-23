@@ -2913,6 +2913,40 @@ Standards.storage.server = {
 				}
 			}
 		});
+	},
+	mergeData: function (data, shouldOverwrite, shouldDelete, location, options) {
+		/**
+		merges provided data with data on the server
+		returns a Promise
+
+		arguments:
+			data = required; the data to merge with the server data
+			shouldOverwrite = required; a boolean or function specifying when conflicting data should be overwritten
+			shouldDelete = required; a boolean or function specifying when server data with no corresponding merging data should be deleted
+			location = optional; the server location to merge to; defaults to defaultLocation
+			options = optional; additional options
+		*/
+		return new Promise(function (resolve, reject) {
+			options = options || {};
+			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
+				reject(new Error("It wasn't possible to access the server."));
+			}
+			location = Standards.storage.server.formatLocation(location);
+			if (["Boolean", "Function"].indexOf(Standards.storage.getType(shouldOverwrite)) == -1) {  // if shouldOverwrite isn't a boolean or a function
+				console.error("shouldOverwrite needs to be a boolean or a function");
+				reject(new TypeError("shouldOverwrite was neither a boolean nor a function"));
+			} else if (shouldOverwrite === true || shouldOverwrite === false) {
+				shouldOverwrite = function () { return shouldOverwrite; };
+			}
+			if (["Boolean", "Function"].indexOf(Standards.storage.getType(shouldDelete)) == -1) {  // if shouldDelete isn't a boolean or a function
+				console.error("shouldDelete needs to be a boolean or a function");
+				reject(new TypeError("shouldDelete was neither a boolean nor a function"));
+			} else if (shouldDelete === true || shouldDelete === false) {
+				shouldDelete = function () { return shouldDelete; };
+			}
+			//// do stuff
+			resolve();
+		});
 	}
 };
 
