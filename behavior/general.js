@@ -3230,8 +3230,25 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			let button = document.createElement("button");
 			button.className = "hide-aside";
 			button.addEventListener("click", function () {
-				this.blur();  // hides the aside
-				/// this can't be section.blur() because, once the button is pressed, the focus has already shifted away from the parent aside
+				if (section.parentElement) {  // if there's a parent element
+					if (section.parentElement.tagName == "ASIDE") {
+						section.parentElement.focus();  // shifts focus to the parent
+						/// allows returning to the previous aside when an aside was triggered within an aside
+						/// if the parent element doesn't have a tabIndex, it won't accept focus and the aside won't hide
+					} else if (section.parentElement.parentElement) {
+						// gives finding a parent aside another shot
+						if (section.parentElement.parentElement.tagName == "ASIDE") {
+							section.parentElement.parentElement.focus();  // shifts focus to the parent
+						} else {
+							this.blur();  // hides the aside
+						}
+					} else {
+						this.blur();  // hides the aside
+					}
+				} else {
+					this.blur();  // hides the aside
+					/// this can't be section.blur() because, once the button is pressed, the focus has already shifted away from the parent aside
+				}
 			});
 			section.appendChild(button);
 		});
