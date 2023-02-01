@@ -23,6 +23,8 @@ could be used to modify CSS
 
 :root {  /* This accesses the outer-most element (html). */
 	--nav-slide-time: .8s;
+	--generic-background-color: white;
+	--generic-color: black;
 }
 
 html {
@@ -194,7 +196,6 @@ aside {
 	text-align: justify;
 	text-align-last: center;
 	overflow: auto;
-	transition: .8s;
 	transition: var(--nav-slide-time);
 }
 aside h2 {
@@ -285,7 +286,6 @@ nav.hidden-left-nav {
 	width: 30.5vw;
 	height: 100vh;
 	padding: 0rem;
-	transition: .8s;
 	transition: var(--nav-slide-time);
 }
 nav.hidden-left-nav:hover {
@@ -311,8 +311,7 @@ nav.hidden-left-nav::before {
 	background: black;
 	opacity: 0;
 	pointer-events: none;
-	transition: .8s;  /* I don't understand why this (or the next line) is necessary. */
-	transition: var(--nav-slide-time);
+	transition: var(--nav-slide-time);  /* I don't understand why this (or the next line) is necessary. */
 }
 nav.hidden-left-nav:hover::before {
 	/**
@@ -724,6 +723,12 @@ footer {
 .generic-border {
 	border: .05em solid black;
 }
+.generic-formatting {
+	border: .05em solid var(--generic-color);
+	padding: .5em;
+	background: var(--generic-background-color);
+	color: var(--generic-color);
+}
 
 .dialog-container {
 	max-width: 35%;
@@ -1079,6 +1084,11 @@ table.compact {
 	/**
 	changes to a dark theme if that's what the  user prefers
 	*/
+	:root {
+		--generic-background-color: black;
+		--generic-color: white;
+	}
+
 	body {
 		background: black;
 		background-image: repeating-linear-gradient(black, black 24vh, red 25vh, black 26vh, black 49vh, green 50vh, black 51vh, black 74vh, blue 75vh, black 76vh, black 100vh);
