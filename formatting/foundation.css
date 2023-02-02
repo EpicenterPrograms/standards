@@ -728,6 +728,8 @@ footer {
 	padding: .5em;
 	background: var(--generic-background-color);
 	color: var(--generic-color);
+	text-align: justify;
+	text-align-last: center;
 }
 
 .dialog-container {
@@ -1141,7 +1143,7 @@ table.compact {
 	}
 
 	input {
-		border-style: none;
+		border-style: solid;
 		background: #111;
 		color: white;
 	}
