@@ -1134,6 +1134,7 @@ table.compact {
 		color: yellow;
 	}
 	button:active, input[type="button"]:active, input[type="submit"]:active {
+		border-color: gray;
 		background: yellow;
 		color: black;
 	}
