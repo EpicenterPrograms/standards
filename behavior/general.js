@@ -79,7 +79,7 @@ if (Standards.general.options.console == "recorded") {
 	console.error = function (message) {
 		oldConsole.error(message);
 		if (message instanceof Error) {
-			console.messages.push("Error at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
+			console.messages.push("Error at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + message.error.stack.replace(/    /g, "\t\t") + "\n}");
 		} else {
 			console.messages.push("Error at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + message + "\n}");
 		}
