@@ -29,25 +29,30 @@ valid options =
 	"automation": "none", "basic", "full"
 		runs a corresponding amount of code after defining everything
 		default = "full"
+	"console": "default", "recorded"
+		whether information printed to the console should be stored in a console.messages array
+		note: enabling complicates (but doesn't prevent) line number tracing
+		default = "default"
 */
-(function () {
+
+if (Standards.general.options.console == "recorded") {
 	console.messages = [];
 	let oldConsole = {};
 	oldConsole.log = console.log;
-	/*
 	oldConsole.warn = console.warn;
 	oldConsole.error = console.error;
 	oldConsole.info = console.info;
-	*/
 	oldConsole.clear = console.clear;
-	console.loggedLog = function (message) {  //// allows viewing these console logs on a website (without interfering with the regular log traceback)
+	console.log = function (message) {
+		oldConsole.log(new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1]);
 		oldConsole.log(message);
-		let msg;
+		let msg = "Log at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n";
 		if (message instanceof Array) {
-			msg = "[\n" + message.join("\n") + "\n]";
+			msg += "\t[\n\t\t" + message.join("\n\t\t") + "\n\t]";
 		} else if (message instanceof Object) {
-			msg = "{\n";
+			msg += "\t{\n";
 			for (const key in message) {
+				msg += "\t\t";
 				if (message[key] === undefined) {
 					msg += key + ": undefined\n";
 				} else if (message[key] === null) {
@@ -58,40 +63,40 @@ valid options =
 					msg += key + ": " + message[key] + "\n";
 				}
 			}
-			msg += "}";
+			msg += "\t}";
 		} else {
-			msg = message;
+			msg += message;
 		}
+		msg += "\n}";
 		console.messages.push(msg);
 		window.dispatchEvent(new Event("console written"));
 	};
-	/*
 	console.warn = function (message) {
 		oldConsole.warn(message);
-		console.messages.push("Warning {\n\t" + message + "\n}");
+		console.messages.push("Warning at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + message + "\n}");
 		window.dispatchEvent(new Event("console written"));
 	};
 	console.error = function (message) {
 		oldConsole.error(message);
 		if (message instanceof Error) {
-			console.messages.push("Error {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
+			console.messages.push("Error at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + error.error.stack.replace(/    /g, "\t\t") + "\n}");
 		} else {
-			console.messages.push("Error {\n\t" + message + "\n}");
+			console.messages.push("Error at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + message + "\n}");
 		}
 		window.dispatchEvent(new Event("console written"));
 	};
 	console.info = function (message) {
+		oldConsole.info(new Error().stack.match(/at (?!console\.)([^\n]+)/)[1]);
 		oldConsole.info(message);
-		console.messages.push("Info {\n\t" + message + "\n}");
+		console.messages.push("Info at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n\t" + message + "\n}");
 		window.dispatchEvent(new Event("console written"));
 	};
-	*/
 	console.clear = function () {
 		oldConsole.clear();
 		console.messages = [];
 		window.dispatchEvent(new Event("console cleared"));
 	};
-})();
+}
 window.addEventListener("error", function (error) {
 	if (error.error === null) {
 		console.messages.push("Error {\n\tScript execution failed in an artificial context. Check \"eval\" or instances of \"call\" and \"apply\" methods.\n}");
