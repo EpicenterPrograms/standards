@@ -1796,6 +1796,38 @@ Standards.general.listen = function (item, event, behavior, options) {
 		default:
 			options = { runOrder: "later", listenOnce: false, allowDefault: true, recheckTime: 15, triggerTime: 300 };
 	}
+
+	if (event === "load") {
+		// makes sure the listener is made before everything has finished loading
+		if (Standards.general.getType(behavior) == "Function") {
+			if (options.listenOnce) {
+				if (options.allowDefault) {
+					item.addEventListener(event, function (action) {
+						behavior.call(this, action);
+						item.removeEventListener(event, arguments.callee);
+					});
+				} else {
+					item.addEventListener(event, function (action) {
+						action.preventDefault();
+						behavior.call(this, action);
+						item.removeEventListener(event, arguments.callee);
+					});
+				}
+			} else {
+				if (options.allowDefault) {
+					item.addEventListener(event, behavior);
+				} else {
+					item.addEventListener(event, function (action) {
+						action.preventDefault();
+						behavior.call(this, action);
+					});
+				}
+			}
+		} else {
+			console.error("The listener must have a function as its third argument.");
+		}
+	}
+
 	Standards.general.queue.add({
 		runOrder: options.runOrder,
 		function: function (item, event, behavior, options) {
