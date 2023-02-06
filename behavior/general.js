@@ -1832,7 +1832,7 @@ Standards.general.listen = function (item, event, behavior, options) {
 		runOrder: options.runOrder,
 		function: function (item, event, behavior, options) {
 			if (Standards.general.getType(event) == "String") {
-				event = event.toLowerCase();
+				//// event = event.toLowerCase();  //// this is a terrible idea
 			} else {
 				console.error(new TypeError(event + " is not a proper event."));
 			}
