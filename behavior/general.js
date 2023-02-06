@@ -65,7 +65,7 @@ if (Standards.general.options.console == "recorded") {
 			}
 			msg += "\t}";
 		} else {
-			msg += message;
+			msg += "\t" + message;
 		}
 		msg += "\n}";
 		console.messages.push(msg);
