@@ -35,6 +35,7 @@ valid options =
 		default = "default"
 */
 
+/*
 if (Standards.general.options.console == "recorded") {
 	console.messages = [];
 	let oldConsole = {};
@@ -44,9 +45,9 @@ if (Standards.general.options.console == "recorded") {
 	oldConsole.info = console.info;
 	oldConsole.clear = console.clear;
 	console.log = function (message) {
-		oldConsole.log(new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1]);
+		oldConsole.log(new Error().stack.match(/at (?!console\.).+\/([^\n)]+)/)[1]);
 		oldConsole.log(message);
-		let msg = "Log at " + new Error().stack.match(/at (?!console\.).+\/([^\n]+)/)[1] + " {\n";
+		let msg = "Log at " + new Error().stack.match(/at (?!console\.).+\/([^\n)]+)/)[1] + " {\n";
 		if (message instanceof Array) {
 			msg += "\t[\n\t\t" + message.join("\n\t\t") + "\n\t]";
 		} else if (message instanceof Object) {
@@ -105,6 +106,7 @@ window.addEventListener("error", function (error) {
 	}
 	window.dispatchEvent(new Event("console written"));
 });
+*/
 
 Standards.general.help = function (item, part) {
 	/**
