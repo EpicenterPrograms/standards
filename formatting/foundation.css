@@ -187,6 +187,7 @@ aside {
 	height: 100%;
 	text-align: justify;
 	text-align-last: center;
+	font-weight: normal;
 	overflow: auto;
 	transition: var(--nav-slide-time);
 }
