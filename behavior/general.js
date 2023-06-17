@@ -1846,7 +1846,11 @@ Standards.general.listen = function (item, event, behavior, options) {
 			if (!event.includes("key")) {
 				switch (Standards.general.getType(item)) {
 					case "String":
-						item = document.getElementById(item);
+						if (document.getElementById(item) === null) {  // if the ID wasn't found
+							console.error(new ReferenceError('The ID "' + item + '" wasn\'t found in the document.'));
+						} else {
+							item = document.getElementById(item);
+						}
 						break;
 					case "Function":
 						item = item();
