@@ -1296,6 +1296,9 @@ table.compact {
 		width: 100%;
 		overflow: auto;
 	}
+	.details > * {
+		display: none;
+	}
 	.details > input:first-child:checked ~ table {
 		display: inline-block;
 	}
