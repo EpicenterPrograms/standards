@@ -941,6 +941,7 @@ over- {
 	*/
 	display: block;
 	margin: .5rem;
+	padding: .5rem;
 	border: .05rem solid black;
 	border-top: none;
 	border-radius: .5rem;
@@ -951,6 +952,7 @@ over- {
 }
 .details > .summary {
 	display: block;
+	margin: -.5rem;
 	border-top: .05rem solid black;
 	border-radius: .5rem;
 	padding: .25rem;
