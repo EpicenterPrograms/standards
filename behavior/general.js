@@ -3317,7 +3317,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		// automatically loads seasonal themes
 		let timeOfYear = new Date();
 		let seasonalStyle = "";
-		switch (timeOfYear.month) {
+		switch (timeOfYear.getMonth()) {
 			case 6:
 				seasonalStyle = "fourthofjuly.css";
 				break;
