@@ -3313,6 +3313,34 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				}
 			});
 		});
+
+		// automatically loads seasonal themes
+		let timeOfYear = new Date();
+		let seasonalStyle = "";
+		switch (timeOfYear.month) {
+			case 6:
+				seasonalStyle = "fourthofjuly.css";
+				break;
+			case 9:
+				seasonalStyle = "halloween.css";
+				break;
+			case 10:
+				seasonalStyle = "thanksgiving.css";
+				break;
+			case 11:
+				seasonalStyle = "christmas.css";
+		}
+		if (seasonalStyle) {
+			setTimeout(function () {
+				let extraStyle = document.createElement("link");
+				extraStyle.rel = "stylesheet";
+				extraStyle.href = "https://epicenterprograms.github.io/standards/formatting/" + seasonalStyle;
+				let foundationStyle = document.querySelector("link[href='https://epicenterprograms.github.io/standards/formatting/foundation.css']");
+				if (foundationStyle !== null) {
+					foundationStyle.parentNode.insertBefore(extraStyle, foundationStyle.nextSibling);
+				}
+			}, 0);
+		}
 	}
 	
 	Standards.general.queue.run();
