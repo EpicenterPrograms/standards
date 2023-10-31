@@ -4,20 +4,20 @@ body {
 	background: -moz-repeating-linear-gradient(#f90, black 100vh, #f90 200vh);
 	background: -o-repeating-linear-gradient(#f90, black 100vh, #f90 200vh);
 	background: repeating-linear-gradient(#f90, black 100vh, #f90 200vh);
-	font-family: cursive;
+	font-family: "Comic Sans MS", sans-serif;
 }
 h1.main-title {
 	color: black;
 	text-shadow: 0em 0em .5em white;
 }
 input {
-	font-family: cursive;
+	font-family: "Comic Sans MS", sans-serif;
 }
 select {
-	font-family: cursive;
+	font-family: "Comic Sans MS", sans-serif;
 }
 option {
-	font-family: cursive;
+	font-family: "Comic Sans MS", sans-serif;
 }
 
 button {
@@ -25,7 +25,7 @@ button {
 	background: radial-gradient(circle, orange, orange 25%, #951 48%, #421 50%, #951 52%, orange 75%);
 	border: .05rem solid black;
 	border-radius: .7rem;
-	font-family: cursive;
+	font-family: "Comic Sans MS", sans-serif;
 	color: white;
 }
 button::before {
@@ -38,11 +38,12 @@ button::before {
 	background: linear-gradient(to right, #050, #090, #050);
 }
 button:disabled, button[disabled] {
-	
+	background: radial-gradient(circle, #ccc, #ccc 25%, #888 48%, #222 50%, #888 52%, #ccc 75%);
 }
 
 iframe.top-nav, nav.top-nav, .site-editor {
 	background: black;
+	color: black;
 }
 nav.top-nav div.drop-down > div:first-child, nav.top-nav > button, div div.drop-down > div:first-child, .site-editor > button {
 	background: black;
@@ -50,7 +51,14 @@ nav.top-nav div.drop-down > div:first-child, nav.top-nav > button, div div.drop-
 }
 nav.top-nav div.drop-down div, div div.drop-down div {
 	background: #fc5;
+	color: black;
 }
 nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav > button:hover, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child, div div.drop-down:hover > div:first-child, div div.drop-down:focus > div:first-child, div div.drop-down:focus-within > div:first-child {
 	background: gray;
+}
+
+@media (prefers-color-scheme: dark) {
+	h1, h2, h3, h4, h5, h6 {
+		color: #0dd;
+	}
 }
