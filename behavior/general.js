@@ -3317,18 +3317,24 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		// automatically loads seasonal themes
 		let timeOfYear = new Date();
 		let seasonalStyle = "";
-		switch (timeOfYear.getMonth()) {
-			case 6:
-				seasonalStyle = "fourthofjuly.css";
-				break;
-			case 9:
-				seasonalStyle = "halloween.css";
-				break;
-			case 10:
-				seasonalStyle = "thanksgiving.css";
-				break;
-			case 11:
-				seasonalStyle = "christmas.css";
+		function timeIsNearby(month, day) {
+			let timeDifference = timeOfYear.getTime() - new Date(timeOfYear.getFullYear(), month - 1, day).getTime();
+			// if the date is < 2.5 weeks away or < 2 days past
+			// (also takes into account if the date is coming up next year)
+			if (-256000000 < timeDifference && timeDifference < 1500000000 || timeDifference < -30000000000) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		if (timeIsNearby(7, 4)) {
+			seasonalStyle = "fourthofjuly.css";
+		} else if (timeIsNearby(10, 31)) {
+			seasonalStyle = "halloween.css";
+		} else if (timeIsNearby(11, 26)) {
+			seasonalStyle = "thanksgiving.css";
+		} else if (timeIsNearby(12, 25)) {
+			seasonalStyle = "christmas.css";
 		}
 		if (seasonalStyle) {
 			setTimeout(function () {
