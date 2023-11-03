@@ -3321,7 +3321,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			let timeDifference = timeOfYear.getTime() - new Date(timeOfYear.getFullYear(), month - 1, day).getTime();
 			// if the date is < 2.5 weeks away or < 2 days past
 			// (also takes into account if the date is coming up next year)
-			if (-256000000 < timeDifference && timeDifference < 1500000000 || timeDifference < -30000000000) {
+			if (-172800000 < timeDifference && timeDifference < 1500000000 || timeDifference < -30000000000) {
 				return true;
 			} else {
 				return false;
