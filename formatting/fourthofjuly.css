@@ -45,6 +45,7 @@ button {
 	position: relative;
 	margin-right: 1.1em;
 	border: .05em solid black;
+	border-radius: 0em;
 	padding: .4em;
 	background: linear-gradient(red, #f66, #faa, #f66, red);
 	color: white;
@@ -74,4 +75,12 @@ button::after {
 button:disabled, button[disabled] {
 	background: linear-gradient(#555, #aaa, #555);
 	border-color: #444;
+}
+
+@media (prefers-color-scheme: dark) {
+	/*
+	h1, h2, h3, h4, h5, h6 {
+		color: #0cc;
+	}
+	*/
 }

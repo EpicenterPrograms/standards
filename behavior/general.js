@@ -3318,10 +3318,10 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		let timeOfYear = new Date();
 		let seasonalStyle = "";
 		function timeIsNearby(month, day) {
-			let timeDifference = timeOfYear.getTime() - new Date(timeOfYear.getFullYear(), month - 1, day).getTime();
+			let timeDifference = new Date(timeOfYear.getFullYear(), month - 1, day).getTime() - timeOfYear.getTime();
 			// if the date is < 2.5 weeks away or < 2 days past
 			// (also takes into account if the date is coming up next year)
-			if (-172800000 < timeDifference && timeDifference < 1500000000 || timeDifference < -30000000000) {
+			if (-259200000 < timeDifference && timeDifference < 1500000000 || timeDifference < -30000000000) {
 				return true;
 			} else {
 				return false;
@@ -3340,10 +3340,16 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			setTimeout(function () {
 				let extraStyle = document.createElement("link");
 				extraStyle.rel = "stylesheet";
-				extraStyle.href = "https://epicenterprograms.github.io/standards/formatting/" + seasonalStyle;
 				let foundationStyle = document.querySelector("link[href='https://epicenterprograms.github.io/standards/formatting/foundation.css']");
 				if (foundationStyle !== null) {
+					extraStyle.href = "https://epicenterprograms.github.io/standards/formatting/" + seasonalStyle;
 					foundationStyle.parentNode.insertBefore(extraStyle, foundationStyle.nextSibling);
+				} else if (window.location.protocol == "file:") {
+					foundationStyle = document.querySelector("link[href='file:///C:/Users/rtben/Documents/GitHub/standards/formatting/foundation.css']");
+					if (foundationStyle !== null) {
+						extraStyle.href = "file:///C:/Users/rtben/Documents/GitHub/standards/formatting/" + seasonalStyle;
+						foundationStyle.parentNode.insertBefore(extraStyle, foundationStyle.nextSibling);
+					}
 				}
 			}, 0);
 		}
