@@ -28,7 +28,7 @@ nav.top-nav>button::after {
 	display: none;
 }
 
-button {
+button:not(.hide-aside) {
 	position: relative;
 	margin-top: 1rem;
 	border: .05em solid rgba(0, 0, 255, .5);
@@ -37,7 +37,7 @@ button {
 	background: radial-gradient(#aaf, blue);
 	color: white;
 }
-button::before {
+button:not(.hide-aside)::before {
 	content: "";
 	position: absolute;
 	bottom: 120%;
@@ -47,7 +47,7 @@ button::before {
 	width: .6em;
 	height: .6em;
 }
-button::after {
+button:not(.hide-aside)::after {
 	content: "";
 	position: absolute;
 	bottom: calc(100% + .05em);

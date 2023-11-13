@@ -20,7 +20,7 @@ option {
 	font-family: "Comic Sans MS", sans-serif;
 }
 
-button {
+button:not(.hide-aside) {
 	position: relative;
 	background: radial-gradient(circle, orange, orange 25%, #951 48%, #421 50%, #951 52%, orange 75%);
 	border: .05rem solid black;
@@ -28,7 +28,7 @@ button {
 	font-family: "Comic Sans MS", sans-serif;
 	color: white;
 }
-button::before {
+button:not(.hide-aside)::before {
 	content: "";
 	position: absolute;
 	bottom: calc(100% + .05rem);
