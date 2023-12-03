@@ -483,6 +483,7 @@ Standards.general.Sound = function (specs) {
 					gain1.gain.setValueAtTime(0, Standards.general.audio.currentTime);
 					sound.volume = 0;
 					if (shouldSetPlaying) {
+						playQueue = [];
 						sound.playing = false;
 						window.dispatchEvent(new Event(sound.identifier + "StoppedPlaying"));
 					}
