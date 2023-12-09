@@ -63,7 +63,10 @@ button:disabled, button[disabled] {
 
 @media (prefers-color-scheme: dark) {
 	body {
-		background: repeating-linear-gradient(#0b0, #0b0 10vh, black 10vh, black 20vh, red 20vh, red 30vh, black 30vh, black 40vh);
+		background: repeating-linear-gradient(darkgreen, darkgreen 10vh, black 10vh, black 20vh, darkred 20vh, darkred 30vh, black 30vh, black 40vh);
+	}
+	button:not(.hide-aside) {
+		background: radial-gradient(#66f, darkblue);
 	}
 	button:not(.hide-aside)::before {
 		border-color: gold;
