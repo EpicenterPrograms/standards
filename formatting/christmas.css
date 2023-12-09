@@ -60,3 +60,12 @@ button:disabled, button[disabled] {
 	background: radial-gradient(#aaa, #555);
 	border-color: rgba(85, 85, 85, .5);
 }
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background: repeating-linear-gradient(#0b0, #0b0 10vh, black 10vh, black 20vh, red 20vh, red 30vh, black 30vh, black 40vh);
+	}
+	button:not(.hide-aside)::before {
+		border-color: gold;
+	}
+}
