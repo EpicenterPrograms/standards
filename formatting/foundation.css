@@ -723,7 +723,7 @@ section {
 }
 
 footer {
-	margin: 1.5em 3em 0em;
+	margin: 1.5em 3em -.5em;
 }
 
 .generic-background {
