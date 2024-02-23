@@ -3259,7 +3259,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			link.target = "_self";
 			window.addEventListener("finished", function () {  //// something happens during script execution to undo the clicking if not done here
 				link.click();
-				setTimeout(function () { link.click(); }, 500);  //// page updates tend to prevent correct navigation until later
+				setTimeout(function () { link.click(); }, 750);  //// page updates tend to prevent correct navigation until later
 			});
 		}
 		
