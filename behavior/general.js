@@ -2460,12 +2460,12 @@ Standards.general.toHTML = function (HTML) {
 	let scripts = HTML.split("<script");  // adding the closing ">" in the splitting would close the script block
 	if (scripts.length > 1) {
 		scripts.forEach(function (script, index) {
-			if (index > 0) {
+			if (index > 0) {  // skips the content before the first script tag
 				let scriptTag = document.createElement("script");
 				scriptTag.appendChild(document.createTextNode(script.slice(script.indexOf(">") + 1, script.indexOf("</script>"))));
-				container.insertBefore(scriptTag, container.getElementsByTagName("script")[index - 1]);
-				let oldTag = container.getElementsByTagName("script")[index];
-				oldTag.parentNode.removeChild(oldTag);
+				let oldScript = container.getElementsByTagName("script")[index - 1];
+				oldScript.parentNode.insertBefore(scriptTag, oldScript);
+				oldScript.parentNode.removeChild(oldScript);
 			}
 		});
 	}
