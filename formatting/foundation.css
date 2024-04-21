@@ -994,6 +994,13 @@ over- {
 	display: inline;
 }
 
+details > summary {
+	cursor: pointer;
+}
+details[open] > summary {
+	font-weight: bold;
+}
+
 .current-selection {
 	color: darkgray;
 	font-weight: bold;
