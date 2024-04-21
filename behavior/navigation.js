@@ -60,10 +60,7 @@ window.addEventListener("load", function () {
 	if (!Standards.navigation.contents) {
 		Standards.navigation.contents = {};
 	}
-	if (Standards.navigation.contents instanceof Object) {
-		// creates the table of contents
-		createNestedElements(document.getElementById("contentsList"), Standards.navigation.contents);
-	} else if (Standards.navigation.contents.constructor === Array) {
+	if (Standards.navigation.contents.constructor === Array) {
 		var temporaryContainer = [];
 		Standards.navigation.contents.forEach(function (pair) {
 			let listItem = document.createElement("li");
@@ -111,6 +108,9 @@ window.addEventListener("load", function () {
 		temporaryContainer.forEach(function (item) {
 			document.getElementById("contentsList").appendChild(item);
 		});
+	} else if (Standards.navigation.contents instanceof Object) {
+		// creates the table of contents
+		createNestedElements(document.getElementById("contentsList"), Standards.navigation.contents);
 	} else {
 		console.error("An improper type of contents was provided.")
 	}
