@@ -3269,7 +3269,7 @@ addEventListener("load", function () {  // This waits for everything past the sc
 			if (!section.dataset.hasOwnProperty("heading") && !(section.firstElementChild && section.firstElementChild.tagName == "H2")) {  // if there's not a data-heading or an HTML heading
 				section.dataset.heading = "Elaboration";
 			}
-			if (section.textContent.trim() == "") {  // if I forgot to fill the aside
+			if (section.innerHTML.trim() == "") {  // if I forgot to fill the aside (innerHTML catches things like images)
 				section.textContent = "Oops, I forgot to fill this.";
 			}
 			let button = document.createElement("button");
