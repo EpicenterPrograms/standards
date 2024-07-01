@@ -1,7 +1,7 @@
 body {
 	background: repeating-linear-gradient(red, red 7.69vh, white 7.69vh, white 15.38vh);
 }
-body::before {
+body:not(.navigation)::before {
 	content: "";
 	position: absolute;
 	left: 0%;
@@ -81,7 +81,7 @@ button:disabled, button[disabled] {
 	body {
 		background: repeating-linear-gradient(#a00, #a00 7.69vh, black 7.69vh, black 15.38vh);
 	}
-	body::before {
+	body:not(.navigation)::before {
 		background: repeating-linear-gradient(#00a, #00a 53.83vh, transparent 53.83vh, transparent 100vh);
 	}
 	h1.main-title {
@@ -90,6 +90,15 @@ button:disabled, button[disabled] {
 	/*
 	h1, h2, h3, h4, h5, h6 {
 		color: #0cc;
+	}
+	button:not(.hide-aside) {
+		border-color: gray;
+	}
+	button:not(.hide-aside)::before {
+		border-color: transparent gray gray gray;
+	}
+	button:not(.hide-aside)::after {
+		border-color: transparent transparent transparent gray;
 	}
 	*/
 }
