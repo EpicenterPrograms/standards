@@ -84,13 +84,23 @@ button:disabled, button[disabled] {
 	body:not(.navigation)::before {
 		background: repeating-linear-gradient(#00a, #00a 53.83vh, transparent 53.83vh, transparent 100vh);
 	}
+
 	h1.main-title {
 		color: white;
 	}
+
+	nav.top-nav {
+		background: linear-gradient(to right, #c00, #222 49vw, #222 51vw, #00c);
+	}
+	nav.top-nav div.drop-down > div:first-child, nav.top-nav>button {
+		color: white;
+	}
+
 	/*
 	h1, h2, h3, h4, h5, h6 {
 		color: #0cc;
 	}
+
 	button:not(.hide-aside) {
 		border-color: gray;
 	}
