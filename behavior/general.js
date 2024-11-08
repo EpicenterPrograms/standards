@@ -2643,10 +2643,11 @@ Standards.general.getFile = function (url, callback, convert) {
 			default: true
 	non-native functions = getType, toHTML, and makeDialog
 	*/
+	/* ////
 	Standards.general.queue.add({
 		runOrder: "first",
 		arguments: [url, callback, convert],
-		function: function (url, callback, convert) {
+		function: function (url, callback, convert) {  */
 			return new Promise(function (resolve, reject) {
 				if (convert === undefined) {
 					convert = true;
@@ -2833,9 +2834,9 @@ Standards.general.getFile = function (url, callback, convert) {
 					}
 					file.send();
 				}
-			});
+			}); /* ////
 		}
-	});
+	}); */
 };
 
 Standards.general.http_build_query = function (options) {
