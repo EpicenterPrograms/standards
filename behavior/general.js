@@ -2627,11 +2627,14 @@ Standards.general.getFile = function (url, callback, convert) {
 	asynchronously retieves a file as a string using an XMLHttpRequest
 	only files from the same domain can be retrieved without CORS
 	local files can only be accessed from a file selector
+	returns a Promise
 	arguments:
 		url = required; the URL of the desired file
 			can be absolute or relative
-		callback = required; what to do after receiving the file
+		callback = probably optional; what to do after receiving the file
 			one argument will be provided: the received file
+			will run even if the request fails
+			(use .then to run only upon success)
 		convert = optional; a boolean indicating whether the file should be converted to a different form
 			URLs ending in ".html": converted into an HTML element
 			URLs ending in ".json": converted into a JSON object
@@ -2644,16 +2647,22 @@ Standards.general.getFile = function (url, callback, convert) {
 		runOrder: "first",
 		arguments: [url, callback, convert],
 		function: function (url, callback, convert) {
-			return new Promise(function (resolve) {
+			return new Promise(function (resolve, reject) {
 				if (convert === undefined) {
 					convert = true;
 				}
 				if (!url) {
 					console.error("No resource was provided to get the file.");
+					if (callback) {
+						callback();
+					}
+					reject(ReferenceError("No resource was provided to get the file."));
 				} else if (Standards.general.getType(url) != "String") {
 					console.error("The provided URL wasn't a string.");
-				} else if (!callback) {
-					console.error("No callback was provided.");
+					if (callback) {
+						callback();
+					}
+					reject(TypeError("The provided URL wasn't a string."));
 				} else if (url.search(/^file:|^\w:/) > -1 || url.indexOf(":") == -1 && new URL(url, window.location.href).protocol == "file:") {  // if it's a local file
 					let input = document.createElement("input");
 					input.type = "file";
@@ -2668,8 +2677,13 @@ Standards.general.getFile = function (url, callback, convert) {
 								reader.addEventListener("loadend", function () {
 									if (reader.error != null) {
 										console.error(reader.error);
+										if (callback) {
+											callback(reader.result);
+										}
+										reject(reader.error);
+									} else if (callback) {
+										callback(reader.result);
 									}
-									callback(reader.result);
 									resolve(reader.result);
 								});
 								reader.readAsDataURL(this.files[0]);
@@ -2686,7 +2700,9 @@ Standards.general.getFile = function (url, callback, convert) {
 											content: this.result
 										});
 										if (folder.length == input.files.length) {  // when finished iterating
-											callback(folder);
+											if (callback) {
+												callback(folder);
+											}
 											resolve(folder);
 										}
 									});
@@ -2696,6 +2712,10 @@ Standards.general.getFile = function (url, callback, convert) {
 								reader.addEventListener("loadend", function () {
 									if (reader.error != null) {
 										console.error(reader.error);
+										if (callback) {
+											callback(reader.result);
+										}
+										reject(reader.error);
 									}
 									if (convert) {
 										switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
@@ -2773,29 +2793,41 @@ Standards.general.getFile = function (url, callback, convert) {
 								if (convert) {
 									switch (url.slice(url.lastIndexOf(".") + 1).toLowerCase()) {
 										case "html":
-											callback(Standards.general.toHTML(file.responseText));
+											if (callback) {
+												callback(Standards.general.toHTML(file.responseText));
+											}
 											resolve(Standards.general.toHTML(file.responseText));
 											break;
 										case "json":
-											callback(JSON.parse(file.responseText));
+											if (callback) {
+												callback(JSON.parse(file.responseText));
+											}
 											resolve(JSON.parse(file.responseText));
 											break;
 										case "txt":
 											console.info("What do you think I'm supposed to convert a .txt file into?");
-											callback(file.responseText);
+											if (callback) {
+												callback(file.responseText);
+											}
 											resolve(file.responseText);
 											break;
 										default:
 											console.warn("The file doesn't have a convertible file extension.");
-											callback(file.responseText);
+											if (callback) {
+												callback(file.responseText);
+											}
 											resolve(file.responseText);
 									}
-								} else {
+								} else if (callback) {
 									callback(file.responseText);
-									resolve(file.responseText);
 								}
+								resolve(file.responseText);
 							} else {
-								console.error("The file couldn't be retieved.");
+								console.error("The file couldn't be retrieved.");
+								if (callback) {
+									callback();
+								}
+								reject(new Error("The file couldn't be retrieved."));
 							}
 						}
 					}
