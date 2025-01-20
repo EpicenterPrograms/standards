@@ -22,11 +22,6 @@
 .slides.instant > div {
 	transition: 0s;
 }
-.slides:fullscreen {
-	width: 100%;
-	height: 100%;
-	font-size: 1.5em;
-}
 .slides:-webkit-full-screen {
 	width: 100%;
 	height: 100%;
@@ -38,6 +33,11 @@
 	font-size: 1.5em;
 }
 .slides:-ms-fullscreen {
+	width: 100%;
+	height: 100%;
+	font-size: 1.5em;
+}
+.slides:fullscreen {
 	width: 100%;
 	height: 100%;
 	font-size: 1.5em;
