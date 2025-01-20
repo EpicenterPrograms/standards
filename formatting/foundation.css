@@ -1113,6 +1113,7 @@ table.compact {
 	body {
 		background: black;
 		background-image: repeating-linear-gradient(black, black 24vh, red 25vh, black 26vh, black 49vh, green 50vh, black 51vh, black 74vh, blue 75vh, black 76vh, black 100vh);
+		background-attachment: fixed;
 		color: white;
 	}
 	main {
