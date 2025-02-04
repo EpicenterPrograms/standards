@@ -2914,38 +2914,207 @@ Standards.storage.server = {
 			}
 		});
 	},
-	mergeData: function (data, shouldOverwrite, shouldDelete, location, options) {
+	mergeData: function (overwriteWithLocal, shouldKeep, data, serverLocation, options) {
 		/**
 		merges provided data with data on the server
+		this is meant to handle sets of data, not individual items
 		returns a Promise
 
 		arguments:
-			data = required; the data to merge with the server data
-			shouldOverwrite = required; a boolean or function specifying when conflicting data should be overwritten
-			shouldDelete = required; a boolean or function specifying when server data with no corresponding merging data should be deleted
-			location = optional; the server location to merge to; defaults to defaultLocation
+			overwriteWithLocal = required; a boolean or function specifying when conflicting data should be overwritten
+				functions are passed the conflicting data values, local first, then server
+				functions must return a boolean
+				a resulting true causes the server information to be replaced by the local data
+			shouldKeep = required; a function specifying whether data not found in the other location should be kept
+				functions are passed the key, the data, and whether the data is from the server (true or false)
+				functions must return a boolean
+				a resulting true causes the outstanding data to be kept and copied to the location lacking that data
+			data = optional; the data or storage location to merge with the server data
+				providing a string causes the data to be interpreted as a local storage location where the data to merge can be found
+				providing an object currently results in an error
+				defaults to options.storagePlace.defaultLocation
+			serverLocation = optional; the server location to merge to
+				defaults to Standards.storage.server.defaultLocation
 			options = optional; additional options
+				requireSignIn: whether it should be necessary for a user to be signed in to perform the action
+					default = true
+				storagePlace: what device storage should be used ("local" or "session")
+					only used when data is a string (when a storage location to merge was provided)
+					default = "local"
+				ignoreInLocal: a string or array of local keys that shouldn't be considered during merging
+					default = []
+				ignoreInServer: a string or array of server keys that shouldn't be considered during merging
+					default = []
 		*/
 		return new Promise(function (resolve, reject) {
+			// accepts or sets the options
 			options = options || {};
+			options.storagePlace = options.storagePlace || "local";
+			if (options.storagePlace != "local" && options.storagePlace != "session") {
+				console.error("An invalid storage place was provided (" + options.storagePlace + ").");
+				reject();
+			}
+			if (options.ignoreInLocal) {
+				switch (Standards.storage.getType(options.ignoreInLocal)) {
+					case "String":
+						options.ignoreInLocal = [options.ignoreInLocal];
+						break;
+					case "Array":
+						// do nothing
+						break;
+					default:
+						console.error("The ignoreInLocal option was an unrecognized type (" + Standards.storage.getType(options.ignoreInLocal) + ").");
+						reject();
+				}
+			} else {
+				options.ignoreInLocal = [];
+			}
+			if (options.ignoreInServer) {
+				switch (Standards.storage.getType(options.ignoreInServer)) {
+					case "String":
+						options.ignoreInServer = [options.ignoreInServer];
+						break;
+					case "Array":
+						// do nothing
+						break;
+					default:
+						console.error("The ignoreInServer option was an unrecognized type (" + Standards.storage.getType(options.ignoreInServer) + ").");
+						reject();
+				}
+			} else {
+				options.ignoreInServer = [];
+			}
+			// checks whether the server is accessible
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
-			location = Standards.storage.server.formatLocation(location);
-			if (["Boolean", "Function"].indexOf(Standards.storage.getType(shouldOverwrite)) == -1) {  // if shouldOverwrite isn't a boolean or a function
-				console.error("shouldOverwrite needs to be a boolean or a function");
-				reject(new TypeError("shouldOverwrite was neither a boolean nor a function"));
-			} else if (shouldOverwrite === true || shouldOverwrite === false) {
-				shouldOverwrite = function () { return shouldOverwrite; };
+			// checks whether a valid overwriteWithLocal was provided
+			if (["Boolean", "Function"].indexOf(Standards.storage.getType(overwriteWithLocal)) == -1) {  // if overwriteWithLocal isn't a boolean or a function
+				console.error("overwriteWithLocal needs to be a boolean or a function.");
+				reject(new TypeError("overwriteWithLocal was neither a boolean nor a function."));
+			} else if (overwriteWithLocal === true || overwriteWithLocal === false) {
+				overwriteWithLocal = function () { return overwriteWithLocal; };
+			} else if (Standards.storage.getType(overwriteWithLocal) == "Boolean") {
+				console.error("A boolean was provided for overwriteWithLocal, but it wasn't a literal true or false.");
+				reject();
 			}
-			if (["Boolean", "Function"].indexOf(Standards.storage.getType(shouldDelete)) == -1) {  // if shouldDelete isn't a boolean or a function
-				console.error("shouldDelete needs to be a boolean or a function");
-				reject(new TypeError("shouldDelete was neither a boolean nor a function"));
-			} else if (shouldDelete === true || shouldDelete === false) {
-				shouldDelete = function () { return shouldDelete; };
+			// checks whether a valid shouldKeep was provided
+			if (Standards.storage.getType(shouldKeep) != "Function") {  // if shouldKeep isn't a function
+				console.error("shouldKeep needs to be a function.");
+				reject(new TypeError("shouldKeep wasn't a function."));
 			}
-			//// do stuff
-			resolve();
+			// sets the data if necessary
+			if (!data) {
+				data = Standards.storage[options.storagePlace].defaultLocation;
+			}
+			// checks for a valid serverLocation
+			if (serverLocation === undefined || serverLocation === null) {
+				serverLocation = "";
+			}
+			if (Standards.storage.getType(serverLocation) != "String") {
+				console.error("The provided serverLocation wasn't a string.");
+				reject(new TypeError("serverLocation should be a string, undefined, or null."));
+			}
+			// merges the data according to the type of data provided
+			let dataType = Standards.storage.getType(data);
+			if (dataType == "String") {
+				// makes sure the data is interpreted as referring to a folder
+				if (data.slice(-1) != "/") {
+					data += "/";
+				}
+				let storagePlace = Standards.storage[options.storagePlace];
+				Standards.storage.server.list(serverLocation, function (serverData) {  // lists all of the stored server data
+					let remaining = new Standards.storage.Listenable();
+					remaining.value = 1;
+					remaining.addEventListener("set", function (value) {
+						if (value == 0) {  // once all items have been successfully handled
+							resolve();
+						}
+					});
+					let localDataList = storagePlace.list(data);
+					// inspects all of the data stored on the server
+					Standards.storage.forEach(serverData, function (key) {
+						if (options.ignoreInServer.indexOf(key) == -1) {  // if the current item shouldn't be ignored
+							remaining.value++;
+							if (serverLocation != "" && serverLocation.slice(-1) == "/") {
+								key = serverLocation + "/" + key;
+							} else {
+								key = serverLocation + key;
+							}
+							Standards.storage.server.recall(key, function (serverInfo) {
+								if (localDataList.indexOf(key) == -1) {  // if the server has information not present in the local data
+									if (shouldKeep(key, serverInfo, true)) {  // if the server information should be kept and copied
+										storagePlace.store(key, serverInfo);
+										remaining.value--;
+									} else {  // if the server information needs to be deleted
+										Standards.storage.server.forget(key).then(function () {
+											remaining.value--;
+										}).catch(function (error) {
+											console.error("Unwanted information on the server couldn't be deleted.");
+											console.error(error);
+											remaining.value--;
+										});
+									}
+								} else if (serverInfo !== storagePlace.recall(key)) {  // if the server data isn't the same as the local data
+									let localInfo = storagePlace.recall(key);
+									if (overwriteWithLocal(localInfo, serverInfo)) {  // if the server data should be overwritten by the local data
+										Standards.storage.server.store(key, localInfo).then(function () {
+											remaining.value--;
+										}).catch(function (error) {
+											console.error("There was an error overwriting the server information.");
+											console.error(error);
+											reject(error);
+											// remaining.value--;
+										});
+									} else {  // if the local data should be overwritten by the server data
+										storagePlace.store(key, serverInfo);
+										remaining.value--;
+									}
+								} else {  // if the server data and the local data is the same
+									remaining.value--;
+								}
+							}).catch(function (error) {
+								console.error("There was an error retrieving the server data.");
+								console.error(error);
+								reject(error);
+								// remaining.value--;
+							});
+						}
+					});
+					// looks for any local data not present on the server
+					Standards.storage.forEach(localDataList, function (key) {
+						if (options.ignoreInLocal.indexOf(key) == -1) {  // if the current item shouldn't be ignored
+							if (serverData.indexOf(key) == -1) {  // if the local data has information not present on the server
+								let localInfo = storagePlace.recall(key);
+								if (shouldKeep(key, localInfo, false)) {  // if the local data should be kept and copied
+									remaining.value++;
+									Standards.storage.server.store(key, localInfo).then(function () {
+										remaining.value--;
+									}).catch(function (error) {
+										console.error("There was an error adding data to the server.");
+										console.error(error);
+										reject(error);
+										// remaining.value--;
+									});
+								} else {  // if the local data should be deleted
+									storagePlace.forget(key);
+								}
+							}
+						}
+					});
+					remaining.value--;
+				}).catch(function (error) {
+					console.error("There was a problem listing the server information during merge.");
+					console.error(error);
+					reject(error);
+				})
+			} else if (dataType == "Object") {  //// This would be where the actual data was provided as an Object.
+				console.error("This isn't supported yet.");
+				reject();
+			} else {
+				console.error("The data provided was an incorrect type (" + dataType + ").");
+				reject();
+			}
 		});
 	}
 };
