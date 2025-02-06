@@ -545,9 +545,12 @@ Standards.storage.standardizeStorageLocation = function (location, type, shouldA
 		if (location != "/") {
 			location = location.slice(1);  // eliminates the leading slash for easier downstream processing
 		}
+		if (shouldAddSlash && location.slice(-1) != "/") {  // if a slash should be added to the end of the location
+			location += "/";
+		}
 		// checks to make sure the final location is formatted properly
 		if (location != "/" && location.search(/^[^/]+(?:\/[^/]+)*\/?$/) == -1) {
-			throw new SyntaxError("The location isn't formatted properly.");
+			throw new SyntaxError("The location \"" + location + "\" isn't formatted properly.");
 		}
 	} else {
 		throw new TypeError("The location given wasn't a String.");
