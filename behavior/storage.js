@@ -506,21 +506,17 @@ Standards.storage.standardizeStorageLocation = function (location, type, shouldA
 		if (location[0] != "/") {
 			location = "/" + location;
 		}
-		if (shouldAddSlash && location.slice(-1) != "/") {
-			location += "/";
-		}
-		/// makes sure the list doesn't include the parent folder
-		/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 	}
 	if (Standards.storage.getType(location) == "String") {
 		if (location[0] != "/" && !d) {  // if the location isn't absolute, and there's no default location
 			throw new ReferenceError("No default location is present.");
 		}
 		// makes sure the default location is formatted properly
+		d = d || "/";
 		if (d[0] != "/") {
 			d = "/" + d;
 		}
-		if (d.slice(-1) == "/") {
+		if (d.slice(-1) != "/") {
 			d = d + "/";
 		}
 		// decides how to combine the default and provided locations
@@ -538,13 +534,19 @@ Standards.storage.standardizeStorageLocation = function (location, type, shouldA
 			}
 			location = "/" + prelocation.join("/") + "/" + location;
 		} else if (location[0] == ".") {
-			location = d + location.slice(2);
+			if (location.length > 1) {
+				location = d + location.slice(2);
+			} else {  // if the location is just "."
+				location = d;
+			}
 		} else if (location[0] != "/") {  // if the location isn't absolute (from the root)
 			location = d + location;
 		}
 		if (location != "/") {
 			location = location.slice(1);  // eliminates the leading slash for easier downstream processing
 		}
+		// makes sure the list doesn't include the parent folder
+		// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 		if (shouldAddSlash && location.slice(-1) != "/") {  // if a slash should be added to the end of the location
 			location += "/";
 		}
