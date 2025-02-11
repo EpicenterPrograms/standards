@@ -1,0 +1,124 @@
+body {
+	background: repeating-linear-gradient(red, pink 100vh, red 200vh);
+}
+
+h1.main-title {
+	color: white;
+}
+h1.main-title::before {
+	content: "\2764";
+}
+h1.main-title::after {
+	content: "\2764";
+}
+
+nav.top-nav {
+	background: #f88;
+}
+nav.top-nav div.drop-down div {
+	background: red;
+}
+nav.top-nav div.drop-down>div:first-child {
+	background: transparent;
+	color: black;
+}
+nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
+	background: pink;
+}
+nav.top-nav>button {
+	border-radius: 0em;
+	background: transparent;
+	color: black;
+}
+nav.top-nav>button::before {
+	display: none;
+}
+nav.top-nav>button::after {
+	display: none;
+}
+nav.hidden-left-nav {
+	border-right-color: red;
+}
+
+button:not(.hide-aside) {
+	position: relative;
+	border: none;
+	border-radius: 1em;
+	padding: .2em .5em .5em;
+	background: radial-gradient(pink, red);
+	color: purple;
+}
+button:not(.hide-aside):active {
+	background: radial-gradient(red, pink);
+}
+button:not(.hide-aside)::before {
+	content: "\2764";
+	font-size: .75em;
+	/*
+	position: absolute;
+	top: -.75em;
+	left: 0em;
+	border-radius: 1em 1em 0em 0em;
+	background: red;
+	width: 50%;
+	height: .75em;
+	*/
+}
+button:not(.hide-aside)::after {
+	content: "\2764";
+	font-size: .75em;
+	/*
+	position: absolute;
+	top: -.75em;
+	right: 0em;
+	border-radius: 1em 1em 0em 0em;
+	background: red;
+	width: 50%;
+	height: .75em;
+	*/
+}
+button:disabled, button[disabled] {
+	background: radial-gradient(#aaa, #555);
+}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background: repeating-linear-gradient(purple, red 100vh, purple 200vh);
+	}
+
+	h1.main-title {
+		color: white;
+	}
+
+	nav.top-nav {
+		background: #706;
+	}
+	nav.top-nav div.drop-down div {
+		background: purple;
+	}
+	nav.top-nav div.drop-down > div:first-child, nav.top-nav>button {
+		color: white;
+	}
+	nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child {
+		background: #c0b;
+	}
+	nav.hidden-left-nav {
+		border-right-color: purple;
+	}
+
+	button:not(.hide-aside) {
+		position: relative;
+		border: none;
+		border-radius: 1em;
+		padding: .2em .5em .5em;
+		background: radial-gradient(magenta, purple);
+		color: white;
+	}
+	button:not(.hide-aside):active {
+		background: radial-gradient(purple, magenta);
+		color: white;
+	}
+	button:not(.hide-aside)::before, button:not(.hide-aside)::after {
+		content: "\2764\fe0f";
+	}
+}

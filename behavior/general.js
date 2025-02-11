@@ -3362,7 +3362,9 @@ addEventListener("load", function () {  // This waits for everything past the sc
 				return false;
 			}
 		}
-		if (timeIsNearby(7, 4)) {
+		if (timeIsNearby(2, 14)) {
+			seasonalStyle = "valentinesday.css";
+		} else if (timeIsNearby(7, 4)) {
 			seasonalStyle = "fourthofjuly.css";
 		} else if (timeIsNearby(10, 31)) {
 			seasonalStyle = "halloween.css";
