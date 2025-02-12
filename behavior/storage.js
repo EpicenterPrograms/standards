@@ -67,10 +67,21 @@ Standards.storage.getType = function (item) {
 		return "NaN";
 	} else if (item.constructor.toString().search(/function HTML\w*Element\(\) \{ \[native code\] \}/) > -1) {  // if it's an HTML element
 		return "HTMLElement";
+	} else if (item instanceof Error) {
+		return "Error";
+	} else if (Object.prototype.toString.call(item) === "[object Object]") {
+		// Use Object.getPrototypeOf to further check if it's a plain object
+		if (Object.getPrototypeOf(item) === Object.prototype || Object.getPrototypeOf(item) === null) {
+			return "Object";  // plain object like a Python dictionary
+		} else {
+			return "Instance";  // class instance or object with a custom prototype
+		}
 	} else {
 		let match = item.constructor.toString().match(/^function (\w+)\(\)/);
 		if (match === null) {
 			console.error(TypeError("The item has an unknown type."));
+			console.log(item.constructor.toString());
+			console.log(item.constructor);
 			return undefined;
 		} else {
 			return match[1];
@@ -1416,30 +1427,36 @@ Standards.storage.server = {
 			//// do stuff
 		});
 	},
-	store: function (location, item, callback, options) {
+	store: function (location, item, options) {
 		return new Promise(function (resolve, reject) {
 			options = options || {};
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			location = Standards.storage.server.formatLocation(location);
-			let reference = Standards.storage.server.getReference(location, true);
+			let reference;
 			if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
 				if (Standards.storage.getType(item) == "Object") {
-					reference.set(item, { merge: true }).then(function () {
-						if (callback) {
-							new Promise(function () {
-								callback();
-								resolve();
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
-							});
-						} else {
-							resolve();
-						}
-					}).catch(function (error) {
+					// flattens the object into a single layer with formatted locations as keys
+					let flattenedObject = {};
+					function exploreObject(object, path) {
+						Standards.storage.forEach(object, function (item, key) {
+							if (Standards.storage.getType(item) == "Object") {
+								exploreObject(item, path + "<slash>" + key);
+							} else {
+								flattenedObject[path + "<slash>" + key] = item;
+							}
+						});
+					}
+					exploreObject(item, location);
+					// stores the items from the object
+					let promiseList = [];
+					Standards.storage.forEach(flattenedObject, function (item, key) {
+						reference = Standards.storage.server.getReference(key, true);
+						promiseList.push(reference.set(item, { merge: true }));
+					});
+					// finishes things up after storing is finished
+					Promise.all(promiseList).then(resolve).catch(function (error) {
 						console.error("There was an error storing the information.");
 						console.error(error);
 						reject(error);
@@ -1449,22 +1466,10 @@ Standards.storage.server = {
 					reject(new TypeError("Storing a folder requires an Object as the item to store."));
 				}
 			} else {  // if storing a single key-value pair
+				reference = Standards.storage.server.getReference(location, true);
 				reference.set({
 					[location.slice(location.lastIndexOf("<slash>") + 7)]: item
-				}, { merge: true }).then(function () {
-					if (callback) {
-						new Promise(function () {
-							callback();
-							resolve();
-						}).catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-							reject(error);
-						});
-					} else {
-						resolve();
-					}
-				}).catch(function (error) {
+				}, { merge: true }).then(resolve).catch(function (error) {
 					console.error("There was an error storing the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
 					console.error(error);
 					reject(error);
