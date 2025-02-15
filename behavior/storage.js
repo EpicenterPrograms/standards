@@ -2012,7 +2012,7 @@ Standards.storage.server = {
 			}
 		});
 	},
-	list: function (location, callback, options) {
+	list: function (location, options) {
 		return new Promise(function (resolve, reject) {
 			options = options || {};
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
