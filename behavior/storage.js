@@ -191,6 +191,78 @@ Standards.storage.toHTML = function (HTML) {
 	return container;
 };
 
+Standards.storage.flattenObject = function (object, options) {
+	/**
+	Takes a nested object and creates shallow object with the path of keys from the original strung together as the new key for each item.
+	Arguments:
+		object = required; the object to flatten
+		options = optional; a dictionary of options
+			"separator" = the string used to separate keys in the new object
+				default = "/"
+	*/
+	if (!object) {
+		throw new TypeError("No object was provided to flatten.");
+	}
+	options = options || {};
+	if (!options.separator) {
+		options.separator = "/";
+	}
+	if (!options.prefix) {
+		options.prefix = "";
+	}
+	let flattenedObject = {};
+	function exploreObject(obj, path) {
+		let prepath = path;
+		if (prepath != "" && prepath.slice(-options.separator.length) != options.separator) {
+			prepath += options.separator;
+		}
+		Object.entries(obj).forEach(([key, item]) => {
+			if (Standards.storage.getType(item) == "Object") {
+				exploreObject(item, prepath + key);
+			} else {
+				flattenedObject[prepath + key] = item;
+			}
+		});
+	}
+	exploreObject(object, options.prefix);
+	return flattenedObject;
+};
+
+Standards.storage.deepenObject = function (object, options) {
+	/**
+	Creates a nested object from a shallow object using the keys as paths.
+	Arguments:
+		object = required; the object to deepen
+		options = optional; a dictionary of options
+			"separator" = the string to find in the object keys to separate nesting levels
+				default = "/"
+	*/
+	if (!object) {
+		throw new TypeError("No object was provided to flatten.");
+	}
+	options = options || {};
+	if (!options.separator) {
+		options.separator = "/";
+	}
+	let deepenedObject = {};
+	for (const key in object) {
+		// Split the key by the separator and filter out any empty parts (e.g., due to trailing slashes)
+		const parts = key.split(options.separator).filter(Boolean);
+		let current = deepenedObject;
+		parts.forEach((part, index) => {
+			if (index === parts.length - 1) {  // if this is the last part, assign the value
+				current[part] = object[key];
+			} else {  // otherwise, create an empty object if it doesn't exist
+				if (!current[part]) {
+					current[part] = {};
+				}
+				current = current[part];  // then go to that level
+			}
+		});
+	}
+	return deepenedObject;
+};
+
 Standards.storage.makeDialog = function (message) {
 	/**
 	makes a dialog box pop up
@@ -1437,21 +1509,9 @@ Standards.storage.server = {
 			let reference;
 			if (location.slice(-7) == "<slash>") {  // if storing a whole folder of items
 				if (Standards.storage.getType(item) == "Object") {
-					// flattens the object into a single layer with formatted locations as keys
-					let flattenedObject = {};
-					function exploreObject(object, path) {
-						Standards.storage.forEach(object, function (item, key) {
-							if (Standards.storage.getType(item) == "Object") {
-								exploreObject(item, path + "<slash>" + key);
-							} else {
-								flattenedObject[path + "<slash>" + key] = item;
-							}
-						});
-					}
-					exploreObject(item, location);
 					// stores the items from the object
 					let promiseList = [];
-					Standards.storage.forEach(flattenedObject, function (item, key) {
+					Standards.storage.forEach(Standards.storage.flattenObject(item, { separator: "<slash>", prefix: location }), function (item, key) {
 						reference = Standards.storage.server.getReference(key, true);
 						promiseList.push(reference.set(item, { merge: true }));
 					});
@@ -2018,44 +2078,19 @@ Standards.storage.server = {
 					Standards.storage.forEach(keyList, function (key, index) {
 						keyList[index] = key.replace(/<slash>/g, "/");
 					});
-					if (callback) {
-						new Promise(function () {
-							if (options.shallowKeyList) {
-								let parentFolders = [];
-								Standards.storage.forEach(keyList, function (key) {
-									if (key.indexOf("/") > -1) {
-										key = key.slice(0, key.indexOf("/"));
-									}
-									if (!parentFolders.includes(key)) {
-										parentFolders.push(key);
-									}
-								});
-								callback(parentFolders);
-								resolve(parentFolders);
-							} else {
-								callback(keyList);
-								resolve(keyList);
+					if (options.shallowKeyList) {
+						let parentFolders = [];
+						Standards.storage.forEach(keyList, function (key) {
+							if (key.indexOf("/") > -1) {
+								key = key.slice(0, key.indexOf("/"));
 							}
-						}).catch(function (error) {
-							console.error("There was a problem running the callback.");
-							console.error(error);
-							reject(error);
+							if (!parentFolders.includes(key)) {
+								parentFolders.push(key);
+							}
 						});
+						resolve(parentFolders);
 					} else {
-						if (options.shallowKeyList) {
-							let parentFolders = [];
-							Standards.storage.forEach(keyList, function (key) {
-								if (key.indexOf("/") > -1) {
-									key = key.slice(0, key.indexOf("/"));
-								}
-								if (!parentFolders.includes(key)) {
-									parentFolders.push(key);
-								}
-							});
-							resolve(parentFolders);
-						} else {
-							resolve(keyList);
-						}
+						resolve(keyList);
 					}
 				}).catch(function (error) {
 					console.error("There was an error finding the information.");
@@ -2075,44 +2110,19 @@ Standards.storage.server = {
 						});
 						/// returns only the first folder level of everything at the top of the directory
 						// none of the keys should have "<slash>"
-						if (callback) {
-							new Promise(function () {
-								if (options.shallowKeyList) {
-									let parentFolders = [];
-									Standards.storage.forEach(keyList, function (key) {
-										if (key.indexOf("/") > -1) {
-											key = key.slice(0, key.indexOf("/"));
-										}
-										if (!parentFolders.includes(key)) {
-											parentFolders.push(key);
-										}
-									});
-									callback(parentFolders);
-									resolve(parentFolders);
-								} else {
-									callback(keyList);
-									resolve(keyList);
+						if (options.shallowKeyList) {
+							let parentFolders = [];
+							Standards.storage.forEach(keyList, function (key) {
+								if (key.indexOf("/") > -1) {
+									key = key.slice(0, key.indexOf("/"));
 								}
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
+								if (!parentFolders.includes(key)) {
+									parentFolders.push(key);
+								}
 							});
+							resolve(parentFolders);
 						} else {
-							if (options.shallowKeyList) {
-								let parentFolders = [];
-								Standards.storage.forEach(keyList, function (key) {
-									if (key.indexOf("/") > -1) {
-										key = key.slice(0, key.indexOf("/"));
-									}
-									if (!parentFolders.includes(key)) {
-										parentFolders.push(key);
-									}
-								});
-								resolve(parentFolders);
-							} else {
-								resolve(keyList);
-							}
+							resolve(keyList);
 						}
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
@@ -2162,44 +2172,19 @@ Standards.storage.server = {
 						Standards.storage.forEach(keyList, function (key, index) {
 							keyList[index] = key.replace(/<slash>/g, "/");
 						});
-						if (callback) {
-							new Promise(function () {
-								if (options.shallowKeyList) {
-									let parentFolders = [];
-									Standards.storage.forEach(keyList, function (key) {
-										if (key.indexOf("/") > -1) {
-											key = key.slice(0, key.indexOf("/"));
-										}
-										if (!parentFolders.includes(key)) {
-											parentFolders.push(key);
-										}
-									});
-									callback(parentFolders);
-									resolve(parentFolders);
-								} else {
-									callback(keyList);
-									resolve(keyList);
+						if (options.shallowKeyList) {
+							let parentFolders = [];
+							Standards.storage.forEach(keyList, function (key) {
+								if (key.indexOf("/") > -1) {
+									key = key.slice(0, key.indexOf("/"));
 								}
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
+								if (!parentFolders.includes(key)) {
+									parentFolders.push(key);
+								}
 							});
+							resolve(parentFolders);
 						} else {
-							if (options.shallowKeyList) {
-								let parentFolders = [];
-								Standards.storage.forEach(keyList, function (key) {
-									if (key.indexOf("/") > -1) {
-										key = key.slice(0, key.indexOf("/"));
-									}
-									if (!parentFolders.includes(key)) {
-										parentFolders.push(key);
-									}
-								});
-								resolve(parentFolders);
-							} else {
-								resolve(keyList);
-							}
+							resolve(keyList);
 						}
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
@@ -2218,44 +2203,19 @@ Standards.storage.server = {
 									Standards.storage.forEach(keyList, function (key, index) {
 										keyList[index] = key.replace(/<slash>/g, "/");
 									});
-									if (callback) {
-										new Promise(function () {
-											if (options.shallowKeyList) {
-												let parentFolders = [];
-												Standards.storage.forEach(keyList, function (key) {
-													if (key.indexOf("/") > -1) {
-														key = key.slice(0, key.indexOf("/"));
-													}
-													if (!parentFolders.includes(key)) {
-														parentFolders.push(key);
-													}
-												});
-												callback(parentFolders);
-												resolve(parentFolders);
-											} else {
-												callback(keyList);
-												resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
 											}
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
 										});
+										resolve(parentFolders);
 									} else {
-										if (options.shallowKeyList) {
-											let parentFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												if (key.indexOf("/") > -1) {
-													key = key.slice(0, key.indexOf("/"));
-												}
-												if (!parentFolders.includes(key)) {
-													parentFolders.push(key);
-												}
-											});
-											resolve(parentFolders);
-										} else {
-											resolve(keyList);
-										}
+										resolve(keyList);
 									}
 								}
 							});
@@ -2359,86 +2319,36 @@ Standards.storage.server = {
 									Standards.storage.forEach(keyList, function (key, index) {
 										keyList[index] = key.replace(/<slash>/g, "/");
 									});
-									if (callback) {
-										new Promise(function () {
-											if (options.shallowKeyList) {
-												let parentFolders = [];
-												Standards.storage.forEach(keyList, function (key) {
-													if (key.indexOf("/") > -1) {
-														key = key.slice(0, key.indexOf("/"));
-													}
-													if (!parentFolders.includes(key)) {
-														parentFolders.push(key);
-													}
-												});
-												callback(parentFolders);
-												resolve(parentFolders);
-											} else {
-												callback(keyList);
-												resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
 											}
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
 										});
+										resolve(parentFolders);
 									} else {
-										if (options.shallowKeyList) {
-											let parentFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												if (key.indexOf("/") > -1) {
-													key = key.slice(0, key.indexOf("/"));
-												}
-												if (!parentFolders.includes(key)) {
-													parentFolders.push(key);
-												}
-											});
-											resolve(parentFolders);
-										} else {
-											resolve(keyList);
-										}
+										resolve(keyList);
 									}
 								} else {
 									console.warn("An attempt was made to access a non-existent document.");
 									// keyList is empty and doesn't need to have "<slash>"s replaced
-									if (callback) {
-										new Promise(function () {
-											if (options.shallowKeyList) {
-												let parentFolders = [];
-												Standards.storage.forEach(keyList, function (key) {
-													if (key.indexOf("/") > -1) {
-														key = key.slice(0, key.indexOf("/"));
-													}
-													if (!parentFolders.includes(key)) {
-														parentFolders.push(key);
-													}
-												});
-												callback(parentFolders);
-												resolve(parentFolders);
-											} else {
-												callback(keyList);
-												resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
 											}
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
 										});
+										resolve(parentFolders);
 									} else {
-										if (options.shallowKeyList) {
-											let parentFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												if (key.indexOf("/") > -1) {
-													key = key.slice(0, key.indexOf("/"));
-												}
-												if (!parentFolders.includes(key)) {
-													parentFolders.push(key);
-												}
-											});
-											resolve(parentFolders);
-										} else {
-											resolve(keyList);
-										}
+										resolve(keyList);
 									}
 								}
 							}).catch(function (error) {
@@ -2463,44 +2373,19 @@ Standards.storage.server = {
 								keyList.push(doc.id);
 							});
 							// none of the keys should have "<slash>"
-							if (callback) {
-								new Promise(function () {
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										callback(parentFolders);
-										resolve(parentFolders);
-									} else {
-										callback(keyList);
-										resolve(keyList);
+							if (options.shallowKeyList) {
+								let parentFolders = [];
+								Standards.storage.forEach(keyList, function (key) {
+									if (key.indexOf("/") > -1) {
+										key = key.slice(0, key.indexOf("/"));
 									}
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
+									if (!parentFolders.includes(key)) {
+										parentFolders.push(key);
+									}
 								});
+								resolve(parentFolders);
 							} else {
-								if (options.shallowKeyList) {
-									let parentFolders = [];
-									Standards.storage.forEach(keyList, function (key) {
-										if (key.indexOf("/") > -1) {
-											key = key.slice(0, key.indexOf("/"));
-										}
-										if (!parentFolders.includes(key)) {
-											parentFolders.push(key);
-										}
-									});
-									resolve(parentFolders);
-								} else {
-									resolve(keyList);
-								}
+								resolve(keyList);
 							}
 						} else {
 							let listener = new Standards.storage.Listenable();
@@ -2511,44 +2396,19 @@ Standards.storage.server = {
 									Standards.storage.forEach(keyList, function (key, index) {
 										keyList[index] = key.replace(/<slash>/g, "/");
 									});
-									if (callback) {
-										new Promise(function () {
-											if (options.shallowKeyList) {
-												let parentFolders = [];
-												Standards.storage.forEach(keyList, function (key) {
-													if (key.indexOf("/") > -1) {
-														key = key.slice(0, key.indexOf("/"));
-													}
-													if (!parentFolders.includes(key)) {
-														parentFolders.push(key);
-													}
-												});
-												callback(parentFolders);
-												resolve(parentFolders);
-											} else {
-												callback(keyList);
-												resolve(keyList);
+									if (options.shallowKeyList) {
+										let parentFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											if (key.indexOf("/") > -1) {
+												key = key.slice(0, key.indexOf("/"));
 											}
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
+											if (!parentFolders.includes(key)) {
+												parentFolders.push(key);
+											}
 										});
+										resolve(parentFolders);
 									} else {
-										if (options.shallowKeyList) {
-											let parentFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												if (key.indexOf("/") > -1) {
-													key = key.slice(0, key.indexOf("/"));
-												}
-												if (!parentFolders.includes(key)) {
-													parentFolders.push(key);
-												}
-											});
-											resolve(parentFolders);
-										} else {
-											resolve(keyList);
-										}
+										resolve(keyList);
 									}
 								}
 							});
@@ -2625,86 +2485,36 @@ Standards.storage.server = {
 								Standards.storage.forEach(keyList, function (key, index) {
 									keyList[index] = key.replace(/<slash>/g, "/");
 								});
-								if (callback) {
-									new Promise(function () {
-										if (options.shallowKeyList) {
-											let parentFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												if (key.indexOf("/") > -1) {
-													key = key.slice(0, key.indexOf("/"));
-												}
-												if (!parentFolders.includes(key)) {
-													parentFolders.push(key);
-												}
-											});
-											callback(parentFolders);
-											resolve(parentFolders);
-										} else {
-											callback(keyList);
-											resolve(keyList);
+								if (options.shallowKeyList) {
+									let parentFolders = [];
+									Standards.storage.forEach(keyList, function (key) {
+										if (key.indexOf("/") > -1) {
+											key = key.slice(0, key.indexOf("/"));
 										}
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
+										if (!parentFolders.includes(key)) {
+											parentFolders.push(key);
+										}
 									});
+									resolve(parentFolders);
 								} else {
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										resolve(parentFolders);
-									} else {
-										resolve(keyList);
-									}
+									resolve(keyList);
 								}
 							} else {
 								console.warn("An attempt was made to access a non-existent document.");
 								// keyList should be empty
-								if (callback) {
-									new Promise(function () {
-										if (options.shallowKeyList) {
-											let parentFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												if (key.indexOf("/") > -1) {
-													key = key.slice(0, key.indexOf("/"));
-												}
-												if (!parentFolders.includes(key)) {
-													parentFolders.push(key);
-												}
-											});
-											callback(parentFolders);
-											resolve(parentFolders);
-										} else {
-											callback(keyList);
-											resolve(keyList);
+								if (options.shallowKeyList) {
+									let parentFolders = [];
+									Standards.storage.forEach(keyList, function (key) {
+										if (key.indexOf("/") > -1) {
+											key = key.slice(0, key.indexOf("/"));
 										}
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
+										if (!parentFolders.includes(key)) {
+											parentFolders.push(key);
+										}
 									});
+									resolve(parentFolders);
 								} else {
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										resolve(parentFolders);
-									} else {
-										resolve(keyList);
-									}
+									resolve(keyList);
 								}
 							}
 						}).catch(function (error) {
