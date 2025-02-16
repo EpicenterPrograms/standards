@@ -2476,16 +2476,22 @@ Standards.general.makeDialog = function (message) {
 	/**
 	makes a dialog box pop up
 	message = the content of the dialog box (can be an HTML element)
-	Arguments after the message are two-item arrays which form buttons.
-		first item = text of the button (innerHTML)
-		second item = the function to run if that button is pressed
-	The two-item arrays can be replaced with a single dictionary object.
-		key = text of the button (innerHTML)
-		value = the function called when the button is pressed
+	Arguments after the message can be a few different things:
+		Two-item arrays which form buttons
+			first item = text of the button (innerHTML)
+			second item = the function to run if that button is pressed
+		One simple key/value object
+			key = text of the button (innerHTML)
+			value = the function called when the button is pressed
+		Strings
+			A button with that text is created and only closes the popup
+		A single falsy value
+			Creates a dialog box without any buttons
+		Nothing
+			Creates an "Okay" button that closes the popup
 	The text of the button is passed to the functions,
 	so the same function can be used for all of the buttons if the function checks the text.
 	HTML buttons in the message can be used as the dialog buttons if they have the class "replace".
-	Buttons can be left out by adding a falsy argument after the message.
 	examples:
 		Standards.general.makeDialog(
 			"Don't you think this dialog box is awesome?",
