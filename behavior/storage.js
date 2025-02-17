@@ -1511,9 +1511,12 @@ Standards.storage.server = {
 				if (Standards.storage.getType(item) == "Object") {
 					// stores the items from the object
 					let promiseList = [];
-					Standards.storage.forEach(Standards.storage.flattenObject(item, { separator: "<slash>", prefix: location }), function (item, key) {
+					Standards.storage.forEach(Standards.storage.flattenObject(item, { separator: "<slash>", prefix: location }), function (value, key) {
 						reference = Standards.storage.server.getReference(key, true);
-						promiseList.push(reference.set(item, { merge: true }));
+						promiseList.push(reference.set({
+							[key.slice(key.lastIndexOf("<slash>") + 7)]: value
+						}, { merge: true }));
+						//// promiseList.push(reference.set(item, { merge: true }));  // stores multiple things at a time if the first argument is an object
 					});
 					// finishes things up after storing is finished
 					Promise.all(promiseList).then(resolve).catch(function (error) {
