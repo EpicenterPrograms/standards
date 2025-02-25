@@ -794,6 +794,20 @@ Standards.storage.session = {
 					}
 				});
 				return parentFolders;
+			} else if (options.maxDepth) {
+				if (options.maxDepth > 0) {
+					let trimmedFolders = [];
+					Standards.storage.forEach(keyList, function (key) {
+						key = key.split("/").slice(0, options.maxDepth).join("/");
+						if (!trimmedFolders.includes(key)) {
+							trimmedFolders.push(key);
+						}
+					});
+					return trimmedFolders;
+				} else {
+					console.error("The maximum folder depth must be larger than 0.");
+					return keyList;
+				}
 			} else {
 				return keyList;
 			}
@@ -983,6 +997,20 @@ Standards.storage.local = {
 					}
 				});
 				return parentFolders;
+			} else if (options.maxDepth) {
+				if (options.maxDepth > 0) {
+					let trimmedFolders = [];
+					Standards.storage.forEach(keyList, function (key) {
+						key = key.split("/").slice(0, options.maxDepth).join("/");
+						if (!trimmedFolders.includes(key)) {
+							trimmedFolders.push(key);
+						}
+					});
+					return trimmedFolders;
+				} else {
+					console.error("The maximum folder depth must be larger than 0.");
+					return keyList;
+				}
 			} else {
 				return keyList;
 			}
@@ -2016,17 +2044,40 @@ Standards.storage.server = {
 		});
 	},
 	list: function (location, options) {
+		/**
+		lists the keys of items stored on the server
+
+		arguments:
+			location = optional; a string of the file location to start listing from
+				default is Standards.storage.server.defaultLocation
+			options = optional; an object specifying various options
+				shallowKeyList (deprecated): whether only the first folder layer after the location should be returned
+					default is false
+				maxDepth: the number of folder levels to return
+					default is 0 (all levels)
+					a number greater than the number of levels will include all levels
+					a value of 1 is the same as shallowKeyList
+				//// keepTrailingSlashes: whether a slash should be added to the end when a key has deeper folder levels after it
+					//// needs to be implemented
+		*/
 		return new Promise(function (resolve, reject) {
-			options = options || {};
+			// checks whether this function can be used
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
+			// makes sure a standard location formatting is used
 			if (location === undefined) {
 				location = "./";
 				/// makes sure the list doesn't include the parent folder
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 			}
 			location = Standards.storage.server.formatLocation(location, true);
+			// fills in options unaccounted for
+			options = options || {};
+			if (!options.maxDepth) {
+				options.maxDepth = 0;
+			}
+
 			let keyList = [];
 
 			if (Standards.storage.server.locationType == "shallow") {  // if all documents are held in one collection
@@ -2092,6 +2143,20 @@ Standards.storage.server = {
 							}
 						});
 						resolve(parentFolders);
+					} else if (options.maxDepth) {
+						if (options.maxDepth > 0) {
+							let trimmedFolders = [];
+							Standards.storage.forEach(keyList, function (key) {
+								key = key.split("/").slice(0, options.maxDepth).join("/");
+								if (!trimmedFolders.includes(key)) {
+									trimmedFolders.push(key);
+								}
+							});
+							resolve(trimmedFolders);
+						} else {
+							console.error("The maximum folder depth must be larger than 0.");
+							resolve(keyList);
+						}
 					} else {
 						resolve(keyList);
 					}
@@ -2124,6 +2189,20 @@ Standards.storage.server = {
 								}
 							});
 							resolve(parentFolders);
+						} else if (options.maxDepth) {
+							if (options.maxDepth > 0) {
+								let trimmedFolders = [];
+								Standards.storage.forEach(keyList, function (key) {
+									key = key.split("/").slice(0, options.maxDepth).join("/");
+									if (!trimmedFolders.includes(key)) {
+										trimmedFolders.push(key);
+									}
+								});
+								resolve(trimmedFolders);
+							} else {
+								console.error("The maximum folder depth must be larger than 0.");
+								resolve(keyList);
+							}
 						} else {
 							resolve(keyList);
 						}
@@ -2186,6 +2265,20 @@ Standards.storage.server = {
 								}
 							});
 							resolve(parentFolders);
+						} else if (options.maxDepth) {
+							if (options.maxDepth > 0) {
+								let trimmedFolders = [];
+								Standards.storage.forEach(keyList, function (key) {
+									key = key.split("/").slice(0, options.maxDepth).join("/");
+									if (!trimmedFolders.includes(key)) {
+										trimmedFolders.push(key);
+									}
+								});
+								resolve(trimmedFolders);
+							} else {
+								console.error("The maximum folder depth must be larger than 0.");
+								resolve(keyList);
+							}
 						} else {
 							resolve(keyList);
 						}
@@ -2217,6 +2310,20 @@ Standards.storage.server = {
 											}
 										});
 										resolve(parentFolders);
+									} else if (options.maxDepth) {
+										if (options.maxDepth > 0) {
+											let trimmedFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												key = key.split("/").slice(0, options.maxDepth).join("/");
+												if (!trimmedFolders.includes(key)) {
+													trimmedFolders.push(key);
+												}
+											});
+											resolve(trimmedFolders);
+										} else {
+											console.error("The maximum folder depth must be larger than 0.");
+											resolve(keyList);
+										}
 									} else {
 										resolve(keyList);
 									}
@@ -2333,6 +2440,20 @@ Standards.storage.server = {
 											}
 										});
 										resolve(parentFolders);
+									} else if (options.maxDepth) {
+										if (options.maxDepth > 0) {
+											let trimmedFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												key = key.split("/").slice(0, options.maxDepth).join("/");
+												if (!trimmedFolders.includes(key)) {
+													trimmedFolders.push(key);
+												}
+											});
+											resolve(trimmedFolders);
+										} else {
+											console.error("The maximum folder depth must be larger than 0.");
+											resolve(keyList);
+										}
 									} else {
 										resolve(keyList);
 									}
@@ -2350,6 +2471,20 @@ Standards.storage.server = {
 											}
 										});
 										resolve(parentFolders);
+									} else if (options.maxDepth) {
+										if (options.maxDepth > 0) {
+											let trimmedFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												key = key.split("/").slice(0, options.maxDepth).join("/");
+												if (!trimmedFolders.includes(key)) {
+													trimmedFolders.push(key);
+												}
+											});
+											resolve(trimmedFolders);
+										} else {
+											console.error("The maximum folder depth must be larger than 0.");
+											resolve(keyList);
+										}
 									} else {
 										resolve(keyList);
 									}
@@ -2387,6 +2522,20 @@ Standards.storage.server = {
 									}
 								});
 								resolve(parentFolders);
+							} else if (options.maxDepth) {
+								if (options.maxDepth > 0) {
+									let trimmedFolders = [];
+									Standards.storage.forEach(keyList, function (key) {
+										key = key.split("/").slice(0, options.maxDepth).join("/");
+										if (!trimmedFolders.includes(key)) {
+											trimmedFolders.push(key);
+										}
+									});
+									resolve(trimmedFolders);
+								} else {
+									console.error("The maximum folder depth must be larger than 0.");
+									resolve(keyList);
+								}
 							} else {
 								resolve(keyList);
 							}
@@ -2410,6 +2559,20 @@ Standards.storage.server = {
 											}
 										});
 										resolve(parentFolders);
+									} else if (options.maxDepth) {
+										if (options.maxDepth > 0) {
+											let trimmedFolders = [];
+											Standards.storage.forEach(keyList, function (key) {
+												key = key.split("/").slice(0, options.maxDepth).join("/");
+												if (!trimmedFolders.includes(key)) {
+													trimmedFolders.push(key);
+												}
+											});
+											resolve(trimmedFolders);
+										} else {
+											console.error("The maximum folder depth must be larger than 0.");
+											resolve(keyList);
+										}
 									} else {
 										resolve(keyList);
 									}
@@ -2499,6 +2662,20 @@ Standards.storage.server = {
 										}
 									});
 									resolve(parentFolders);
+								} else if (options.maxDepth) {
+									if (options.maxDepth > 0) {
+										let trimmedFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											key = key.split("/").slice(0, options.maxDepth).join("/");
+											if (!trimmedFolders.includes(key)) {
+												trimmedFolders.push(key);
+											}
+										});
+										resolve(trimmedFolders);
+									} else {
+										console.error("The maximum folder depth must be larger than 0.");
+										resolve(keyList);
+									}
 								} else {
 									resolve(keyList);
 								}
@@ -2516,6 +2693,20 @@ Standards.storage.server = {
 										}
 									});
 									resolve(parentFolders);
+								} else if (options.maxDepth) {
+									if (options.maxDepth > 0) {
+										let trimmedFolders = [];
+										Standards.storage.forEach(keyList, function (key) {
+											key = key.split("/").slice(0, options.maxDepth).join("/");
+											if (!trimmedFolders.includes(key)) {
+												trimmedFolders.push(key);
+											}
+										});
+										resolve(trimmedFolders);
+									} else {
+										console.error("The maximum folder depth must be larger than 0.");
+										resolve(keyList);
+									}
 								} else {
 									resolve(keyList);
 								}
@@ -2758,60 +2949,88 @@ Standards.storage.server = {
 			}
 		});
 	},
-	mergeData: function (overwriteWithLocal, shouldKeep, data, serverLocation, options) {
+	mergeData: function (preferClient, keepMissing, clientData, serverData, options) {
 		/**
-		merges provided data with data on the server
-		this is meant to handle sets of data, not individual items
-		returns a Promise
+		Merges provided data with data on the server
+		This is meant to handle sets of data, not individual items
+		Returns a Promise
 
-		arguments:
-			overwriteWithLocal = required; a boolean or function specifying when conflicting data should be overwritten
-				functions are passed the conflicting data values, local first, then server
-				functions must return a boolean
-				a resulting true causes the server information to be replaced by the local data
-			shouldKeep = required; a function specifying whether data not found in the other location should be kept
-				functions are passed the key, the data, and whether the data is from the server (true or false)
-				functions must return a boolean
-				a resulting true causes the outstanding data to be kept and copied to the location lacking that data
-			data = optional; the data or storage location to merge with the server data
-				providing a string causes the data to be interpreted as a local storage location where the data to merge can be found
-				providing an object currently results in an error
-				defaults to options.storagePlace.defaultLocation
-			serverLocation = optional; the server location to merge to
-				defaults to Standards.storage.server.defaultLocation
-			options = optional; additional options
-				requireSignIn: whether it should be necessary for a user to be signed in to perform the action
-					default = true
-				storagePlace: what device storage should be used ("local" or "session")
-					only used when data is a string (when a storage location to merge was provided)
-					default = "local"
-				ignoreInLocal: a string or array of local keys that shouldn't be considered during merging
-					default = []
-				ignoreInServer: a string or array of server keys that shouldn't be considered during merging
-					default = []
+		Arguments:
+			preferClient = Required; A boolean or function specifying when conflicting data should be overwritten
+				Function is passed the conflicting data values, client first, then server
+				Function must return a boolean
+				A resulting true causes the server information to be replaced by the client data
+			keepMissing = Required; A function specifying whether data not found in the other location should be kept
+				The first argument passed to the function is an object containing information about the data in question
+					{ data: the data, location: the key, fromServer: whether the data is from the server (true or false) }
+				Function must return a boolean
+				A resulting true causes the outstanding data to be kept and copied to the location lacking that data
+			clientData = Optional; The data or storage location to merge with the server data
+				Providing a string causes the data to be interpreted as a client storage location where the data to merge can be found
+				Providing an object currently results in an error
+				Defaults to options.storageType.defaultLocation
+			serverData = Optional; The server location to merge to
+				Defaults to Standards.storage.server.defaultLocation
+			options = Optional; Additional options
+				requireSignIn: Whether it should be necessary for a user to be signed in to perform the action
+					Default = true
+				storageType: What type of client storage should be used ("local" or "session")
+					Only used when clientData is a string (when a storage location to merge was provided)
+					Default = "local"
+				prepTasks: Tasks to be completed before the primary merging code
+					Functions will run at execution time, and Promises are guaranteed to resolve before preferClient or keepMissing
+					Accepts one task or an array of tasks
+					Results of the functions or Promises are provided to preferClient and keepMissing as an additional array at the end
+				ignoreInClient: A string or array of client keys that shouldn't be considered during merging
+					Default = []
+				ignoreInServer: A string or array of server keys that shouldn't be considered during merging
+					Default = []
+				maxDepth: The maximum folder depth used internally to gather values to be used in the provided functions
+					Any further folder levels will appear as nested objects within the processing functions
+					(A larger maxDepth will run the functions fewer times and have larger objects provided as arguments)
+					This value applies to both the server storage and the client storage
+					A number greater than the number of levels (or 0) will include all levels
+					Default = 0 (all levels)  //// There would currently be an error if this value was allowed to run
+					Example:
+						maxDepth = 1
+						All keys = ["a/a/a", "a/a/b", "a/a/c", "a/b/a", "a/b/b", "b/a/a", "b/a/b", "b/b/a", "b/c", "b/d"]
+						Internal keys = ["a", "b"]
+						Values provided to both preferClient and keepMissing
+							{ a:{ a:val1, b:val2, c:val3 }, b:{ a:val4, b:val5 } }
+							{ a:{ a:val6, b:val7 }, b:{ a:val8 }, c:val9, d:val10 }
 		*/
 		return new Promise(function (resolve, reject) {
 			// accepts or sets the options
 			options = options || {};
-			options.storagePlace = options.storagePlace || "local";
-			if (options.storagePlace != "local" && options.storagePlace != "session") {
-				console.error("An invalid storage place was provided (" + options.storagePlace + ").");
+			options.storageType = options.storageType || "local";
+			if (options.storageType != "local" && options.storageType != "session") {
+				console.error("An invalid storage place was provided (" + options.storageType + ").");
 				reject();
 			}
-			if (options.ignoreInLocal) {
-				switch (Standards.storage.getType(options.ignoreInLocal)) {
+			if (options.prepTasks) {
+				if (["Function", "Promise"].includes(Standards.storage.getType(options.prepTasks))) {
+					options.prepTasks = [options.prepTasks];
+				} else if (Standards.storage.getType(options.prepTasks) != "Array") {
+					console.error(new TypeError("The prepTasks option was an unrecognized type (" + Standards.storage.getType(options.prepTasks) + ")."));
+					options.prepTasks = [];
+				}
+			} else {
+				options.prepTasks = [];
+			}
+			if (options.ignoreInClient) {
+				switch (Standards.storage.getType(options.ignoreInClient)) {
 					case "String":
-						options.ignoreInLocal = [options.ignoreInLocal];
+						options.ignoreInClient = [options.ignoreInClient];
 						break;
 					case "Array":
 						// do nothing
 						break;
 					default:
-						console.error("The ignoreInLocal option was an unrecognized type (" + Standards.storage.getType(options.ignoreInLocal) + ").");
+						console.error("The ignoreInClient option was an unrecognized type (" + Standards.storage.getType(options.ignoreInClient) + ").");
 						reject();
 				}
 			} else {
-				options.ignoreInLocal = [];
+				options.ignoreInClient = [];
 			}
 			if (options.ignoreInServer) {
 				switch (Standards.storage.getType(options.ignoreInServer)) {
@@ -2832,42 +3051,53 @@ Standards.storage.server = {
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
-			// checks whether a valid overwriteWithLocal was provided
-			if (["Boolean", "Function"].indexOf(Standards.storage.getType(overwriteWithLocal)) == -1) {  // if overwriteWithLocal isn't a boolean or a function
-				console.error("overwriteWithLocal needs to be a boolean or a function.");
-				reject(new TypeError("overwriteWithLocal was neither a boolean nor a function."));
-			} else if (overwriteWithLocal === true || overwriteWithLocal === false) {
-				overwriteWithLocal = function () { return overwriteWithLocal; };
-			} else if (Standards.storage.getType(overwriteWithLocal) == "Boolean") {
-				console.error("A boolean was provided for overwriteWithLocal, but it wasn't a literal true or false.");
+			// checks whether a valid preferClient was provided
+			if (["Boolean", "Function"].indexOf(Standards.storage.getType(preferClient)) == -1) {  // if preferClient isn't a boolean or a function
+				console.error("preferClient needs to be a boolean or a function.");
+				reject(new TypeError("preferClient was neither a boolean nor a function."));
+			} else if (preferClient === true || preferClient === false) {
+				preferClient = function () { return preferClient; };
+			} else if (Standards.storage.getType(preferClient) == "Boolean") {
+				console.error("A boolean was provided for preferClient, but it wasn't a literal true or false.");
 				reject();
 			}
-			// checks whether a valid shouldKeep was provided
-			if (Standards.storage.getType(shouldKeep) != "Function") {  // if shouldKeep isn't a function
-				console.error("shouldKeep needs to be a function.");
-				reject(new TypeError("shouldKeep wasn't a function."));
+			// checks whether a valid keepMissing was provided
+			if (Standards.storage.getType(keepMissing) != "Function") {  // if keepMissing isn't a function
+				console.error("keepMissing needs to be a function.");
+				reject(new TypeError("keepMissing wasn't a function."));
 			}
-			// sets the data if necessary
-			if (!data) {
-				data = Standards.storage[options.storagePlace].defaultLocation;
+			// sets the clientData if necessary
+			if (!clientData) {
+				clientData = Standards.storage[options.storageType].defaultLocation;
 			}
-			// checks for a valid serverLocation
-			if (serverLocation === undefined || serverLocation === null) {
-				serverLocation = "";
+			// checks for a valid serverData
+			if (serverData === undefined || serverData === null) {
+				serverData = "";
 			}
-			if (Standards.storage.getType(serverLocation) != "String") {
-				console.error("The provided serverLocation wasn't a string.");
-				reject(new TypeError("serverLocation should be a string, undefined, or null."));
+			if (Standards.storage.getType(serverData) != "String") {
+				console.error("The provided serverData wasn't a string.");
+				reject(new TypeError("serverData should be a string, undefined, or null."));
 			}
 			// merges the data according to the type of data provided
-			let dataType = Standards.storage.getType(data);
+			let dataType = Standards.storage.getType(clientData);
 			if (dataType == "String") {
 				// makes sure the data is interpreted as referring to a folder
-				if (data.slice(-1) != "/") {
-					data += "/";
+				if (clientData.slice(-1) != "/") {
+					clientData += "/";
 				}
-				let storagePlace = Standards.storage[options.storagePlace];
-				Standards.storage.server.list(serverLocation, function (serverData) {  // lists all of the stored server data
+				let storagePlace = Standards.storage[options.storageType];
+				let promiseList = [];
+				promiseList.push(Standards.storage.server.list(serverData, { maxDepth: options.maxDepth }));
+				Standards.storage.forEach(options.prepTasks, function (task) {
+					if (Standards.storage.getType(task) == "Function") {
+						promiseList.push(task());
+					} else {
+						promiseList.push(task);
+					}
+				});
+				Promise.all(promiseList).then(function (resolvedList) {
+					let serverData = resolvedList[0];  // lists all of the stored server data
+					let taskResults = resolvedList.slice(1);  // results of the prepTasks
 					let remaining = new Standards.storage.Listenable();
 					remaining.value = 1;
 					remaining.addEventListener("set", function (value) {
@@ -2875,19 +3105,23 @@ Standards.storage.server = {
 							resolve();
 						}
 					});
-					let localDataList = storagePlace.list(data);
+					let localDataList = storagePlace.list(clientData, { maxDepth: options.maxDepth });
+					serverData = serverData.map(key => key + "/");  //// This needs to be removed when key listing is improved
+					localDataList = localDataList.map(key => key + "/");  //// This needs to be removed when key listing is improved
+					options.ignoreInServer = options.ignoreInServer.map(key => key + "/");  //// This needs to be removed when key listing is improved
+					options.ignoreInClient = options.ignoreInClient.map(key => key + "/");  //// This needs to be removed when key listing is improved
 					// inspects all of the data stored on the server
 					Standards.storage.forEach(serverData, function (key) {
 						if (options.ignoreInServer.indexOf(key) == -1) {  // if the current item shouldn't be ignored
 							remaining.value++;
-							if (serverLocation != "" && serverLocation.slice(-1) == "/") {
-								key = serverLocation + "/" + key;
+							if (serverData != "" && serverData.slice(-1) != "/") {
+								key = serverData + "/" + key;
 							} else {
-								key = serverLocation + key;
+								key = serverData + key;
 							}
 							Standards.storage.server.recall(key, function (serverInfo) {
-								if (localDataList.indexOf(key) == -1) {  // if the server has information not present in the local data
-									if (shouldKeep(key, serverInfo, true)) {  // if the server information should be kept and copied
+								if (localDataList.indexOf(key) == -1) {  // if the server has information not present in the client data
+									if (keepMissing({ data: serverInfo, location: key, fromServer: true }, taskResults)) {  // if the server information should be kept and copied
 										storagePlace.store(key, serverInfo);
 										remaining.value--;
 									} else {  // if the server information needs to be deleted
@@ -2899,9 +3133,9 @@ Standards.storage.server = {
 											remaining.value--;
 										});
 									}
-								} else if (serverInfo !== storagePlace.recall(key)) {  // if the server data isn't the same as the local data
+								} else if (serverInfo !== storagePlace.recall(key)) {  // if the server data isn't the same as the client data
 									let localInfo = storagePlace.recall(key);
-									if (overwriteWithLocal(localInfo, serverInfo)) {  // if the server data should be overwritten by the local data
+									if (preferClient(localInfo, serverInfo, taskResults)) {  // if the server data should be overwritten by the client data
 										Standards.storage.server.store(key, localInfo).then(function () {
 											remaining.value--;
 										}).catch(function (error) {
@@ -2910,11 +3144,11 @@ Standards.storage.server = {
 											reject(error);
 											// remaining.value--;
 										});
-									} else {  // if the local data should be overwritten by the server data
+									} else {  // if the client data should be overwritten by the server data
 										storagePlace.store(key, serverInfo);
 										remaining.value--;
 									}
-								} else {  // if the server data and the local data is the same
+								} else {  // if the server data and the client data is the same
 									remaining.value--;
 								}
 							}).catch(function (error) {
@@ -2925,12 +3159,12 @@ Standards.storage.server = {
 							});
 						}
 					});
-					// looks for any local data not present on the server
+					// looks for any client data not present on the server
 					Standards.storage.forEach(localDataList, function (key) {
-						if (options.ignoreInLocal.indexOf(key) == -1) {  // if the current item shouldn't be ignored
-							if (serverData.indexOf(key) == -1) {  // if the local data has information not present on the server
+						if (options.ignoreInClient.indexOf(key) == -1) {  // if the current item shouldn't be ignored
+							if (serverData.indexOf(key) == -1) {  // if the client data has information not present on the server
 								let localInfo = storagePlace.recall(key);
-								if (shouldKeep(key, localInfo, false)) {  // if the local data should be kept and copied
+								if (keepMissing({ data: localInfo, location: key, fromServer: false }, taskResults)) {  // if the client data should be kept and copied
 									remaining.value++;
 									Standards.storage.server.store(key, localInfo).then(function () {
 										remaining.value--;
@@ -2940,7 +3174,7 @@ Standards.storage.server = {
 										reject(error);
 										// remaining.value--;
 									});
-								} else {  // if the local data should be deleted
+								} else {  // if the client data should be deleted
 									storagePlace.forget(key);
 								}
 							}
