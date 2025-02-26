@@ -2051,6 +2051,7 @@ Standards.storage.server = {
 			location = optional; a string of the file location to start listing from
 				default is Standards.storage.server.defaultLocation
 			options = optional; an object specifying various options
+				requireSignIn: whether the user must be signed in to access the server
 				shallowKeyList (deprecated): whether only the first folder layer after the location should be returned
 					default is false
 				maxDepth: the number of folder levels to return
@@ -2061,6 +2062,11 @@ Standards.storage.server = {
 					//// needs to be implemented
 		*/
 		return new Promise(function (resolve, reject) {
+			// fills in options unaccounted for
+			options = options || {};
+			if (!options.maxDepth) {
+				options.maxDepth = 0;
+			}
 			// checks whether this function can be used
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
@@ -2072,11 +2078,6 @@ Standards.storage.server = {
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 			}
 			location = Standards.storage.server.formatLocation(location, true);
-			// fills in options unaccounted for
-			options = options || {};
-			if (!options.maxDepth) {
-				options.maxDepth = 0;
-			}
 
 			let keyList = [];
 
