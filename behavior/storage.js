@@ -602,6 +602,10 @@ Standards.storage.standardizeStorageLocation = function (location, type, shouldA
 		if (d.slice(-1) != "/") {
 			d = d + "/";
 		}
+		// standardizes referring to all nesting levels
+		if (location.slice(-3) == "/**") {
+			location = location.slice(0, -2);
+		}
 		// decides how to combine the default and provided locations
 		if (location.slice(0, 2) == "..") {
 			if (d == "/") {
@@ -755,13 +759,44 @@ Standards.storage.session = {
 		/**
 		lists the keys of everything in session storage
 		non-native functions = getType
+
+		Arguments:
+			location = optional; a string of the file location to start listing from
+				Default is Standards.storage.session.defaultLocation
+			options = optional; an object specifying various options
+				shallowKeyList (deprecated): whether only the first folder layer after the location should be returned
+					Default is false
+				maxDepth: the number of folder levels to return
+					Default is 0 (all levels)
+					A number greater than the number of levels will include all levels
+					A value of 1 is the same as shallowKeyList
+				indicateFolders: whether a slash should be added to the end when a key has deeper folder levels after it
+					Default is true
+
+		Location formatting:
+			"." at the beginning = the current defaultLocation
+				This is assumed even without being provided
+			".." potentially multiple times at the beginning = the parent folder(s) of the defaultLocation
+			"/" or "^" or "~" at the beginning = the root folder of the sessionStorage
+			"*" at any location = any folder or file name
+				Putting at the end makes the function not look any farther than that level
+				Returned paths will start here rather than after the provided location like usual
+				maxDepth also starts counting from this location
+			"**" at the end = includes all lower levels regardless of the maxDepth
+				Internal "**" currently isn't supported
 		*/
 		options = options || {};
+		options.indicateFolders = options.indicateFolders === undefined ? true : options.indicateFolders;
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw new Error("Client storage isn't supported.");
 		} else {
 			location = Standards.storage.standardizeStorageLocation(location, "session", true);
+			let pathFilter = [];
+			if (location.indexOf("*") > -1) {
+				pathFilter = location.slice(location.indexOf("*"), -1).split("/");
+				location = location.slice(0, location.indexOf("*"));
+			}
 			var keyList = [];
 			Object.keys(sessionStorage).forEach(function (key) {
 				if (location == "/") {
@@ -783,6 +818,33 @@ Standards.storage.session = {
 					}
 				}
 			});
+			if (pathFilter) {  // if filtering with wildcards
+				keyList = keyList.filter(function (key) {
+					const parts = key.split("/");
+					// gets rid of any paths that have fewer folder levels than what appears at and after the first wildcard
+					if (parts.length < pathFilter.length) {
+						return false;
+					}
+					// gets rid of paths that don't match the location pattern
+					for (let i = 0; i < pathFilter.length; i++) {
+						if (pathFilter[i] && pathFilter[i] !== "*" && pathFilter[i] !== parts[i]) {
+							return false;
+						}
+					}
+					// keep the rest
+					return true;
+				});
+				// shortens the maxDepth returned to the same as the path length if the path ends in "*"
+				if (pathFilter[pathFilter.length - 1] == "*") {
+					if (options.maxDepth) {
+						if (Standards.storage.getType(options.maxDepth) == "Number" && options.maxDepth > pathFilter.length) {
+							options.maxDepth = pathFilter.length;
+						}
+					} else {
+						options.maxDepth = pathFilter.length;
+					}
+				}
+			}
 			if (options.shallowKeyList) {
 				let parentFolders = [];
 				Standards.storage.forEach(keyList, function (key) {
@@ -798,14 +860,19 @@ Standards.storage.session = {
 				if (options.maxDepth > 0) {
 					let trimmedFolders = [];
 					Standards.storage.forEach(keyList, function (key) {
-						key = key.split("/").slice(0, options.maxDepth).join("/");
+						key = key.split("/");
+						if (key.length > options.maxDepth) {
+							key = key.slice(0, options.maxDepth).join("/") + (options.indicateFolders ? "/" : "");
+						} else {
+							key = key.join("/");
+						}
 						if (!trimmedFolders.includes(key)) {
 							trimmedFolders.push(key);
 						}
 					});
 					return trimmedFolders;
 				} else {
-					console.error("The maximum folder depth must be larger than 0.");
+					console.error("The maximum folder depth must be larger than or equal to 0.");
 					return keyList;
 				}
 			} else {
@@ -958,14 +1025,45 @@ Standards.storage.local = {
 		/**
 		lists the keys of everything in local storage
 		non-native functions = getType
+
+		Arguments:
+			location = optional; a string of the file location to start listing from
+				Default is Standards.storage.local.defaultLocation
+			options = optional; an object specifying various options
+				shallowKeyList (deprecated): whether only the first folder layer after the location should be returned
+					Default is false
+				maxDepth: the number of folder levels to return
+					Default is 0 (all levels)
+					A number greater than the number of levels will include all levels
+					A value of 1 is the same as shallowKeyList
+				indicateFolders: whether a slash should be added to the end when a key has deeper folder levels after it
+					Default is true
+
+		Location formatting:
+			"." at the beginning = the current defaultLocation
+				This is assumed even without being provided
+			".." potentially multiple times at the beginning = the parent folder(s) of the defaultLocation
+			"/" or "^" or "~" at the beginning = the root folder of the localStorage
+			"*" at any location = any folder or file name
+				Putting at the end makes the function not look any farther than that level
+				Returned paths will start here rather than after the provided location like usual
+				maxDepth also starts counting from this location
+			"**" at the end = includes all lower levels regardless of the maxDepth
+				Internal "**" currently isn't supported
 		*/
 		options = options || {};
+		options.indicateFolders = options.indicateFolders === undefined ? true : options.indicateFolders;
 		if (typeof Storage == "undefined") {
 			alert("Your browser doesn't support the Storage object.");
 			throw new Error("Client storage isn't supported.");
 		} else {
 			location = Standards.storage.standardizeStorageLocation(location, "local", true);
-			var keyList = [];
+			let pathFilter = [];
+			if (location.indexOf("*") > -1) {
+				pathFilter = location.slice(location.indexOf("*"), -1).split("/");
+				location = location.slice(0, location.indexOf("*"));
+			}
+			let keyList = [];
 			Object.keys(localStorage).forEach(function (key) {
 				if (location == "/") {
 					keyList.push(key);
@@ -986,6 +1084,33 @@ Standards.storage.local = {
 					}
 				}
 			});
+			if (pathFilter) {  // if filtering with wildcards
+				keyList = keyList.filter(function (key) {
+					const parts = key.split("/");
+					// gets rid of any paths that have fewer folder levels than what appears at and after the first wildcard
+					if (parts.length < pathFilter.length) {
+						return false;
+					}
+					// gets rid of paths that don't match the location pattern
+					for (let i = 0; i < pathFilter.length; i++) {
+						if (pathFilter[i] && pathFilter[i] !== "*" && pathFilter[i] !== parts[i]) {
+							return false;
+						}
+					}
+					// keep the rest
+					return true;
+				});
+				// shortens the maxDepth returned to the same as the path length if the path ends in "*"
+				if (pathFilter[pathFilter.length - 1] == "*") {
+					if (options.maxDepth) {
+						if (Standards.storage.getType(options.maxDepth) == "Number" && options.maxDepth > pathFilter.length) {
+							options.maxDepth = pathFilter.length;
+						}
+					} else {
+						options.maxDepth = pathFilter.length;
+					}
+				}
+			}
 			if (options.shallowKeyList) {
 				let parentFolders = [];
 				Standards.storage.forEach(keyList, function (key) {
@@ -1001,14 +1126,19 @@ Standards.storage.local = {
 				if (options.maxDepth > 0) {
 					let trimmedFolders = [];
 					Standards.storage.forEach(keyList, function (key) {
-						key = key.split("/").slice(0, options.maxDepth).join("/");
+						key = key.split("/");
+						if (key.length > options.maxDepth) {
+							key = key.slice(0, options.maxDepth).join("/") + (options.indicateFolders ? "/" : "");
+						} else {
+							key = key.join("/");
+						}
 						if (!trimmedFolders.includes(key)) {
 							trimmedFolders.push(key);
 						}
 					});
 					return trimmedFolders;
 				} else {
-					console.error("The maximum folder depth must be larger than 0.");
+					console.error("The maximum folder depth must be larger than or equal to 0.");
 					return keyList;
 				}
 			} else {
@@ -2058,8 +2188,21 @@ Standards.storage.server = {
 					default is 0 (all levels)
 					a number greater than the number of levels will include all levels
 					a value of 1 is the same as shallowKeyList
-				//// keepTrailingSlashes: whether a slash should be added to the end when a key has deeper folder levels after it
-					//// needs to be implemented
+				indicateFolders: whether a slash should be added to the end when a key has deeper folder levels after it
+					Default is true
+
+		location formatting:
+			"." at the beginning = the current defaultLocation
+				this is assumed even without being provided
+			".." potentially multiple times at the beginning = the parent folder(s) of the defaultLocation
+			"/" or "^" at the beginning = the root folder of the server (not the user's root folder)
+			"~" at the beginning = the user's root folder (THIS CURRENTLY ISN'T TRUE)
+			"*" at any location = any folder or file name
+				putting at the end makes the functions not look any farther than that level
+				returned paths will start here rather than after the provided location like usual
+				maxDepth also starts counting from this location
+			"**" at the end = includes all lower levels regardless of the maxDepth
+				internal "**" currently isn't supported
 		*/
 		return new Promise(function (resolve, reject) {
 			// fills in options unaccounted for
@@ -2067,19 +2210,95 @@ Standards.storage.server = {
 			if (!options.maxDepth) {
 				options.maxDepth = 0;
 			}
+			if (options.indicateFolders === undefined) {
+				options.indicateFolders = true;
+			}
 			// checks whether this function can be used
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
 				reject(new Error("It wasn't possible to access the server."));
 			}
 			// makes sure a standard location formatting is used
-			if (location === undefined) {
+			if (!location) {
 				location = "./";
 				/// makes sure the list doesn't include the parent folder
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 			}
+			if (location.slice(-3) == "/**") {
+				options.maxDepth = 0;
+				location = location.slice(0, -2);
+			}
 			location = Standards.storage.server.formatLocation(location, true);
+			let pathFilter = [];
+			if (location.indexOf("*") > -1) {
+				pathFilter = location.slice(location.indexOf("*"), -1).split("/");
+				location = location.slice(0, location.indexOf("*"));
+			}
 
 			let keyList = [];
+
+			function filterAndResolve() {
+				keyList = keyList.map(key => key.replace(/<slash>/g, "/"));
+				if (pathFilter) {
+					keyList = keyList.filter(function (key) {
+						const parts = key.split("/");
+						// gets rid of any paths that have fewer folder levels than what appears at and after the first wildcard
+						if (parts.length < pathFilter.length) {
+							return false;
+						}
+						// gets rid of paths that don't match the location pattern
+						for (let i = 0; i < pathFilter.length; i++) {
+							if (pathFilter[i] && pathFilter[i] !== "*" && pathFilter[i] !== parts[i]) {
+								return false;
+							}
+						}
+						// keep the rest
+						return true;
+					});
+					// shortens the maxDepth returned to the same as the path length if the path ends in "*"
+					if (pathFilter[pathFilter.length - 1] == "*") {
+						if (options.maxDepth) {
+							if (Standards.storage.getType(options.maxDepth) == "Number" && options.maxDepth > pathFilter.length) {
+								options.maxDepth = pathFilter.length;
+							}
+						} else {
+							options.maxDepth = pathFilter.length;
+						}
+					}
+				}
+				if (options.shallowKeyList) {
+					let parentFolders = [];
+					Standards.storage.forEach(keyList, function (key) {
+						if (key.indexOf("/") > -1) {
+							key = key.slice(0, key.indexOf("/"));
+						}
+						if (!parentFolders.includes(key)) {
+							parentFolders.push(key);
+						}
+					});
+					resolve(parentFolders);
+				} else if (options.maxDepth) {
+					if (options.maxDepth > 0) {
+						let trimmedFolders = [];
+						Standards.storage.forEach(keyList, function (key) {
+							key = key.split("/");
+							if (key.length > options.maxDepth) {
+								key = key.slice(0, options.maxDepth).join("/") + (options.indicateFolders ? "/" : "");
+							} else {
+								key = key.join("/");
+							}
+							if (!trimmedFolders.includes(key)) {
+								trimmedFolders.push(key);
+							}
+						});
+						resolve(trimmedFolders);
+					} else {
+						console.error("The maximum folder depth must be larger than or equal to 0.");
+						resolve(keyList);
+					}
+				} else {
+					resolve(keyList);
+				}
+			}
 
 			if (Standards.storage.server.locationType == "shallow") {  // if all documents are held in one collection
 				Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
@@ -2130,37 +2349,7 @@ Standards.storage.server = {
 							}
 						});
 					}
-					Standards.storage.forEach(keyList, function (key, index) {
-						keyList[index] = key.replace(/<slash>/g, "/");
-					});
-					if (options.shallowKeyList) {
-						let parentFolders = [];
-						Standards.storage.forEach(keyList, function (key) {
-							if (key.indexOf("/") > -1) {
-								key = key.slice(0, key.indexOf("/"));
-							}
-							if (!parentFolders.includes(key)) {
-								parentFolders.push(key);
-							}
-						});
-						resolve(parentFolders);
-					} else if (options.maxDepth) {
-						if (options.maxDepth > 0) {
-							let trimmedFolders = [];
-							Standards.storage.forEach(keyList, function (key) {
-								key = key.split("/").slice(0, options.maxDepth).join("/");
-								if (!trimmedFolders.includes(key)) {
-									trimmedFolders.push(key);
-								}
-							});
-							resolve(trimmedFolders);
-						} else {
-							console.error("The maximum folder depth must be larger than 0.");
-							resolve(keyList);
-						}
-					} else {
-						resolve(keyList);
-					}
+					filterAndResolve();
 				}).catch(function (error) {
 					console.error("There was an error finding the information.");
 					console.error(error);
@@ -2177,36 +2366,7 @@ Standards.storage.server = {
 								keyList.push(key);
 							}
 						});
-						/// returns only the first folder level of everything at the top of the directory
-						// none of the keys should have "<slash>"
-						if (options.shallowKeyList) {
-							let parentFolders = [];
-							Standards.storage.forEach(keyList, function (key) {
-								if (key.indexOf("/") > -1) {
-									key = key.slice(0, key.indexOf("/"));
-								}
-								if (!parentFolders.includes(key)) {
-									parentFolders.push(key);
-								}
-							});
-							resolve(parentFolders);
-						} else if (options.maxDepth) {
-							if (options.maxDepth > 0) {
-								let trimmedFolders = [];
-								Standards.storage.forEach(keyList, function (key) {
-									key = key.split("/").slice(0, options.maxDepth).join("/");
-									if (!trimmedFolders.includes(key)) {
-										trimmedFolders.push(key);
-									}
-								});
-								resolve(trimmedFolders);
-							} else {
-								console.error("The maximum folder depth must be larger than 0.");
-								resolve(keyList);
-							}
-						} else {
-							resolve(keyList);
-						}
+						filterAndResolve();
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
 						console.error(error);
@@ -2252,37 +2412,7 @@ Standards.storage.server = {
 								}
 							});
 						}
-						Standards.storage.forEach(keyList, function (key, index) {
-							keyList[index] = key.replace(/<slash>/g, "/");
-						});
-						if (options.shallowKeyList) {
-							let parentFolders = [];
-							Standards.storage.forEach(keyList, function (key) {
-								if (key.indexOf("/") > -1) {
-									key = key.slice(0, key.indexOf("/"));
-								}
-								if (!parentFolders.includes(key)) {
-									parentFolders.push(key);
-								}
-							});
-							resolve(parentFolders);
-						} else if (options.maxDepth) {
-							if (options.maxDepth > 0) {
-								let trimmedFolders = [];
-								Standards.storage.forEach(keyList, function (key) {
-									key = key.split("/").slice(0, options.maxDepth).join("/");
-									if (!trimmedFolders.includes(key)) {
-										trimmedFolders.push(key);
-									}
-								});
-								resolve(trimmedFolders);
-							} else {
-								console.error("The maximum folder depth must be larger than 0.");
-								resolve(keyList);
-							}
-						} else {
-							resolve(keyList);
-						}
+						filterAndResolve();
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
 						console.error(error);
@@ -2297,37 +2427,7 @@ Standards.storage.server = {
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been listed
 									listener.removeEventListener("change", arguments.callee);
-									Standards.storage.forEach(keyList, function (key, index) {
-										keyList[index] = key.replace(/<slash>/g, "/");
-									});
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										resolve(parentFolders);
-									} else if (options.maxDepth) {
-										if (options.maxDepth > 0) {
-											let trimmedFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												key = key.split("/").slice(0, options.maxDepth).join("/");
-												if (!trimmedFolders.includes(key)) {
-													trimmedFolders.push(key);
-												}
-											});
-											resolve(trimmedFolders);
-										} else {
-											console.error("The maximum folder depth must be larger than 0.");
-											resolve(keyList);
-										}
-									} else {
-										resolve(keyList);
-									}
+									filterAndResolve();
 								}
 							});
 							/// when a new document is encountered, listener.value is incremented
@@ -2427,68 +2527,10 @@ Standards.storage.server = {
 									} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has location's key
 										keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 									}
-									Standards.storage.forEach(keyList, function (key, index) {
-										keyList[index] = key.replace(/<slash>/g, "/");
-									});
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										resolve(parentFolders);
-									} else if (options.maxDepth) {
-										if (options.maxDepth > 0) {
-											let trimmedFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												key = key.split("/").slice(0, options.maxDepth).join("/");
-												if (!trimmedFolders.includes(key)) {
-													trimmedFolders.push(key);
-												}
-											});
-											resolve(trimmedFolders);
-										} else {
-											console.error("The maximum folder depth must be larger than 0.");
-											resolve(keyList);
-										}
-									} else {
-										resolve(keyList);
-									}
+									filterAndResolve();
 								} else {
 									console.warn("An attempt was made to access a non-existent document.");
-									// keyList is empty and doesn't need to have "<slash>"s replaced
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										resolve(parentFolders);
-									} else if (options.maxDepth) {
-										if (options.maxDepth > 0) {
-											let trimmedFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												key = key.split("/").slice(0, options.maxDepth).join("/");
-												if (!trimmedFolders.includes(key)) {
-													trimmedFolders.push(key);
-												}
-											});
-											resolve(trimmedFolders);
-										} else {
-											console.error("The maximum folder depth must be larger than 0.");
-											resolve(keyList);
-										}
-									} else {
-										resolve(keyList);
-									}
+									filterAndResolve();
 								}
 							}).catch(function (error) {
 								console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
@@ -2511,72 +2553,14 @@ Standards.storage.server = {
 							Standards.storage.forEach(collectionProbe.docs, function (doc) {
 								keyList.push(doc.id);
 							});
-							// none of the keys should have "<slash>"
-							if (options.shallowKeyList) {
-								let parentFolders = [];
-								Standards.storage.forEach(keyList, function (key) {
-									if (key.indexOf("/") > -1) {
-										key = key.slice(0, key.indexOf("/"));
-									}
-									if (!parentFolders.includes(key)) {
-										parentFolders.push(key);
-									}
-								});
-								resolve(parentFolders);
-							} else if (options.maxDepth) {
-								if (options.maxDepth > 0) {
-									let trimmedFolders = [];
-									Standards.storage.forEach(keyList, function (key) {
-										key = key.split("/").slice(0, options.maxDepth).join("/");
-										if (!trimmedFolders.includes(key)) {
-											trimmedFolders.push(key);
-										}
-									});
-									resolve(trimmedFolders);
-								} else {
-									console.error("The maximum folder depth must be larger than 0.");
-									resolve(keyList);
-								}
-							} else {
-								resolve(keyList);
-							}
+							filterAndResolve();
 						} else {
 							let listener = new Standards.storage.Listenable();
 							listener.value = 1;
 							listener.addEventListener("change", function (value) {
 								if (value == 0) {  // once all items have been listed
 									listener.removeEventListener("change", arguments.callee);
-									Standards.storage.forEach(keyList, function (key, index) {
-										keyList[index] = key.replace(/<slash>/g, "/");
-									});
-									if (options.shallowKeyList) {
-										let parentFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											if (key.indexOf("/") > -1) {
-												key = key.slice(0, key.indexOf("/"));
-											}
-											if (!parentFolders.includes(key)) {
-												parentFolders.push(key);
-											}
-										});
-										resolve(parentFolders);
-									} else if (options.maxDepth) {
-										if (options.maxDepth > 0) {
-											let trimmedFolders = [];
-											Standards.storage.forEach(keyList, function (key) {
-												key = key.split("/").slice(0, options.maxDepth).join("/");
-												if (!trimmedFolders.includes(key)) {
-													trimmedFolders.push(key);
-												}
-											});
-											resolve(trimmedFolders);
-										} else {
-											console.error("The maximum folder depth must be larger than 0.");
-											resolve(keyList);
-										}
-									} else {
-										resolve(keyList);
-									}
+									filterAndResolve();
 								}
 							});
 							/// when a new document is encountered, listener.value is incremented
@@ -2649,68 +2633,10 @@ Standards.storage.server = {
 								} else if (Object.keys(doc.data()).includes(location.slice(location.lastIndexOf("<slash>") + 7))) {  // if document has the location's key
 									keyList.push(location.slice(location.lastIndexOf("<slash>") + 7));
 								}
-								Standards.storage.forEach(keyList, function (key, index) {
-									keyList[index] = key.replace(/<slash>/g, "/");
-								});
-								if (options.shallowKeyList) {
-									let parentFolders = [];
-									Standards.storage.forEach(keyList, function (key) {
-										if (key.indexOf("/") > -1) {
-											key = key.slice(0, key.indexOf("/"));
-										}
-										if (!parentFolders.includes(key)) {
-											parentFolders.push(key);
-										}
-									});
-									resolve(parentFolders);
-								} else if (options.maxDepth) {
-									if (options.maxDepth > 0) {
-										let trimmedFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											key = key.split("/").slice(0, options.maxDepth).join("/");
-											if (!trimmedFolders.includes(key)) {
-												trimmedFolders.push(key);
-											}
-										});
-										resolve(trimmedFolders);
-									} else {
-										console.error("The maximum folder depth must be larger than 0.");
-										resolve(keyList);
-									}
-								} else {
-									resolve(keyList);
-								}
+								filterAndResolve();
 							} else {
 								console.warn("An attempt was made to access a non-existent document.");
-								// keyList should be empty
-								if (options.shallowKeyList) {
-									let parentFolders = [];
-									Standards.storage.forEach(keyList, function (key) {
-										if (key.indexOf("/") > -1) {
-											key = key.slice(0, key.indexOf("/"));
-										}
-										if (!parentFolders.includes(key)) {
-											parentFolders.push(key);
-										}
-									});
-									resolve(parentFolders);
-								} else if (options.maxDepth) {
-									if (options.maxDepth > 0) {
-										let trimmedFolders = [];
-										Standards.storage.forEach(keyList, function (key) {
-											key = key.split("/").slice(0, options.maxDepth).join("/");
-											if (!trimmedFolders.includes(key)) {
-												trimmedFolders.push(key);
-											}
-										});
-										resolve(trimmedFolders);
-									} else {
-										console.error("The maximum folder depth must be larger than 0.");
-										resolve(keyList);
-									}
-								} else {
-									resolve(keyList);
-								}
+								filterAndResolve();
 							}
 						}).catch(function (error) {
 							console.error("List retrieval failed.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
@@ -2958,12 +2884,15 @@ Standards.storage.server = {
 
 		Arguments:
 			preferClient = Required; A boolean or function specifying when conflicting data should be overwritten
-				Function is passed the conflicting data values, client first, then server
+				The first argument passed to the function is an object containing information about the data in question
+					{ clientData: the data from the client, serverData: the data from the server, location: the key }
+				The second argument is an array from anything provided to options.prepTasks
 				Function must return a boolean
 				A resulting true causes the server information to be replaced by the client data
 			keepMissing = Required; A function specifying whether data not found in the other location should be kept
 				The first argument passed to the function is an object containing information about the data in question
-					{ data: the data, location: the key, fromServer: whether the data is from the server (true or false) }
+					{ clientData: the data from the client, serverData: the data from the server, location: the key }
+				The second argument is an array from anything provided to options.prepTasks
 				Function must return a boolean
 				A resulting true causes the outstanding data to be kept and copied to the location lacking that data
 			clientData = Optional; The data or storage location to merge with the server data
@@ -2999,6 +2928,21 @@ Standards.storage.server = {
 						Values provided to both preferClient and keepMissing
 							{ a:{ a:val1, b:val2, c:val3 }, b:{ a:val4, b:val5 } }
 							{ a:{ a:val6, b:val7 }, b:{ a:val8 }, c:val9, d:val10 }
+
+		Location formatting:
+			"." at the beginning = the current defaultLocation
+				This is assumed even without being provided
+			".." potentially multiple times at the beginning = the parent folder(s) of the defaultLocation
+			"/" or "^" at the beginning = the root folder of the server (not the user's root folder)
+			"~" at the beginning = the user's root folder (THIS CURRENTLY ISN'T TRUE) ////
+			"*" at any location = any folder or file name
+				Putting at the end makes the functions not look any farther than that level
+				Returned paths will start here rather than after the provided location like usual
+				maxDepth also starts counting from this location
+			"**" at the end = includes all lower levels regardless of the maxDepth
+				Internal "**" currently isn't supported
+
+		//// THIS NEEDS TO ACCOUNT FOR LOCATION CHANGES WITH WILDCARD USAGE
 		*/
 		return new Promise(function (resolve, reject) {
 			// accepts or sets the options
@@ -3107,22 +3051,30 @@ Standards.storage.server = {
 						}
 					});
 					let localDataList = storagePlace.list(clientData, { maxDepth: options.maxDepth });
-					serverData = serverData.map(key => key + "/");  //// This needs to be removed when key listing is improved
-					localDataList = localDataList.map(key => key + "/");  //// This needs to be removed when key listing is improved
-					options.ignoreInServer = options.ignoreInServer.map(key => key + "/");  //// This needs to be removed when key listing is improved
-					options.ignoreInClient = options.ignoreInClient.map(key => key + "/");  //// This needs to be removed when key listing is improved
 					// inspects all of the data stored on the server
 					Standards.storage.forEach(serverData, function (key) {
-						if (options.ignoreInServer.indexOf(key) == -1) {  // if the current item shouldn't be ignored
+						if (!options.ignoreInServer.some(pattern => {  // if the current item shouldn't be ignored
+							pattern = pattern.replace(/\/(?:\*\*)?$|\*/, function (match) {
+								if (match[0] == "/") {  // if it matched "/" or "/**" at the end
+									return "/.*";
+								} else {  // if it matched "*" anywhere
+									return "[^/]+?";
+								}
+							});
+							pattern = "^" + pattern + "$";
+							return new RegExp(pattern).test(key);
+						})) {
 							remaining.value++;
+							/*
 							if (serverData != "" && serverData.slice(-1) != "/") {
 								key = serverData + "/" + key;
 							} else {
 								key = serverData + key;
 							}
+							*/
 							Standards.storage.server.recall(key, function (serverInfo) {
 								if (localDataList.indexOf(key) == -1) {  // if the server has information not present in the client data
-									if (keepMissing({ data: serverInfo, location: key, fromServer: true }, taskResults)) {  // if the server information should be kept and copied
+									if (keepMissing({ serverData: serverInfo, clientData: undefined, location: key }, taskResults)) {  // if the server information should be kept and copied
 										storagePlace.store(key, serverInfo);
 										remaining.value--;
 									} else {  // if the server information needs to be deleted
@@ -3136,7 +3088,7 @@ Standards.storage.server = {
 									}
 								} else if (serverInfo !== storagePlace.recall(key)) {  // if the server data isn't the same as the client data
 									let localInfo = storagePlace.recall(key);
-									if (preferClient(localInfo, serverInfo, taskResults)) {  // if the server data should be overwritten by the client data
+									if (preferClient({ clientData: localInfo, serverData: serverInfo, location: key }, taskResults)) {  // if the server data should be overwritten by the client data
 										Standards.storage.server.store(key, localInfo).then(function () {
 											remaining.value--;
 										}).catch(function (error) {
@@ -3162,10 +3114,20 @@ Standards.storage.server = {
 					});
 					// looks for any client data not present on the server
 					Standards.storage.forEach(localDataList, function (key) {
-						if (options.ignoreInClient.indexOf(key) == -1) {  // if the current item shouldn't be ignored
+						if (!options.ignoreInClient.some(pattern => {  // if the current item shouldn't be ignored
+							pattern = pattern.replace(/\/(?:\*\*)?$|\*/, function (match) {
+								if (match[0] == "/") {  // if it matched "/" or "/**" at the end
+									return "/.*";
+								} else {  // if it matched "*" anywhere
+									return "[^/]+?";
+								}
+							});
+							pattern = "^" + pattern + "$";
+							return new RegExp(pattern).test(key);
+						})) {
 							if (serverData.indexOf(key) == -1) {  // if the client data has information not present on the server
 								let localInfo = storagePlace.recall(key);
-								if (keepMissing({ data: localInfo, location: key, fromServer: false }, taskResults)) {  // if the client data should be kept and copied
+								if (keepMissing({ clientData: localInfo, serverData: undefined, location: key }, taskResults)) {  // if the client data should be kept and copied
 									remaining.value++;
 									Standards.storage.server.store(key, localInfo).then(function () {
 										remaining.value--;
