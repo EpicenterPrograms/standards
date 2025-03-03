@@ -2227,11 +2227,10 @@ Standards.storage.server = {
 				/// makes sure the list doesn't include the parent folder
 				/// (The most likely desired behavior when not specifying a location is getting all children without the known parent folder.)
 			}
-			if (location.slice(-3) == "/**") {
-				options.maxDepth = 0;
-				location = location.slice(0, -2);
-			}
 			location = Standards.storage.server.formatLocation(location, true);
+			if (location.slice(-7) != "<slash>") {
+				location += "<slash>";
+			}
 			let pathFilter = [];
 			if (location.indexOf("*") > -1) {
 				pathFilter = location.slice(location.indexOf("*"), -7).split("<slash>");
