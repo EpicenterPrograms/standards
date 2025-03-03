@@ -1227,6 +1227,7 @@ Standards.storage.server = {
 		".." goes up a level from the default location
 		ignoreLength = optional boolean; whether the length of the location should be ignored
 			default: false
+		the resulting location will have each "/" replaced with "<slash>" in order to avoid mistaken Firebase collection and document navigation
 		non-native functions = getType
 		*/
 
@@ -1254,6 +1255,9 @@ Standards.storage.server = {
 			location = "^" + Standards.storage.server.defaultLocation + "/";
 		} else if (location == ".") {
 			location = "^" + Standards.storage.server.defaultLocation;
+		}
+		if (location.slice(-3) == "/**") {
+			location = location.slice(0, -2);
 		}
 		if (Standards.storage.getType(location) == "String") {
 			location = location.trim().replace(/\s*\/\s*/g, "<slash>");  // prevents undesireable whitespace and problems with slashes in document IDs
@@ -2230,7 +2234,7 @@ Standards.storage.server = {
 			location = Standards.storage.server.formatLocation(location, true);
 			let pathFilter = [];
 			if (location.indexOf("*") > -1) {
-				pathFilter = location.slice(location.indexOf("*"), -1).split("/");
+				pathFilter = location.slice(location.indexOf("*"), -7).split("<slash>");
 				location = location.slice(0, location.indexOf("*"));
 			}
 
