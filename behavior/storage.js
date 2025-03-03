@@ -3078,7 +3078,10 @@ Standards.storage.server = {
 							Standards.storage.server.recall(key, function (serverInfo) {
 								if (localDataList.indexOf(key) == -1) {  // if the server has information not present in the client data
 									if (keepMissing({ serverData: serverInfo, clientData: undefined, location: key }, taskResults)) {  // if the server information should be kept and copied
-										storagePlace.store(key, serverInfo);
+										storagePlace.store(key, serverInfo);/*.catch(function (error) {
+											console.error("The information couldn't be stored.");
+											console.error(error);
+										});*/
 										remaining.value--;
 									} else {  // if the server information needs to be deleted
 										Standards.storage.server.forget(key).then(function () {
@@ -3089,7 +3092,7 @@ Standards.storage.server = {
 											remaining.value--;
 										});
 									}
-								} else if (serverInfo !== storagePlace.recall(key)) {  // if the server data isn't the same as the client data
+								} else if (JSON.stringify(serverInfo) !== JSON.stringify(storagePlace.recall(key))) {  // if the server data isn't the same as the client data
 									let localInfo = storagePlace.recall(key);
 									if (preferClient({ clientData: localInfo, serverData: serverInfo, location: key }, taskResults)) {  // if the server data should be overwritten by the client data
 										Standards.storage.server.store(key, localInfo).then(function () {
