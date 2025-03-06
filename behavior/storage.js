@@ -2231,7 +2231,6 @@ Standards.storage.server = {
 			if (location.slice(-7) != "<slash>") {
 				location += "<slash>";
 			}
-			console.log("Listing location: " + location);
 			let pathFilter = [];
 			if (location.indexOf("*") > -1) {
 				pathFilter = location.slice(location.indexOf("*"), -7).split("<slash>");
