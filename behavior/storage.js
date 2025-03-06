@@ -2073,7 +2073,7 @@ Standards.storage.server = {
 					a number greater than the number of levels will include all levels
 					a value of 1 is the same as shallowKeyList
 				indicateFolders: whether a slash should be added to the end when a key has deeper folder levels after it
-					Default is true
+					default is true
 				hybridCutoff: the number of folder levels to switch from deep to shallow listing
 					numbers are inclusive regarding the deep listing
 					default is the defaultLocation
@@ -2558,7 +2558,7 @@ Standards.storage.server = {
 			}
 		});
 	},
-	move: function (oldPlace, newPlace, callback, options) {
+	move: function (oldPlace, newPlace, options) {
 		return new Promise(function (resolve, reject) {
 			options = options || {};
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
@@ -2566,18 +2566,7 @@ Standards.storage.server = {
 			}
 			if (oldPlace == newPlace) {
 				console.warn("The items are already in the desired location.");
-				if (callback) {
-					new Promise(function () {
-						callback();
-						resolve();
-					}).catch(function (error) {
-						console.error("There was a problem running the callback.");
-						console.error(error);
-						reject(error);
-					});
-				} else {
-					resolve();
-				}
+				resolve();
 			} else if (Standards.storage.getType(oldPlace) == "String" && Standards.storage.getType(newPlace) == "String") {
 				if (oldPlace.slice(-1) == "/" || newPlace.slice(-1) == "/") {
 					if (newPlace.slice(-1) != "/") {  //// ?
@@ -2588,31 +2577,20 @@ Standards.storage.server = {
 					remaining.addEventListener("set", function (value) {
 						if (value == 0) {  // if there are no more items waiting to be moved
 							remaining.removeEventListener("set", arguments.callee);
-							if (callback) {
-								new Promise(function () {
-									callback();
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
-								});
-							} else {
-								resolve();
-							}
+							resolve();
 						}
 					});
-					Standards.storage.server.list(oldPlace).then(function (oldList) {
+					Standards.storage.server.list(oldPlace, options).then(function (oldList) {
 						if (oldPlace.slice(-1) == "/") {
 							Standards.storage.forEach(oldList, function (key) {
 								remaining.value++;
-								Standards.storage.server.recall(oldPlace + key).then(function (info) {
-									Standards.storage.server.store(newPlace + key, info).then(function () {
-										Standards.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+								Standards.storage.server.recall(oldPlace + key, options).then(function (info) {
+									Standards.storage.server.store(newPlace + key, info, options).then(function () {
+										Standards.storage.server.recall(newPlace + key, options).then(function (movedInfo) {  // failsafe
 											/// checks whether the information was actually moved
 											/// not essential but prevents premature deletion in strange circumstances
 											if (movedInfo === info) {
-												Standards.storage.server.forget(oldPlace + key).then(function () {
+												Standards.storage.server.forget(oldPlace + key, options).then(function () {
 													remaining.value--;
 												}).catch(function (error) {
 													console.error("There was a problem deleting the moved information.");
@@ -2643,13 +2621,13 @@ Standards.storage.server = {
 							Standards.storage.forEach(oldList, function (key) {
 								remaining.value++;
 								if (!key.includes("/")) {
-									Standards.storage.server.recall(oldPlace).then(function (info) {
-										Standards.storage.server.store(newPlace + key, info).then(function () {
-											Standards.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+									Standards.storage.server.recall(oldPlace, options).then(function (info) {
+										Standards.storage.server.store(newPlace + key, info, options).then(function () {
+											Standards.storage.server.recall(newPlace + key, options).then(function (movedInfo) {  // failsafe
 												/// checks whether the information was actually moved
 												/// not essential but prevents premature deletion in strange circumstances
 												if (movedInfo === info) {
-													Standards.storage.server.forget(oldPlace).then(function () {
+													Standards.storage.server.forget(oldPlace, options).then(function () {
 														remaining.value--;
 													}).catch(function (error) {
 														console.error("There was a problem deleting the moved information.");
@@ -2676,13 +2654,13 @@ Standards.storage.server = {
 										reject(error);
 									});
 								} else {
-									Standards.storage.server.recall(oldPlace + key.slice(key.indexOf("/"))).then(function (info) {
-										Standards.storage.server.store(newPlace + key, info).then(function () {
-											Standards.storage.server.recall(newPlace + key).then(function (movedInfo) {  // failsafe
+									Standards.storage.server.recall(oldPlace + key.slice(key.indexOf("/")), options).then(function (info) {
+										Standards.storage.server.store(newPlace + key, info, options).then(function () {
+											Standards.storage.server.recall(newPlace + key, options).then(function (movedInfo) {  // failsafe
 												/// checks whether the information was actually moved
 												/// not essential but prevents premature deletion in strange circumstances
 												if (movedInfo === info) {
-													Standards.storage.server.forget(oldPlace + key.slice(key.indexOf("/"))).then(function () {
+													Standards.storage.server.forget(oldPlace + key.slice(key.indexOf("/")), options).then(function () {
 														remaining.value--;
 													}).catch(function (error) {
 														console.error("There was a problem deleting the moved information.");
@@ -2718,29 +2696,18 @@ Standards.storage.server = {
 						reject(error);
 					});
 				} else {  // if neither place is a folder
-					Standards.storage.server.recall(oldPlace).then(function (info) {
+					Standards.storage.server.recall(oldPlace, options).then(function (info) {
 						if (info instanceof Error) {
 							console.error("No information was found to move.");
 							reject();
 						} else {
-							Standards.storage.server.store(newPlace, info).then(function () {
-								Standards.storage.server.recall(newPlace).then(function (movedInfo) {  // failsafe
+							Standards.storage.server.store(newPlace, info, options).then(function () {
+								Standards.storage.server.recall(newPlace, options).then(function (movedInfo) {  // failsafe
 									/// checks whether the information was actually moved
 									/// not essential but prevents premature deletion in strange circumstances
 									if (movedInfo === info) {
-										Standards.storage.server.forget(oldPlace).then(function () {
-											if (callback) {
-												new Promise(function () {
-													callback();
-													resolve();
-												}).catch(function (error) {
-													console.error("There was a problem running the callback.");
-													console.error(error);
-													reject(error);
-												});
-											} else {
-												resolve();
-											}
+										Standards.storage.server.forget(oldPlace, options).then(function () {
+											resolve();
 										}).catch(function (error) {
 											console.error("There was a problem deleting the moved information.");
 											console.error(error);
@@ -2828,8 +2795,11 @@ Standards.storage.server = {
 						All keys = ["a/a/a", "a/a/b", "a/a/c", "a/b/a", "a/b/b", "b/a/a", "b/a/b", "b/b/a", "b/c", "b/d"]
 						Internal keys = ["a", "b"]
 						Values provided to both preferClient and keepMissing
-							{ a:{ a:val1, b:val2, c:val3 }, b:{ a:val4, b:val5 } }
+							{ a:{ a:val1, b:val2, c:val3 }, b:{ a:val4, b:val5 } },
 							{ a:{ a:val6, b:val7 }, b:{ a:val8 }, c:val9, d:val10 }
+				hybridCutoff: the number of folder levels to switch from deep to shallow listing
+					Numbers are inclusive regarding the deep listing
+					Default is the defaultLocation
 
 		Location formatting:
 			"." at the beginning = the current defaultLocation
@@ -2852,6 +2822,10 @@ Standards.storage.server = {
 			options.storageType = options.storageType || "local";
 			if (options.storageType != "local" && options.storageType != "session") {
 				console.error("An invalid storage place was provided (" + options.storageType + ").");
+				reject();
+			}
+			if (options.indicateFolders !== undefined && options.indicateFolders !== true) {  // prevents people from messing up the merging
+				console.error("The indicateFolders option was not set to true.");
 				reject();
 			}
 			if (options.prepTasks) {
@@ -2934,7 +2908,7 @@ Standards.storage.server = {
 				}
 				let storagePlace = Standards.storage[options.storageType];
 				let promiseList = [];
-				promiseList.push(Standards.storage.server.list(serverData, { maxDepth: options.maxDepth }));
+				promiseList.push(Standards.storage.server.list(serverData, options));
 				Standards.storage.forEach(options.prepTasks, function (task) {
 					if (Standards.storage.getType(task) == "Function") {
 						promiseList.push(task());
@@ -2974,7 +2948,7 @@ Standards.storage.server = {
 								key = serverData + key;
 							}
 							*/
-							Standards.storage.server.recall(key, function (serverInfo) {
+							Standards.storage.server.recall(key, options).then(function (serverInfo) {
 								if (localDataList.indexOf(key) == -1) {  // if the server has information not present in the client data
 									if (keepMissing({ serverData: serverInfo, clientData: undefined, location: key }, taskResults)) {  // if the server information should be kept and copied
 										storagePlace.store(key, serverInfo);/*.catch(function (error) {
@@ -2983,7 +2957,7 @@ Standards.storage.server = {
 										});*/
 										remaining.value--;
 									} else {  // if the server information needs to be deleted
-										Standards.storage.server.forget(key).then(function () {
+										Standards.storage.server.forget(key, options).then(function () {
 											remaining.value--;
 										}).catch(function (error) {
 											console.error("Unwanted information on the server couldn't be deleted.");
@@ -2994,7 +2968,7 @@ Standards.storage.server = {
 								} else if (JSON.stringify(serverInfo) !== JSON.stringify(storagePlace.recall(key))) {  // if the server data isn't the same as the client data
 									let localInfo = storagePlace.recall(key);
 									if (preferClient({ clientData: localInfo, serverData: serverInfo, location: key }, taskResults)) {  // if the server data should be overwritten by the client data
-										Standards.storage.server.store(key, localInfo).then(function () {
+										Standards.storage.server.store(key, localInfo, options).then(function () {
 											remaining.value--;
 										}).catch(function (error) {
 											console.error("There was an error overwriting the server information.");
@@ -3034,7 +3008,7 @@ Standards.storage.server = {
 								let localInfo = storagePlace.recall(key);
 								if (keepMissing({ clientData: localInfo, serverData: undefined, location: key }, taskResults)) {  // if the client data should be kept and copied
 									remaining.value++;
-									Standards.storage.server.store(key, localInfo).then(function () {
+									Standards.storage.server.store(key, localInfo, options).then(function () {
 										remaining.value--;
 									}).catch(function (error) {
 										console.error("There was an error adding data to the server.");
