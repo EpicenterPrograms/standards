@@ -1843,7 +1843,23 @@ Standards.storage.server = {
 					});
 				}
 			} else if (Standards.storage.server.locationType == "hybrid") {
-				let defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
+				let defaultLength;
+				if (!options.hybridCutoff) {
+					defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
+				} else if (Standards.storage.getType(options.hybridCutoff) == "Number") {
+					if (options.hybridCutoff > 0) {
+						defaultLength = options.hybridCutoff;
+					} else {
+						throw new Error("The hybrid cutoff must be larger than 0.");
+					}
+				} else if (Standards.storage.getType(options.hybridCutoff) == "String") {
+					defaultLength = options.hybridCutoff.split("<slash>").length;
+					if (options.hybridCutoff.slice(-8) == "<slash>") {
+						defaultLength--;
+					}
+				} else {
+					throw new Error("An improper hybrid cutoff was given.");
+				}
 				if (location.split("<slash>").length - 1 > defaultLength) {  // if the location extends into shallow folders
 					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
 					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
@@ -2227,7 +2243,23 @@ Standards.storage.server = {
 				});
 
 			} else if (Standards.storage.server.locationType == "hybrid") {  // if the default location is "deep" and the modifier locations are "shallow"
-				let defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
+				let defaultLength;
+				if (!options.hybridCutoff) {
+					defaultLength = Standards.storage.server.defaultLocation.split("<slash>").length;
+				} else if (Standards.storage.getType(options.hybridCutoff) == "Number") {
+					if (options.hybridCutoff > 0) {
+						defaultLength = options.hybridCutoff;
+					} else {
+						throw new Error("The hybrid cutoff must be larger than 0.");
+					}
+				} else if (Standards.storage.getType(options.hybridCutoff) == "String") {
+					defaultLength = options.hybridCutoff.split("<slash>").length;
+					if (options.hybridCutoff.slice(-8) == "<slash>") {
+						defaultLength--;
+					}
+				} else {
+					throw new Error("An improper hybrid cutoff was given.");
+				}
 				if (location == "~" || location == "^") {
 					Standards.storage.server.database.collection("<collection>").get().then(function (collection) {
 						Standards.storage.forEach(collection.docs, function (doc) {
