@@ -1720,7 +1720,7 @@ Standards.storage.server = {
 			}
 		});
 	},
-	recall: function (location, callback, options) {
+	recall: function (location, options) {
 		return new Promise(function (resolve, reject) {
 			options = options || {};
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
@@ -1732,33 +1732,11 @@ Standards.storage.server = {
 					if (doc.exists) {
 						let data = doc.data();
 						delete data["<document>"];
-						if (callback) {
-							new Promise(function () {
-								callback(data);
-								resolve(data);
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
-							});
-						} else {
-							resolve(data);
-						}
+						resolve(data);
 					} else {
 						//// There might be something to do here depending on the locationType.
 						console.warn("An attempt was made to access a non-existent document.");
-						if (callback) {
-							new Promise(function () {
-								callback(Error("The information couldn't be found."));
-								resolve(Error("The information couldn't be found."));
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
-							});
-						} else {
-							resolve(Error("The information couldn't be found."));
-						}
+						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
 					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
@@ -1768,32 +1746,10 @@ Standards.storage.server = {
 			} else {  // if retrieving a single item
 				Standards.storage.server.getReference(location, false, options.hybridCutoff).get().then(function (doc) {
 					if (doc.exists) {
-						if (callback) {
-							new Promise(function () {
-								callback(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
-								resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
-							});
-						} else {
-							resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
-						}
+						resolve(doc.data()[location.slice(location.lastIndexOf("<slash>") + 7)]);
 					} else {
 						console.warn("An attempt was made to access a non-existent document.");
-						if (callback) {
-							new Promise(function () {
-								callback(Error("The information couldn't be found."));
-								resolve(Error("The information couldn't be found."));
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
-							});
-						} else {
-							resolve(Error("The information couldn't be found."));
-						}
+						resolve(Error("The information couldn't be found."));
 					}
 				}).catch(function (error) {
 					console.error("There was an error retrieving the information.");  // Putting an extra error here allows origin tracing when the error is in Firebase.
@@ -1803,7 +1759,7 @@ Standards.storage.server = {
 			}
 		});
 	},
-	forget: function (location, callback, options) {
+	forget: function (location, options) {
 		return new Promise(function (resolve, reject) {
 			options = options || {};
 			if (!Standards.storage.server.checkCompatibility(options.requireSignIn)) {
@@ -1833,18 +1789,7 @@ Standards.storage.server = {
 						remaining.addEventListener("change", function (value) {
 							if (value == 0) {  // once all items have been deleted
 								remaining.removeEventListener("change", arguments.callee);
-								if (callback) {
-									new Promise(function () {
-										callback();
-										resolve();
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
-									});
-								} else {
-									resolve();
-								}
+								resolve();
 							}
 						});
 						Standards.storage.forEach(keyList, function (id) {
@@ -1879,18 +1824,7 @@ Standards.storage.server = {
 								doc.ref.update({
 									[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 								}).then(function () {
-									if (callback) {
-										new Promise(function () {
-											callback();
-											resolve();
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
-										resolve();
-									}
+									resolve();
 								}).catch(function (error) {  // This comes after .then so .then doesn't always run.
 									console.error("The information couldn't be deleted.");
 									console.error(error);
@@ -1900,18 +1834,7 @@ Standards.storage.server = {
 						});
 						if (!found) {
 							console.warn("No information was found to delete.");
-							if (callback) {
-								new Promise(function () {
-									callback();
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
-								});
-							} else {
-								resolve();
-							}
+							resolve();
 						}
 					}).catch(function (error) {
 						console.error("There was an error finding the information.");
@@ -1939,18 +1862,7 @@ Standards.storage.server = {
 							remaining.addEventListener("set", function (value) {
 								if (value == 0) {  // once all items have been deleted
 									remaining.removeEventListener("set", arguments.callee);
-									if (callback) {
-										new Promise(function () {
-											callback();
-											resolve();
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
-										resolve();
-									}
+									resolve();
 								}
 							});
 							Standards.storage.forEach(keyList, function (id) {  // deletes all subdocuments
@@ -1963,7 +1875,7 @@ Standards.storage.server = {
 									reject(error);
 								});
 							});
-							remaining.value = remaining.value;  // makes sure the callback is run even if there's nothing to delete
+							remaining.value = remaining.value;  // makes sure the Promise is resolved even if there's nothing to delete
 						}).catch(function (error) {
 							console.error("There was an error finding the information.");
 							console.error(error);
@@ -1978,18 +1890,7 @@ Standards.storage.server = {
 									doc.ref.update({
 										[remainingLocation.slice(remainingLocation.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 									}).then(function () {
-										if (callback) {
-											new Promise(function () {
-												callback();
-												resolve();
-											}).catch(function (error) {
-												console.error("There was a problem running the callback.");
-												console.error(error);
-												reject(error);
-											});
-										} else {
-											resolve();
-										}
+										resolve();
 									}).catch(function (error) {  // This comes after .then so .then doesn't always run.
 										console.error("The information couldn't be deleted.");
 										console.error(error);
@@ -1999,18 +1900,7 @@ Standards.storage.server = {
 							});
 							if (!found) {
 								console.warn("No information was found to delete.");
-								if (callback) {
-									new Promise(function () {
-										callback();
-										resolve();
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
-									});
-								} else {
-									resolve();
-								}
+								resolve();
 							}
 						}).catch(function (error) {
 							console.error("There was an error finding the information.");
@@ -2026,18 +1916,7 @@ Standards.storage.server = {
 							listener.addEventListener("set", function (value) {
 								if (value == 0) {  // once all items have been deleted
 									listener.removeEventListener("set", arguments.callee);
-									if (callback) {
-										new Promise(function () {
-											callback();
-											resolve();
-										}).catch(function (error) {
-											console.error("There was a problem running the callback.");
-											console.error(error);
-											reject(error);
-										});
-									} else {
-										resolve();
-									}
+									resolve();
 								}
 							});
 							if (collectionProbe.size > 0) {  // if there's sub-documents
@@ -2085,18 +1964,7 @@ Standards.storage.server = {
 						reference.update({
 							[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 						}).then(function () {
-							if (callback) {
-								new Promise(function () {
-									callback();
-									resolve();
-								}).catch(function (error) {
-									console.error("There was a problem running the callback.");
-									console.error(error);
-									reject(error);
-								});
-							} else {
-								resolve();
-							}
+							resolve();
 						}).catch(function (error) {  // This comes after .then so .then doesn't always run.
 							console.error("The information couldn't be deleted.");
 							console.error(error);
@@ -2112,18 +1980,7 @@ Standards.storage.server = {
 						listener.addEventListener("change", function (value) {
 							if (value == 0) {  // once all items have been deleted
 								listener.removeEventListener("change", arguments.callee);
-								if (callback) {
-									new Promise(function () {
-										callback();
-										resolve();
-									}).catch(function (error) {
-										console.error("There was a problem running the callback.");
-										console.error(error);
-										reject(error);
-									});
-								} else {
-									resolve();
-								}
+								resolve();
 							}
 						});
 						if (collectionProbe.size > 0) {  // if there's sub-documents
@@ -2171,18 +2028,7 @@ Standards.storage.server = {
 					reference.update({
 						[location.slice(location.lastIndexOf("<slash>") + 7)]: firebase.firestore.FieldValue.delete()
 					}).then(function () {
-						if (callback) {
-							new Promise(function () {
-								callback();
-								resolve();
-							}).catch(function (error) {
-								console.error("There was a problem running the callback.");
-								console.error(error);
-								reject(error);
-							});
-						} else {
-							resolve();
-						}
+						resolve();
 					}).catch(function (error) {  // This comes after .then so .then doesn't always run.
 						console.error("The information couldn't be deleted.");
 						console.error(error);
@@ -2213,6 +2059,7 @@ Standards.storage.server = {
 				indicateFolders: whether a slash should be added to the end when a key has deeper folder levels after it
 					Default is true
 				hybridCutoff: the number of folder levels to switch from deep to shallow listing
+					numbers are inclusive regarding the deep listing
 					default is the defaultLocation
 
 		location formatting:
