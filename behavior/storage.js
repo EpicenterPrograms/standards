@@ -1303,12 +1303,14 @@ Standards.storage.server = {
 		}
 		return location;  // returns the location without the key
 	},
-	getReference: function (location, shouldCreate) {
+	getReference: function (location, shouldCreate, hybridCutoff) {
 		/**
 		creates a storage reference based on a provided location
 		formatted locations are used here
 		shouldCreate = optional boolean; whether documents should be created as the path is navigated
 			default: false
+		hybridCutoff = optional; the number of folders or a default path string to go through before putting everything else into one document
+			default: Standards.storage.server.defaultLocation
 		different paths are separated by "<slash>"
 		uses Google Firebase
 		non-native functions = getType
@@ -1324,7 +1326,23 @@ Standards.storage.server = {
 				reference.set({ "<document>": "exists" }, { merge: true });
 			}
 		} else if (Standards.storage.server.locationType == "hybrid") {
-			let defaultFolders = Standards.storage.server.defaultLocation.split("<slash>").length;
+			let defaultFolders;
+			if (!hybridCutoff) {
+				defaultFolders = Standards.storage.server.defaultLocation.split("<slash>").length;
+			} else if (Standards.storage.getType(hybridCutoff) == "Number") {
+				if (hybridCutoff > 0) {
+					defaultFolders = hybridCutoff;
+				} else {
+					throw new Error("The hybrid cutoff must be larger than 0.");
+				}
+			} else if (Standards.storage.getType(hybridCutoff) == "String") {
+				defaultFolders = hybridCutoff.split("<slash>").length;
+				if (hybridCutoff.slice(-8) == "<slash>") {
+					defaultFolders--;
+				}
+			} else {
+				throw new Error("An improper hybrid cutoff was given.");
+			}
 			let locationFolders = location.split("<slash>").length;
 			let index = 0;
 			while (locationFolders > index && index < defaultFolders) {
@@ -1674,7 +1692,7 @@ Standards.storage.server = {
 					// stores the items from the object
 					let promiseList = [];
 					Standards.storage.forEach(Standards.storage.flattenObject(item, { separator: "<slash>", prefix: location }), function (value, key) {
-						reference = Standards.storage.server.getReference(key, true);
+						reference = Standards.storage.server.getReference(key, true, options.hybridCutoff);
 						promiseList.push(reference.set({
 							[key.slice(key.lastIndexOf("<slash>") + 7)]: value
 						}, { merge: true }));
@@ -1691,7 +1709,7 @@ Standards.storage.server = {
 					reject(new TypeError("Storing a folder requires an Object as the item to store."));
 				}
 			} else {  // if storing a single key-value pair
-				reference = Standards.storage.server.getReference(location, true);
+				reference = Standards.storage.server.getReference(location, true, options.hybridCutoff);
 				reference.set({
 					[location.slice(location.lastIndexOf("<slash>") + 7)]: item
 				}, { merge: true }).then(resolve).catch(function (error) {
@@ -1710,7 +1728,7 @@ Standards.storage.server = {
 			}
 			location = Standards.storage.server.formatLocation(location);
 			if (location.slice(-7) == "<slash>") {  // if retrieving a folder
-				Standards.storage.server.getReference(location).get().then(function (doc) {
+				Standards.storage.server.getReference(location, false, options.hybridCutoff).get().then(function (doc) {
 					if (doc.exists) {
 						let data = doc.data();
 						delete data["<document>"];
@@ -1748,7 +1766,7 @@ Standards.storage.server = {
 					reject(error);
 				});
 			} else {  // if retrieving a single item
-				Standards.storage.server.getReference(location).get().then(function (doc) {
+				Standards.storage.server.getReference(location, false, options.hybridCutoff).get().then(function (doc) {
 					if (doc.exists) {
 						if (callback) {
 							new Promise(function () {
@@ -1799,7 +1817,7 @@ Standards.storage.server = {
 				console.error("Deleting every user's information is forbidden.");
 				reject(new Error("Deleting every user's information is forbidden."));
 			}
-			let reference = Standards.storage.server.getReference(location);
+			let reference = Standards.storage.server.getReference(location, false, options.hybridCutoff);
 			if (Standards.storage.server.locationType == "shallow") {
 				if (location.slice(-7) == "<slash>") {  // if deleting a whole folder
 					location = location.slice(0, -7);
@@ -1906,7 +1924,7 @@ Standards.storage.server = {
 				if (location.split("<slash>").length - 1 > defaultLength) {  // if the location extends into shallow folders
 					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
 					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
-					reference = Standards.storage.server.getReference(docLocation);
+					reference = Standards.storage.server.getReference(docLocation, false, options.hybridCutoff);
 					if (remainingLocation.slice(-7) == "<slash>") {  // if deleting a whole folder
 						remainingLocation = remainingLocation.slice(0, -7);
 						reference.collection("<collection>").get().then(function (collection) {
@@ -2194,6 +2212,8 @@ Standards.storage.server = {
 					a value of 1 is the same as shallowKeyList
 				indicateFolders: whether a slash should be added to the end when a key has deeper folder levels after it
 					Default is true
+				hybridCutoff: the number of folder levels to switch from deep to shallow listing
+					default is the defaultLocation
 
 		location formatting:
 			"." at the beginning = the current defaultLocation
@@ -2378,7 +2398,7 @@ Standards.storage.server = {
 				} else if (location.split("<slash>").length - 1 > defaultLength) {  // if the provided location goes deeper than the default location
 					let docLocation = location.split("<slash>").slice(0, defaultLength).join("<slash>") + "<slash>";
 					let remainingLocation = location.split("<slash>").slice(defaultLength).join("<slash>");
-					Standards.storage.server.getReference(docLocation).collection("<collection>").get().then(function (collection) {
+					Standards.storage.server.getReference(docLocation, false, options.hybridCutoff).collection("<collection>").get().then(function (collection) {
 						let preKey = "";  // holds the found file locations (document IDs)
 						if (remainingLocation.slice(-7) == "<slash>") {  // if getting the key names within a folder
 							remainingLocation = remainingLocation.slice(0, -7);
@@ -2422,7 +2442,7 @@ Standards.storage.server = {
 						reject(error);
 					});
 				} else {  // if the provided location length is shallower than (or equal to) the default location
-					let reference = Standards.storage.server.getReference(location);
+					let reference = Standards.storage.server.getReference(location, false, options.hybridCutoff);
 					reference.collection("<collection>").get().then(function (collectionProbe) {
 						if (collectionProbe.size > 0) {  // if there's sub-documents
 							let listener = new Standards.storage.Listenable();
@@ -2549,7 +2569,7 @@ Standards.storage.server = {
 				}
 
 			} else if (Standards.storage.server.locationType == "deep") {  // if every folder level is another nested document
-				let reference = Standards.storage.server.getReference(location);
+				let reference = Standards.storage.server.getReference(location, false, options.hybridCutoff);
 				reference.collection("<collection>").get().then(function (collectionProbe) {
 					if (collectionProbe.size > 0) {  // if there's sub-documents
 						if (location == "~" || location == "^") {
