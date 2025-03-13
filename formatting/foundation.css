@@ -613,17 +613,21 @@ table.labeled-list li ol, table.labeled-list li ul, .conversation li ol, .conver
 	border-left-color: attr(data-color color);
 }
 
+*:disabled, *[disabled] {
+	cursor: not-allowed;
+}
+
 input {
 	text-align: center;
 }
 input:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 input[type="text"] {
 	cursor: text;
 }
 input[type="text"]:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 input[type="checkbox"] {
 	margin: .5em;
@@ -632,7 +636,7 @@ input[type="checkbox"] {
 	cursor: pointer;
 }
 input[type="checkbox"]:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 input[type="radio"] {
 	margin: .5em;
@@ -641,7 +645,7 @@ input[type="radio"] {
 	cursor: pointer;
 }
 input[type="radio"]:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 input[type="range"] {
 	width: 9.6em;
@@ -649,7 +653,7 @@ input[type="range"] {
 	cursor: pointer;
 }
 input[type="range"]:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 button, input[type="button"], input[type="submit"] {
 	margin: .5em;
@@ -666,23 +670,23 @@ button:active, input[type="button"]:active, input[type="submit"]:active {
 	background: white;
 	color: red;
 }
-button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
+button:disabled, button[disabled], input[type="button"]:disabled, input[type="submit"]:disabled {
 	border-color: #999;
 	background: #c8c8c8;
 	color: #999;
-	cursor: default;
+	cursor: not-allowed;
 }
 select {
 	cursor: pointer;
 }
 select:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 option {
 	cursor: pointer;
 }
 option:disabled {
-	cursor: default;
+	cursor: not-allowed;
 }
 
 textarea {
@@ -1150,7 +1154,7 @@ table.compact {
 		background: yellow;
 		color: black;
 	}
-	button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
+	button:disabled, button[disabled], input[type="button"]:disabled, input[type="submit"]:disabled {
 		border: .15em solid #333;
 		background: #888;
 		color: #666;

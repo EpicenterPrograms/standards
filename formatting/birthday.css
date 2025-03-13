@@ -1,0 +1,273 @@
+body {
+	/* background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><text y='1em' font-size='50'>&#x1f388</text></svg>"); */
+	--pattern-color: #fff;
+	animation: expanding-ripples .75s infinite linear, rainbow-background 5s infinite linear;
+}
+
+main {
+	background: rgba(255, 255, 255, .6);
+}
+
+h1.main-title {
+	color: black;
+	text-shadow: 0em 0em .1em white;
+}
+h1.main-title::before {
+	content: "\1f388 ";
+}
+h1.main-title::after {
+	content: " \1f388";
+}
+
+nav.top-nav {
+	background: #00f;
+}
+nav.top-nav div.drop-down div {
+	background: #ff0;
+	color: black;
+}
+nav.top-nav div.drop-down>div:first-child {
+	background: transparent;
+	color: white;
+}
+nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
+	background: #0ff;
+	color: black;
+}
+nav.top-nav>button {
+	border-radius: 0em;
+	background: transparent;
+	color: black;
+}
+nav.top-nav>button::before {
+	display: none;
+}
+nav.top-nav>button::after {
+	display: none;
+}
+nav.hidden-left-nav {
+	animation: rainbow-border 5s infinite linear;
+}
+
+button:not(.hide-aside) {
+	/* makes buttons look like a slice of cake */
+	--icing-color: #fff;
+	--cake-color: #ff5;
+	position: relative;
+	border-width: .3em .3em 0em 0em;
+	border-radius: 0em;
+	border-color: var(--icing-color);
+	padding: .2em .5em .5em;
+	background: linear-gradient(var(--cake-color), var(--cake-color) 45%, var(--icing-color) 42%, var(--icing-color) 58%, var(--cake-color) 55%);
+	color: black;
+}
+button:not(.hide-aside)::before {
+	/* makes the candle */
+	content: "\1f56f\fe0f";
+	position: absolute;
+	left: 0em;
+	right: 0em;
+	bottom: 105%;
+	font-size: .75em;
+}
+button:not(.hide-aside):active::after {
+	/* makes the knife while active */
+	content: "\1f52a";
+	position: absolute;
+	left: 0em;
+	right: 0em;
+	top: -.25em;
+	font-size: 2em;
+}
+button:disabled, button[disabled] {
+	--icing-color: #888;
+	--cake-color: #aaa;
+}
+
+@keyframes rainbow-background {
+	0% {
+		background-color: #f00;
+	}
+	25% {
+		background-color: #ff0;
+	}
+	45% {
+		background-color: #0f0;
+	}
+	60% {
+		background-color: #0ff;
+	}
+	85% {
+		background-color: #00f;
+	}
+	100% {
+		background-color: #f00;
+	}
+}
+@keyframes rainbow-border {
+	0% {
+		border-color: #f00;
+	}
+	25% {
+		border-color: #ff0;
+	}
+	45% {
+		border-color: #0f0;
+	}
+	60% {
+		border-color: #0ff;
+	}
+	85% {
+		border-color: #00f;
+	}
+	100% {
+		border-color: #f00;
+	}
+}
+@keyframes spinning-fan {
+	0% {
+		background-image: repeating-conic-gradient(transparent 0%, transparent, var(--pattern-color), transparent, transparent 10%);
+	}
+	10% {
+		background-image: repeating-conic-gradient(transparent 1%, transparent, var(--pattern-color), transparent, transparent 11%);
+	}
+	20% {
+		background-image: repeating-conic-gradient(transparent 2%, transparent, var(--pattern-color), transparent, transparent 12%);
+	}
+	30% {
+		background-image: repeating-conic-gradient(transparent 3%, transparent, var(--pattern-color), transparent, transparent 13%);
+	}
+	40% {
+		background-image: repeating-conic-gradient(transparent 4%, transparent, var(--pattern-color), transparent, transparent 14%);
+	}
+	50% {
+		background-image: repeating-conic-gradient(transparent 5%, transparent, var(--pattern-color), transparent, transparent 15%);
+	}
+	60% {
+		background-image: repeating-conic-gradient(transparent 6%, transparent, var(--pattern-color), transparent, transparent 16%);
+	}
+	70% {
+		background-image: repeating-conic-gradient(transparent 7%, transparent, var(--pattern-color), transparent, transparent 17%);
+	}
+	80% {
+		background-image: repeating-conic-gradient(transparent 8%, transparent, var(--pattern-color), transparent, transparent 18%);
+	}
+	90% {
+		background-image: repeating-conic-gradient(transparent 9%, transparent, var(--pattern-color), transparent, transparent 19%);
+	}
+	100% {
+		background-image: repeating-conic-gradient(transparent 0%, transparent, var(--pattern-color), transparent, transparent 10%);
+	}
+}
+@keyframes expanding-ripples {
+	0% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0%, transparent, var(--pattern-color), transparent, transparent 1%);
+	}
+	10% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.1%, transparent, var(--pattern-color), transparent, transparent 1.1%);
+	}
+	20% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.2%, transparent, var(--pattern-color), transparent, transparent 1.2%);
+	}
+	30% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.3%, transparent, var(--pattern-color), transparent, transparent 1.3%);
+	}
+	40% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.4%, transparent, var(--pattern-color), transparent, transparent 1.4%);
+	}
+	50% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.5%, transparent, var(--pattern-color), transparent, transparent 1.5%);
+	}
+	60% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.6%, transparent, var(--pattern-color), transparent, transparent 1.6%);
+	}
+	70% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.7%, transparent, var(--pattern-color), transparent, transparent 1.7%);
+	}
+	80% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.8%, transparent, var(--pattern-color), transparent, transparent 1.8%);
+	}
+	90% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0.9%, transparent, var(--pattern-color), transparent, transparent 1.9%);
+	}
+	100% {
+		background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0%, transparent, var(--pattern-color), transparent, transparent 1%);
+	}
+}
+@keyframes wave-interference {
+	0% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0%, transparent, #00f, transparent, transparent 1%), repeating-radial-gradient(circle at 75% 50%, transparent 0%, transparent, #00f, transparent, transparent 1%);
+	}
+	10% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.1%, transparent, #00f, transparent, transparent 1.1%), repeating-radial-gradient(circle at 75% 50%, transparent 0.1%, transparent, #00f, transparent, transparent 1.1%);
+	}
+	20% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.2%, transparent, #00f, transparent, transparent 1.2%), repeating-radial-gradient(circle at 75% 50%, transparent 0.2%, transparent, #00f, transparent, transparent 1.2%);
+	}
+	30% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.3%, transparent, #00f, transparent, transparent 1.3%), repeating-radial-gradient(circle at 75% 50%, transparent 0.3%, transparent, #00f, transparent, transparent 1.3%);
+	}
+	40% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.4%, transparent, #00f, transparent, transparent 1.4%), repeating-radial-gradient(circle at 75% 50%, transparent 0.4%, transparent, #00f, transparent, transparent 1.4%);
+	}
+	50% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.5%, transparent, #00f, transparent, transparent 1.5%), repeating-radial-gradient(circle at 75% 50%, transparent 0.5%, transparent, #00f, transparent, transparent 1.5%);
+	}
+	60% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.6%, transparent, #00f, transparent, transparent 1.6%), repeating-radial-gradient(circle at 75% 50%, transparent 0.6%, transparent, #00f, transparent, transparent 1.6%);
+	}
+	70% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.7%, transparent, #00f, transparent, transparent 1.7%), repeating-radial-gradient(circle at 75% 50%, transparent 0.7%, transparent, #00f, transparent, transparent 1.7%);
+	}
+	80% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.8%, transparent, #00f, transparent, transparent 1.8%), repeating-radial-gradient(circle at 75% 50%, transparent 0.8%, transparent, #00f, transparent, transparent 1.8%);
+	}
+	90% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0.9%, transparent, #00f, transparent, transparent 1.9%), repeating-radial-gradient(circle at 75% 50%, transparent 0.9%, transparent, #00f, transparent, transparent 1.9%);
+	}
+	100% {
+		background-image: repeating-radial-gradient(circle at 25% 50%, transparent 0%, transparent, #00f, transparent, transparent 1%), repeating-radial-gradient(circle at 75% 50%, transparent 0%, transparent, #00f, transparent, transparent 1%);
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		--pattern-color: #000;
+		background-color: black;
+		/* animation: expanding-ripples .75s infinite linear, rainbow-morph 5s infinite linear; */
+		/* background-image: repeating-linear-gradient(45deg, #00f, transparent, transparent, #00f 10%), repeating-linear-gradient(-45deg, transparent, transparent, #0f0, transparent, transparent 10%);  /* crosshatch pattern */
+	}
+
+	main {
+		background: rgba(0, 0, 0, .5);
+	}
+
+	h1.main-title {
+		color: white;
+		text-shadow: 0em 0em .1em black;
+	}
+
+	nav.top-nav {
+		background: #00a;
+	}
+	nav.top-nav div.drop-down div {
+		background: #aab;
+		color: black;
+	}
+	nav.top-nav div.drop-down > div:first-child, nav.top-nav>button {
+		color: white;
+	}
+	nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child {
+		background: #0cc;
+	}
+
+	button:not(.hide-aside) {
+		--icing-color: #421;
+		--cake-color: #842;
+		color: white;
+	}
+	button:disabled, button[disabled] {
+		--icing-color: #888;
+		--cake-color: #aaa;
+	}
+}

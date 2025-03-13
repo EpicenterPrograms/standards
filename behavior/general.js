@@ -3370,6 +3370,8 @@ addEventListener("load", function () {  // This waits for everything past the sc
 		}
 		if (timeIsNearby(2, 14)) {
 			seasonalStyle = "valentinesday.css";
+		} else if (timeOfYear.getMonth() == 2 && timeOfYear.getDate() == 11) {
+			seasonalStyle = "birthday.css";
 		} else if (timeIsNearby(7, 4)) {
 			seasonalStyle = "fourthofjuly.css";
 		} else if (timeIsNearby(10, 31)) {
