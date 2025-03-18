@@ -1,6 +1,7 @@
 body {
 	/* background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><text y='1em' font-size='50'>&#x1f388</text></svg>"); */
 	--pattern-color: #fff;
+	background-attachment: fixed;
 	animation: expanding-ripples .75s infinite linear, rainbow-background 5s infinite linear;
 }
 
