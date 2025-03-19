@@ -1,5 +1,6 @@
 body {
 	background: repeating-linear-gradient(#0c0, white 100vh, #0c0 200vh);
+	background-attachment: fixed;
 	font-family: Garamond;
 }
 
@@ -7,24 +8,24 @@ h1.main-title {
 	color: black;
 }
 h1.main-title::before {
-	content: "\2618 ";
+	content: "\2618\00a0";
 }
 h1.main-title::after {
-	content: " \2618";
+	content: "\00a0\2618";
 }
 
 nav.top-nav {
 	background: linear-gradient(#080, #0a0, #080);
 }
 nav.top-nav div.drop-down div {
-	background: #0f0;
+	background: #0e0;
 	color: black;
 }
 nav.top-nav div.drop-down>div:first-child {
 	background: transparent;
 	color: white;
 }
-nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
+nav.top-nav div.drop-down:is(:hover, :focus, :focus-within) > div:first-child {
 	background: #4c4;
 }
 nav.top-nav>button {
@@ -76,13 +77,13 @@ button:disabled, button[disabled] {
 	nav.top-nav {
 		
 	}
-	nav.top-nav div.drop-down div {
-		
+	nav.top-nav div.drop-down div :is(h2, h3, h4, h5, h6) {
+		color: black;
 	}
 	nav.top-nav div.drop-down > div:first-child, nav.top-nav>button {
 		
 	}
-	nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child {
+	nav.top-nav div.drop-down:is(:hover, :focus, :focus-within) > div:first-child {
 		
 	}
 	nav.hidden-left-nav {
