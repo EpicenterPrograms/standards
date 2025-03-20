@@ -1,15 +1,16 @@
 body {
 	background: repeating-linear-gradient(red, pink 100vh, red 200vh);
+	background-attachment: fixed;
 }
 
 h1.main-title {
 	color: white;
 }
 h1.main-title::before {
-	content: "\2764 ";
+	content: "\2764\00a0";
 }
 h1.main-title::after {
-	content: " \2764";
+	content: "\00a0\2764";
 }
 
 nav.top-nav {
@@ -22,7 +23,7 @@ nav.top-nav div.drop-down>div:first-child {
 	background: transparent;
 	color: black;
 }
-nav.top-nav div.drop-down:hover>div:first-child, nav.top-nav div.drop-down:focus>div:first-child, nav.top-nav div.drop-down:focus-within>div:first-child {
+nav.top-nav div.drop-down:is(:hover, :focus, :focus-within) > div:first-child {
 	background: pink;
 }
 nav.top-nav>button {
@@ -83,7 +84,7 @@ button:disabled, button[disabled] {
 
 @media (prefers-color-scheme: dark) {
 	body {
-		background: repeating-linear-gradient(purple, red 100vh, purple 200vh);
+		background-image: repeating-linear-gradient(purple, red 100vh, purple 200vh);
 	}
 
 	h1.main-title {
@@ -99,7 +100,7 @@ button:disabled, button[disabled] {
 	nav.top-nav div.drop-down > div:first-child, nav.top-nav>button {
 		color: white;
 	}
-	nav.top-nav div.drop-down:hover > div:first-child, nav.top-nav div.drop-down:focus > div:first-child, nav.top-nav div.drop-down:focus-within > div:first-child {
+	nav.top-nav div.drop-down:is(:hover, :focus, :focus-within) > div:first-child {
 		background: #c0b;
 	}
 	nav.hidden-left-nav {

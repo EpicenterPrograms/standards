@@ -3,6 +3,7 @@ body {
 	-moz-background-image: repeating-linear-gradient(#f70, #ff0 50vh, #740 100vh, #f70 150vh);
 	-o-background-image: repeating-linear-gradient(#f70, #ff0 50vh, #740 100vh, #f70 150vh);
 	background-image: repeating-linear-gradient(#f70, #ff0 50vh, #740 100vh, #f70 150vh);
+	background-attachment: fixed;
 	font-family: garamond;
 }
 h1.main-title {

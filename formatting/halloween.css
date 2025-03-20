@@ -4,6 +4,7 @@ body {
 	background: -moz-repeating-linear-gradient(#f90, black 100vh, #f90 200vh);
 	background: -o-repeating-linear-gradient(#f90, black 100vh, #f90 200vh);
 	background: repeating-linear-gradient(#f90, black 100vh, #f90 200vh);
+	background-attachment: fixed;
 	font-family: "Comic Sans MS", sans-serif;
 }
 h1.main-title {

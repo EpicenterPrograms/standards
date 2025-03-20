@@ -1,5 +1,6 @@
 body {
 	background: repeating-linear-gradient(red, red 7.69vh, white 7.69vh, white 15.38vh);
+	background-attachment: fixed;
 }
 body:not(.navigation)::before {
 	content: "";
@@ -84,7 +85,7 @@ button:disabled, button[disabled] {
 
 @media (prefers-color-scheme: dark) {
 	body {
-		background: repeating-linear-gradient(#a00, #a00 7.69vh, black 7.69vh, black 15.38vh);
+		background-image: repeating-linear-gradient(#a00, #a00 7.69vh, black 7.69vh, black 15.38vh);
 	}
 	body:not(.navigation)::before {
 		background: repeating-linear-gradient(#00a, #00a 53.83vh, transparent 53.83vh, transparent 100vh);

@@ -67,7 +67,7 @@ button:disabled, button[disabled] {
 
 @media (prefers-color-scheme: dark) {
 	body {
-		background: repeating-linear-gradient(#080, black 100vh, #080 200vh);
+		background-image: repeating-linear-gradient(#080, black 100vh, #080 200vh);
 	}
 
 	h1.main-title {
