@@ -732,10 +732,13 @@ footer {
 }
 
 .generic-background {
-	background: white;
+	background: var(--generic-background-color);
 }
 .generic-border {
-	border: .05em solid black;
+	border: .05em solid var(--generic-color);
+}
+.generic-color {
+	color: var(--generic-color);
 }
 .generic-formatting {
 	border: .05em solid var(--generic-color);
@@ -1232,13 +1235,6 @@ table.compact {
 	}
 	aside::before {
 		color: #0ef;
-	}
-
-	.generic-background {
-		background: black;
-	}
-	.generic-border {
-		border-color: white;
 	}
 
 	.details, .details > .summary, .details > input:first-child:checked ~ .summary {
