@@ -2886,7 +2886,7 @@ Standards.general.parse_str = function (encodedString) {
 	/**
 	a close approximation of the PHP function parse_str()
 	turns a URL-encoded string into an object (returns the object)
-	particularly useful when receiving information encoded into a string (as happens within Standards.storage.____.recall())
+	particularly useful when receiving information encoded into a string (as happens within Standards.storage.____.recall())  ////
 	example:
 		var options = "greeting=Hello!&number=42&animal=cuttlefish";
 		var result = Standards.general.parse_str(options);
@@ -2894,6 +2894,9 @@ Standards.general.parse_str = function (encodedString) {
 	non-native functions = forEach
 	*/
 	var decodedObject = {};
+	if (encodedString.includes("?")) {  // if the string is a URL
+		encodedString = encodedString.split("?")[1];
+	}
 	encodedString = encodedString.replace(/\+/g, "%20");
 	Standards.general.forEach(encodedString.split("&"), function (item) {
 		var key = item.split("=")[0];
