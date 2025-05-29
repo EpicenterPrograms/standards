@@ -494,6 +494,117 @@ Standards.game.animations.wait = function (time) {
 	Standards.game.animations.add(time, function () { });
 };
 
+Standards.game.Speaker = function (specs) {
+	/**
+	creates a speaker that can say typed words
+	non-native functions = none
+	*/
+	var speaker = this;
+	var talker = window.speechSynthesis;
+	var voiceNumber = 0;
+	var speech = new SpeechSynthesisUtterance();
+
+	this.voices;
+	this.speaking = false;
+	/// These properties are initially -1 for some reason even though that's not a valid value, and it sounds like 1.
+	speech.volume = 1;
+	speech.pitch = 1;
+	speech.rate = 1;
+	if (specs && specs.constructor === Object) {
+		for (let key in specs) {
+			switch (key) {
+				case "volume":
+					speech.volume = specs.volume;
+					break;
+				case "pitch":
+					speech.pitch = specs.pitch;
+					break;
+				case "rate":
+					speech.rate = specs.rate;
+					break;
+				case "voiceNumber":
+					voiceNumber = specs.voiceNumber;
+					break;
+			}
+		}
+	}
+
+	talker.addEventListener("voiceschanged", function () {
+		speaker.voices = talker.getVoices();
+	});
+	speech.addEventListener("error", function (error) {
+		console.error("The speaker has become dumb.");
+		console.error(error);
+	});
+
+	Object.defineProperty(speaker, "voiceNumber", {  ////
+		get: function () {
+			return voiceNumber;
+		},
+		set: function (value) {
+			//// speech.voice = speaker.voices[value];
+			voiceNumber = value;
+		}
+	});
+	Object.defineProperty(speaker, "pitch", {
+		get: function () {
+			return speech.pitch;
+		},
+		set: function (value) {  // can be 0-2    defaut = 1
+			speech.pitch = value;
+		}
+	});
+	Object.defineProperty(speaker, "rate", {
+		get: function () {
+			return speech.rate;
+		},
+		set: function (value) {  // can be 0.1-10    default = 1
+			speech.rate = value;
+		}
+	});
+	Object.defineProperty(speaker, "volume", {
+		get: function () {
+			return speech.volume;
+		},
+		set: function (value) {  // can be 0-1    default = 1
+			speech.volume = value;
+		}
+	});
+
+	this.speak = function (content) {
+		return new Promise(function (resolve) {
+			speaker.speaking = true;
+			speech.text = content;
+			if (speaker.voices) {
+				speech.voice = speaker.voices[speaker.voiceNumber];
+			}
+			speech.addEventListener("end", function () {
+				speaker.speaking = false;
+				speech.removeEventListener("end", arguments.callee);
+				resolve();
+			});
+			talker.speak(speech);
+		});
+	};
+
+	this.shush = function (time) {
+		time = time == undefined ? 0 : time;
+		return new Promise(function (resolve) {
+			if (time == 0) {
+				talker.cancel();
+				speaker.speaking = false;
+				resolve();
+			} else {
+				setTimeout(function () {
+					talker.cancel();
+					speaker.speaking = false;
+					resolve();
+				}, time);
+			}
+		});
+	};
+};
+
 Standards.game.Character = function (source, options) {
 	/**
 	makes a character
@@ -1267,14 +1378,19 @@ Standards.game.Character = function (source, options) {
 		}
 	};
 
-	this.speak = function (speech, type) {
+	this.speak = function (speech, options = {}) {
 		/**
 		allows a character to speak
 		*/
-		type = type === undefined ? "text" : type;
-		if (Standards.game.getType(type) != "String") {
+		if (!options.type) {
+			options.type = "text";
+		}
+		if (options.runImmediately === undefined) {
+			options.runImmediately = true;
+		}
+		if (Standards.game.getType(options.type) != "String") {
 			console.error("The manner of speaking had an incorrect data type.");
-		} else if (type == "text") {
+		} else if (options.type == "text" || options.type == "voicedText") {
 			// creates the elements for the speech bubble
 			let speechBubble = document.createElement("div");
 			let speechTriangle = document.createElement("div");
@@ -1284,9 +1400,9 @@ Standards.game.Character = function (source, options) {
 			// sets the time of display for the speech bubble
 			let displayTime = speech.length ** .5 * 500;  ////
 			// displays the speech bubble
-			if (Standards.game.container.className.includes("slides") && Standards.game.container.hasAttribute("data-current-slide")) {  // if the game container is a slideshow
-				let currentSlide = Standards.game.container.children[Standards.game.container.getAttribute("data-current-slide")];
-				Standards.game.animations.add(0, function () {
+			if (options.runImmediately) {
+				if (Standards.game.container.className.includes("slides") && Standards.game.container.hasAttribute("data-current-slide")) {  // if the game container is a slideshow
+					let currentSlide = Standards.game.container.children[Standards.game.container.getAttribute("data-current-slide")];
 					// positions the speech bubble
 					speechBubble.style.bottom = Standards.game.toPixels(100 - character.position.y + character.height / 2 + 10) + "px";
 					speechBubble.style.left = Standards.game.toPixels(character.position.x - character.width / 2) + "px";
@@ -1305,9 +1421,7 @@ Standards.game.Character = function (source, options) {
 						speechTriangle.parentNode.removeChild(speechTriangle);
 						window.dispatchEvent(new Event("finishedSpeaking"));
 					}, displayTime);
-				});
-			} else {
-				Standards.game.animations.add(0, function () {
+				} else {
 					// positions the speech bubble
 					speechBubble.style.bottom = Standards.game.toPixels(100 - character.position.y + character.height / 2 + 10) + "px";
 					speechBubble.style.left = Standards.game.toPixels(character.position.x - character.width / 2) + "px";
@@ -1326,11 +1440,65 @@ Standards.game.Character = function (source, options) {
 						speechTriangle.parentNode.removeChild(speechTriangle);
 						window.dispatchEvent(new Event("finishedSpeaking"));
 					}, displayTime);
-				});
+				}
+				if (options.type == "voicedText") {
+					new Standards.game.Speaker().speak(speech);
+				}
+			} else {
+				if (Standards.game.container.className.includes("slides") && Standards.game.container.hasAttribute("data-current-slide")) {  // if the game container is a slideshow
+					let currentSlide = Standards.game.container.children[Standards.game.container.getAttribute("data-current-slide")];
+					Standards.game.animations.add(0, function () {
+						// positions the speech bubble
+						speechBubble.style.bottom = Standards.game.toPixels(100 - character.position.y + character.height / 2 + 10) + "px";
+						speechBubble.style.left = Standards.game.toPixels(character.position.x - character.width / 2) + "px";
+						speechTriangle.style.top = Standards.game.toPixels(character.position.y - character.height / 2 - 10) - 1 + "px";
+						speechTriangle.style.left = Standards.game.toPixels(character.position.x - 1) + "px";
+						// adds the speech bubble
+						currentSlide.appendChild(speechBubble);
+						currentSlide.appendChild(speechTriangle);
+						setTimeout(function () {
+							// removes the speech bubble
+							/*  ////
+							currentSlide.removeChild(speechBubble);
+							currentSlide.removeChild(speechTriangle);
+							*/
+							speechBubble.parentNode.removeChild(speechBubble);
+							speechTriangle.parentNode.removeChild(speechTriangle);
+							window.dispatchEvent(new Event("finishedSpeaking"));
+						}, displayTime);
+						if (options.type == "voicedText") {
+							new Standards.game.Speaker().speak(speech);
+						}
+					});
+				} else {
+					Standards.game.animations.add(0, function () {
+						// positions the speech bubble
+						speechBubble.style.bottom = Standards.game.toPixels(100 - character.position.y + character.height / 2 + 10) + "px";
+						speechBubble.style.left = Standards.game.toPixels(character.position.x - character.width / 2) + "px";
+						speechTriangle.style.top = Standards.game.toPixels(character.position.y - character.height / 2 - 10) - 1 + "px";
+						speechTriangle.style.left = Standards.game.toPixels(character.position.x - 1) + "px";
+						// adds the speech bubble
+						Standards.game.container.appendChild(speechBubble);
+						Standards.game.container.appendChild(speechTriangle);
+						setTimeout(function () {
+							// removes the speech bubble
+							/*  ////
+							Standards.game.container.removeChild(speechBubble);
+							Standards.game.container.removeChild(speechTriangle);
+							*/
+							speechBubble.parentNode.removeChild(speechBubble);
+							speechTriangle.parentNode.removeChild(speechTriangle);
+							window.dispatchEvent(new Event("finishedSpeaking"));
+						}, displayTime);
+						if (options.type == "voicedText") {
+							new Standards.game.Speaker().speak(speech);
+						}
+					});
+				}
 			}
-		} else if (type == "voice") {
+		} else if (options.type == "voice") {
 			console.error("This isn't supported yet.");  ////
-		} else if (type == "audio") {
+		} else if (option.type == "audio") {
 			console.error("This isn't supported yet.");  ////
 		} else {
 			console.error("An invalid type of speech was chosen.");
