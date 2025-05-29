@@ -1421,6 +1421,7 @@ Standards.game.Character = function (source, options) {
 		*/
 		character.removeBody();
 		Standards.game.Character.instances.splice(Standards.game.Character.instances.indexOf(character), 1);
+		character = undefined;
 	}
 
 	Standards.game.Character.instances.push(this);
