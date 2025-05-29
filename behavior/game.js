@@ -352,7 +352,7 @@ Standards.game.updateScaling = function (x, y) {
 						Standards.game.setDisplayDimensions(x, y);
 					});
 				}
-			} else if (Standards.game.getType(candidate) = "HTMLElement") {
+			} else if (Standards.game.getType(candidate) = "HTMLElement") {  //// something can be wrong here even after onLoad
 				container = candidate;
 				let x = Number(window.getComputedStyle(container).width.slice(0, -2));
 				let y = Number(window.getComputedStyle(container).height.slice(0, -2));
@@ -1408,6 +1408,20 @@ Standards.game.Character = function (source, options) {
 
 		});
 	};
+
+	this.removeBody = function () {
+		/**
+		removes the character's body
+		*/
+		character.body.parentNode.removeChild(character.body);
+	}
+	this.ceaseToExist = function () {
+		/**
+		removes the character from the game
+		*/
+		character.removeBody();
+		Standards.game.Character.instances.splice(Standards.game.Character.instances.indexOf(character), 1);
+	}
 
 	Standards.game.Character.instances.push(this);
 };

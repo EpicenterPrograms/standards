@@ -982,10 +982,12 @@ Standards.general.Speaker = function (specs) {
 		return new Promise(function (resolve) {
 			if (time == 0) {
 				talker.cancel();
+				speaker.speaking = false;
 				resolve();
 			} else {
 				setTimeout(function () {
 					talker.cancel();
+					speaker.speaking = false;
 					resolve();
 				}, time);
 			}
