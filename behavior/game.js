@@ -1415,13 +1415,14 @@ Standards.game.Character = function (source, options) {
 		*/
 		character.body.parentNode.removeChild(character.body);
 	}
+	this.exists = true;
 	this.ceaseToExist = function () {
 		/**
 		removes the character from the game
 		*/
 		character.removeBody();
 		Standards.game.Character.instances.splice(Standards.game.Character.instances.indexOf(character), 1);
-		character = undefined;
+		character.exists = false;
 	}
 
 	Standards.game.Character.instances.push(this);
