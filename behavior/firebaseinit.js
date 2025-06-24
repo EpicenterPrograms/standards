@@ -5,9 +5,7 @@ https://www.gstatic.com/firebasejs/4.6.1/firebase-firestore.js
 and are making use of the project with the ID "epicenterresources"
 */
 
-import firebase from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js";  // newer Firebase that works like the old one
-import "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore-compat.js";  // modifies Firebase to include Firestore (in the old way)
-window.firebase = firebase;  // makes the firebase object globally available (like it originally was)
+/*
 import {  // imports modern authentication to prevent failures from using the old version
 	getAuth,
 	onAuthStateChanged,
@@ -18,6 +16,7 @@ import {  // imports modern authentication to prevent failures from using the ol
 	signInAnonymously,
 	signOut
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+*/
 
 window.Standards ??= {};
 Standards.firebaseinit ??= {};
