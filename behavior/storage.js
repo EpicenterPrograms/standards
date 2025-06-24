@@ -1184,10 +1184,10 @@ Standards.storage.location = Standards.storage.local;  //// might be pointless
 // especially useful for switching to session storage for testing
 
 Standards.storage.server = {
-	database: typeof firebase != "undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	defaultLocation: "/",
 	user: undefined,  // gets set to firebase.auth().currentUser
 	requireSignIn: true,
+	database: typeof firebase != "undefined" && firebase.firestore ? firebase.firestore() : undefined,  // Using "typeof" is the only way to check if a non-argument variable exists without an error.
 	checkCompatibility: function (shouldCheckUser) {
 		if (navigator.onLine) {
 			shouldCheckUser = shouldCheckUser === undefined ? Standards.storage.server.requireSignIn : shouldCheckUser;
