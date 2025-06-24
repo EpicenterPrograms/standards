@@ -1183,6 +1183,7 @@ Standards.storage.location = Standards.storage.local;  //// might be pointless
 // allows one reference to be used for any storage location
 // especially useful for switching to session storage for testing
 
+Standards.storage.server = { defaultLocation: "/", user: undefined, requireSignIn: true };  // tries to prevent website-breaking errors when Firebase malfunctions
 Standards.storage.server = {
 	defaultLocation: "/",
 	user: undefined,  // gets set to firebase.auth().currentUser
