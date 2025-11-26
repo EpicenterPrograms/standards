@@ -45,8 +45,26 @@ button:not(.hide-aside)::after {
 	background: white;
 	transform: rotate(-30deg);
 }
-button:disabled, button[disabled] {
-	
+button:not(.hide-aside):active::after {
+	/* makes the knife while active */
+	content: "\00a0\2009\1f52a";
+	font-size: 2em;
+	white-space: nowrap;
+	/* transform: scale(-1, 1); */
+}
+button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
+	background: radial-gradient(#951, #210);
+	color: gray;
+}
+button:not(.hide-aside):disabled::before, button:not(.hide-aside)[disabled]::before {
+	background: linear-gradient(to right, #210, #951, #210);
+}
+button:not(.hide-aside):disabled::after, button:not(.hide-aside)[disabled]::after {
+	background: radial-gradient(#ccc, #aaa, #555, #111);
+}
+button:not(.hide-aside):disabled:active::after, button:not(.hide-aside)[disabled]:active::after {
+	content: "\00a0\2002\1f92e";
+	font-size: 1.5em;
 }
 
 iframe.top-nav, nav.top-nav, .site-editor {
