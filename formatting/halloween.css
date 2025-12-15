@@ -38,7 +38,7 @@ button:not(.hide-aside)::before {
 	height: .5rem;
 	background: linear-gradient(to right, #050, #090, #050);
 }
-button:disabled, button[disabled] {
+button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
 	background: radial-gradient(circle, #ccc, #ccc 25%, #888 48%, #222 50%, #888 52%, #ccc 75%);
 }
 

@@ -78,7 +78,7 @@ button:not(.hide-aside)::after {
 	height: .75em;
 	*/
 }
-button:disabled, button[disabled] {
+button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
 	background: radial-gradient(#aaa, #555);
 }
 

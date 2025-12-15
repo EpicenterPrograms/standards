@@ -80,7 +80,7 @@ button:not(.hide-aside):active::after {
 	top: -.25em;
 	font-size: 2em;
 }
-button:disabled, button[disabled] {
+button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
 	--icing-color: #888;
 	--cake-color: #aaa;
 }

@@ -79,7 +79,7 @@ button:not(.hide-aside):active::after {
 	border: none;
 	background: radial-gradient(red, orange, yellow, white);
 }
-button:disabled, button[disabled] {
+button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
 	background: linear-gradient(#555, #aaa, #555);
 	border-color: #444;
 }

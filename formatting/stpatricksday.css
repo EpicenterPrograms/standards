@@ -61,7 +61,7 @@ button:not(.hide-aside)::before {
 button:not(.hide-aside)::after {
 	
 }
-button:disabled, button[disabled] {
+button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
 	
 }
 
