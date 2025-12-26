@@ -41,8 +41,8 @@ button:not(.hide-aside) {
 button:not(.hide-aside)::before {
 	content: "";
 	position: absolute;
-	bottom: 120%;
-	left: calc(50% - .3em);
+	bottom: calc(100% + .4em);
+	left: calc(50% - .33em);
 	border: .05em solid black;
 	border-radius: .3em;
 	width: .6em;

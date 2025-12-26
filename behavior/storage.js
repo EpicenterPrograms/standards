@@ -758,6 +758,7 @@ Standards.storage.session = {
 	list: function (location, options) {
 		/**
 		lists the keys of everything in session storage
+		always returns an array (which may be empty)
 		non-native functions = getType
 
 		Arguments:
@@ -1024,6 +1025,7 @@ Standards.storage.local = {
 	list: function (location, options) {
 		/**
 		lists the keys of everything in local storage
+		always returns an array (which may be empty)
 		non-native functions = getType
 
 		Arguments:
@@ -2061,6 +2063,7 @@ Standards.storage.server = {
 	list: function (location, options) {
 		/**
 		lists the keys of items stored on the server
+		always returns an array (which may be empty)
 
 		arguments:
 			location = optional; a string of the file location to start listing from
