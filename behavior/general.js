@@ -1610,6 +1610,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		shouldCopy = shouldCopy === undefined ? false : shouldCopy;
 		if (shouldCopy) {
 			associativeList = JSON.parse(JSON.stringify(list));
+			//// think about structuredClone(list)
 		} else {
 			associativeList = list;
 		}
@@ -1630,7 +1631,7 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 		/// Microsoft Edge doesn't think HTMLCollections have Symbol.iterator
 		//// check this in Microsoft Edge again
 		let item;
-		if (shouldCopy) {
+		if (shouldCopy !== false) {  // moves the items to a non-live list by default
 			let items = [];
 			for (item of list) {
 				items.push(item);
@@ -1665,6 +1666,51 @@ Standards.general.forEach = function (list, doStuff, shouldCopy) {
 	}
 	//// add a function type option
 };
+
+/*
+Standards.general.cloneElements = function (collection, opts) {
+	opts = Object.assign({
+		removeId: true,
+		copyFormState: true,      // copy input/textarea/select runtime state
+		copyComputedStyle: false, // if true, copy computed styles into inline style
+		deep: true
+	}, opts || {});
+	// freeze the live collection
+	const originals = Array.from(collection);
+	const clones = originals.map(orig => {
+		const clone = orig.cloneNode(opts.deep);
+		// avoid duplicate IDs by default
+		if (opts.removeId && clone.hasAttribute && clone.hasAttribute('id')) {
+			clone.removeAttribute('id');
+		}
+		// copy runtime form state (value, checked, selected)
+		if (opts.copyFormState) {
+			if (orig instanceof HTMLInputElement || orig instanceof HTMLTextAreaElement) {
+				clone.value = orig.value;
+				if (orig.type === 'checkbox' || orig.type === 'radio') {
+					clone.checked = orig.checked;
+				}
+			} else if (orig instanceof HTMLSelectElement) {
+				Array.from(orig.options).forEach((opt, i) => {
+					clone.options[i].selected = opt.selected;
+				});
+			}
+		}
+		// copy computed styles into inline styles (costly; optional)
+		if (opts.copyComputedStyle && window.getComputedStyle) {
+			const cs = getComputedStyle(orig);
+			// copy only the properties you care about to avoid huge inline style blobs
+			// here we copy everything (may be heavy); consider whitelisting properties.
+			for (let i = 0; i < cs.length; i++) {
+				const prop = cs[i];
+				clone.style.setProperty(prop, cs.getPropertyValue(prop), cs.getPropertyPriority(prop));
+			}
+		}
+		return clone;
+	});
+	return clones;
+}
+*/
 
 Standards.general.compare = function (iterable1, iterable2) {
 	/**
