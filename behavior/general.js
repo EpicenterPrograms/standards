@@ -3171,10 +3171,10 @@ if (!(Standards.general.options.automation == "none")) {
 		let canvas = document.createElement("canvas");
 		let context = canvas.getContext("2d");
 		let color = 0;
-		canvas.width = 64;
-		canvas.height = 64;
+		canvas.width = 128;
+		canvas.height = 128;
 		context.beginPath();
-		context.arc(canvas.width/2, canvas.height/2, 32, 0, 2*Math.PI);
+		context.arc(canvas.width/2, canvas.height/2, 64, 0, 2*Math.PI);
 		setInterval(function () {
 			if (color >= 360) {
 				color = 0;
