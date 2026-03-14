@@ -45,6 +45,22 @@ nav.hidden-left-nav {
 
 button:not(.hide-aside) {
 	position: relative;
+	border-width: 0em;
+	border-radius: 2em;
+	padding-top: .4em;
+	background-image: radial-gradient(#555, #000);
+	color: yellow;
+}
+button:not(.hide-aside)::before {
+	content: "";
+	position: absolute;
+	left: 0%;
+	bottom: 85%;
+	width: 100%;
+	height: 20%;
+	border-radius: 2em;
+	background-image: radial-gradient(#484848, #333, #000);
+	color: yellow;
 }
 button:not(.hide-aside):active::after {
 	/* makes the rainbow while active */
@@ -52,17 +68,19 @@ button:not(.hide-aside):active::after {
 	position: absolute;
 	left: 0em;
 	right: 0em;
-	top: -.2em;
+	bottom: 100%;
 	font-size: 1.5em;
 }
-button:not(.hide-aside)::before {
-	
-}
-button:not(.hide-aside)::after {
-	
-}
 button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
-	
+	background-image: radial-gradient(#888, #333);
+	color: #bbb;
+	filter: grayscale(100%);
+}
+button:not(.hide-aside):disabled::before, button:not(.hide-aside)[disabled]::before {
+	background-image: radial-gradient(#888, #333);
+}
+button:not(.hide-aside):disabled::after, button:not(.hide-aside)[disabled]::after {
+	content: "";
 }
 
 @media (prefers-color-scheme: dark) {
@@ -88,15 +106,5 @@ button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
 	}
 	nav.hidden-left-nav {
 		border-right-color: #080;
-	}
-
-	button:not(.hide-aside) {
-		
-	}
-	button:not(.hide-aside):active {
-		
-	}
-	button:not(.hide-aside)::before, button:not(.hide-aside)::after {
-		
 	}
 }
