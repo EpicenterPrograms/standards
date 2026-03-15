@@ -83,6 +83,13 @@ button:not(.hide-aside):disabled::after, button:not(.hide-aside)[disabled]::afte
 	content: "";
 }
 
+.dialog {
+	border-color: #0c0;
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><text y='9' font-size='9' opacity='.25'>\1f340</text></svg>");
+	background-size: 2em 2em;
+	background-repeat: repeat;
+}
+
 @media (prefers-color-scheme: dark) {
 	body {
 		background-image: repeating-linear-gradient(#080, black 100vh, #080 200vh);
@@ -106,5 +113,9 @@ button:not(.hide-aside):disabled::after, button:not(.hide-aside)[disabled]::afte
 	}
 	nav.hidden-left-nav {
 		border-right-color: #080;
+	}
+
+	.dialog {
+		border-color: #080;
 	}
 }
