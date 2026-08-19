@@ -567,10 +567,9 @@ table.labeled-list li ol, table.labeled-list li ul, .conversation li ol, .conver
 .conversation.snapchat td {
 	border-left: .2em solid blue;
 }
-.conversation.snapchat td.saved-message {
-	background-color: gray;
-}
-.conversation.snapchat tr.saved-message td {
+.conversation.snapchat td.saved-message, .conversation.snapchat tr.saved-message td {
+	border-left-width: .4em;
+	padding-left: .3em;
 	background-color: gray;
 }
 .conversation.snapchat td:first-child {
@@ -1332,7 +1331,7 @@ table.compact {
 	}
 	nav.hidden-left-nav::after {
 		left: calc(100% + .5em);
-		left: calc(100% + attr(border-right-width length) / 2);
+		/* left: calc(100% + attr(border-right-width length) / 2);    attr() can only reference HTML attributes, not CSS */
 		height: 10vh;
 	}
 	iframe.top-nav, nav.top-nav, .site-editor {
