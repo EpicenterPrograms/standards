@@ -656,7 +656,7 @@ input[type="range"]:disabled {
 }
 button, input[type="button"], input[type="submit"] {
 	margin: .5em;
-	border: .12em solid black;
+	border: .12em solid gray;
 	padding: .2em .6em;
 	border-radius: .5em;
 	background: #f0f0f0;
