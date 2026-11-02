@@ -35,7 +35,7 @@ button:not(.hide-aside)::before {
 	bottom: calc(100% + .05rem);
 	left: calc(50% - .25em);
 	width: .5em;
-	height: .5em;
+	height: .4em;
 	background: linear-gradient(to right, #050, #090, #050);
 }
 button:not(.hide-aside):disabled, button:not(.hide-aside)[disabled] {
